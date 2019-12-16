@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.28307.757
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GameEstate", "GameEstate\GameEstate.csproj", "{A73CD2FF-37E0-470C-A984-A62157129417}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GameEstate.CoreTests", "GameEstate.CoreTests\GameEstate.CoreTests.csproj", "{A1121100-B59F-4A9C-BC49-3530A72B8D5A}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{A73CD2FF-37E0-470C-A984-A62157129417}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A73CD2FF-37E0-470C-A984-A62157129417}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A73CD2FF-37E0-470C-A984-A62157129417}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A73CD2FF-37E0-470C-A984-A62157129417}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A1121100-B59F-4A9C-BC49-3530A72B8D5A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A1121100-B59F-4A9C-BC49-3530A72B8D5A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A1121100-B59F-4A9C-BC49-3530A72B8D5A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A1121100-B59F-4A9C-BC49-3530A72B8D5A}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {751994E6-AD00-4136-A949-4BDE63C2F248}
+	EndGlobalSection
+EndGlobal
