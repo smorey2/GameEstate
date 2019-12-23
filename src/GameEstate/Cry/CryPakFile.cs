@@ -1,5 +1,8 @@
-﻿using System.IO;
-using GameEstate.Core;
+﻿using GameEstate.Core;
+using GameEstate.Core.DataFormat;
+using System;
+using System.IO;
+using System.Threading.Tasks;
 
 namespace GameEstate.Cry
 {
@@ -7,11 +10,8 @@ namespace GameEstate.Cry
     {
         public CryPakFile(string filePath) : base(filePath) { }
 
-        static readonly byte[] HeaderMagic = { 0x50, 0x4B, 0x03, 0x14 };
-
-        protected override void ReadMetadata(BinaryReader r)
-        {
-            ReadOne(r, x => x[0] == HeaderMagic[0] && x[1] == HeaderMagic[1] && x[2] == HeaderMagic[2] && x[3] == HeaderMagic[3]);
-        }
+        protected override Task<byte[]> LoadFileDataAsync(FileMetadata file) => throw new NotImplementedException();
+        protected override void ReadMetadata(BinaryReader r) => throw new NotImplementedException();
+        protected override void Write(BinaryWriter w) => throw new NotImplementedException();
     }
 }

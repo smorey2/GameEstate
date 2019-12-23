@@ -1,5 +1,8 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
+using System.Threading.Tasks;
 using GameEstate.Core;
+using GameEstate.Core.DataFormat;
 
 namespace GameEstate.Rsi
 {
@@ -7,11 +10,10 @@ namespace GameEstate.Rsi
     {
         public RsiPakFile(string filePath) : base(filePath) { }
 
-        static readonly byte[] HeaderMagic = { 0x50, 0x4B, 0x03, 0x14 };
+        static readonly byte[] Magic = { 0x50, 0x4B, 0x03, 0x14 };
 
-        protected override void ReadMetadata(BinaryReader r)
-        {
-            ReadOne(r, x => x[0] == HeaderMagic[0] && x[1] == HeaderMagic[1] && x[2] == HeaderMagic[2] && x[3] == HeaderMagic[3]);
-        }
+        protected override Task<byte[]> LoadFileDataAsync(FileMetadata file) => throw new NotImplementedException();
+        protected override void ReadMetadata(BinaryReader r) => PakFormat01.Read(this, r, Magic);
+        protected override void Write(BinaryWriter w) => PakFormat01.Write(this, w, Magic);
     }
 }

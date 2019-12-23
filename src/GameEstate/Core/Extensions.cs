@@ -1,18 +1,54 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.IO;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using UnityEngine;
+using static GameEstate.Core.CoreDebug;
 
 namespace GameEstate.Core
 {
-    public enum ASCIIFormat { Raw, PossiblyNullTerminated, ZeroPadded, ZeroTerminated }
+    public enum ASCIIFormat { PossiblyNullTerminated, ZeroPadded, ZeroTerminated }
 
     public static class Extensions
     {
+        public static bool Equals(this string source, byte[] bytes)
+        {
+            if (bytes.Length != source.Length)
+                return false;
+            for (var i = 0; i < bytes.Length; i++)
+                if (bytes[i] != source[i])
+                    return false;
+            return true;
+        }
+
+        #region Convert Color
+
+        public static Color B565ToColor(this ushort B565)
+        {
+            var R5 = (B565 >> 11) & 31;
+            var G6 = (B565 >> 5) & 63;
+            var B5 = B565 & 31;
+            return new Color((float)R5 / 31, (float)G6 / 63, (float)B5 / 31, 1);
+        }
+
+        public static Color32 B565ToColor32(this ushort B565) => B565ToColor(B565);
+
+        public static uint FromBGR555(this ushort bgr555, bool addAlpha = true)
+        {
+            var a = addAlpha ? (byte)0xFF : (byte)0;
+            var r = (byte)Math.Min(((bgr555 & 0x7C00) >> 10) * 8, byte.MaxValue);
+            var g = (byte)Math.Min(((bgr555 & 0x03E0) >> 5) * 8, byte.MaxValue);
+            var b = (byte)Math.Min(((bgr555 & 0x001F) >> 0) * 8, byte.MaxValue);
+            var color =
+                ((uint)(a << 24) & 0xFF000000) |
+                ((uint)(r << 16) & 0x00FF0000) |
+                ((uint)(g << 8) & 0x0000FF00) |
+                ((uint)(b << 0) & 0x000000FF);
+            return color;
+        }
+
+        #endregion
+
         #region Random
 
         public static class Random
@@ -38,30 +74,33 @@ namespace GameEstate.Core
             source.BaseStream.Position = last;
             return r;
         }
-        //public override byte[] ReadRestOfBytes()
-        //{
-        //    var remainingByteCount = BaseStream.Length - BaseStream.Position;
-        //    Assert(remainingByteCount <= int.MaxValue);
-        //    return ReadBytes((int)remainingByteCount);
-        //}
-        //public override void ReadRestOfBytes(byte[] buffer, int startIndex)
-        //{
-        //    var remainingByteCount = BaseStream.Length - BaseStream.Position;
-        //    Assert(startIndex >= 0 && remainingByteCount <= int.MaxValue && startIndex + remainingByteCount <= buffer.Length);
-        //    Read(buffer, startIndex, (int)remainingByteCount);
-        //}
-        public static string ReadASCII(this BinaryReader source, int length, ASCIIFormat format = ASCIIFormat.Raw)
+        public static byte[] ReadToEnd(this BinaryReader source)
         {
-            Debug.Assert(length >= 0);
+            var length = (int)(source.BaseStream.Length - source.BaseStream.Position);
+            Assert(length <= int.MaxValue);
+            return source.ReadBytes(length);
+        }
+        public static void ReadToEnd(this BinaryReader source, byte[] buffer, int startIndex)
+        {
+            var length = (int)source.BaseStream.Length - source.BaseStream.Position;
+            Assert(startIndex >= 0 && length <= int.MaxValue && startIndex + length <= buffer.Length);
+            source.Read(buffer, startIndex, (int)length);
+        }
+
+        
+        public static byte[] ReadL32Bytes(this BinaryReader source) => source.ReadBytes((int)source.ReadUInt32());
+        public static string ReadL32ASCII(this BinaryReader source) => Encoding.ASCII.GetString(source.ReadBytes((int)source.ReadUInt32()));
+        public static string ReadL16ASCII(this BinaryReader source) => Encoding.ASCII.GetString(source.ReadBytes((int)source.ReadUInt16()));
+        public static string ReadASCII(this BinaryReader source, int length) => Encoding.ASCII.GetString(source.ReadBytes(length));
+        public static string ReadASCII(this BinaryReader source, int length, ASCIIFormat format)
+        {
             var buf = source.ReadBytes(length);
             int i;
             switch (format)
             {
-                case ASCIIFormat.Raw:
-                    return Encoding.ASCII.GetString(buf);
                 case ASCIIFormat.PossiblyNullTerminated:
-                    var bytesIdx = buf.Last() != 0 ? buf.Length : buf.Length - 1;
-                    return Encoding.ASCII.GetString(buf, 0, bytesIdx);
+                    i = buf.Last() != 0 ? buf.Length : buf.Length - 1;
+                    return Encoding.ASCII.GetString(buf, 0, i);
                 case ASCIIFormat.ZeroPadded:
                     for (i = buf.Length - 1; i >= 0 && buf[i] == 0; i--) { }
                     return Encoding.ASCII.GetString(buf, 0, i + 1);
@@ -71,10 +110,21 @@ namespace GameEstate.Core
                 default: throw new ArgumentOutOfRangeException(nameof(format), format.ToString());
             }
         }
-        public static string[] ReadASCIIArray(this BinaryReader source, int length, int bufSize = 64)
+        public static string ReadZASCII(this BinaryReader source, int length, List<byte> buf = null)
         {
+            if (buf == null)
+                buf = new List<byte>(64);
+            buf.Clear();
+            byte c;
+            while (length-- > 0 && (c = source.ReadByte()) != 0)
+                buf.Add(c);
+            return Encoding.ASCII.GetString(buf.ToArray());
+        }
+        public static string[] ReadZASCIIArray(this BinaryReader source, int length, List<byte> buf = null)
+        {
+            if (buf == null)
+                buf = new List<byte>(64);
             var list = new List<string>();
-            var buf = new List<byte>(bufSize);
             while (length > 0)
             {
                 buf.Clear();
@@ -90,78 +140,76 @@ namespace GameEstate.Core
         public static T[] ReadTArray<T>(this BinaryReader source, int sizeOf, int count) => UnsafeUtils.MarshalTArray<T>(source.ReadBytes(count * sizeOf), count);
         public static T[] ReadTMany<T>(this BinaryReader source, int sizeOf, int count) where T : struct { var r = new T[count]; Buffer.BlockCopy(source.ReadBytes(count * sizeOf), 0, r, 0, count * sizeOf); return r; }
 
+        public static bool ReadBool32(this BinaryReader source) => source.ReadUInt32() != 0;
 
-        //public override bool ReadBool32() => ReadUInt32() != 0;
-        //public override byte[] ReadLength32PrefixedBytes() => ReadBytes((int)ReadUInt32());
-        //public override string ReadLength32PrefixedASCIIString() => Encoding.ASCII.GetString(ReadLength32PrefixedBytes());
-        //public override Vector2 ReadVector2() => new Vector2(ReadSingle(), ReadSingle());
-        //public override Vector3 ReadVector3() => new Vector3(ReadSingle(), ReadSingle(), ReadSingle());
-        //public override Vector4 ReadVector4() => new Vector4(ReadSingle(), ReadSingle(), ReadSingle(), ReadSingle());
-        ///// <summary>
-        ///// Reads a column-major 3x3 matrix but returns a functionally equivalent 4x4 matrix.
-        ///// </summary>
-        //public override Matrix4x4 ReadColumnMajorMatrix3x3()
-        //{
-        //    var matrix = new Matrix4x4();
-        //    for (var columnIndex = 0; columnIndex < 4; columnIndex++)
-        //        for (var rowIndex = 0; rowIndex < 4; rowIndex++)
-        //        {
-        //            // If we're in the 3x3 part of the matrix, read values. Otherwise, use the identity matrix.
-        //            if (rowIndex <= 2 && columnIndex <= 2) matrix[rowIndex, columnIndex] = ReadSingle();
-        //            else matrix[rowIndex, columnIndex] = rowIndex == columnIndex ? 1 : 0;
-        //        }
-        //    return matrix;
-        //}
-        ///// <summary>
-        ///// Reads a row-major 3x3 matrix but returns a functionally equivalent 4x4 matrix.
-        ///// </summary>
-        //public override Matrix4x4 ReadRowMajorMatrix3x3()
-        //{
-        //    var matrix = new Matrix4x4();
-        //    for (var rowIndex = 0; rowIndex < 4; rowIndex++)
-        //        for (var columnIndex = 0; columnIndex < 4; columnIndex++)
-        //        {
-        //            // If we're in the 3x3 part of the matrix, read values. Otherwise, use the identity matrix.
-        //            if (rowIndex <= 2 && columnIndex <= 2) matrix[rowIndex, columnIndex] = ReadSingle();
-        //            else matrix[rowIndex, columnIndex] = rowIndex == columnIndex ? 1 : 0;
-        //        }
-        //    return matrix;
-        //}
-        //public override Matrix4x4 ReadColumnMajorMatrix4x4()
-        //{
-        //    var matrix = new Matrix4x4();
-        //    for (var columnIndex = 0; columnIndex < 4; columnIndex++)
-        //        for (var rowIndex = 0; rowIndex < 4; rowIndex++)
-        //            matrix[rowIndex, columnIndex] = ReadSingle();
-        //    return matrix;
-        //}
-        //public override Matrix4x4 ReadRowMajorMatrix4x4()
-        //{
-        //    var matrix = new Matrix4x4();
-        //    for (var rowIndex = 0; rowIndex < 4; rowIndex++)
-        //        for (var columnIndex = 0; columnIndex < 4; columnIndex++)
-        //            matrix[rowIndex, columnIndex] = ReadSingle();
-        //    return matrix;
-        //}
-        //public override Quaternion ReadQuaternionWFirst()
-        //{
-        //    var w = ReadSingle();
-        //    var x = ReadSingle();
-        //    var y = ReadSingle();
-        //    var z = ReadSingle();
-        //    return new Quaternion(x, y, z, w);
-        //}
-        //public override Quaternion ReadLEQuaternionWLast()
-        //{
-        //    var x = ReadSingle();
-        //    var y = ReadSingle();
-        //    var z = ReadSingle();
-        //    var w = ReadSingle();
-        //    return new Quaternion(x, y, z, w);
-        //}
+        public static Vector2 ReadVector2(this BinaryReader source) => new Vector2(source.ReadSingle(), source.ReadSingle());
+        public static Vector3 ReadVector3(this BinaryReader source) => new Vector3(source.ReadSingle(), source.ReadSingle(), source.ReadSingle());
+        public static Vector4 ReadVector4(this BinaryReader source) => new Vector4(source.ReadSingle(), source.ReadSingle(), source.ReadSingle(), source.ReadSingle());
+        /// <summary>
+        /// Reads a column-major 3x3 matrix but returns a functionally equivalent 4x4 matrix.
+        /// </summary>
+        public static Matrix4x4 ReadColumnMajorMatrix3x3(this BinaryReader source)
+        {
+            var matrix = new Matrix4x4();
+            for (var columnIndex = 0; columnIndex < 4; columnIndex++)
+                for (var rowIndex = 0; rowIndex < 4; rowIndex++)
+                {
+                    // If we're in the 3x3 part of the matrix, read values. Otherwise, use the identity matrix.
+                    if (rowIndex <= 2 && columnIndex <= 2) matrix[rowIndex, columnIndex] = source.ReadSingle();
+                    else matrix[rowIndex, columnIndex] = rowIndex == columnIndex ? 1 : 0;
+                }
+            return matrix;
+        }
+        /// <summary>
+        /// Reads a row-major 3x3 matrix but returns a functionally equivalent 4x4 matrix.
+        /// </summary>
+        public static Matrix4x4 ReadRowMajorMatrix3x3(this BinaryReader source)
+        {
+            var matrix = new Matrix4x4();
+            for (var rowIndex = 0; rowIndex < 4; rowIndex++)
+                for (var columnIndex = 0; columnIndex < 4; columnIndex++)
+                {
+                    // If we're in the 3x3 part of the matrix, read values. Otherwise, use the identity matrix.
+                    if (rowIndex <= 2 && columnIndex <= 2) matrix[rowIndex, columnIndex] = source.ReadSingle();
+                    else matrix[rowIndex, columnIndex] = rowIndex == columnIndex ? 1 : 0;
+                }
+            return matrix;
+        }
+        public static Matrix4x4 ReadColumnMajorMatrix4x4(this BinaryReader source)
+        {
+            var matrix = new Matrix4x4();
+            for (var columnIndex = 0; columnIndex < 4; columnIndex++)
+                for (var rowIndex = 0; rowIndex < 4; rowIndex++)
+                    matrix[rowIndex, columnIndex] = source.ReadSingle();
+            return matrix;
+        }
+        public static Matrix4x4 ReadRowMajorMatrix4x4(this BinaryReader source)
+        {
+            var matrix = new Matrix4x4();
+            for (var rowIndex = 0; rowIndex < 4; rowIndex++)
+                for (var columnIndex = 0; columnIndex < 4; columnIndex++)
+                    matrix[rowIndex, columnIndex] = source.ReadSingle();
+            return matrix;
+        }
+        public static Quaternion ReadQuaternionWFirst(this BinaryReader source)
+        {
+            var w = source.ReadSingle();
+            var x = source.ReadSingle();
+            var y = source.ReadSingle();
+            var z = source.ReadSingle();
+            return new Quaternion(x, y, z, w);
+        }
+        public static Quaternion ReadLEQuaternionWLast(this BinaryReader source)
+        {
+            var x = source.ReadSingle();
+            var y = source.ReadSingle();
+            var z = source.ReadSingle();
+            var w = source.ReadSingle();
+            return new Quaternion(x, y, z, w);
+        }
 
-        //public override string ReadZString() => ReadByte() != 0 ? ReadString() : null;
-        //public override DateTime ReadDeltaTime()
+        //public static string ReadZString() => ReadByte() != 0 ? ReadString() : null;
+        //public static DateTime ReadDeltaTime(this BinaryReader source)
         //{
         //    var ticks = ReadInt64();
         //    var now = DateTime.UtcNow.Ticks;
@@ -170,8 +218,8 @@ namespace GameEstate.Core
         //    try { return new DateTime(now + ticks); }
         //    catch { return ticks > 0 ? DateTime.MaxValue : DateTime.MinValue; }
         //}
-        //public override IPAddress ReadIPAddress() => new IPAddress(ReadInt64());
-        //public override int ReadEncodedInt()
+        //public static IPAddress ReadIPAddress(this BinaryReader source) => new IPAddress(ReadInt64());
+        //public static int ReadEncodedInt(this BinaryReader source)
         //{
         //    int v = 0, shift = 0;
         //    byte b;
@@ -183,21 +231,75 @@ namespace GameEstate.Core
         //    } while (b >= 0x80);
         //    return v;
         //}
-        //public override DateTime ReadDateTime() => new DateTime(ReadInt64());
-        //public override DateTimeOffset ReadDateTimeOffset()
+        //public static DateTime ReadDateTime(this BinaryReader source) => new DateTime(ReadInt64());
+        //public static DateTimeOffset ReadDateTimeOffset(this BinaryReader source)
         //{
         //    var ticks = ReadInt64();
         //    var offset = new TimeSpan(ReadInt64());
         //    return new DateTimeOffset(ticks, offset);
         //}
-        //public override TimeSpan ReadTimeSpan() => new TimeSpan(ReadInt64());
+        //public static TimeSpan ReadTimeSpan(this BinaryReader source) => new TimeSpan(ReadInt64());
 
-        //public override Point3D ReadPoint3D() => new Point3D(ReadInt32(), ReadInt32(), ReadInt32());
-        //public override Point2D ReadPoint2D() => new Point2D(ReadInt32(), ReadInt32());
-        //public override Rectangle2D ReadRect2D() => new Rectangle2D(ReadPoint2D(), ReadPoint2D());
-        //public override Rectangle3D ReadRect3D() => new Rectangle3D(ReadPoint3D(), ReadPoint3D());
+        //public static Point3D ReadPoint3D(this BinaryReader source) => new Point3D(ReadInt32(), ReadInt32(), ReadInt32());
+        //public static Point2D ReadPoint2D(this BinaryReader source) => new Point2D(ReadInt32(), ReadInt32());
+        //public static Rectangle2D ReadRect2D(this BinaryReader source) => new Rectangle2D(ReadPoint2D(), ReadPoint2D());
+        //public static Rectangle3D ReadRect3D(this BinaryReader source) => new Rectangle3D(ReadPoint3D(), ReadPoint3D());
 
+        #endregion
 
+        #region Sequence
+
+        public static T Last<T>(this T[] source) { Assert(source.Length > 0); return source[source.Length - 1]; }
+        public static T Last<T>(this List<T> source) { Assert(source.Count > 0); return source[source.Count - 1]; }
+
+        /// <summary>
+        /// Calculates the minimum and maximum values of an array.
+        /// </summary>
+        public static void GetExtrema(this float[] source, out float min, out float max)
+        {
+            min = float.MaxValue; max = float.MinValue;
+            foreach (var element in source) { min = Math.Min(min, element); max = Math.Max(max, element); }
+        }
+        /// <summary>
+        /// Calculates the minimum and maximum values of a 2D array.
+        /// </summary>
+        public static void GetExtrema(this float[,] source, out float min, out float max)
+        {
+            min = float.MaxValue; max = float.MinValue;
+            foreach (var element in source) { min = Math.Min(min, element); max = Math.Max(max, element); }
+        }
+        /// <summary>
+        /// Calculates the minimum and maximum values of a 3D array.
+        /// </summary>
+        public static void GetExtrema(this float[,,] source, out float min, out float max)
+        {
+            min = float.MaxValue; max = float.MinValue;
+            foreach (var element in source) { min = Math.Min(min, element); max = Math.Max(max, element); }
+        }
+
+        public static void Flip2DArrayVertically<T>(this T[] source, int rowCount, int columnCount) => Flip2DSubArrayVertically(source, 0, rowCount, columnCount);
+        /// <summary>
+        /// Flips a portion of a 2D array vertically.
+        /// </summary>
+        /// <param name="source">A 2D array represented as a 1D row-major array.</param>
+        /// <param name="startIndex">The 1D index of the top left element in the portion of the 2D array we want to flip.</param>
+        /// <param name="rows">The number of rows in the sub-array.</param>
+        /// <param name="bytesPerRow">The number of columns in the sub-array.</param>
+        public static void Flip2DSubArrayVertically<T>(this T[] source, int startIndex, int rows, int bytesPerRow)
+        {
+            Assert(startIndex >= 0 && rows >= 0 && bytesPerRow >= 0 && (startIndex + (rows * bytesPerRow)) <= source.Length);
+            var tmpRow = new T[bytesPerRow];
+            var lastRowIndex = rows - 1;
+            for (var rowIndex = 0; rowIndex < (rows / 2); rowIndex++)
+            {
+                var otherRowIndex = lastRowIndex - rowIndex;
+                var rowStartIndex = startIndex + (rowIndex * bytesPerRow);
+                var otherRowStartIndex = startIndex + (otherRowIndex * bytesPerRow);
+                Array.Copy(source, otherRowStartIndex, tmpRow, 0, bytesPerRow); // other -> tmp
+                Array.Copy(source, rowStartIndex, source, otherRowStartIndex, bytesPerRow); // row -> other
+                Array.Copy(tmpRow, 0, source, rowStartIndex, bytesPerRow); // tmp -> row
+            }
+        }
 
         #endregion
     }

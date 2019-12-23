@@ -1,33 +1,31 @@
-﻿using System;
+﻿using GameEstate.Core.DataFormat;
+using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Text;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace GameEstate.Core
 {
     public abstract class CorePakFile : IDisposable
     {
-        public class FileMetadata
-        {
-            public long Position;
-            public bool Compressed;
-            public string Path;
-            public int Size;
-        }
-
+        public uint Version;
         public readonly string FilePath;
-        internal List<FileMetadata> _files = new List<FileMetadata>();
-        BinaryReaderPool _pool;
+        internal IList<FileMetadata> Files;
+        internal ILookup<string, FileMetadata> FilesByPath;
+        internal bool HasNamePrefix;
+        GenericPool<BinaryReader> _pool;
 
         public CorePakFile(string filePath)
         {
             if (filePath == null)
                 return;
             FilePath = filePath;
-            _pool = new BinaryReaderPool(filePath);
+            _pool = new GenericPool<BinaryReader>(() => new BinaryReader(File.Open(filePath, FileMode.Open, FileAccess.Read, FileShare.Read)));
             var r = _pool.Get();
             try { ReadMetadata(r); }
             finally { _pool.Release(r); }
+            ProcessMetadata();
         }
 
         public void Dispose()
@@ -43,50 +41,28 @@ namespace GameEstate.Core
             _pool = null;
         }
 
+        public bool ContainsFile(string filePath) => FilesByPath.Contains(filePath.Replace("/", "\\"));
+
+        public Task<byte[]> LoadFileDataAsync(string filePath)
+        {
+            var files = FilesByPath[filePath.Replace("/", "\\")].ToArray();
+            if (files.Length == 1)
+                return LoadFileDataAsync(files[0]);
+            CoreDebug.Log($"LoadFileDataAsync: {filePath} @ {files.Length}");
+            if (files.Length == 0)
+                throw new FileNotFoundException(filePath);
+            throw new InvalidOperationException();
+        }
+
+        protected abstract Task<byte[]> LoadFileDataAsync(FileMetadata file);
+
         protected abstract void ReadMetadata(BinaryReader r);
 
-        protected void ReadOne(BinaryReader r, Func<byte[], bool> hasRecord)
+        protected virtual void ProcessMetadata()
         {
-            r.BaseStream.Seek(0, SeekOrigin.Begin);
-            var chunk = new byte[16];
-            var buf = new byte[100];
-            // read in 16 bytes chunks
-            while (r.Read(chunk, 0, 16) != 0)
-            {
-                if (!hasRecord(chunk))
-                    continue;
-                // file found
-                var compressed = BitConverter.ToInt16(chunk, 8) == 0x64;
-                r.Read(chunk, 0, 14); //: minus 2
-                var fileNameSize = BitConverter.ToInt16(chunk, 0xA);
-                var extraFieldSize = BitConverter.ToInt16(chunk, 0xC);
-
-                // file name
-                var fileNameRead = 2 + ((fileNameSize - 2 + 15) & ~15) + 16;
-                if (fileNameRead > buf.Length) buf = new byte[fileNameRead];
-                r.Read(buf, 0, fileNameRead);
-                var fileName = Encoding.ASCII.GetString(buf, 0, fileNameSize);
-                var charIdx = (fileNameSize - 2) % 16;
-
-                // file size
-                var fileSize = BitConverter.ToInt32(buf, fileNameSize + 12);
-
-                // skip extra
-                var extraFieldRead = ((extraFieldSize + 15) & ~15) - (charIdx != 0 ? 32 : 16);
-                r.Skip(extraFieldRead); //: var extraField = new byte[extraFieldRead]; _r.Read(extraField, 0, extraField.Length);
-
-                // add
-                _files.Add(new FileMetadata
-                {
-                    Position = r.BaseStream.Position,
-                    Compressed = compressed,
-                    Path = fileName,
-                    Size = fileSize,
-                });
-
-                // file data
-                r.Skip(fileSize + (16 - (fileSize % 16))); //: var file = new byte[fileSize]; _r.Read(file, 0, fileSize); _r.Position += 16 - (fileSize % 16);
-            }
+            FilesByPath = Files.ToLookup(x => x.Path, StringComparer.OrdinalIgnoreCase);
         }
+
+        protected abstract void Write(BinaryWriter w);
     }
 }

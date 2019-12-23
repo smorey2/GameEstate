@@ -9,28 +9,34 @@ namespace GameEstate.CoreTests
 {
     public class PakTest
     {
-        [Fact]
-        public void CryEstate()
+        [Theory]
+        [InlineData("Data.p4k", CryGame.StarCitizen)]
+        public void CryEstate(string pakPath, CryGame game)
         {
-            var path = CryFileManager.GetFilePaths(false, "Data.p4k", CryGame.StarCitizen)[0];
-            var abc = new CryPakFile(path);
+            var path = CryFileManager.GetFilePaths(false, pakPath, game)[0];
+            var pak = new CryPakFile(path);
         }
 
-        [Fact]
-        public void RsiEstate()
+        [Theory]
+        [InlineData("Data.p4k", RsiGame.StarCitizen)]
+        public void RsiEstate(string pakPath, RsiGame game)
         {
-            var path = RsiFileManager.GetFilePaths(false, "Data.p4k", RsiGame.StarCitizen)[0];
-            var abc = new RsiPakFile(path);
+            var path = RsiFileManager.GetFilePaths(false, pakPath, game)[0];
+            var pak = new RsiPakFile(path);
+            //pak.ContainsFile("");
+            //var abc = pak.LoadFileDataAsync("").Result;
         }
 
-        [Fact]
-        public void TesEstate()
+        [Theory]
+        [InlineData("Fallout4 - Startup.ba2", TesGame.Fallout4VR)]
+        [InlineData("Fallout4 - Textures8.ba2", TesGame.Fallout4VR)]
+        [InlineData("Oblivion - Meshes.bsa", TesGame.Oblivion)]
+        [InlineData("Oblivion - Textures - Compressed.bsa", TesGame.Oblivion)]
+        [InlineData("Morrowind.bsa", TesGame.Morrowind)]
+        public void TesEstate(string pakPath, TesGame game)
         {
-            Assert.True(TesFileManager.IsDataPresent);
-            var abc0 = TesFileManager.GetFilePaths(true, "Fallout4 - *.ba2", TesGame.Fallout4VR);
-            Assert.Equal(21, abc0.Length);
-            var abc1 = TesFileManager.GetFilePaths(false, "Fallout4 - Startup.ba2", TesGame.Fallout4VR);
-            Assert.Single(abc1);
+            var path = TesFileManager.GetFilePaths(false, pakPath, game)[0];
+            var pak = new TesPakFile(path);
         }
 
         [Fact]

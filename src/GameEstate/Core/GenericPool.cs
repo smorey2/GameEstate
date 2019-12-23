@@ -1,17 +1,17 @@
 ﻿using System;
 using System.Collections.Concurrent;
-using System.IO;
 
 namespace GameEstate.Core
 {
-    public class BinaryReaderPool : IDisposable
+    public class GenericPool<T> : IDisposable
+        where T : IDisposable
     {
         const int MAX = 5;
-        readonly ConcurrentBag<BinaryReader> _items = new ConcurrentBag<BinaryReader>();
+        readonly ConcurrentBag<T> _items = new ConcurrentBag<T>();
         int _counter = 0;
-        public readonly string FilePath;
+        public readonly Func<T> Factory;
 
-        public BinaryReaderPool(string filePath) => FilePath = filePath;
+        public GenericPool(Func<T> factory) => Factory = factory;
 
         public void Dispose()
         {
@@ -19,7 +19,7 @@ namespace GameEstate.Core
                 item.Dispose();
         }
 
-        public void Release(BinaryReader item)
+        public void Release(T item)
         {
             if (_counter < MAX)
             {
@@ -30,7 +30,7 @@ namespace GameEstate.Core
                 item.Dispose();
         }
 
-        public BinaryReader Get()
+        public T Get()
         {
             if (_items.TryTake(out var item))
             {
@@ -39,7 +39,7 @@ namespace GameEstate.Core
             }
             else
             {
-                var obj = new BinaryReader(File.Open(FilePath, FileMode.Open, FileAccess.Read, FileShare.Read));
+                var obj = Factory();
                 _items.Add(obj);
                 _counter++;
                 return obj;
