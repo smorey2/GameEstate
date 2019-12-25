@@ -7,14 +7,13 @@ using static Microsoft.Win32.Registry;
 
 namespace GameEstate.Core
 {
-    public abstract class CoreFileManager<TFileManager, TEstate, TGame>
-        where TFileManager : CoreFileManager<TFileManager, TEstate, TGame>, new()
-        where TEstate : CoreEstate
+    public abstract class CoreFileManager<TFileManager, TGame>
+        where TFileManager : CoreFileManager<TFileManager, TGame>, new()
         where TGame : struct
     {
         public static bool Is64Bit { get; set; } = true;
         public static bool IsDataPresent => _manager != null && _locations.Count != 0;
-        protected static Dictionary<TGame, string> _locations = new Dictionary<TGame, string>();
+        protected static Dictionary<int, string> _locations = new Dictionary<TGame, string>();
         protected static TFileManager _manager = new TFileManager().Load();
 
         protected static void LoadFromRegKeys(bool many, IList<object> regkeys, string subFolder = null)
@@ -24,7 +23,7 @@ namespace GameEstate.Core
                 var path = GetExePath(Is64Bit ? $"Wow6432Node\\{(string)regkeys[i]}" : (string)regkeys[i]);
                 if (path != null && Directory.Exists(path))
                 {
-                    var game = (TGame)regkeys[i + 1];
+                    var game = (int)regkeys[i + 1];
                     if (subFolder != null)
                         path = Path.Combine(path, subFolder);
                     if (Directory.Exists(path))
@@ -63,8 +62,7 @@ namespace GameEstate.Core
         public static string[] GetFilePaths(bool many, string pathOrPattern, TGame game) =>
             _locations.TryGetValue(game, out var path) ? many
                 ? Directory.GetFiles(path, pathOrPattern ?? throw new ArgumentNullException(nameof(pathOrPattern)))
-                : File.Exists(pathOrPattern = Path.Combine(path, pathOrPattern ?? throw new ArgumentNullException(nameof(pathOrPattern))))
-                ? new[] { pathOrPattern } : null
+                : new[] { Path.Combine(path, pathOrPattern ?? throw new ArgumentNullException(nameof(pathOrPattern))) }
                 : null;
     }
 }

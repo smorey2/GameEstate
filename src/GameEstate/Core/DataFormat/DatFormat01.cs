@@ -5,27 +5,51 @@ using ZstdNet;
 
 namespace GameEstate.Core.DataFormat
 {
-    public static class DatFormat01
+    public class DatFormat01 : DatFormat
     {
-        public static Task<byte[]> Read(CorePakFile source, BinaryReader r, FileMetadata file)
+        public override Task<byte[]> ReadAsync(CorePakFile source, BinaryReader r, FileMetadata file, Action<FileMetadata, string> exception = null)
         {
             var buf = new byte[file.PackedSize];
             r.Position(file.Position);
             r.Read(buf, 0, buf.Length);
             if (file.Compressed)
                 using (var decompressor = new Decompressor())
-                {
-                    try { return Task.FromResult(decompressor.Unwrap(buf)); }
+                    try
+                    {
+                        var src = new ArraySegment<byte>(buf);
+                        var decompressedSize = Decompressor.GetDecompressedSize(src);
+                        if (decompressedSize == 0)
+                        {
+                            exception?.Invoke(file, "Unable to Decompress");
+                            return Task.FromResult(buf);
+                        }
+                        return Task.FromResult(decompressor.Unwrap(src));
+                    }
                     catch (ZstdException e)
                     {
-                        Console.WriteLine($"Skipping the following file because it is broken. Size: {file.PackedSize}");
-                        Console.WriteLine($"Error: {e.Message}");
+                        exception?.Invoke(file, $"ZstdException: {e.Message}");
                         return null;
                     }
-                }
             return Task.FromResult(buf);
         }
 
-        public static void Write(CorePakFile source, BinaryWriter w, FileMetadata file, byte[] data) => throw new NotSupportedException();
+        public override Task WriteAsync(CorePakFile source, BinaryWriter w, FileMetadata file, byte[] data, Action<FileMetadata, string> exception = null)
+        {
+            var buf = data;
+            if (file.Compressed)
+                using (var compressor = new Compressor())
+                    try
+                    {
+                        var src = new ArraySegment<byte>(buf);
+                        buf = compressor.Wrap(src);
+                    }
+                    catch (ZstdException e)
+                    {
+                        exception?.Invoke(file, $"ZstdException: {e.Message}");
+                        return Task.CompletedTask;
+                    }
+            w.Write(buf, 0, buf.Length);
+            return Task.CompletedTask;
+        }
     }
 }

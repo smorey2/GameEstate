@@ -2,7 +2,7 @@
 
 namespace GameEstate.Cry
 {
-    public class CryFileManager : CoreFileManager<CryFileManager, CryEstate, CryGame>
+    public class CryFileManager : CoreFileManager<CryFileManager, CryGame>
     {
         protected override CryFileManager Load()
         {

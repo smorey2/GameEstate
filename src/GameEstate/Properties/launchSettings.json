@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "GameEstate": {
+      "commandName": "Project",
+      "commandLineArgs": "insert -u \"game:\\\\test\" --path \"D:\\T_\\Test\""
+    }
+  }
+}

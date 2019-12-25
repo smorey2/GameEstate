@@ -2,7 +2,7 @@
 
 namespace GameEstate.UO
 {
-    public class UOFileManager : CoreFileManager<UOFileManager, UOEstate, UOGame>
+    public class UOFileManager : CoreFileManager<UOFileManager, UOGame>
     {
         protected override UOFileManager Load()
         {

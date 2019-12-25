@@ -2,11 +2,14 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Runtime.InteropServices;
+using System.Threading.Tasks;
 
 namespace GameEstate.Core.DataFormat
 {
-    public static class PakFormat02
+    public class PakFormat02 : PakFormat
     {
+        #region Header
+
         // Default header data
         const uint MW_BSAHEADER_FILEID = 0x00000100; // Magic for Morrowind BSA
         const uint OB_BSAHEADER_FILEID = 0x00415342; // Magic for Oblivion BSA, the literal string "BSA\0".
@@ -137,7 +140,9 @@ namespace GameEstate.Core.DataFormat
             public uint Offset;             // File offset relative to data position
         }
 
-        public unsafe static void Read(CorePakFile source, BinaryReader r)
+        #endregion
+
+        public unsafe override Task ReadAsync(CorePakFile source, BinaryReader r)
         {
             FileMetadata[] files;
             var Magic = r.ReadUInt32();
@@ -282,8 +287,9 @@ namespace GameEstate.Core.DataFormat
                 }
             }
             else throw new InvalidOperationException("BAD MAGIC");
+            return Task.CompletedTask;
         }
 
-        public static void Write(CorePakFile source, BinaryWriter w) => throw new NotSupportedException();
+        public unsafe override Task WriteAsync(CorePakFile source, BinaryWriter w, WriteState stage) => throw new NotImplementedException();
     }
 }

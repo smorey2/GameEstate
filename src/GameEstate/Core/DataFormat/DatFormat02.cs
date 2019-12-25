@@ -5,15 +5,14 @@ using System;
 using System.IO;
 using System.Text;
 using System.Threading.Tasks;
-using ZstdNet;
 
 namespace GameEstate.Core.DataFormat
 {
-    public static class DatFormat02
+    public class DatFormat02 : DatFormat
     {
         const uint SSE_BSAHEADER_VERSION = 0x69; // Version number of a Skyrim SE BSA
 
-        public static Task<byte[]> Read(CorePakFile source, BinaryReader r, FileMetadata file)
+        public override Task<byte[]> ReadAsync(CorePakFile source, BinaryReader r, FileMetadata file, Action<FileMetadata, string> exception = null)
         {
             var fileSize = (int)file.FileSize;
             byte[] fileData;
@@ -135,6 +134,6 @@ namespace GameEstate.Core.DataFormat
             return Task.FromResult(fileData);
         }
 
-        public static void Write(CorePakFile source, BinaryWriter w, FileMetadata file, byte[] data) => throw new NotSupportedException();
+        public override Task WriteAsync(CorePakFile source, BinaryWriter w, FileMetadata file, byte[] data, Action<FileMetadata, string> exception = null) => throw new NotImplementedException();
     }
 }

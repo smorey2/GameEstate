@@ -2,7 +2,7 @@
 
 namespace GameEstate.U9
 {
-    public class U9FileManager : CoreFileManager<U9FileManager, U9Estate, U9Game>
+    public class U9FileManager : CoreFileManager<U9FileManager, U9Game>
     {
         protected override U9FileManager Load()
         {

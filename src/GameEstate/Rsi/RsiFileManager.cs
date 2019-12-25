@@ -2,7 +2,7 @@
 
 namespace GameEstate.Rsi
 {
-    public class RsiFileManager : CoreFileManager<RsiFileManager, RsiEstate, RsiGame>
+    public class RsiFileManager : CoreFileManager<RsiFileManager, RsiGame>
     {
         protected override RsiFileManager Load()
         {

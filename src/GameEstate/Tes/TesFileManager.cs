@@ -3,7 +3,7 @@ using System.IO;
 
 namespace GameEstate.Tes
 {
-    public class TesFileManager : CoreFileManager<TesFileManager, TesEstate, TesGame>
+    public class TesFileManager : CoreFileManager<TesFileManager, TesGame>
     {
         protected override TesFileManager Load()
         {

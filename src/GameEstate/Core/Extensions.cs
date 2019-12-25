@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 using UnityEngine;
 using static GameEstate.Core.CoreDebug;
@@ -9,8 +10,55 @@ namespace GameEstate.Core
 {
     public enum ASCIIFormat { PossiblyNullTerminated, ZeroPadded, ZeroTerminated }
 
+    public struct Resource<TGame>
+    {
+        public string[] Paths;
+        public TGame Game;
+    }
+
     public static class Extensions
     {
+        public static Resource<TGame> ToResource<TGame>(this Uri uri)
+            where TGame : struct
+        {
+            var platform = UnsafeUtils.Platform;
+            // game
+            var fragment = uri.Fragment?.Substring(uri.Fragment.Length != 0 ? 1 : 0);
+            var gameName = Enum.GetNames(typeof(TGame)).FirstOrDefault(x => string.Equals(x, fragment, StringComparison.OrdinalIgnoreCase)) ?? throw new ArgumentOutOfRangeException(nameof(uri), uri.ToString());
+            var game = (TGame)Enum.Parse(typeof(TGame), gameName);
+            //var fileManager = new Core
+            // file-scheme
+            if (uri.IsFile)
+            {
+                var path = uri.LocalPath;
+                return new Resource<TGame>
+                {
+                    Paths = path.Contains('*') ? Directory.GetFiles(Path.GetDirectoryName(path), Path.GetFileName(path)) : File.Exists(path) ? new[] { path } : null,
+                    Game = game,
+                };
+            }
+            // game-scheme
+            else if (string.IsNullOrEmpty(uri.Host))
+            {
+                var path = uri.LocalPath.Substring(1);
+                return new Resource<TGame>
+                {
+                    Paths = fileManager(path, game) ?? throw new InvalidOperationException($"{game} not available"),
+                    Game = game,
+                };
+            }
+            // network-scheme
+            else
+            {
+                var path = uri.LocalPath;
+                return new Resource<TGame>
+                {
+                    Paths = new[] { path },
+                    Game = game,
+                };
+            }
+        }
+
         public static bool Equals(this string source, byte[] bytes)
         {
             if (bytes.Length != source.Length)
@@ -87,7 +135,7 @@ namespace GameEstate.Core
             source.Read(buffer, startIndex, (int)length);
         }
 
-        
+
         public static byte[] ReadL32Bytes(this BinaryReader source) => source.ReadBytes((int)source.ReadUInt32());
         public static string ReadL32ASCII(this BinaryReader source) => Encoding.ASCII.GetString(source.ReadBytes((int)source.ReadUInt32()));
         public static string ReadL16ASCII(this BinaryReader source) => Encoding.ASCII.GetString(source.ReadBytes((int)source.ReadUInt16()));
