@@ -1,15 +1,18 @@
 ﻿using GameEstate.Core.DataFormat;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 
 namespace GameEstate.Core
 {
+    [DebuggerDisplay("{Name}")]
     public abstract class CorePakFile : IDisposable
     {
         public uint Version;
+        public readonly string Name;
         public readonly string FilePath;
         internal readonly PakFormat PakFormat;
         internal readonly DatFormat DatFormat;
@@ -24,6 +27,7 @@ namespace GameEstate.Core
             FilePath = filePath ?? throw new ArgumentNullException(nameof(filePath));
             PakFormat = pakFormat ?? throw new ArgumentNullException(nameof(pakFormat));
             DatFormat = datFormat ?? throw new ArgumentNullException(nameof(datFormat));
+            Name = Path.GetFileNameWithoutExtension(FilePath);
             if (!File.Exists(FilePath))
                 return;
             _pool = new GenericPool<BinaryReader>(() => new BinaryReader(File.Open(filePath, FileMode.Open, FileAccess.Read, FileShare.Read)));
@@ -78,19 +82,21 @@ namespace GameEstate.Core
         public async Task ExtractAsync(string path, int from = 0, Action<FileMetadata, int> advance = null, Action<FileMetadata, string> exception = null)
         {
             // write pak
-            var newPath = Path.Combine(path, ".set");
-            using (var w = new BinaryWriter(new FileStream(newPath, FileMode.Create, FileAccess.Write)))
+            if (!string.IsNullOrEmpty(path) && !Directory.Exists(path))
+                Directory.CreateDirectory(path);
+            var setPath = Path.Combine(path, ".set");
+            using (var w = new BinaryWriter(new FileStream(setPath, FileMode.Create, FileAccess.Write)))
                 await PakFormat.Default.WriteAsync(this, w, PakFormat.WriteState.Header);
 
             // write files
             Parallel.For(from, Files.Count, new ParallelOptions { }, async index =>
             {
                 var file = Files[index];
-                newPath = Path.Combine(path, file.Path);
+                var newPath = Path.Combine(path, file.Path);
 
                 // create directory
                 var directory = Path.GetDirectoryName(newPath);
-                if (!string.IsNullOrEmpty(directory))
+                if (!string.IsNullOrEmpty(directory) && !Directory.Exists(directory))
                     Directory.CreateDirectory(directory);
 
                 // extract file
@@ -110,10 +116,16 @@ namespace GameEstate.Core
         public async Task InsertAsync(BinaryWriter w, string path, int from = 0, Action<FileMetadata, int> advance = null, Action<FileMetadata, string> exception = null)
         {
             // read pak
-            var newPath = Path.Combine(path, ".set");
-            using (var r = new BinaryReader(File.Open(newPath, FileMode.Open, FileAccess.Read, FileShare.Read)))
+            if (string.IsNullOrEmpty(path) || !Directory.Exists(path))
+            {
+                exception?.Invoke(null, $"Directory Missing: {path}");
+                return;
+            }
+            var setPath = Path.Combine(path, ".set");
+            using (var r = new BinaryReader(File.Open(setPath, FileMode.Open, FileAccess.Read, FileShare.Read)))
                 await PakFormat.Default.ReadAsync(this, r);
 
+            // write header
             if (from == 0)
                 await PakFormat.WriteAsync(this, w, PakFormat.WriteState.Header);
 
@@ -121,9 +133,9 @@ namespace GameEstate.Core
             Parallel.For(0, Files.Count, new ParallelOptions { MaxDegreeOfParallelism = 1 }, async index =>
             {
                 var file = Files[index];
-                newPath = Path.Combine(path, file.Path);
+                var newPath = Path.Combine(path, file.Path);
 
-                // create directory
+                // check directory
                 var directory = Path.GetDirectoryName(newPath);
                 if (string.IsNullOrEmpty(directory) || !Directory.Exists(directory))
                 {

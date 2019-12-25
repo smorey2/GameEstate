@@ -3,9 +3,16 @@ using System.IO;
 
 namespace GameEstate.Tes
 {
-    public class TesFileManager : CoreFileManager<TesFileManager, TesGame>
+    /// <summary>
+    /// TesFileManager
+    /// </summary>
+    /// <seealso cref="GameEstate.Core.CoreFileManager" />
+    public class TesFileManager : CoreFileManager
     {
-        protected override TesFileManager Load()
+        /// <summary>
+        /// Initializes a new instance of the <see cref="TesFileManager"/> class.
+        /// </summary>
+        public TesFileManager()
         {
             LoadFromRegKeys(true, new object[] {
                 @"Bethesda Softworks\Oblivion", TesGame.Oblivion,
@@ -23,9 +30,8 @@ namespace GameEstate.Tes
             if (Directory.Exists(morrowind))
             {
                 var dataPath = Path.Combine(morrowind, "Data Files");
-                _locations.Add(TesGame.Morrowind, dataPath);
+                _locations.Add((int)TesGame.Morrowind, dataPath);
             }
-            return this;
         }
     }
 }

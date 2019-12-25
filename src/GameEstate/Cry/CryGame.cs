@@ -1,7 +1,10 @@
 ﻿namespace GameEstate.Cry
 {
+    /// <summary>
+    /// CryGame
+    /// </summary>
     public enum CryGame
     {
-        StarCitizen = 1,
+        Unknown01 = 1,
     }
 }

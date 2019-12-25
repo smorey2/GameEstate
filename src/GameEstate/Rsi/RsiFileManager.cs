@@ -2,12 +2,15 @@
 
 namespace GameEstate.Rsi
 {
-    public class RsiFileManager : CoreFileManager<RsiFileManager, RsiGame>
+    /// <summary>
+    /// RsiFileManager
+    /// </summary>
+    /// <seealso cref="GameEstate.Core.CoreFileManager" />
+    public class RsiFileManager : CoreFileManager
     {
-        protected override RsiFileManager Load()
-        {
-            _locations.Add(RsiGame.StarCitizen, @"D:\Roberts Space Industries\StarCitizen\LIVE");
-            return this;
-        }
+        /// <summary>
+        /// Initializes a new instance of the <see cref="RsiFileManager"/> class.
+        /// </summary>
+        public RsiFileManager() => _locations.Add((int)RsiGame.StarCitizen, @"D:\Roberts Space Industries\StarCitizen\LIVE");
     }
 }

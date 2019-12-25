@@ -1,17 +1,17 @@
 ﻿using GameEstate.Core;
 
-namespace GameEstate.Cry
+namespace GameEstate.UO
 {
     /// <summary>
-    /// CryPakFile
+    /// UOPakFile
     /// </summary>
     /// <seealso cref="GameEstate.Core.CorePakFile" />
-    public class CryPakFile : CorePakFile
+    public class UOPakFile : CorePakFile
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="CryPakFile"/> class.
+        /// Initializes a new instance of the <see cref="UOPakFile"/> class.
         /// </summary>
         /// <param name="filePath">The file path.</param>
-        public CryPakFile(string filePath) : base(filePath, null, null) { }
+        public UOPakFile(string filePath) : base(filePath, null, null) { }
     }
 }

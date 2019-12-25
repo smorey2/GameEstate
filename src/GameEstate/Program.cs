@@ -1,5 +1,7 @@
 ﻿using CommandLine;
+using GameEstate.Core;
 using GameEstate.Rsi;
+using GameEstate.Tes;
 using System;
 using System.IO;
 using System.Threading.Tasks;
@@ -55,6 +57,9 @@ namespace GameEstate
         [Verb("extract", HelpText = "Extract files contents to folder.")]
         class ExtractOptions
         {
+            [Option('e', "estate", Required = true, HelpText = "Estate")]
+            public string Estate { get; set; }
+
             [Option('u', "uri", Required = true, HelpText = "Pak file to be extracted")]
             public Uri Uri { get; set; }
 
@@ -65,6 +70,9 @@ namespace GameEstate
         [Verb("insert", HelpText = "Insert files contents to pak.")]
         class InsertOptions
         {
+            [Option('e', "estate", Required = true, HelpText = "Estate")]
+            public string Estate { get; set; }
+
             [Option('u', "uri", Required = true, HelpText = "Pak file to be created")]
             public Uri Uri { get; set; }
 
@@ -81,16 +89,20 @@ namespace GameEstate
         static async Task<int> RunExtractAsync(ExtractOptions opts)
         {
             var from = ProgramState.Load(data => Convert.ToInt32(data), 0);
-            var path = RsiFileManager.GetFilePaths(false, "Data.p4k", RsiGame.StarCitizen)[0];
-            var pak = new RsiPakFile(path);
-            await pak.ExtractAsync(opts.Path, from, (file, index) =>
-            {
-                //if ((index % 50) == 0)
-                //    Console.WriteLine($"{file.Path}");
-            }, (file, message) =>
-            {
-                Console.WriteLine($"{message}: {file.Path}");
-            });
+            var estate = CoreEstate.Parse(opts.Estate);
+            using (var multPak = estate.OpenPakFile(estate.ParseResource(opts.Uri)))
+                foreach (var pak in multPak.Paks)
+                {
+                    var newPath = Path.Combine(opts.Path, pak.Name);
+                    await pak.ExtractAsync(newPath, from, (file, index) =>
+                    {
+                        //if ((index % 50) == 0)
+                        //Console.WriteLine($"{file.Path}");
+                    }, (file, message) =>
+                    {
+                        Console.WriteLine($"{message}: {file.Path}");
+                    });
+                }
             ProgramState.Clear();
             return 0;
         }
@@ -98,17 +110,20 @@ namespace GameEstate
         static async Task<int> RunInsertAsync(InsertOptions opts)
         {
             var from = ProgramState.Load(data => Convert.ToInt32(data), 0);
-            var path = RsiFileManager.GetFilePaths(false, "Test.p4k", RsiGame.StarCitizen)[0];
-            var pak = new RsiPakFile(path);
-            using (var w = new BinaryWriter(new FileStream(path, FileMode.Create, FileAccess.Write)))
-                await pak.InsertAsync(w, opts.Path, from, (file, index) =>
-                {
-                    //if ((index % 50) == 0)
-                    Console.WriteLine($"{file.Path}");
-                }, (file, message) =>
-                {
-                    Console.WriteLine($"{message}: {file.Path}");
-                });
+            var estate = CoreEstate.Parse(opts.Estate);
+            foreach (var path in estate.ParseResource(opts.Uri, false).Paths)
+            {
+                using (var pak = estate.OpenPakFile(path))
+                using (var w = new BinaryWriter(new FileStream(path, FileMode.Create, FileAccess.Write)))
+                    await pak.InsertAsync(w, opts.Path, from, (file, index) =>
+                    {
+                        //if ((index % 50) == 0)
+                        //Console.WriteLine($"{file.Path}");
+                    }, (file, message) =>
+                    {
+                        Console.WriteLine($"{message}: {file.Path}");
+                    });
+            }
             ProgramState.Clear();
             return 0;
         }

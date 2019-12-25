@@ -10,10 +10,11 @@ namespace GameEstate.CoreTests
     public class PakTest
     {
         [Theory]
-        [InlineData("Data.p4k", CryGame.StarCitizen)]
+        [InlineData("Data.p4k", CryGame.Unknown01)]
         public void CryEstate(string pakPath, CryGame game)
         {
-            var path = CryFileManager.GetFilePaths(false, pakPath, game)[0];
+            var fileManager = new CryFileManager();
+            var path = fileManager.GetFilePaths(false, pakPath, (int)game)[0];
             var pak = new CryPakFile(path);
         }
 
@@ -21,7 +22,8 @@ namespace GameEstate.CoreTests
         [InlineData("Data.p4k", RsiGame.StarCitizen)]
         public void RsiEstate(string pakPath, RsiGame game)
         {
-            var path = RsiFileManager.GetFilePaths(false, pakPath, game)[0];
+            var fileManager = new RsiFileManager();
+            var path = fileManager.GetFilePaths(false, pakPath, (int)game)[0];
             var pak = new RsiPakFile(path);
             //pak.ContainsFile("");
             //var abc = pak.LoadFileDataAsync("").Result;
@@ -35,27 +37,30 @@ namespace GameEstate.CoreTests
         [InlineData("Morrowind.bsa", TesGame.Morrowind)]
         public void TesEstate(string pakPath, TesGame game)
         {
-            var path = TesFileManager.GetFilePaths(false, pakPath, game)[0];
+            var fileManager = new TesFileManager();
+            var path = fileManager.GetFilePaths(false, pakPath, (int)game)[0];
             var pak = new TesPakFile(path);
         }
 
         [Fact]
         public void U9Estate()
         {
-            Assert.True(U9FileManager.IsDataPresent);
-            var abc0 = U9FileManager.GetFilePaths(true, "static/*.flx", U9Game.UltimaIX);
+            var fileManager = new U9FileManager();
+            Assert.True(fileManager.IsDataPresent);
+            var abc0 = fileManager.GetFilePaths(true, "static/*.flx", (int)U9Game.UltimaIX);
             Assert.Equal(17, abc0.Length);
-            var abc1 = U9FileManager.GetFilePaths(false, "static/activity.flx", U9Game.UltimaIX);
+            var abc1 = fileManager.GetFilePaths(false, "static/activity.flx", (int)U9Game.UltimaIX);
             Assert.Single(abc1);
         }
 
         [Fact]
         public void UOEstate()
         {
-            Assert.True(UOFileManager.IsDataPresent);
-            var abc0 = UOFileManager.GetFilePaths(true, "*.idx", UOGame.UltimaOnline);
+            var fileManager = new UOFileManager();
+            Assert.True(fileManager.IsDataPresent);
+            var abc0 = fileManager.GetFilePaths(true, "*.idx", (int)UOGame.UltimaOnline);
             Assert.Equal(7, abc0.Length);
-            var abc1 = UOFileManager.GetFilePaths(false, "anim.idx", UOGame.UltimaOnline);
+            var abc1 = fileManager.GetFilePaths(false, "anim.idx", (int)UOGame.UltimaOnline);
             Assert.Single(abc1);
         }
     }

@@ -2,7 +2,7 @@
   "profiles": {
     "GameEstate": {
       "commandName": "Project",
-      "commandLineArgs": "insert -u \"game:\\\\test\" --path \"D:\\T_\\Test\""
+      "commandLineArgs": "extract -e \"Tes\" -u \"game:/Oblivion*.bsa#Oblivion\" --path \"D:\\T_\\Test2\""
     }
   }
 }

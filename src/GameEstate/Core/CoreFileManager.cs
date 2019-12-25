@@ -7,16 +7,13 @@ using static Microsoft.Win32.Registry;
 
 namespace GameEstate.Core
 {
-    public abstract class CoreFileManager<TFileManager, TGame>
-        where TFileManager : CoreFileManager<TFileManager, TGame>, new()
-        where TGame : struct
+    public abstract class CoreFileManager
     {
-        public static bool Is64Bit { get; set; } = true;
-        public static bool IsDataPresent => _manager != null && _locations.Count != 0;
-        protected static Dictionary<int, string> _locations = new Dictionary<TGame, string>();
-        protected static TFileManager _manager = new TFileManager().Load();
+        public bool Is64Bit { get; set; } = true;
+        public bool IsDataPresent => _locations.Count != 0;
+        protected Dictionary<int, string> _locations = new Dictionary<int, string>();
 
-        protected static void LoadFromRegKeys(bool many, IList<object> regkeys, string subFolder = null)
+        protected void LoadFromRegKeys(bool many, IList<object> regkeys, string subFolder = null)
         {
             for (var i = 0; i < regkeys.Count; i += 2)
             {
@@ -36,7 +33,11 @@ namespace GameEstate.Core
             }
         }
 
-        protected abstract TFileManager Load();
+        public string[] GetFilePaths(bool many, string pathOrPattern, int game) =>
+            _locations.TryGetValue(game, out var path) ? many
+                ? Directory.GetFiles(path, pathOrPattern ?? throw new ArgumentNullException(nameof(pathOrPattern)))
+                : new[] { Path.Combine(path, pathOrPattern ?? throw new ArgumentNullException(nameof(pathOrPattern))) }
+                : null;
 
         protected static string GetExePath(string subName)
         {
@@ -58,12 +59,6 @@ namespace GameEstate.Core
             }
             catch { return null; }
         }
-
-        public static string[] GetFilePaths(bool many, string pathOrPattern, TGame game) =>
-            _locations.TryGetValue(game, out var path) ? many
-                ? Directory.GetFiles(path, pathOrPattern ?? throw new ArgumentNullException(nameof(pathOrPattern)))
-                : new[] { Path.Combine(path, pathOrPattern ?? throw new ArgumentNullException(nameof(pathOrPattern))) }
-                : null;
     }
 }
 

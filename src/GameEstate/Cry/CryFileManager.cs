@@ -2,12 +2,15 @@
 
 namespace GameEstate.Cry
 {
-    public class CryFileManager : CoreFileManager<CryFileManager, CryGame>
+    /// <summary>
+    /// CryFileManager
+    /// </summary>
+    /// <seealso cref="GameEstate.Core.CoreFileManager" />
+    public class CryFileManager : CoreFileManager
     {
-        protected override CryFileManager Load()
-        {
-            _locations.Add(CryGame.StarCitizen, @"D:\Roberts Space Industries\StarCitizen\LIVE");
-            return this;
-        }
+        /// <summary>
+        /// Initializes a new instance of the <see cref="CryFileManager"/> class.
+        /// </summary>
+        public CryFileManager() { }
     }
 }

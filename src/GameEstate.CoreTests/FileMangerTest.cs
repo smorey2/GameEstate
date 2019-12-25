@@ -12,50 +12,55 @@ namespace GameEstate.CoreTests
         [Fact]
         public void CryEstate()
         {
-            Assert.True(CryFileManager.IsDataPresent);
-            var abc0 = CryFileManager.GetFilePaths(true, "Data.p4k", CryGame.StarCitizen);
+            var fileManager = new CryFileManager();
+            Assert.True(fileManager.IsDataPresent);
+            var abc0 = fileManager.GetFilePaths(true, "Data.p4k", (int)CryGame.Unknown01);
             Assert.Single(abc0);
-            var abc1 = CryFileManager.GetFilePaths(false, "Data.p4k", CryGame.StarCitizen);
+            var abc1 = fileManager.GetFilePaths(false, "Data.p4k", (int)CryGame.Unknown01);
             Assert.Single(abc1);
         }
 
         [Fact]
         public void RsiEstate()
         {
-            Assert.True(RsiFileManager.IsDataPresent);
-            var abc0 = RsiFileManager.GetFilePaths(true, "Data.p4k", RsiGame.StarCitizen);
+            var fileManager = new RsiFileManager();
+            Assert.True(fileManager.IsDataPresent);
+            var abc0 = fileManager.GetFilePaths(true, "Data.p4k", (int)RsiGame.StarCitizen);
             Assert.Single(abc0);
-            var abc1 = RsiFileManager.GetFilePaths(false, "Data.p4k", RsiGame.StarCitizen);
+            var abc1 = fileManager.GetFilePaths(false, "Data.p4k", (int)RsiGame.StarCitizen);
             Assert.Single(abc1);
         }
 
         [Fact]
         public void TesEstate()
         {
-            Assert.True(TesFileManager.IsDataPresent);
-            var abc0 = TesFileManager.GetFilePaths(true, "Fallout4 - *.ba2", TesGame.Fallout4VR);
+            var fileManager = new TesFileManager();
+            Assert.True(fileManager.IsDataPresent);
+            var abc0 = fileManager.GetFilePaths(true, "Fallout4 - *.ba2", (int)TesGame.Fallout4VR);
             Assert.Equal(21, abc0.Length);
-            var abc1 = TesFileManager.GetFilePaths(false, "Fallout4 - Startup.ba2", TesGame.Fallout4VR);
+            var abc1 = fileManager.GetFilePaths(false, "Fallout4 - Startup.ba2", (int)TesGame.Fallout4VR);
             Assert.Single(abc1);
         }
 
         [Fact]
         public void U9Estate()
         {
-            Assert.True(U9FileManager.IsDataPresent);
-            var abc0 = U9FileManager.GetFilePaths(true, "static/*.flx", U9Game.UltimaIX);
+            var fileManager = new U9FileManager();
+            Assert.True(fileManager.IsDataPresent);
+            var abc0 = fileManager.GetFilePaths(true, "static/*.flx", (int)U9Game.UltimaIX);
             Assert.Equal(17, abc0.Length);
-            var abc1 = U9FileManager.GetFilePaths(false, "static/activity.flx", U9Game.UltimaIX);
+            var abc1 = fileManager.GetFilePaths(false, "static/activity.flx", (int)U9Game.UltimaIX);
             Assert.Single(abc1);
         }
 
         [Fact]
         public void UOEstate()
         {
-            Assert.True(UOFileManager.IsDataPresent);
-            var abc0 = UOFileManager.GetFilePaths(true, "*.idx", UOGame.UltimaOnline);
+            var fileManager = new UOFileManager();
+            Assert.True(fileManager.IsDataPresent);
+            var abc0 = fileManager.GetFilePaths(true, "*.idx", (int)UOGame.UltimaOnline);
             Assert.Equal(7, abc0.Length);
-            var abc1 = UOFileManager.GetFilePaths(false, "anim.idx", UOGame.UltimaOnline);
+            var abc1 = fileManager.GetFilePaths(false, "anim.idx", (int)UOGame.UltimaOnline);
             Assert.Single(abc1);
         }
     }

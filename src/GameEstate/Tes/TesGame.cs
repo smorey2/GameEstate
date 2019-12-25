@@ -1,5 +1,8 @@
 ﻿namespace GameEstate.Tes
 {
+    /// <summary>
+    /// TesGame
+    /// </summary>
     public enum TesGame
     {
         // tes

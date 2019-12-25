@@ -2,15 +2,18 @@
 
 namespace GameEstate.U9
 {
-    public class U9FileManager : CoreFileManager<U9FileManager, U9Game>
+    /// <summary>
+    /// U9FileManager
+    /// </summary>
+    /// <seealso cref="GameEstate.Core.CoreFileManager" />
+    public class U9FileManager : CoreFileManager
     {
-        protected override U9FileManager Load()
-        {
-            LoadFromRegKeys(false, new object[] {
-                @"GOG.com\GOGULTIMA9", U9Game.UltimaIX,
-                @"GOG.com\Games\1207659093", U9Game.UltimaIX,
-            });
-            return this;
-        }
+        /// <summary>
+        /// Initializes a new instance of the <see cref="U9FileManager"/> class.
+        /// </summary>
+        public U9FileManager() => LoadFromRegKeys(false, new object[] {
+            @"GOG.com\GOGULTIMA9", U9Game.UltimaIX,
+            @"GOG.com\Games\1207659093", U9Game.UltimaIX,
+        });
     }
 }
