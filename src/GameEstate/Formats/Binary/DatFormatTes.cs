@@ -1,4 +1,4 @@
-﻿using GameEstate.Formats;
+﻿using GameEstate.Core;
 using ICSharpCode.SharpZipLib.Lzw;
 using ICSharpCode.SharpZipLib.Zip.Compression.Streams;
 using System;
@@ -6,9 +6,9 @@ using System.IO;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace GameEstate.Core.DataFormat
+namespace GameEstate.Formats.Binary
 {
-    public class DatFormat02 : DatFormat
+    public class DatFormatTes : DatFormat
     {
         const uint SSE_BSAHEADER_VERSION = 0x69; // Version number of a Skyrim SE BSA
 
@@ -58,7 +58,7 @@ namespace GameEstate.Core.DataFormat
             // Fill DDS Header
             else if (file.Tag != null)
             {
-                var info = (PakFormat02.F4_HeaderFile2)file.Info;
+                var info = (PakFormatTes.F4_HeaderFile2)file.Info;
                 //var tag = (PakFormat02.F4_HeaderInfo2Chunk)file.Tag;
                 // Fill DDS Header
                 var ddsHeader = new DDSHeader

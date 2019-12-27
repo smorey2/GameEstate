@@ -1,11 +1,12 @@
-﻿using System;
+﻿using GameEstate.Core;
+using System;
 using System.IO;
 using System.Threading.Tasks;
 using ZstdNet;
 
-namespace GameEstate.Core.DataFormat
+namespace GameEstate.Formats.Binary
 {
-    public class DatFormat01 : DatFormat
+    public class DatFormatPk4 : DatFormat
     {
         public override Task<byte[]> ReadAsync(CorePakFile source, BinaryReader r, FileMetadata file, Action<FileMetadata, string> exception = null)
         {

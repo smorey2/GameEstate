@@ -1,4 +1,4 @@
-﻿using GameEstate.Core.DataFormat;
+﻿using GameEstate.Formats.Binary;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;

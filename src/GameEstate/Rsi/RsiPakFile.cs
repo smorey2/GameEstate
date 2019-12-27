@@ -1,5 +1,5 @@
 ﻿using GameEstate.Core;
-using GameEstate.Core.DataFormat;
+using GameEstate.Formats.Binary;
 
 namespace GameEstate.Rsi
 {
@@ -15,6 +15,6 @@ namespace GameEstate.Rsi
         /// Initializes a new instance of the <see cref="RsiPakFile"/> class.
         /// </summary>
         /// <param name="filePath">The file path.</param>
-        public RsiPakFile(string filePath) : base(filePath, new PakFormat01(Magic), new DatFormat01()) { }
+        public RsiPakFile(string filePath) : base(filePath, new PakFormatP4k(Magic), new DatFormatPk4()) { }
     }
 }

@@ -93,7 +93,7 @@ namespace GameEstate
             using (var multPak = estate.OpenPakFile(estate.ParseResource(opts.Uri)))
                 foreach (var pak in multPak.Paks)
                 {
-                    var newPath = Path.Combine(opts.Path, pak.Name);
+                    var newPath = Path.Combine(opts.Path, Path.GetFileName(pak.FilePath));
                     await pak.ExtractAsync(newPath, from, (file, index) =>
                     {
                         //if ((index % 50) == 0)

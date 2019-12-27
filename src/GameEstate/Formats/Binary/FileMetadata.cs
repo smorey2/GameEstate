@@ -1,6 +1,6 @@
 ﻿using System.Diagnostics;
 
-namespace GameEstate.Core.DataFormat
+namespace GameEstate.Formats.Binary
 {
     [DebuggerDisplay("{Path}")]
     public class FileMetadata

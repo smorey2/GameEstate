@@ -1,12 +1,13 @@
-﻿using System;
+﻿using GameEstate.Core;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 
-namespace GameEstate.Core.DataFormat
+namespace GameEstate.Formats.Binary
 {
-    public class PakFormat02 : PakFormat
+    public class PakFormatTes : PakFormat
     {
         #region Header
 
@@ -155,14 +156,17 @@ namespace GameEstate.Core.DataFormat
                 source.Files = files = new FileMetadata[header.NumFiles];
                 if (header.Type == 0x4c524e47) // GNRL-General BA2 Format
                 {
-                    var info = r.ReadTArray<F4_HeaderFile>(sizeof(F4_HeaderFile), (int)header.NumFiles);
+                    var infos = r.ReadTArray<F4_HeaderFile>(sizeof(F4_HeaderFile), (int)header.NumFiles);
                     for (var i = 0; i < header.NumFiles; i++)
+                    {
+                        var info = infos[i];
                         files[i] = new FileMetadata
                         {
                             //Info = info,
-                            PackedSize = info[i].UnpackedSize, //: info[i].PackedSize
-                            Position = (long)info[i].Offset,
+                            PackedSize = info.UnpackedSize, //: info.PackedSize
+                            Position = (long)info.Offset,
                         };
+                    }
                 }
                 else if (header.Type == 0x30315844) // DX10-Texture BA2 Format
                 {
@@ -262,15 +266,16 @@ namespace GameEstate.Core.DataFormat
 
                 // Create file metadatas
                 source.Files = files = new FileMetadata[header_FileCount];
-                var file2 = r.ReadTArray<MW_HeaderFile>(sizeof(MW_HeaderFile), (int)header_FileCount);
+                var files2 = r.ReadTArray<MW_HeaderFile>(sizeof(MW_HeaderFile), (int)header_FileCount);
                 for (var i = 0; i < header_FileCount; i++)
                 {
-                    var sizeFlags = file2[i].SizeFlags;
+                    var file2 = files2[i];
+                    var sizeFlags = file2.SizeFlags;
                     var size = sizeFlags > 0 ? sizeFlags & OB_BSAFILE_SIZEMASK : sizeFlags; // The size of the file inside the BSA
                     files[i] = new FileMetadata
                     {
                         FileSize = size,
-                        Position = fileDataPostion + file2[i].Offset,
+                        Position = fileDataPostion + file2.Offset,
                     };
                 }
 

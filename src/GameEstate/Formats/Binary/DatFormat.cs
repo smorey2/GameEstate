@@ -1,8 +1,9 @@
-﻿using System;
+﻿using GameEstate.Core;
+using System;
 using System.IO;
 using System.Threading.Tasks;
 
-namespace GameEstate.Core.DataFormat
+namespace GameEstate.Formats.Binary
 {
     public class DatFormat
     {

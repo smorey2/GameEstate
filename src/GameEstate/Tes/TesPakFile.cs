@@ -1,5 +1,5 @@
 ﻿using GameEstate.Core;
-using GameEstate.Core.DataFormat;
+using GameEstate.Formats.Binary;
 
 namespace GameEstate.Tes
 {
@@ -13,6 +13,6 @@ namespace GameEstate.Tes
         /// Initializes a new instance of the <see cref="TesPakFile"/> class.
         /// </summary>
         /// <param name="filePath">The file path.</param>
-        public TesPakFile(string filePath) : base(filePath, new PakFormat02(), new DatFormat02()) { }
+        public TesPakFile(string filePath) : base(filePath, new PakFormatTes(), new DatFormatTes()) { }
     }
 }

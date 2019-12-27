@@ -39,6 +39,11 @@ namespace GameEstate.Core
             }
         }
 
+        public static unsafe string ReadZASCII(byte* name)
+        {
+            return null;
+        }
+
         [DllImport("Kernel32")] extern static unsafe int _lread(SafeFileHandle hFile, void* lpBuffer, int wBytes);
         public static unsafe void ReadBuffer(this FileStream stream, byte[] buf, int length)
         {

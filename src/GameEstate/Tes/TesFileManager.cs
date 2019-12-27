@@ -14,7 +14,7 @@ namespace GameEstate.Tes
         /// </summary>
         public TesFileManager()
         {
-            LoadFromRegKeys(true, new object[] {
+            LoadFromRegKeys(new object[] {
                 @"Bethesda Softworks\Oblivion", TesGame.Oblivion,
                 @"Bethesda Softworks\Skyrim", TesGame.Skyrim,
                 @"Bethesda Softworks\Fallout 3", TesGame.Fallout3,
@@ -24,7 +24,7 @@ namespace GameEstate.Tes
                 @"Bethesda Softworks\Skyrim SE", TesGame.SkyrimSE,
                 @"Bethesda Softworks\Fallout 4 VR", TesGame.Fallout4VR,
                 @"Bethesda Softworks\Skyrim VR", TesGame.SkyrimVR
-            }, "Data");
+            }, game => "Data", true);
             // hard-add
             var morrowind = @"C:\Program Files (x86)\Steam\steamapps\common\Morrowind";
             if (Directory.Exists(morrowind))

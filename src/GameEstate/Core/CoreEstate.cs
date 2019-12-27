@@ -99,7 +99,7 @@ namespace GameEstate.Core
                 var path = uri.LocalPath.Substring(1);
                 return new Resource
                 {
-                    Paths = FileManager.GetFilePaths(many, path, game) ?? throw new InvalidOperationException($"{gameName} not available"),
+                    Paths = FileManager.GetFilePaths(path, game, many) ?? throw new InvalidOperationException($"{gameName} not available"),
                     Game = game,
                 };
             }

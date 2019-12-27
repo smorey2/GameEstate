@@ -1,10 +1,11 @@
-﻿using System.Collections.Generic;
+﻿using GameEstate.Core;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace GameEstate.Core.DataFormat
+namespace GameEstate.Formats.Binary
 {
     public class PakFormat00 : PakFormat
     {

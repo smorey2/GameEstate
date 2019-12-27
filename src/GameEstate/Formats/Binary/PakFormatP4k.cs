@@ -1,16 +1,17 @@
-﻿using System;
+﻿using GameEstate.Core;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace GameEstate.Core.DataFormat
+namespace GameEstate.Formats.Binary
 {
-    public class PakFormat01 : PakFormat
+    public class PakFormatP4k : PakFormat
     {
         readonly byte[] Magic;
 
-        public PakFormat01(byte[] magic) => Magic = magic;
+        public PakFormatP4k(byte[] magic) => Magic = magic;
 
         public override Task ReadAsync(CorePakFile source, BinaryReader r)
         {
