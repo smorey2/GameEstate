@@ -1,10 +1,12 @@
-﻿namespace GameEstate.UO
+﻿using System.ComponentModel;
+
+namespace GameEstate.UO
 {
     /// <summary>
     /// UOGame
     /// </summary>
     public enum UOGame
     {
-        UltimaOnline = 1,
+        [Description("Ultima Online")] UltimaOnline,
     }
 }

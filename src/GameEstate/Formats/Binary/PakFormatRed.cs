@@ -1,14 +1,16 @@
 ﻿using GameEstate.Core;
+using GameEstate.Red;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Runtime.InteropServices;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace GameEstate.Formats.Binary
 {
+    // https://witcher.fandom.com/wiki/File_format
     // https://witcher.fandom.com/wiki/KEY_BIF_V1.1_format
+    // https://witcher.fandom.com/wiki/Extracting_The_Witcher_2_files
     public class PakFormatRed : PakFormat
     {
         #region Headers
@@ -33,7 +35,7 @@ namespace GameEstate.Formats.Binary
         [StructLayout(LayoutKind.Sequential, Pack = 0x1)]
         struct KEY_HeaderFile
         {
-            public uint FileSize;           // BIF Filesize
+            public uint PackedSize;         // BIF Filesize
             public uint FileNameOffset;     // Offset To BIF name
             public uint FileNameSize;       // Size of BIF name
         }
@@ -59,24 +61,43 @@ namespace GameEstate.Formats.Binary
         [StructLayout(LayoutKind.Sequential, Pack = 0x1)]
         struct BIFF_HeaderFile
         {
-            public uint ResourceId;         // Resource ID
+            public uint FileId;             // Resource ID
             public uint Flags;              // Flags (BIF index is now in this value, (flags & 0xFFF00000) >> 20). The rest appears to define 'fixed' index.
-            public uint ResourcePosition;   // Offset to Resource Data.
-            public uint ResourceSize;       // Size of Resource Data.
-            public ushort ResourceType;     // Resource Type
+            public uint FilePosition;       // Offset to Resource Data.
+            public uint FileSize;           // Size of Resource Data.
+            public ushort FileType;         // Resource Type
             public ushort NotUsed01;        //
         }
 
+        [StructLayout(LayoutKind.Sequential, Pack = 0x1)]
+        struct DZIP_Header
+        {
+            public uint Unk01;              //
+            public uint NumFiles;           //
+            public uint Unk02;              //
+            public uint FilesPosition;      //
+        }
+
+        [StructLayout(LayoutKind.Sequential, Pack = 0x1)]
+        struct DZIP_HeaderFile
+        {
+            public uint Unk01;              // 
+            public uint Unk02;              // 
+            public ulong FileSize;          // 
+            public ulong Position;          // 
+            public ulong PackedSize;        // 
+        }
+
         // 
-        const uint KEY_SIGNATURE = 0x01; // Version number of a Fallout 4 BA2
-        const uint BIFF_SIGNATURE = 0x01; // Version number of a Fallout 4 BA2
+        const uint KEY_MAGIC = 0x2059454b; // Version number of a Fallout 4 BA2
+        const uint BIFF_MAGIC = 0x46464942; // Version number of a Fallout 4 BA2
+        const uint DZIP_MAGIC = 0x50495a44; // Version number of a Fallout 4 BA2
 
-        const uint KEY_VERSION = 0x01; // Version number of a Fallout 4 BA2
-        const uint BIFF_VERSION = 0x01; // Version number of a Fallout 4 BA2
+        const uint KEY_VERSION = 0x312e3156; // Version number of a Fallout 4 BA2
+        internal const uint BIFF_VERSION = 0x312e3156; // Version number of a Fallout 4 BA2
+        internal const uint DZIP_VERSION = 0x50495a44; // Version number of a Fallout 4 BA2
 
-        #endregion
-
-        readonly static Dictionary<int, string> ResourceExtensions = new Dictionary<int, string>
+        readonly static Dictionary<int, string> FileTypes = new Dictionary<int, string>
         {
             {0x0000, ".res" },
             {0x0001, ".bmp"},
@@ -205,15 +226,24 @@ namespace GameEstate.Formats.Binary
             {0x270D, ".erf"},
             {0x270E, ".bif"},
             {0x270F, ".key"},
-
-
         };
 
-        public unsafe override Task ReadAsync(CorePakFile source, BinaryReader r)
+        #endregion
+
+        readonly static RedEstate Estate = new RedEstate();
+        readonly object Tag;
+
+        public PakFormatRed(object tag = null) => Tag = tag;
+
+        public unsafe override Task ReadAsync(CorePakFile source, BinaryReader r, ReadStage stage)
         {
+            if (stage != ReadStage.File)
+                throw new ArgumentOutOfRangeException(nameof(stage), stage.ToString());
+
             FileMetadata[] files;
-            var Signature = r.ReadUInt32();
-            if (Signature == KEY_SIGNATURE)
+            var Magic = r.ReadUInt32();
+            // Signature("KEY ")
+            if (Magic == KEY_MAGIC)
             {
                 var header = r.ReadT<KEY_Header>(sizeof(KEY_Header));
                 if (header.Version != KEY_VERSION)
@@ -228,7 +258,7 @@ namespace GameEstate.Formats.Binary
                 for (var i = 0; i < header.NumKeys; i++)
                 {
                     var infoKey = infoKeys[i];
-                    keys.Add(((infoKey.Flags & 0xFFF00000) >> 20, infoKey.ResourceId), UnsafeUtils.ReadZASCII(infoKey.Name));
+                    keys.Add(((infoKey.Flags & 0xFFF00000) >> 20, infoKey.ResourceId), UnsafeUtils.ReadZASCII(infoKey.Name, 16));
                 }
 
                 // files
@@ -238,18 +268,25 @@ namespace GameEstate.Formats.Binary
                 {
                     var info = infos[i];
                     r.Position(info.FileNameOffset);
+                    var fileName = r.ReadASCII((int)info.FileNameSize);
+                    var newPaths = Estate.FileManager.GetFilePaths(fileName, (int)RedGame.Witcher, false);
+                    string newPath;
+                    if (newPaths.Length != 1 || !System.IO.File.Exists(newPath = newPaths[0]))
+                        continue;
                     files[i] = new FileMetadata
                     {
-                        FileSize = info.FileSize,
-                        Path = r.ReadASCII((int)info.FileNameSize).Replace('\\', '/'),
+                        Path = fileName,
+                        PackedSize = info.PackedSize,
+                        Pak = new RedPakFile(newPath, (keys, (uint)i)),
                     };
                 }
             }
-            else if (Signature == 0x12) // Signature ("BIFF")
+            // Signature("BIFF")
+            else if (Magic == BIFF_MAGIC) // Signature ("BIFF")
             {
-                var bifId = 1U;
-                var keys = new Dictionary<(uint, uint), string>();
-
+                if (Tag == null)
+                    throw new InvalidOperationException("BIFF files can only be processed through KEY files");
+                var keyFile = ((Dictionary<(uint, uint), string> keys, uint bifId))Tag;
                 var header = r.ReadT<BIF_Header>(sizeof(BIF_Header));
                 if (header.Version != BIFF_VERSION)
                     throw new InvalidOperationException("BAD MAGIC");
@@ -262,23 +299,43 @@ namespace GameEstate.Formats.Binary
                 for (var i = 0; i < header.NumFiles; i++)
                 {
                     var info = infos[i];
-                    if (info.ResourceId > i)
-                        continue; // Curiously the last resource entry of djinni.bif seem to be missing
-                    var path = (keys.TryGetValue((bifId, info.ResourceId), out var key) ? key : $"{i}") + (ResourceExtensions.TryGetValue(info.ResourceType, out var extension) ? extension : string.Empty);
+                    // Curiously the last resource entry of djinni.bif seem to be missing
+                    if (info.FileId > i)
+                        continue;
+                    var path = (keyFile.keys.TryGetValue((keyFile.bifId, info.FileId), out var key) ? key : $"{i}") + (FileTypes.TryGetValue(info.FileType, out var extension) ? extension : string.Empty);
                     files[i] = new FileMetadata
                     {
-                        FileSize = info.ResourceSize,
                         Path = path.Replace('\\', '/'),
-                        Position = info.ResourcePosition,
+                        FileSize = info.FileSize,
+                        Position = info.FilePosition,
                     };
-
-                    //r.Position(info.ResourcePosition);
-                    //var resource = r.ReadBytes((int)info.ResourceSize);
+                }
+            }
+            // Signature("DZIP")
+            else if (Magic == DZIP_MAGIC)
+            {
+                var header = r.ReadT<DZIP_Header>(sizeof(DZIP_Header));
+                source.Version = DZIP_VERSION;
+                source.Files = files = new FileMetadata[header.NumFiles];
+                r.Position(header.FilesPosition);
+                for (var i = 0; i < header.NumFiles; i++)
+                {
+                    var fileName = r.ReadL16ASCII();
+                    var info = r.ReadT<DZIP_HeaderFile>(sizeof(DZIP_HeaderFile));
+                    files[i] = new FileMetadata
+                    {
+                        Path = fileName.Replace('\\', '/'),
+                        Compressed = true,
+                        PackedSize = (long)info.PackedSize,
+                        FileSize = (long)info.FileSize,
+                        Position = (long)info.Position,
+                    };
                 }
             }
             else throw new InvalidOperationException("BAD MAGIC");
             return Task.CompletedTask;
         }
+
 
         //public override Task WriteAsync(CorePakFile source, BinaryWriter w)
         //{

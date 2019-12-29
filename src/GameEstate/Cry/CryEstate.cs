@@ -10,6 +10,22 @@ namespace GameEstate.Cry
     public class CryEstate : CoreEstate
     {
         /// <summary>
+        /// Gets the name.
+        /// </summary>
+        /// <value>
+        /// The name.
+        /// </value>
+        public override string Name => "Cry/Lumberyard";
+
+        /// <summary>
+        /// Gets the description.
+        /// </summary>
+        /// <value>
+        /// The description.
+        /// </value>
+        public override string Description => @"The file formats used in Cry and Lumberyard";
+
+        /// <summary>
         /// Gets the type of the game.
         /// </summary>
         /// <value>

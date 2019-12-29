@@ -30,7 +30,7 @@ namespace GameEstate.Tes
             if (Directory.Exists(morrowind))
             {
                 var dataPath = Path.Combine(morrowind, "Data Files");
-                _locations.Add((int)TesGame.Morrowind, dataPath);
+                Locations.Add((int)TesGame.Morrowind, dataPath);
             }
         }
     }

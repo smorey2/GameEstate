@@ -10,6 +10,22 @@ namespace GameEstate.Tes
     public class TesEstate : CoreEstate
     {
         /// <summary>
+        /// Gets the name.
+        /// </summary>
+        /// <value>
+        /// The name.
+        /// </value>
+        public override string Name => "The Elder Scrolls";
+
+        /// <summary>
+        /// Gets the description.
+        /// </summary>
+        /// <value>
+        /// The description.
+        /// </value>
+        public override string Description => @"TES formats used by Bethesda";
+
+        /// <summary>
         /// Gets the type of the game.
         /// </summary>
         /// <value>

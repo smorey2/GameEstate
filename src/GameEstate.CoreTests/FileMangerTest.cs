@@ -22,7 +22,7 @@ namespace GameEstate.CoreTests
         }
 
         [Fact]
-        public void RKEstate()
+        public void RedEstate()
         {
             var fileManager = new RedFileManager();
             Assert.True(fileManager.IsDataPresent);

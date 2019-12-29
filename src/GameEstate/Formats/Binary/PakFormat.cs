@@ -7,12 +7,39 @@ namespace GameEstate.Formats.Binary
 {
     public class PakFormat
     {
-        public enum WriteState { Header, File }
+        /// <summary>
+        /// ReadState
+        /// </summary>
+        public enum ReadStage { _Set, _Meta, _Raw, File }
 
-        public readonly static PakFormat Default = new PakFormat00();
+        /// <summary>
+        /// WriteState
+        /// </summary>
+        public enum WriteStage { _Set, _Meta, _Raw, Header, File }
 
-        public virtual Task ReadAsync(CorePakFile source, BinaryReader r) => throw new NotSupportedException();
+        /// <summary>
+        /// The file
+        /// </summary>
+        public readonly static PakFormat File = new PakFormatFile();
 
-        public virtual Task WriteAsync(CorePakFile source, BinaryWriter w, WriteState stage) => throw new NotSupportedException();
+        /// <summary>
+        /// Reads the asynchronous.
+        /// </summary>
+        /// <param name="source">The source.</param>
+        /// <param name="r">The r.</param>
+        /// <param name="stage">The stage.</param>
+        /// <returns></returns>
+        /// <exception cref="NotSupportedException"></exception>
+        public virtual Task ReadAsync(CorePakFile source, BinaryReader r, ReadStage stage) => throw new NotSupportedException();
+
+        /// <summary>
+        /// Writes the asynchronous.
+        /// </summary>
+        /// <param name="source">The source.</param>
+        /// <param name="w">The w.</param>
+        /// <param name="stage">The stage.</param>
+        /// <returns></returns>
+        /// <exception cref="NotSupportedException"></exception>
+        public virtual Task WriteAsync(CorePakFile source, BinaryWriter w, WriteStage stage) => throw new NotSupportedException();
     }
 }

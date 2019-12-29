@@ -11,6 +11,6 @@ namespace GameEstate.Rsi
         /// <summary>
         /// Initializes a new instance of the <see cref="RsiFileManager"/> class.
         /// </summary>
-        public RsiFileManager() => _locations.Add((int)RsiGame.StarCitizen, @"D:\Roberts Space Industries\StarCitizen\LIVE");
+        public RsiFileManager() => Locations.Add((int)RsiGame.StarCitizen, @"D:\Roberts Space Industries\StarCitizen\LIVE");
     }
 }

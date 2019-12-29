@@ -10,6 +10,22 @@ namespace GameEstate.U9
     public class U9Estate : CoreEstate
     {
         /// <summary>
+        /// Gets the name.
+        /// </summary>
+        /// <value>
+        /// The name.
+        /// </value>
+        public override string Name => "Ultima IX";
+
+        /// <summary>
+        /// Gets the description.
+        /// </summary>
+        /// <value>
+        /// The description.
+        /// </value>
+        public override string Description => @"Ultima IX file formats";
+
+        /// <summary>
         /// Gets the type of the game.
         /// </summary>
         /// <value>

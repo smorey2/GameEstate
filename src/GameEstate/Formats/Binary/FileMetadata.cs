@@ -1,16 +1,22 @@
-﻿using System.Diagnostics;
+﻿using GameEstate.Core;
+using System.Diagnostics;
 
 namespace GameEstate.Formats.Binary
 {
     [DebuggerDisplay("{Path}")]
     public class FileMetadata
     {
-        public object Info;
         public string Path;
         public bool Compressed;
-        public uint PackedSize;
-        public uint FileSize;
+        public bool Crypted;
+        public long PackedSize;
+        public long FileSize;
         public long Position;
+        // extra
+        public object Info;
+        public int ExtraSize;
+        public long ExtraPosition;
+        public CorePakFile Pak;
         public object Tag;
     }
 }

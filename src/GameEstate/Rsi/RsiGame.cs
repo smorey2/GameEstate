@@ -1,10 +1,12 @@
-﻿namespace GameEstate.Rsi
+﻿using System.ComponentModel;
+
+namespace GameEstate.Rsi
 {
     /// <summary>
     /// RsiGame
     /// </summary>
     public enum RsiGame
     {
-        StarCitizen = 1,
+        [Description("Star Citizen")] StarCitizen,
     }
 }

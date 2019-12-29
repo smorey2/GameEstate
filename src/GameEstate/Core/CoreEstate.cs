@@ -1,9 +1,11 @@
 ﻿using GameEstate.Cry;
+using GameEstate.Red;
 using GameEstate.Rsi;
 using GameEstate.Tes;
 using GameEstate.U9;
 using GameEstate.UO;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
@@ -13,29 +15,56 @@ namespace GameEstate.Core
     {
         public struct Resource
         {
+            public string Host;
             public string[] Paths;
             public int Game;
         }
 
+        static CoreEstate()
+        {
+            var platform = UnsafeUtils.Platform;
+        }
+
+        /// <summary>
+        /// Gets the estates.
+        /// </summary>
+        /// <value>
+        /// The estates.
+        /// </value>
+        public static IDictionary<string, CoreEstate> Estates { get; } = new Dictionary<string, CoreEstate>
+        {
+            { "Cry", new CryEstate() },
+            { "Red", new RedEstate() },
+            { "Rsi", new RsiEstate() },
+            { "Tes", new TesEstate() },
+            { "U9", new U9Estate() },
+            { "UO", new UOEstate() },
+        };
+
         /// <summary>
         /// Parses the specified name.
         /// </summary>
-        /// <param name="name">The name.</param>
+        /// <param name="estateName">Name of the estate.</param>
         /// <returns></returns>
+        /// <exception cref="ArgumentOutOfRangeException">estateName</exception>
         /// <exception cref="System.ArgumentOutOfRangeException">name</exception>
-        public static CoreEstate Parse(string name)
-        {
-            var platform = UnsafeUtils.Platform;
-            switch (name)
-            {
-                case "Cry": return new CryEstate();
-                case "Rsi": return new RsiEstate();
-                case "Tes": return new TesEstate();
-                case "U9": return new U9Estate();
-                case "UO": return new UOEstate();
-                default: throw new ArgumentOutOfRangeException(nameof(name), name);
-            }
-        }
+        public static CoreEstate Parse(string estateName) => Estates.TryGetValue(estateName, out var estate) ? estate : throw new ArgumentOutOfRangeException(nameof(estateName), estateName);
+
+        /// <summary>
+        /// Gets the name.
+        /// </summary>
+        /// <value>
+        /// The name.
+        /// </value>
+        public abstract string Name { get; }
+
+        /// <summary>
+        /// Gets the description.
+        /// </summary>
+        /// <value>
+        /// The description.
+        /// </value>
+        public abstract string Description { get; }
 
         /// <summary>
         /// Gets the type of the game.
@@ -44,6 +73,22 @@ namespace GameEstate.Core
         /// The type of the game.
         /// </value>
         public abstract Type GameType { get; }
+
+        /// <summary>
+        /// Gets the game.
+        /// </summary>
+        /// <param name="game">The game.</param>
+        /// <returns></returns>
+        public (string name, string description) GetGame(int game) { var name = GameType.GetEnumName(game); return (name, GameType.GetEnumDescription(name)); }
+
+        /// <summary>
+        /// Gets the games.
+        /// </summary>
+        /// <returns></returns>
+        public (string name, string description)[] GetGames()
+            => GameType.GetEnumNames().Zip(
+                Enum.GetValues(GameType).Cast<Enum>().Select(x => GameType.GetEnumDescription(x.ToString()))
+            , (name, description) => (name, description)).ToArray();
 
         /// <summary>
         /// Gets the file manager.
@@ -72,7 +117,10 @@ namespace GameEstate.Core
         /// </summary>
         /// <param name="resource">The resource.</param>
         /// <returns></returns>
-        public MultiPakFile OpenPakFile(Resource resource) => OpenPakFile(resource.Paths);
+        public MultiPakFile OpenPakFile(Resource resource)
+        {
+            return OpenPakFile(resource.Paths);
+        }
 
         /// <summary>
         /// Parses the resource.
@@ -90,7 +138,7 @@ namespace GameEstate.Core
         {
             // game
             var fragment = uri.Fragment?.Substring(uri.Fragment.Length != 0 ? 1 : 0);
-            var gameName = Enum.GetNames(GameType).FirstOrDefault(x => string.Equals(x, fragment, StringComparison.OrdinalIgnoreCase)) ?? throw new ArgumentOutOfRangeException(nameof(uri), uri.ToString());
+            var gameName = Enum.GetNames(GameType).FirstOrDefault(x => string.Equals(x, fragment, StringComparison.OrdinalIgnoreCase)) ?? throw new ArgumentOutOfRangeException(nameof(fragment), fragment);
             var game = (int)Enum.Parse(GameType, gameName);
 
             // file-scheme

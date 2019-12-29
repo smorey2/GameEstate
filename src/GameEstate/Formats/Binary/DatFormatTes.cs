@@ -10,8 +10,6 @@ namespace GameEstate.Formats.Binary
 {
     public class DatFormatTes : DatFormat
     {
-        const uint SSE_BSAHEADER_VERSION = 0x69; // Version number of a Skyrim SE BSA
-
         public override Task<byte[]> ReadAsync(CorePakFile source, BinaryReader r, FileMetadata file, Action<FileMetadata, string> exception = null)
         {
             var fileSize = (int)file.FileSize;
@@ -25,12 +23,12 @@ namespace GameEstate.Formats.Binary
                 r.Position(file.Position + 1 + len);
             }
             fileData = r.ReadBytes(fileSize);
-            newFileSize = source.Version == SSE_BSAHEADER_VERSION && file.Compressed ? r.ReadInt32() - 4 : fileSize;
+            newFileSize = source.Version == PakFormatTes.SSE_BSAHEADER_VERSION && file.Compressed ? r.ReadInt32() - 4 : fileSize;
             // BSA
             if (file.Compressed)
             {
                 var newFileData = new byte[newFileSize];
-                if (source.Version != SSE_BSAHEADER_VERSION)
+                if (source.Version != PakFormatTes.SSE_BSAHEADER_VERSION)
                 {
                     if (fileData.Length > 4)
                         using (var s = new MemoryStream(fileData, 4, fileSize - 4))

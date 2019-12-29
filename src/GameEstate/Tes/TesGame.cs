@@ -1,4 +1,6 @@
-﻿namespace GameEstate.Tes
+﻿using System.ComponentModel;
+
+namespace GameEstate.Tes
 {
     /// <summary>
     /// TesGame
@@ -6,15 +8,15 @@
     public enum TesGame
     {
         // tes
-        Morrowind = 1,
-        Oblivion,
-        Skyrim,
-        SkyrimSE,
-        SkyrimVR,
+        [Description("Morrowind")] Morrowind,
+        [Description("Oblivion")] Oblivion,
+        [Description("Skyrim")] Skyrim,
+        [Description("Skyrim Special Edition")] SkyrimSE,
+        [Description("Skyrim VR")] SkyrimVR,
         // fallout
-        Fallout3,
-        FalloutNV,
-        Fallout4,
-        Fallout4VR,
+        [Description("Fallout 3")] Fallout3,
+        [Description("Fallout New Vegas")] FalloutNV,
+        [Description("Fallout 4")] Fallout4,
+        [Description("Fallout 4 VR")] Fallout4VR,
     }
 }

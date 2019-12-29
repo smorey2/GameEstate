@@ -31,10 +31,10 @@ namespace GameEstate.CoreTests
         }
 
         [Theory]
-        [InlineData("Data.p4k", RedGame.Witcher)]
-        [InlineData("Data.p4k", RedGame.Witcher2)]
+        [InlineData("main.key", RedGame.Witcher)]
+        [InlineData("krbr.dzip", RedGame.Witcher2)]
         [InlineData("Data.p4k", RedGame.Witcher3)]
-        public void RKEstate(string pakPath, RedGame game)
+        public void RedEstate(string pakPath, RedGame game)
         {
             var fileManager = new RedFileManager();
             var path = fileManager.GetFilePaths(pakPath, (int)game, false)[0];

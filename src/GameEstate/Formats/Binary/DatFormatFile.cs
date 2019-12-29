@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace GameEstate.Formats.Binary
 {
-    public class DatFormat00 : DatFormat
+    public class DatFormatFile : DatFormat
     {
         public override Task<byte[]> ReadAsync(CorePakFile source, BinaryReader r, FileMetadata file, Action<FileMetadata, string> exception = null) => Task.FromResult(r.ReadBytes((int)file.FileSize));
 

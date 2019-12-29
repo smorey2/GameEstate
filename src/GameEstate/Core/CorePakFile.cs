@@ -17,26 +17,46 @@ namespace GameEstate.Core
         internal readonly PakFormat PakFormat;
         internal readonly DatFormat DatFormat;
         //
-        internal IList<FileMetadata> Files;
+        public IList<FileMetadata> Files;
+        internal HashSet<string> FilesRawSet;
         internal ILookup<string, FileMetadata> FilesByPath;
+        internal GenericPool<BinaryReader> Pool;
+        internal object Tag;
+        // meta
+        internal bool HasExtra;
         internal bool HasNamePrefix;
-        GenericPool<BinaryReader> _pool;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="CorePakFile"/> class.
+        /// </summary>
+        /// <param name="filePath">The file path.</param>
+        /// <param name="pakFormat">The pak format.</param>
+        /// <param name="datFormat">The dat format.</param>
+        /// <exception cref="ArgumentNullException">
+        /// filePath
+        /// or
+        /// pakFormat
+        /// or
+        /// datFormat
+        /// </exception>
         public CorePakFile(string filePath, PakFormat pakFormat, DatFormat datFormat)
         {
             FilePath = filePath ?? throw new ArgumentNullException(nameof(filePath));
             PakFormat = pakFormat ?? throw new ArgumentNullException(nameof(pakFormat));
             DatFormat = datFormat ?? throw new ArgumentNullException(nameof(datFormat));
-            Name = Path.GetFileNameWithoutExtension(FilePath);
+            Name = Path.GetFileName(FilePath);
             if (!File.Exists(FilePath))
                 return;
-            _pool = new GenericPool<BinaryReader>(() => new BinaryReader(File.Open(filePath, FileMode.Open, FileAccess.Read, FileShare.Read)));
-            var r = _pool.Get();
-            try { ReadAsync(r).GetAwaiter().GetResult(); }
-            finally { _pool.Release(r); }
+            Pool = new GenericPool<BinaryReader>(() => new BinaryReader(File.Open(filePath, FileMode.Open, FileAccess.Read, FileShare.Read)));
+            var r = Pool.Get();
+            try { ReadAsync(r, PakFormat.ReadStage.File).GetAwaiter().GetResult(); }
+            finally { Pool.Release(r); }
             Process();
         }
 
+        /// <summary>
+        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+        /// </summary>
         public void Dispose()
         {
             Close();
@@ -44,22 +64,46 @@ namespace GameEstate.Core
         }
         ~CorePakFile() => Close();
 
+        /// <summary>
+        /// Closes this instance.
+        /// </summary>
         public void Close()
         {
-            _pool?.Dispose();
-            _pool = null;
+            Files?.Clear();
+            FilesRawSet?.Clear();
+            FilesByPath = null;
+            Pool?.Dispose();
+            Pool = null;
+            if (Tag is IDisposable disposableTag)
+                disposableTag.Dispose();
+            Tag = null;
         }
 
+        /// <summary>
+        /// Determines whether the specified file path contains file.
+        /// </summary>
+        /// <param name="filePath">The file path.</param>
+        /// <returns>
+        ///   <c>true</c> if the specified file path contains file; otherwise, <c>false</c>.
+        /// </returns>
         public bool ContainsFile(string filePath) => FilesByPath.Contains(filePath.Replace("/", "\\"));
 
+        /// <summary>
+        /// Loads the file data asynchronous.
+        /// </summary>
+        /// <param name="filePath">The file path.</param>
+        /// <param name="exception">The exception.</param>
+        /// <returns></returns>
+        /// <exception cref="FileNotFoundException"></exception>
+        /// <exception cref="InvalidOperationException"></exception>
         public Task<byte[]> LoadFileDataAsync(string filePath, Action<FileMetadata, string> exception)
         {
             var files = FilesByPath[filePath.Replace("/", "\\")].ToArray();
             if (files.Length == 1)
             {
-                var r = _pool.Get();
-                try { return LoadFileDataAsync(r, files[0], exception); }
-                finally { _pool.Release(r); }
+                var r = Pool.Get();
+                try { return ReadFileDataAsync(r, files[0], exception); }
+                finally { Pool.Release(r); }
             }
             exception?.Invoke(null, $"LoadFileDataAsync: {filePath} @ {files.Length}"); //CoreDebug.Log($"LoadFileDataAsync: {filePath} @ {files.Length}");
             if (files.Length == 0)
@@ -67,94 +111,78 @@ namespace GameEstate.Core
             throw new InvalidOperationException();
         }
 
-        protected virtual Task<byte[]> LoadFileDataAsync(BinaryReader r, FileMetadata file, Action<FileMetadata, string> exception) => DatFormat.ReadAsync(this, r, file, exception);
+        /// <summary>
+        /// Reads the file data asynchronous.
+        /// </summary>
+        /// <param name="r">The r.</param>
+        /// <param name="file">The file.</param>
+        /// <param name="exception">The exception.</param>
+        /// <returns></returns>
+        internal protected virtual Task<byte[]> ReadFileDataAsync(BinaryReader r, FileMetadata file, Action<FileMetadata, string> exception) => DatFormat.ReadAsync(this, r, file, exception);
 
-        protected virtual Task WriteFileDataAsync(BinaryWriter w, FileMetadata file, byte[] data, Action<FileMetadata, string> exception) => DatFormat.WriteAsync(this, w, file, data, exception);
+        /// <summary>
+        /// Reads the extra data asynchronous.
+        /// </summary>
+        /// <param name="r">The r.</param>
+        /// <param name="file">The file.</param>
+        /// <param name="exception">The exception.</param>
+        /// <returns></returns>
+        internal protected virtual Task<byte[]> ReadExtraDataAsync(BinaryReader r, FileMetadata file, Action<FileMetadata, string> exception) => DatFormat.ReadExtraAsync(this, r, file, exception);
 
-        protected virtual Task ReadAsync(BinaryReader r) => PakFormat.ReadAsync(this, r);
+        /// <summary>
+        /// Writes the file data asynchronous.
+        /// </summary>
+        /// <param name="w">The w.</param>
+        /// <param name="file">The file.</param>
+        /// <param name="data">The data.</param>
+        /// <param name="exception">The exception.</param>
+        /// <returns></returns>
+        internal protected virtual Task WriteFileDataAsync(BinaryWriter w, FileMetadata file, byte[] data, Action<FileMetadata, string> exception) => DatFormat.WriteAsync(this, w, file, data, exception);
 
-        protected virtual Task WriteAsync(BinaryWriter w, PakFormat.WriteState stage) => PakFormat.WriteAsync(this, w, stage);
+        /// <summary>
+        /// Writes the extra data asynchronous.
+        /// </summary>
+        /// <param name="w">The w.</param>
+        /// <param name="file">The file.</param>
+        /// <param name="data">The data.</param>
+        /// <param name="exception">The exception.</param>
+        /// <returns></returns>
+        internal protected virtual Task WriteExtraDataAsync(BinaryWriter w, FileMetadata file, byte[] data, Action<FileMetadata, string> exception) => DatFormat.WriteExtraAsync(this, w, file, data, exception);
 
-        protected virtual void Process() => FilesByPath = Files.ToLookup(x => x.Path, StringComparer.OrdinalIgnoreCase);
+        /// <summary>
+        /// Reads the asynchronous.
+        /// </summary>
+        /// <param name="r">The r.</param>
+        /// <param name="stage">The stage.</param>
+        /// <returns></returns>
+        protected virtual Task ReadAsync(BinaryReader r, PakFormat.ReadStage stage) => PakFormat.ReadAsync(this, r, stage);
 
-        #region Extract / Insert
+        /// <summary>
+        /// Writes the asynchronous.
+        /// </summary>
+        /// <param name="w">The w.</param>
+        /// <param name="stage">The stage.</param>
+        /// <returns></returns>
+        protected virtual Task WriteAsync(BinaryWriter w, PakFormat.WriteStage stage) => PakFormat.WriteAsync(this, w, stage);
 
-        public async Task ExtractAsync(string path, int from = 0, Action<FileMetadata, int> advance = null, Action<FileMetadata, string> exception = null)
+        /// <summary>
+        /// Processes this instance.
+        /// </summary>
+        internal protected virtual void Process() => FilesByPath = Files.Where(x => x != null).ToLookup(x => x.Path, StringComparer.OrdinalIgnoreCase);
+
+        /// <summary>
+        /// Adds the raw file.
+        /// </summary>
+        /// <param name="file">The file.</param>
+        /// <param name="message">The message.</param>
+        public void AddRawFile(FileMetadata file, string message)
         {
-            // write pak
-            if (!string.IsNullOrEmpty(path) && !Directory.Exists(path))
-                Directory.CreateDirectory(path);
-            var setPath = Path.Combine(path, ".set");
-            using (var w = new BinaryWriter(new FileStream(setPath, FileMode.Create, FileAccess.Write)))
-                await PakFormat.Default.WriteAsync(this, w, PakFormat.WriteState.Header);
-
-            // write files
-            Parallel.For(from, Files.Count, new ParallelOptions { }, async index =>
+            lock (this)
             {
-                var file = Files[index];
-                var newPath = Path.Combine(path, file.Path);
-
-                // create directory
-                var directory = Path.GetDirectoryName(newPath);
-                if (!string.IsNullOrEmpty(directory) && !Directory.Exists(directory))
-                    Directory.CreateDirectory(directory);
-
-                // extract file
-                var r = _pool.Get();
-                try
-                {
-                    var b = await LoadFileDataAsync(r, file, exception);
-                    using (var s = new FileStream(newPath, FileMode.Create, FileAccess.Write))
-                        s.Write(b, 0, b.Length);
-                    advance?.Invoke(file, index);
-                }
-                catch (Exception e) { exception?.Invoke(file, $"Exception: {e.Message}"); }
-                finally { _pool.Release(r); }
-            });
-        }
-
-        public async Task InsertAsync(BinaryWriter w, string path, int from = 0, Action<FileMetadata, int> advance = null, Action<FileMetadata, string> exception = null)
-        {
-            // read pak
-            if (string.IsNullOrEmpty(path) || !Directory.Exists(path))
-            {
-                exception?.Invoke(null, $"Directory Missing: {path}");
-                return;
+                if (FilesRawSet == null)
+                    FilesRawSet = new HashSet<string>();
+                FilesRawSet.Add(file.Path);
             }
-            var setPath = Path.Combine(path, ".set");
-            using (var r = new BinaryReader(File.Open(setPath, FileMode.Open, FileAccess.Read, FileShare.Read)))
-                await PakFormat.Default.ReadAsync(this, r);
-
-            // write header
-            if (from == 0)
-                await PakFormat.WriteAsync(this, w, PakFormat.WriteState.Header);
-
-            // write files
-            Parallel.For(0, Files.Count, new ParallelOptions { MaxDegreeOfParallelism = 1 }, async index =>
-            {
-                var file = Files[index];
-                var newPath = Path.Combine(path, file.Path);
-
-                // check directory
-                var directory = Path.GetDirectoryName(newPath);
-                if (string.IsNullOrEmpty(directory) || !Directory.Exists(directory))
-                {
-                    exception?.Invoke(file, $"Directory Missing: {directory}");
-                    return;
-                }
-
-                // insert file
-                try
-                {
-                    await PakFormat.WriteAsync(this, w, PakFormat.WriteState.File);
-                    using (var r = File.Open(newPath, FileMode.Open, FileAccess.Read, FileShare.Read))
-                        await WriteFileDataAsync(w, file, r.ReadAllBytes(), exception);
-                    advance?.Invoke(file, index);
-                }
-                catch (Exception e) { exception?.Invoke(file, $"Exception: {e.Message}"); }
-            });
         }
-
-        #endregion
     }
 }

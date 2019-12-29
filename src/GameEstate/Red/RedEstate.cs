@@ -10,6 +10,22 @@ namespace GameEstate.Red
     public class RedEstate : CoreEstate
     {
         /// <summary>
+        /// Gets the name.
+        /// </summary>
+        /// <value>
+        /// The name.
+        /// </value>
+        public override string Name => "REDengine";
+
+        /// <summary>
+        /// Gets the description.
+        /// </summary>
+        /// <value>
+        /// The description.
+        /// </value>
+        public override string Description => @"REDengine file formats including the Witcher Series";
+
+        /// <summary>
         /// Gets the type of the game.
         /// </summary>
         /// <value>

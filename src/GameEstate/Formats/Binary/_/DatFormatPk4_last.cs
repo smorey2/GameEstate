@@ -6,22 +6,13 @@ using ZstdNet;
 
 namespace GameEstate.Formats.Binary
 {
-    public class DatFormatRed : DatFormat
+    public class DatFormatPk4_last : DatFormat
     {
         public override Task<byte[]> ReadAsync(CorePakFile source, BinaryReader r, FileMetadata file, Action<FileMetadata, string> exception = null)
         {
-            byte[] buf;
+            var buf = new byte[file.PackedSize];
             r.Position(file.Position);
-            if (source.Version == PakFormatRed.BIFF_VERSION)
-                buf = r.ReadBytes((int)file.FileSize);
-            else if (source.Version == PakFormatRed.DZIP_VERSION)
-            {
-                var offsetAdd = r.ReadInt32();
-                buf = new byte[file.PackedSize - offsetAdd];
-                r.Skip(offsetAdd - 4);
-            }
-            else throw new ArgumentOutOfRangeException(nameof(source.Version), $"{source.Version}");
-            //
+            r.Read(buf, 0, buf.Length);
             if (file.Compressed)
                 using (var decompressor = new Decompressor())
                     try

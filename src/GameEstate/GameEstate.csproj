@@ -1,9 +1,9 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp2.2</TargetFramework>
+    <TargetFramework>netstandard2.0</TargetFramework>
     <ApplicationIcon />
-    <OutputType>Exe</OutputType>
+    <OutputType>Library</OutputType>
     <StartupObject />
   </PropertyGroup>
 
@@ -12,7 +12,16 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="CommandLineParser" Version="2.6.0" />
+    <Compile Remove="Formats\Binary\_\DatFormatPk4_last.cs" />
+    <Compile Remove="Formats\Binary\_\PakFormatP4k_last.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="Formats\Binary\_\DatFormatPk4_last.cs" />
+    <None Include="Formats\Binary\_\PakFormatP4k_last.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="MathNet.Numerics" Version="4.9.0" />
     <PackageReference Include="Microsoft.Win32.Registry" Version="4.7.0" />
     <PackageReference Include="SharpZipLib" Version="1.2.0" />

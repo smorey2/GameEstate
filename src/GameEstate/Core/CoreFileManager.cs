@@ -7,12 +7,38 @@ using static Microsoft.Win32.Registry;
 
 namespace GameEstate.Core
 {
+    /// <summary>
+    /// CoreFileManager
+    /// </summary>
     public abstract class CoreFileManager
     {
+        /// <summary>
+        /// Gets or sets a value indicating whether [is64 bit].
+        /// </summary>
+        /// <value>
+        ///   <c>true</c> if [is64 bit]; otherwise, <c>false</c>.
+        /// </value>
         public bool Is64Bit { get; set; } = true;
-        public bool IsDataPresent => _locations.Count != 0;
-        protected Dictionary<int, string> _locations = new Dictionary<int, string>();
 
+        /// <summary>
+        /// Gets a value indicating whether this instance is data present.
+        /// </summary>
+        /// <value>
+        ///   <c>true</c> if this instance is data present; otherwise, <c>false</c>.
+        /// </value>
+        public bool IsDataPresent => Locations.Count != 0;
+
+        /// <summary>
+        /// The locations
+        /// </summary>
+        public IDictionary<int, string> Locations = new Dictionary<int, string>();
+
+        /// <summary>
+        /// Loads from reg keys.
+        /// </summary>
+        /// <param name="regkeys">The regkeys.</param>
+        /// <param name="subFolder">The sub folder.</param>
+        /// <param name="many">The many.</param>
         protected void LoadFromRegKeys(IList<object> regkeys, Func<int, string> subFolder = null, bool? many = null)
         {
             for (var i = 0; i < regkeys.Count; i += 2)
@@ -25,7 +51,7 @@ namespace GameEstate.Core
                         path = Path.Combine(path, subFolder(game));
                     if (Directory.Exists(path))
                     {
-                        _locations.Add(game, path);
+                        Locations.Add(game, path);
                         if (many == false)
                             return;
                     }
@@ -33,12 +59,29 @@ namespace GameEstate.Core
             }
         }
 
+        /// <summary>
+        /// Gets the file paths.
+        /// </summary>
+        /// <param name="pathOrPattern">The path or pattern.</param>
+        /// <param name="game">The game.</param>
+        /// <param name="many">if set to <c>true</c> [many].</param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentNullException">
+        /// pathOrPattern
+        /// or
+        /// pathOrPattern
+        /// </exception>
         public string[] GetFilePaths(string pathOrPattern, int game, bool many) =>
-            _locations.TryGetValue(game, out var path) ? many
+            Locations.TryGetValue(game, out var path) ? many
                 ? Directory.GetFiles(path, pathOrPattern ?? throw new ArgumentNullException(nameof(pathOrPattern)))
                 : new[] { Path.Combine(path, pathOrPattern ?? throw new ArgumentNullException(nameof(pathOrPattern))) }
                 : null;
 
+        /// <summary>
+        /// Gets the executable path.
+        /// </summary>
+        /// <param name="subName">Name of the sub.</param>
+        /// <returns></returns>
         protected static string GetExePath(string subName)
         {
             try

@@ -7,6 +7,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GameEstate", "GameEstate\Ga
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GameEstate.CoreTests", "GameEstate.CoreTests\GameEstate.CoreTests.csproj", "{A1121100-B59F-4A9C-BC49-3530A72B8D5A}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GameEstate.Cli", "GameEstate.Cli\GameEstate.Cli.csproj", "{9BA30615-1865-4174-A737-5FEC83D982CB}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{A1121100-B59F-4A9C-BC49-3530A72B8D5A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A1121100-B59F-4A9C-BC49-3530A72B8D5A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A1121100-B59F-4A9C-BC49-3530A72B8D5A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9BA30615-1865-4174-A737-5FEC83D982CB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9BA30615-1865-4174-A737-5FEC83D982CB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9BA30615-1865-4174-A737-5FEC83D982CB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9BA30615-1865-4174-A737-5FEC83D982CB}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -2,6 +2,7 @@
 using System;
 using System.IO;
 using System.Runtime.InteropServices;
+using System.Text;
 using System.Threading.Tasks;
 using Unity.Collections.LowLevel.Unsafe;
 
@@ -39,9 +40,17 @@ namespace GameEstate.Core
             }
         }
 
-        public static unsafe string ReadZASCII(byte* name)
+        public static unsafe string ReadZASCII(byte* name, int length)
         {
-            return null;
+            var i = 0;
+            while (name[i] != 0 && length-- > 0) i++;
+            if (i == 0)
+                return null;
+            var name2 = new byte[i];
+            fixed (byte* pB = name2)
+                while (--i >= 0)
+                    pB[i] = name[i];
+            return Encoding.ASCII.GetString(name2);
         }
 
         [DllImport("Kernel32")] extern static unsafe int _lread(SafeFileHandle hFile, void* lpBuffer, int wBytes);

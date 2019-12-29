@@ -10,6 +10,22 @@ namespace GameEstate.Rsi
     public class RsiEstate : CoreEstate
     {
         /// <summary>
+        /// Gets the name.
+        /// </summary>
+        /// <value>
+        /// The name.
+        /// </value>
+        public override string Name => "Roberts Space Industries";
+
+        /// <summary>
+        /// Gets the description.
+        /// </summary>
+        /// <value>
+        /// The description.
+        /// </value>
+        public override string Description => @"RSI formats used in StarCitizen";
+
+        /// <summary>
         /// Gets the type of the game.
         /// </summary>
         /// <value>

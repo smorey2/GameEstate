@@ -17,7 +17,7 @@ namespace GameEstate.Formats.Binary
         const uint F4_BSAHEADER_FILEID = 0x58445442; // Magic for Fallout 4 BA2, the literal string "BTDX".
         const uint OB_BSAHEADER_VERSION = 0x67; // Version number of an Oblivion BSA
         const uint F3_BSAHEADER_VERSION = 0x68; // Version number of a Fallout 3 BSA
-        const uint SSE_BSAHEADER_VERSION = 0x69; // Version number of a Skyrim SE BSA
+        internal const uint SSE_BSAHEADER_VERSION = 0x69; // Version number of a Skyrim SE BSA
         const uint F4_BSAHEADER_VERSION = 0x01; // Version number of a Fallout 4 BA2
 
         // Archive flags
@@ -143,8 +143,11 @@ namespace GameEstate.Formats.Binary
 
         #endregion
 
-        public unsafe override Task ReadAsync(CorePakFile source, BinaryReader r)
+        public unsafe override Task ReadAsync(CorePakFile source, BinaryReader r, ReadStage stage)
         {
+            if (stage != ReadStage.File)
+                throw new ArgumentOutOfRangeException(nameof(stage), stage.ToString());
+
             FileMetadata[] files;
             var Magic = r.ReadUInt32();
             if (Magic == F4_BSAHEADER_FILEID)
@@ -295,6 +298,6 @@ namespace GameEstate.Formats.Binary
             return Task.CompletedTask;
         }
 
-        public unsafe override Task WriteAsync(CorePakFile source, BinaryWriter w, WriteState stage) => throw new NotImplementedException();
+        public unsafe override Task WriteAsync(CorePakFile source, BinaryWriter w, WriteStage stage) => throw new NotImplementedException();
     }
 }

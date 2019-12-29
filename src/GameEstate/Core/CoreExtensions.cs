@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.IO;
+using System.Linq;
 using System.Text;
 using UnityEngine;
 using static GameEstate.Core.CoreDebug;
@@ -9,8 +11,18 @@ namespace GameEstate.Core
 {
     public enum ASCIIFormat { PossiblyNullTerminated, ZeroPadded, ZeroTerminated }
 
-    public static class Extensions
+    public static class CoreExtensions
     {
+        public static string GetEnumDescription(this Type source, string value)
+        {
+            var name = Enum.GetNames(source).FirstOrDefault(f => f.Equals(value, StringComparison.OrdinalIgnoreCase));
+            if (name == null)
+                return string.Empty;
+            var field = source.GetField(name);
+            var attributes = (DescriptionAttribute[])field.GetCustomAttributes(typeof(DescriptionAttribute), false);
+            return attributes.Length > 0 ? attributes[0].Description : value.ToString();
+        }
+
         public static bool Equals(this string source, byte[] bytes)
         {
             if (bytes.Length != source.Length)

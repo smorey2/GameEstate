@@ -10,6 +10,22 @@ namespace GameEstate.UO
     public class UOEstate : CoreEstate
     {
         /// <summary>
+        /// Gets the name.
+        /// </summary>
+        /// <value>
+        /// The name.
+        /// </value>
+        public override string Name => "Ultima Online";
+
+        /// <summary>
+        /// Gets the description.
+        /// </summary>
+        /// <value>
+        /// The description.
+        /// </value>
+        public override string Description => @"UO formats used in Ultima Online";
+
+        /// <summary>
         /// Gets the type of the game.
         /// </summary>
         /// <value>
