@@ -26,7 +26,7 @@ namespace GameEstate.Core
 
             // write files
             var hasExtra = source.HasExtra;
-            Parallel.For(from, source.Files.Count, new ParallelOptions { /*MaxDegreeOfParallelism = 1*/ }, async index =>
+            Parallel.For(from, source.Files.Count, new ParallelOptions { MaxDegreeOfParallelism = 1 }, async index =>
             {
                 var file = source.Files[index];
                 var newPath = Path.Combine(path, file.Path);
@@ -40,28 +40,28 @@ namespace GameEstate.Core
                 if (file.Pak != null)
                     await file.Pak.ExportAsync(newPath);
 
-                // extract file
+                // skip empty file
                 if (file.FileSize == 0 && file.PackedSize == 0)
                 {
                     advance?.Invoke(file, index);
                     return;
                 }
-                var r = source.Pool.Get();
+
+                // extract file
                 try
                 {
-                    var b = await source.ReadFileDataAsync(r, file, exception);
+                    var b = await source.LoadFileDataAsync(file, exception);
                     using (var s = new FileStream(newPath, FileMode.Create, FileAccess.Write))
                         s.Write(b, 0, b.Length);
                     if (hasExtra && file.ExtraSize > 0)
                     {
-                        b = await source.ReadExtraDataAsync(r, file, exception);
+                        b = await source.LoadExtraDataAsync(file, exception);
                         using (var s = new FileStream($"{newPath}.~", FileMode.Create, FileAccess.Write))
                             s.Write(b, 0, b.Length);
                     }
                     advance?.Invoke(file, index);
                 }
                 catch (Exception e) { exception?.Invoke(file, $"Exception: {e.Message}"); }
-                finally { source.Pool.Release(r); }
             });
 
             // write pak-raw

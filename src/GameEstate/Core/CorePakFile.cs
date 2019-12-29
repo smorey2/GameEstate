@@ -21,6 +21,7 @@ namespace GameEstate.Core
         internal HashSet<string> FilesRawSet;
         internal ILookup<string, FileMetadata> FilesByPath;
         internal GenericPool<BinaryReader> Pool;
+        internal bool UsePool = true;
         internal object Tag;
         // meta
         internal bool HasExtra;
@@ -48,9 +49,13 @@ namespace GameEstate.Core
             if (!File.Exists(FilePath))
                 return;
             Pool = new GenericPool<BinaryReader>(() => new BinaryReader(File.Open(filePath, FileMode.Open, FileAccess.Read, FileShare.Read)));
-            var r = Pool.Get();
-            try { ReadAsync(r, PakFormat.ReadStage.File).GetAwaiter().GetResult(); }
-            finally { Pool.Release(r); }
+            if (UsePool)
+            {
+                var r = Pool.Get();
+                try { ReadAsync(r, PakFormat.ReadStage.File).GetAwaiter().GetResult(); }
+                finally { Pool.Release(r); }
+            }
+            else ReadAsync(null, PakFormat.ReadStage.File).GetAwaiter().GetResult();
             Process();
         }
 
@@ -101,14 +106,52 @@ namespace GameEstate.Core
             var files = FilesByPath[filePath.Replace("/", "\\")].ToArray();
             if (files.Length == 1)
             {
-                var r = Pool.Get();
-                try { return ReadFileDataAsync(r, files[0], exception); }
-                finally { Pool.Release(r); }
+                if (UsePool)
+                {
+                    var r = Pool.Get();
+                    try { return ReadFileDataAsync(r, files[0], exception); }
+                    finally { Pool.Release(r); }
+                }
+                else return ReadFileDataAsync(null, files[0], exception);
             }
             exception?.Invoke(null, $"LoadFileDataAsync: {filePath} @ {files.Length}"); //CoreDebug.Log($"LoadFileDataAsync: {filePath} @ {files.Length}");
             if (files.Length == 0)
                 throw new FileNotFoundException(filePath);
             throw new InvalidOperationException();
+        }
+
+        /// <summary>
+        /// Loads the file data asynchronous.
+        /// </summary>
+        /// <param name="file">The file.</param>
+        /// <param name="exception">The exception.</param>
+        /// <returns></returns>
+        public Task<byte[]> LoadFileDataAsync(FileMetadata file, Action<FileMetadata, string> exception)
+        {
+            if (UsePool)
+            {
+                var r = Pool.Get();
+                try { return ReadFileDataAsync(r, file, exception); }
+                finally { Pool.Release(r); }
+            }
+            else return ReadFileDataAsync(null, file, exception);
+        }
+
+        /// <summary>
+        /// Loads the extra data asynchronous.
+        /// </summary>
+        /// <param name="file">The file.</param>
+        /// <param name="exception">The exception.</param>
+        /// <returns></returns>
+        public Task<byte[]> LoadExtraDataAsync(FileMetadata file, Action<FileMetadata, string> exception)
+        {
+            if (UsePool)
+            {
+                var r = Pool.Get();
+                try { return ReadExtraDataAsync(r, file, exception); }
+                finally { Pool.Release(r); }
+            }
+            else return ReadExtraDataAsync(null, file, exception);
         }
 
         /// <summary>
@@ -118,7 +161,7 @@ namespace GameEstate.Core
         /// <param name="file">The file.</param>
         /// <param name="exception">The exception.</param>
         /// <returns></returns>
-        internal protected virtual Task<byte[]> ReadFileDataAsync(BinaryReader r, FileMetadata file, Action<FileMetadata, string> exception) => DatFormat.ReadAsync(this, r, file, exception);
+        protected virtual Task<byte[]> ReadFileDataAsync(BinaryReader r, FileMetadata file, Action<FileMetadata, string> exception) => DatFormat.ReadAsync(this, r, file, exception);
 
         /// <summary>
         /// Reads the extra data asynchronous.
@@ -127,7 +170,7 @@ namespace GameEstate.Core
         /// <param name="file">The file.</param>
         /// <param name="exception">The exception.</param>
         /// <returns></returns>
-        internal protected virtual Task<byte[]> ReadExtraDataAsync(BinaryReader r, FileMetadata file, Action<FileMetadata, string> exception) => DatFormat.ReadExtraAsync(this, r, file, exception);
+        protected virtual Task<byte[]> ReadExtraDataAsync(BinaryReader r, FileMetadata file, Action<FileMetadata, string> exception) => DatFormat.ReadExtraAsync(this, r, file, exception);
 
         /// <summary>
         /// Writes the file data asynchronous.

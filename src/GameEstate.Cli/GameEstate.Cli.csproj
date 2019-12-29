@@ -13,17 +13,10 @@
 
   <ItemGroup>
     <PackageReference Include="CommandLineParser" Version="2.6.0" />
-    <PackageReference Include="ZstdNet" Version="1.3.3" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\GameEstate\GameEstate.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Reference Include="UnityEngine">
-      <HintPath>..\..\lib\UnityEngine.dll</HintPath>
-    </Reference>
   </ItemGroup>
 
 </Project>

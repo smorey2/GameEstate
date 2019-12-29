@@ -3,7 +3,6 @@ using ICSharpCode.SharpZipLib.Zip;
 using System;
 using System.IO;
 using System.Threading.Tasks;
-using ZstdNet;
 
 namespace GameEstate.Formats.Binary
 {
@@ -13,14 +12,20 @@ namespace GameEstate.Formats.Binary
         {
             var pak = (ZipFile)source.Tag;
             var entry = (ZipEntry)file.Tag;
+            var stream = pak.GetInputStream(entry);
+            if (!stream.CanRead)
+            {
+                exception?.Invoke(file, $"Stream Closed.");
+                return null;
+            }
             try
             {
                 using (var s = pak.GetInputStream(entry))
                     return Task.FromResult(s.ReadAllBytes());
             }
-            catch (ZstdException e)
+            catch (Exception e)
             {
-                exception?.Invoke(file, $"ZstdException: {e.Message}");
+                exception?.Invoke(file, $"Exception: {e.Message}");
                 return null;
             }
         }

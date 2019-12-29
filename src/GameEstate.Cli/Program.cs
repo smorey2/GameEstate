@@ -160,8 +160,8 @@ namespace GameEstate
                 Console.WriteLine("Locations found:\n");
                 foreach (var location in locations)
                 {
-                    var game = estate.GetGame(location.Key);
-                    Console.WriteLine($"{game.description} - {location.Value}");
+                    var (name, description) = estate.GetGame(location.Key);
+                    Console.WriteLine($"{description} - {location.Value}");
                 }
                 return Task.FromResult(0);
             }
@@ -198,8 +198,8 @@ namespace GameEstate
                     var newPath = Path.Combine(opts.Path, Path.GetFileName(pak.FilePath));
                     await pak.ExportAsync(newPath, from, (file, index) =>
                     {
-                        if ((index % 50) == 0)
-                            Console.WriteLine($"{file.Path}");
+                        //if ((index % 50) == 0)
+                        //    Console.WriteLine($"{file.Path}");
                     }, (file, message) =>
                     {
                         Console.WriteLine($"{message}: {file?.Path}");
@@ -219,8 +219,8 @@ namespace GameEstate
                 using (var w = new BinaryWriter(new FileStream(path, FileMode.Create, FileAccess.Write)))
                     await pak.ImportAsync(w, opts.Path, from, (file, index) =>
                     {
-                        if ((index % 50) == 0)
-                            Console.WriteLine($"{file.Path}");
+                        //if ((index % 50) == 0)
+                        //    Console.WriteLine($"{file.Path}");
                     }, (file, message) =>
                     {
                         Console.WriteLine($"{message}: {file?.Path}");
