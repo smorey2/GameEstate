@@ -12,12 +12,12 @@ namespace GameEstate.Formats.Binary
         {
             var pak = (ZipFile)source.Tag;
             var entry = (ZipEntry)file.Tag;
-            var stream = pak.GetInputStream(entry);
-            if (!stream.CanRead)
-            {
-                exception?.Invoke(file, $"Stream Closed.");
-                return null;
-            }
+            //var stream = pak.GetInputStream(entry);
+            //if (!stream.CanRead)
+            //{
+            //    exception?.Invoke(file, $"Stream Closed.");
+            //    return null;
+            //}
             try
             {
                 using (var s = pak.GetInputStream(entry))
@@ -32,6 +32,17 @@ namespace GameEstate.Formats.Binary
 
         public override Task WriteAsync(CorePakFile source, BinaryWriter w, FileMetadata file, byte[] data, Action<FileMetadata, string> exception = null)
         {
+            var pak = (ZipFile)source.Tag;
+            var entry = (ZipEntry)file.Tag;
+            try
+            {
+                using (var s = pak.GetInputStream(entry))
+                    s.Write(data, 0, data.Length);
+            }
+            catch (Exception e)
+            {
+                exception?.Invoke(file, $"Exception: {e.Message}");
+            }
             return Task.CompletedTask;
         }
     }

@@ -269,7 +269,7 @@ namespace GameEstate.Formats.Binary
                     var info = infos[i];
                     r.Position(info.FileNameOffset);
                     var fileName = r.ReadASCII((int)info.FileNameSize);
-                    var newPaths = Estate.FileManager.GetFilePaths(fileName, (int)RedGame.Witcher, false);
+                    var newPaths = Estate.FileManager.GetGameFilePaths((int)RedGame.Witcher, fileName);
                     string newPath;
                     if (newPaths.Length != 1 || !System.IO.File.Exists(newPath = newPaths[0]))
                         continue;

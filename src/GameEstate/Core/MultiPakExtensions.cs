@@ -9,27 +9,28 @@ namespace GameEstate.Core
     {
         #region Export / Import
 
-        public static async Task ExportAsync(this CorePakFile source, string path, int from = 0, Action<FileMetadata, int> advance = null, Action<FileMetadata, string> exception = null)
+        public static async Task ExportAsync(this CorePakFile source, string filePath, int from = 0, Action<FileMetadata, int> advance = null, Action<FileMetadata, string> exception = null)
         {
             // write pak
-            if (!string.IsNullOrEmpty(path) && !Directory.Exists(path))
-                Directory.CreateDirectory(path);
-            var setPath = Path.Combine(path, ".set");
-            using (var w = new BinaryWriter(new FileStream(setPath, FileMode.Create, FileAccess.Write)))
-                await PakFormat.File.WriteAsync(source, w, PakFormat.WriteStage._Set);
-            var metaPath = Path.Combine(path, ".meta");
-            using (var w = new BinaryWriter(new FileStream(metaPath, FileMode.Create, FileAccess.Write)))
-                await PakFormat.File.WriteAsync(source, w, PakFormat.WriteStage._Meta);
-            var rawPath = Path.Combine(path, ".raw");
-            if (File.Exists(rawPath))
-                File.Delete(rawPath);
+            if (!string.IsNullOrEmpty(filePath) && !Directory.Exists(filePath))
+                Directory.CreateDirectory(filePath);
+
+            //var setPath = Path.Combine(filePath, ".set");
+            //using (var w = new BinaryWriter(new FileStream(setPath, FileMode.Create, FileAccess.Write)))
+            //    await PakFormat.Stream.WriteAsync(source, w, PakFormat.WriteStage._Set);
+            //var metaPath = Path.Combine(filePath, ".meta");
+            //using (var w = new BinaryWriter(new FileStream(metaPath, FileMode.Create, FileAccess.Write)))
+            //    await PakFormat.Stream.WriteAsync(source, w, PakFormat.WriteStage._Meta);
+            //var rawPath = Path.Combine(filePath, ".raw");
+            //if (File.Exists(rawPath))
+            //    File.Delete(rawPath);
 
             // write files
             var hasExtra = source.HasExtra;
-            Parallel.For(from, source.Files.Count, new ParallelOptions { MaxDegreeOfParallelism = 1 }, async index =>
+            Parallel.For(from, source.Files.Count, new ParallelOptions { /*MaxDegreeOfParallelism = 1*/ }, async index =>
             {
                 var file = source.Files[index];
-                var newPath = Path.Combine(path, file.Path);
+                var newPath = Path.Combine(filePath, file.Path);
 
                 // create directory
                 var directory = Path.GetDirectoryName(newPath);
@@ -65,39 +66,43 @@ namespace GameEstate.Core
             });
 
             // write pak-raw
-            if (source.FilesRawSet != null && source.FilesRawSet.Count > 0)
-                using (var w = new BinaryWriter(new FileStream(rawPath, FileMode.Create, FileAccess.Write)))
-                    await PakFormat.File.WriteAsync(source, w, PakFormat.WriteStage._Raw);
+            await new StreamPakFile(source, filePath).WriteAsync(null, PakFormat.WriteStage.File);
+
+            //// write pak-raw
+            //if (source.FilesRawSet != null && source.FilesRawSet.Count > 0)
+            //    using (var w = new BinaryWriter(new FileStream(rawPath, FileMode.Create, FileAccess.Write)))
+            //        await PakFormat.Stream.WriteAsync(source, w, PakFormat.WriteStage._Raw);
         }
 
-        public static async Task ImportAsync(this CorePakFile source, BinaryWriter w, string path, int from = 0, Action<FileMetadata, int> advance = null, Action<FileMetadata, string> exception = null)
+        public static async Task ImportAsync(this CorePakFile source, BinaryWriter w, string filePath, int from = 0, Action<FileMetadata, int> advance = null, Action<FileMetadata, string> exception = null)
         {
             // read pak
-            if (string.IsNullOrEmpty(path) || !Directory.Exists(path))
+            if (string.IsNullOrEmpty(filePath) || !Directory.Exists(filePath))
             {
-                exception?.Invoke(null, $"Directory Missing: {path}");
+                exception?.Invoke(null, $"Directory Missing: {filePath}");
                 return;
             }
-            var setPath = Path.Combine(path, ".set");
+            var setPath = Path.Combine(filePath, ".set");
             using (var r = new BinaryReader(File.Open(setPath, FileMode.Open, FileAccess.Read, FileShare.Read)))
-                await PakFormat.File.ReadAsync(source, r, PakFormat.ReadStage._Set);
-            var metaPath = Path.Combine(path, ".meta");
+                await PakFormat.Stream.ReadAsync(source, r, PakFormat.ReadStage._Set);
+            var metaPath = Path.Combine(filePath, ".meta");
             using (var r = new BinaryReader(File.Open(setPath, FileMode.Open, FileAccess.Read, FileShare.Read)))
-                await PakFormat.File.ReadAsync(source, r, PakFormat.ReadStage._Meta);
-            var rawPath = Path.Combine(path, ".raw");
+                await PakFormat.Stream.ReadAsync(source, r, PakFormat.ReadStage._Meta);
+            var rawPath = Path.Combine(filePath, ".raw");
             if (File.Exists(rawPath))
                 using (var r = new BinaryReader(File.Open(rawPath, FileMode.Open, FileAccess.Read, FileShare.Read)))
-                    await PakFormat.File.ReadAsync(source, r, PakFormat.ReadStage._Raw);
+                    await PakFormat.Stream.ReadAsync(source, r, PakFormat.ReadStage._Raw);
 
             // write header
             if (from == 0)
                 await source.PakFormat.WriteAsync(source, w, PakFormat.WriteStage.Header);
 
             // write files
+            var hasExtra = source.HasExtra;
             Parallel.For(0, source.Files.Count, new ParallelOptions { MaxDegreeOfParallelism = 1 }, async index =>
             {
                 var file = source.Files[index];
-                var newPath = Path.Combine(path, file.Path);
+                var newPath = Path.Combine(filePath, file.Path);
 
                 // check directory
                 var directory = Path.GetDirectoryName(newPath);
@@ -113,6 +118,12 @@ namespace GameEstate.Core
                     await source.PakFormat.WriteAsync(source, w, PakFormat.WriteStage.File);
                     using (var r = File.Open(newPath, FileMode.Open, FileAccess.Read, FileShare.Read))
                         await source.WriteFileDataAsync(w, file, r.ReadAllBytes(), exception);
+                    //if (hasExtra && file.ExtraSize > 0)
+                    //{
+                    //    b = await source.LoadExtraDataAsync(file, exception);
+                    //    using (var s = new FileStream($"{newPath}.~", FileMode.Create, FileAccess.Write))
+                    //        s.Write(b, 0, b.Length);
+                    //}
                     advance?.Invoke(file, index);
                 }
                 catch (Exception e) { exception?.Invoke(file, $"Exception: {e.Message}"); }

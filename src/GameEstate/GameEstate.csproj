@@ -12,8 +12,9 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="Formats\Binary\_\DatFormatPk4_last.cs" />
-    <Compile Remove="Formats\Binary\_\PakFormatP4k_last.cs" />
+    <Compile Remove="Formats\Binary\_\**" />
+    <EmbeddedResource Remove="Formats\Binary\_\**" />
+    <None Remove="Formats\Binary\_\**" />
   </ItemGroup>
 
   <ItemGroup>
@@ -23,12 +24,11 @@
     <Content Include="..\..\lib\x86\libzstd.dll" Link="x86\libzstd.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <None Include="Formats\Binary\_\DatFormatPk4_last.cs" />
-    <None Include="Formats\Binary\_\PakFormatP4k_last.cs" />
   </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="MathNet.Numerics" Version="4.9.0" />
+    <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="3.1.0" />
     <PackageReference Include="Microsoft.Win32.Registry" Version="4.7.0" />
     <PackageReference Include="System.Drawing.Common" Version="4.7.0" />
   </ItemGroup>

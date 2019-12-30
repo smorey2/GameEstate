@@ -44,12 +44,12 @@ namespace GameEstate.Core
         {
             FilePath = filePath ?? throw new ArgumentNullException(nameof(filePath));
             PakFormat = pakFormat ?? throw new ArgumentNullException(nameof(pakFormat));
-            DatFormat = datFormat ?? throw new ArgumentNullException(nameof(datFormat));
+            DatFormat = datFormat;
             Name = Path.GetFileName(FilePath);
-            if (!File.Exists(FilePath))
-                return;
-            Pool = new GenericPool<BinaryReader>(() => new BinaryReader(File.Open(filePath, FileMode.Open, FileAccess.Read, FileShare.Read)));
-            if (UsePool)
+            if (string.IsNullOrEmpty(Name))
+                Name = Path.GetFileName(Path.GetDirectoryName(FilePath));
+            Pool = File.Exists(FilePath) ? new GenericPool<BinaryReader>(() => new BinaryReader(File.Open(filePath, FileMode.Open, FileAccess.Read, FileShare.Read))) : null;
+            if (Pool != null && UsePool)
             {
                 var r = Pool.Get();
                 try { ReadAsync(r, PakFormat.ReadStage.File).GetAwaiter().GetResult(); }
@@ -74,8 +74,8 @@ namespace GameEstate.Core
         /// </summary>
         public void Close()
         {
-            Files?.Clear();
-            FilesRawSet?.Clear();
+            Files = null;
+            FilesRawSet = null;
             FilesByPath = null;
             Pool?.Dispose();
             Pool = null;
@@ -85,13 +85,13 @@ namespace GameEstate.Core
         }
 
         /// <summary>
-        /// Determines whether the specified file path contains file.
+        /// Determines whether the pak contains the specified file path.
         /// </summary>
         /// <param name="filePath">The file path.</param>
         /// <returns>
         ///   <c>true</c> if the specified file path contains file; otherwise, <c>false</c>.
         /// </returns>
-        public bool ContainsFile(string filePath) => FilesByPath.Contains(filePath.Replace("/", "\\"));
+        public bool Contains(string filePath) => FilesByPath.Contains(filePath.Replace('\\', '/'));
 
         /// <summary>
         /// Loads the file data asynchronous.
@@ -101,19 +101,11 @@ namespace GameEstate.Core
         /// <returns></returns>
         /// <exception cref="FileNotFoundException"></exception>
         /// <exception cref="InvalidOperationException"></exception>
-        public Task<byte[]> LoadFileDataAsync(string filePath, Action<FileMetadata, string> exception)
+        public Task<byte[]> LoadFileDataAsync(string filePath, Action<FileMetadata, string> exception = null)
         {
-            var files = FilesByPath[filePath.Replace("/", "\\")].ToArray();
+            var files = FilesByPath[filePath.Replace('\\', '/')].ToArray();
             if (files.Length == 1)
-            {
-                if (UsePool)
-                {
-                    var r = Pool.Get();
-                    try { return ReadFileDataAsync(r, files[0], exception); }
-                    finally { Pool.Release(r); }
-                }
-                else return ReadFileDataAsync(null, files[0], exception);
-            }
+                return LoadFileDataAsync(files[0], exception);
             exception?.Invoke(null, $"LoadFileDataAsync: {filePath} @ {files.Length}"); //CoreDebug.Log($"LoadFileDataAsync: {filePath} @ {files.Length}");
             if (files.Length == 0)
                 throw new FileNotFoundException(filePath);
@@ -126,7 +118,7 @@ namespace GameEstate.Core
         /// <param name="file">The file.</param>
         /// <param name="exception">The exception.</param>
         /// <returns></returns>
-        public Task<byte[]> LoadFileDataAsync(FileMetadata file, Action<FileMetadata, string> exception)
+        public Task<byte[]> LoadFileDataAsync(FileMetadata file, Action<FileMetadata, string> exception = null)
         {
             if (UsePool)
             {
@@ -143,7 +135,7 @@ namespace GameEstate.Core
         /// <param name="file">The file.</param>
         /// <param name="exception">The exception.</param>
         /// <returns></returns>
-        public Task<byte[]> LoadExtraDataAsync(FileMetadata file, Action<FileMetadata, string> exception)
+        public Task<byte[]> LoadExtraDataAsync(FileMetadata file, Action<FileMetadata, string> exception = null)
         {
             if (UsePool)
             {
@@ -198,7 +190,7 @@ namespace GameEstate.Core
         /// <param name="r">The r.</param>
         /// <param name="stage">The stage.</param>
         /// <returns></returns>
-        protected virtual Task ReadAsync(BinaryReader r, PakFormat.ReadStage stage) => PakFormat.ReadAsync(this, r, stage);
+        internal protected virtual Task ReadAsync(BinaryReader r, PakFormat.ReadStage stage) => PakFormat.ReadAsync(this, r, stage);
 
         /// <summary>
         /// Writes the asynchronous.
@@ -206,12 +198,12 @@ namespace GameEstate.Core
         /// <param name="w">The w.</param>
         /// <param name="stage">The stage.</param>
         /// <returns></returns>
-        protected virtual Task WriteAsync(BinaryWriter w, PakFormat.WriteStage stage) => PakFormat.WriteAsync(this, w, stage);
+        internal protected virtual Task WriteAsync(BinaryWriter w, PakFormat.WriteStage stage) => PakFormat.WriteAsync(this, w, stage);
 
         /// <summary>
         /// Processes this instance.
         /// </summary>
-        internal protected virtual void Process() => FilesByPath = Files.Where(x => x != null).ToLookup(x => x.Path, StringComparer.OrdinalIgnoreCase);
+        internal protected virtual void Process() => FilesByPath = Files?.Where(x => x != null).ToLookup(x => x.Path, StringComparer.OrdinalIgnoreCase);
 
         /// <summary>
         /// Adds the raw file.

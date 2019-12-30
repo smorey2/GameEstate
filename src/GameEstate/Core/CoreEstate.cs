@@ -15,7 +15,8 @@ namespace GameEstate.Core
     {
         public struct Resource
         {
-            public string Host;
+            public bool StreamPak;
+            public Uri Host;
             public string[] Paths;
             public int Game;
         }
@@ -119,59 +120,48 @@ namespace GameEstate.Core
         /// <returns></returns>
         public MultiPakFile OpenPakFile(Resource resource)
         {
-            return OpenPakFile(resource.Paths);
+            if (!resource.StreamPak)
+                return OpenPakFile(resource.Paths);
+            var filePaths = resource.Paths;
+            return new MultiPakFile(filePaths.Select(x => new StreamPakFile(x, resource.Host)).ToArray());
         }
+
+        /// <summary>
+        /// Opens the pak file.
+        /// </summary>
+        /// <param name="uri">The URI.</param>
+        /// <param name="many">if set to <c>true</c> [many].</param>
+        /// <returns></returns>
+        public MultiPakFile OpenPakFile(Uri uri) => OpenPakFile(ParseResource(uri));
 
         /// <summary>
         /// Parses the resource.
         /// </summary>
         /// <param name="uri">The URI.</param>
-        /// <param name="many">if set to <c>true</c> [many].</param>
         /// <returns></returns>
-        /// <exception cref="System.ArgumentOutOfRangeException">
-        /// uri
+        /// <exception cref="ArgumentOutOfRangeException">fragment</exception>
+        /// <exception cref="InvalidOperationException">
+        /// No {gameName} resources match.
         /// or
-        /// uri
+        /// No {gameName} resources match.
+        /// or
+        /// No {gameName} resources match.
         /// </exception>
-        /// <exception cref="System.InvalidOperationException"></exception>
-        public Resource ParseResource(Uri uri, bool many = true)
+        public Resource ParseResource(Uri uri)
         {
-            // game
             var fragment = uri.Fragment?.Substring(uri.Fragment.Length != 0 ? 1 : 0);
             var gameName = Enum.GetNames(GameType).FirstOrDefault(x => string.Equals(x, fragment, StringComparison.OrdinalIgnoreCase)) ?? throw new ArgumentOutOfRangeException(nameof(fragment), fragment);
-            var game = (int)Enum.Parse(GameType, gameName);
-
+            var r = new Resource { Game = (int)Enum.Parse(GameType, gameName) };
             // file-scheme
             if (string.Equals(uri.Scheme, "game", StringComparison.OrdinalIgnoreCase))
-            {
-                var path = uri.LocalPath.Substring(1);
-                return new Resource
-                {
-                    Paths = FileManager.GetFilePaths(path, game, many) ?? throw new InvalidOperationException($"{gameName} not available"),
-                    Game = game,
-                };
-            }
+                r.Paths = FileManager.GetGameFilePaths(r.Game, uri.LocalPath.Substring(1)) ?? throw new InvalidOperationException($"No {gameName} resources match.");
             // file-scheme
             else if (uri.IsFile)
-            {
-                var path = uri.LocalPath;
-                return new Resource
-                {
-                    Paths = path.Contains('*') ? Directory.GetFiles(Path.GetDirectoryName(path), Path.GetFileName(path)) : File.Exists(path) ? new[] { path } : null,
-                    Game = game,
-                };
-            }
+                r.Paths = FileManager.GetLocalFilePaths(uri.LocalPath, out r.StreamPak) ?? throw new InvalidOperationException($"No {gameName} resources match.");
             // network-scheme
-            else if (!string.IsNullOrEmpty(uri.Host))
-            {
-                var path = uri.LocalPath;
-                return new Resource
-                {
-                    Paths = new[] { path },
-                    Game = game,
-                };
-            }
-            else throw new ArgumentOutOfRangeException(nameof(uri), uri.OriginalString);
+            else
+                r.Paths = FileManager.GetHostFilePaths(uri, out r.Host, out r.StreamPak) ?? throw new InvalidOperationException($"No {gameName} resources match.");
+            return r;
         }
     }
 }

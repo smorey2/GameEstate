@@ -15,10 +15,8 @@ namespace GameEstate.CoreTests
         {
             var fileManager = new CryFileManager();
             //Assert.True(fileManager.IsDataPresent);
-            //var abc0 = fileManager.GetFilePaths("Data.p4k", (int)CryGame.Unknown01, true);
+            //var abc0 = fileManager.GetGameFilePaths((int)CryGame.Unknown01, "Data.p4k");
             //Assert.Single(abc0);
-            //var abc1 = fileManager.GetFilePaths("Data.p4k", (int)CryGame.Unknown01, false);
-            //Assert.Single(abc1);
         }
 
         [Fact]
@@ -26,11 +24,11 @@ namespace GameEstate.CoreTests
         {
             var fileManager = new RedFileManager();
             Assert.True(fileManager.IsDataPresent);
-            var abc1 = fileManager.GetFilePaths("2da00.bif", (int)RedGame.Witcher, true);
+            var abc1 = fileManager.GetGameFilePaths((int)RedGame.Witcher, "2da00.bif");
             Assert.Single(abc1);
-            var abc2 = fileManager.GetFilePaths("tutorial.dzip", (int)RedGame.Witcher2, true);
+            var abc2 = fileManager.GetGameFilePaths((int)RedGame.Witcher2, "tutorial.dzip");
             Assert.Single(abc2);
-            var abc3 = fileManager.GetFilePaths("metadata.store", (int)RedGame.Witcher3, true);
+            var abc3 = fileManager.GetGameFilePaths((int)RedGame.Witcher3, "metadata.store");
             Assert.Single(abc3);
         }
 
@@ -39,10 +37,8 @@ namespace GameEstate.CoreTests
         {
             var fileManager = new RsiFileManager();
             Assert.True(fileManager.IsDataPresent);
-            var abc0 = fileManager.GetFilePaths("Data.p4k", (int)RsiGame.StarCitizen, true);
+            var abc0 = fileManager.GetGameFilePaths((int)RsiGame.StarCitizen, "Data.p4k");
             Assert.Single(abc0);
-            var abc1 = fileManager.GetFilePaths("Data.p4k", (int)RsiGame.StarCitizen, false);
-            Assert.Single(abc1);
         }
 
         [Fact]
@@ -50,9 +46,9 @@ namespace GameEstate.CoreTests
         {
             var fileManager = new TesFileManager();
             Assert.True(fileManager.IsDataPresent);
-            var abc0 = fileManager.GetFilePaths("Fallout4 - *.ba2", (int)TesGame.Fallout4VR, true);
+            var abc0 = fileManager.GetGameFilePaths((int)TesGame.Fallout4VR, "Fallout4 - *.ba2");
             Assert.Equal(21, abc0.Length);
-            var abc1 = fileManager.GetFilePaths("Fallout4 - Startup.ba2", (int)TesGame.Fallout4VR, false);
+            var abc1 = fileManager.GetGameFilePaths((int)TesGame.Fallout4VR, "Fallout4 - Startup.ba2");
             Assert.Single(abc1);
         }
 
@@ -61,9 +57,9 @@ namespace GameEstate.CoreTests
         {
             var fileManager = new U9FileManager();
             Assert.True(fileManager.IsDataPresent);
-            var abc0 = fileManager.GetFilePaths("static/*.flx", (int)U9Game.UltimaIX, true);
+            var abc0 = fileManager.GetGameFilePaths((int)U9Game.UltimaIX, "static/*.flx");
             Assert.Equal(17, abc0.Length);
-            var abc1 = fileManager.GetFilePaths("static/activity.flx", (int)U9Game.UltimaIX, false);
+            var abc1 = fileManager.GetGameFilePaths((int)U9Game.UltimaIX, "static/activity.flx");
             Assert.Single(abc1);
         }
 
@@ -72,9 +68,9 @@ namespace GameEstate.CoreTests
         {
             var fileManager = new UOFileManager();
             Assert.True(fileManager.IsDataPresent);
-            var abc0 = fileManager.GetFilePaths("*.idx", (int)UOGame.UltimaOnline, true);
+            var abc0 = fileManager.GetGameFilePaths((int)UOGame.UltimaOnline, "*.idx");
             Assert.Equal(7, abc0.Length);
-            var abc1 = fileManager.GetFilePaths("anim.idx", (int)UOGame.UltimaOnline, false);
+            var abc1 = fileManager.GetGameFilePaths((int)UOGame.UltimaOnline, "anim.idx");
             Assert.Single(abc1);
         }
     }

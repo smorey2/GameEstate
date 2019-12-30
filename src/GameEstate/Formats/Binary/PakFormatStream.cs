@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace GameEstate.Formats.Binary
 {
-    public class PakFormatFile : PakFormat
+    public class PakFormatStream : PakFormat
     {
         public override Task ReadAsync(CorePakFile source, BinaryReader r, ReadStage stage)
         {
@@ -27,12 +27,10 @@ namespace GameEstate.Formats.Binary
                         var startIndex = Path.GetDirectoryName(lines[0].TrimEnd().Replace('\\', '/')).Length + 1;
                         foreach (var line in lines)
                             if (line.Length >= startIndex && (path = line.Substring(startIndex).TrimEnd().Replace('\\', '/')) != ".set")
-                            {
                                 files.Add(new FileMetadata
                                 {
                                     Path = path,
                                 });
-                            }
                         return Task.CompletedTask;
                     }
                 case ReadStage._Meta:
@@ -49,30 +47,38 @@ namespace GameEstate.Formats.Binary
                             var path = line.TrimEnd().Replace('\\', '/');
                             if (state == 0)
                             {
-                                if (path == "HasNamePrefix")
-                                    source.HasNamePrefix = true;
-                                else if (path == "Extra")
+                                if (path == "HasExtra")
                                     source.HasExtra = true;
-                                else if (path == "Compressed")
+                                else if (path == "HasNamePrefix")
+                                    source.HasNamePrefix = true;
+                                else if (path == "AllCompressed")
                                     foreach (var file in source.Files)
                                         file.Compressed = true;
                                 else if (path == "Compressed:")
                                     state = 1;
+                                else if (path == "Crypted:")
+                                    state = 2;
                             }
                             else
+                            {
+                                if (string.IsNullOrEmpty(line))
+                                {
+                                    state = 0;
+                                    continue;
+                                }
+                                var files = filesByPath[line];
                                 switch (state)
                                 {
                                     case 1:
-                                        if (string.IsNullOrEmpty(line))
-                                        {
-                                            state = 0;
-                                            continue;
-                                        }
-                                        var files = filesByPath[line];
                                         if (files != null)
                                             files.First().Compressed = true;
                                         continue;
+                                    case 2:
+                                        if (files != null)
+                                            files.First().Crypted = true;
+                                        continue;
                                 }
+                            }
                         }
                         return Task.CompletedTask;
                     }
@@ -98,7 +104,7 @@ namespace GameEstate.Formats.Binary
                 case WriteStage.File: return Task.CompletedTask;
                 case WriteStage._Set:
                     {
-                        var pathAsBytes = Encoding.ASCII.GetBytes($@"C:\{Path.GetFileNameWithoutExtension(source.FilePath)}\");
+                        var pathAsBytes = Encoding.ASCII.GetBytes($@"C:/{source.Name}/");
                         w.Write(pathAsBytes);
                         w.Write(Encoding.ASCII.GetBytes(".set"));
                         w.Write((byte)'\n');
@@ -118,18 +124,32 @@ namespace GameEstate.Formats.Binary
                     {
                         var files = source.Files;
                         // meta
+                        if (source.HasExtra)
+                            w.Write(Encoding.ASCII.GetBytes("HasExtra\n"));
                         if (source.HasNamePrefix)
                             w.Write(Encoding.ASCII.GetBytes("HasNamePrefix\n"));
-                        if (source.HasExtra)
-                            w.Write(Encoding.ASCII.GetBytes("Extra\n"));
                         // compressed
                         var numCompressed = files.Count(x => x.Compressed);
                         if (files.Count == numCompressed)
-                            w.Write(Encoding.ASCII.GetBytes("Compressed\n"));
+                            w.Write(Encoding.ASCII.GetBytes("AllCompressed\n"));
                         else if (numCompressed > 0)
                         {
                             w.Write(Encoding.ASCII.GetBytes("Compressed:\n"));
                             foreach (var file in files.Where(x => x.Compressed))
+                            {
+                                w.Write(Encoding.ASCII.GetBytes(file.Path));
+                                w.Write((byte)'\n');
+                                w.Flush();
+                            }
+                            w.Write((byte)'\n');
+                            w.Flush();
+                        }
+                        // crypted
+                        var numCrypted = files.Count(x => x.Crypted);
+                        if (numCrypted > 0)
+                        {
+                            w.Write(Encoding.ASCII.GetBytes("Crypted:\n"));
+                            foreach (var file in files.Where(x => x.Crypted))
                             {
                                 w.Write(Encoding.ASCII.GetBytes(file.Path));
                                 w.Write((byte)'\n');

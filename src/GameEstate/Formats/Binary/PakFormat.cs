@@ -20,7 +20,7 @@ namespace GameEstate.Formats.Binary
         /// <summary>
         /// The file
         /// </summary>
-        public readonly static PakFormat File = new PakFormatFile();
+        public readonly static PakFormat Stream = new PakFormatStream();
 
         /// <summary>
         /// Reads the asynchronous.

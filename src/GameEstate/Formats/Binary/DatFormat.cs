@@ -11,11 +11,6 @@ namespace GameEstate.Formats.Binary
     public class DatFormat
     {
         /// <summary>
-        /// The default
-        /// </summary>
-        public readonly static DatFormat File = new DatFormatFile();
-
-        /// <summary>
         /// Reads the asynchronous.
         /// </summary>
         /// <param name="source">The source.</param>

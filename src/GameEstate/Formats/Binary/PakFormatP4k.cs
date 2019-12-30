@@ -17,19 +17,35 @@ namespace GameEstate.Formats.Binary
         {
             if (stage != ReadStage.File)
                 throw new ArgumentOutOfRangeException(nameof(stage), stage.ToString());
+
             source.UsePool = false;
             var files = source.Files = new List<FileMetadata>();
             var pak = (ZipFile)(source.Tag = new ZipFile(r.BaseStream) { Key = P4kKey }); //: ZipFileKeyField.SetValue(pak, P4kKey);
             foreach (ZipEntry entry in pak)
                 files.Add(new FileMetadata
                 {
-                    Path = entry.Name,
-                    Compressed = true,
-                    Crypted = entry.IsCrypted,
+                    Path = entry.Name.Replace('\\', '/'),
+                    Crypted = entry.IsAesCrypted,
                     PackedSize = entry.CompressedSize,
                     FileSize = entry.Size,
                     Tag = entry,
                 });
+            return Task.CompletedTask;
+        }
+
+        public override Task WriteAsync(CorePakFile source, BinaryWriter w, WriteStage stage)
+        {
+            source.UsePool = false;
+            var files = source.Files;
+            var pak = (ZipFile)(source.Tag = new ZipFile(w.BaseStream) { Key = P4kKey }); //: ZipFileKeyField.SetValue(pak, P4kKey);
+            pak.BeginUpdate();
+            foreach (var file in files)
+            {
+                var entry = (ZipEntry)(file.Tag = new ZipEntry(Path.GetFileName(file.Path)));
+                pak.Add(entry);
+                source.DatFormat.WriteAsync(source, w, file, null, null);
+            }
+            pak.CommitUpdate();
             return Task.CompletedTask;
         }
     }

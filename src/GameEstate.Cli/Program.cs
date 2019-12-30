@@ -1,5 +1,6 @@
 ﻿using CommandLine;
 using GameEstate.Core;
+using GameEstate.Formats.Binary;
 using System;
 using System.IO;
 using System.Linq;
@@ -126,7 +127,7 @@ namespace GameEstate
         static string[] argsRed1 = new[] { "export", "-e", "Red", "-u", "game:/main.key#Witcher", "--path", @"D:\T_\Witcher" };
         static string[] argsRed2 = new[] { "export", "-e", "Red", "-u", "game:/krbr.dzip#Witcher2", "--path", @"D:\T_\Witcher2" };
 
-        static void Main(string[] args) => Parser.Default.ParseArguments<ListOptions, ExportOptions, ImportOptions, XsportOptions>(argsRsi1)
+        static void Main(string[] args) => Parser.Default.ParseArguments<ListOptions, ExportOptions, ImportOptions, XsportOptions>(argsTes1)
             .MapResult(
                   (ListOptions opts) => RunListAsync(opts).GetAwaiter().GetResult(),
                   (ExportOptions opts) => RunExportAsync(opts).GetAwaiter().GetResult(),
@@ -193,9 +194,19 @@ namespace GameEstate
             var from = ProgramState.Load(data => Convert.ToInt32(data), 0);
             var estate = CoreEstate.Parse(opts.Estate);
             using (var multPak = estate.OpenPakFile(estate.ParseResource(opts.Uri)))
+            {
+                // write paks header
+                var filePath = opts.Path;
+                if (!string.IsNullOrEmpty(filePath) && !Directory.Exists(filePath))
+                    Directory.CreateDirectory(filePath);
+                var setPath = Path.Combine(filePath, ".set");
+                using (var w = new BinaryWriter(new FileStream(setPath, FileMode.Create, FileAccess.Write)))
+                    await PakFormat.Stream.WriteAsync(new StreamPakFile("Root") { Files = multPak.Paks.Select(x => new FileMetadata { Path = x.Name }).ToList() }, w, PakFormat.WriteStage._Set);
+
+                // write paks
                 foreach (var pak in multPak.Paks)
                 {
-                    var newPath = Path.Combine(opts.Path, Path.GetFileName(pak.FilePath));
+                    var newPath = Path.Combine(filePath, Path.GetFileName(pak.FilePath));
                     await pak.ExportAsync(newPath, from, (file, index) =>
                     {
                         //if ((index % 50) == 0)
@@ -205,6 +216,7 @@ namespace GameEstate
                         Console.WriteLine($"{message}: {file?.Path}");
                     });
                 }
+            }
             ProgramState.Clear();
             return 0;
         }
@@ -213,7 +225,7 @@ namespace GameEstate
         {
             var from = ProgramState.Load(data => Convert.ToInt32(data), 0);
             var estate = CoreEstate.Parse(opts.Estate);
-            foreach (var path in estate.ParseResource(opts.Uri, false).Paths)
+            foreach (var path in estate.ParseResource(opts.Uri).Paths)
             {
                 using (var pak = estate.OpenPakFile(path))
                 using (var w = new BinaryWriter(new FileStream(path, FileMode.Create, FileAccess.Write)))
@@ -234,7 +246,7 @@ namespace GameEstate
         {
             var from = ProgramState.Load(data => Convert.ToInt32(data), 0);
             var estate = CoreEstate.Parse(opts.Estate);
-            foreach (var path in estate.ParseResource(opts.Uri, false).Paths)
+            foreach (var path in estate.ParseResource(opts.Uri).Paths)
             {
                 using (var pak = estate.OpenPakFile(path))
                 using (var w = new BinaryWriter(new FileStream(path, FileMode.Create, FileAccess.Write)))

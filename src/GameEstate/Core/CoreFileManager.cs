@@ -60,22 +60,87 @@ namespace GameEstate.Core
         }
 
         /// <summary>
-        /// Gets the file paths.
+        /// Gets the game file paths.
+        /// </summary>
+        /// <param name="game">The game.</param>
+        /// <param name="pathOrPattern">The path or pattern.</param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentNullException">pathOrPattern</exception>
+        /// <exception cref="ArgumentOutOfRangeException">pathOrPattern</exception>
+        public string[] GetGameFilePaths(int game, string pathOrPattern)
+        {
+            if (pathOrPattern == null)
+                throw new ArgumentNullException(nameof(pathOrPattern));
+            var searchPattern = Path.GetFileName(pathOrPattern);
+            // folder
+            if (string.IsNullOrEmpty(searchPattern))
+                throw new ArgumentOutOfRangeException(nameof(pathOrPattern), pathOrPattern);
+            // file
+            return Locations.TryGetValue(game, out var path)
+                ? pathOrPattern.Contains('*') ? Directory.GetFiles(path, pathOrPattern) : new[] { Path.Combine(path, pathOrPattern) }
+                : null;
+        }
+
+        /// <summary>
+        /// Gets the local file paths.
         /// </summary>
         /// <param name="pathOrPattern">The path or pattern.</param>
-        /// <param name="game">The game.</param>
-        /// <param name="many">if set to <c>true</c> [many].</param>
+        /// <param name="streamPak">if set to <c>true</c> [file pak].</param>
         /// <returns></returns>
-        /// <exception cref="ArgumentNullException">
-        /// pathOrPattern
-        /// or
-        /// pathOrPattern
-        /// </exception>
-        public string[] GetFilePaths(string pathOrPattern, int game, bool many) =>
-            Locations.TryGetValue(game, out var path) ? many
-                ? Directory.GetFiles(path, pathOrPattern ?? throw new ArgumentNullException(nameof(pathOrPattern)))
-                : new[] { Path.Combine(path, pathOrPattern ?? throw new ArgumentNullException(nameof(pathOrPattern))) }
-                : null;
+        /// <exception cref="ArgumentNullException">pathOrPattern</exception>
+        public string[] GetLocalFilePaths(string pathOrPattern, out bool streamPak)
+        {
+            if (pathOrPattern == null)
+                throw new ArgumentNullException(nameof(pathOrPattern));
+            var searchPattern = Path.GetFileName(pathOrPattern);
+            var path = Path.GetDirectoryName(pathOrPattern);
+            // file
+            if (!string.IsNullOrEmpty(searchPattern))
+            {
+                streamPak = false;
+                return searchPattern.Contains('*') ? Directory.GetFiles(path, searchPattern)
+                    : File.Exists(pathOrPattern) ? new[] { pathOrPattern } : null;
+            }
+            // folder
+            streamPak = true;
+            searchPattern = Path.GetFileName(path);
+            path = Path.GetDirectoryName(path);
+            return pathOrPattern.Contains('*') ? Directory.GetDirectories(path, searchPattern)
+                : Directory.Exists(pathOrPattern) ? new[] { pathOrPattern } : null;
+        }
+
+        /// <summary>
+        /// Gets the host file paths.
+        /// </summary>
+        /// <param name="uri">The URI.</param>
+        /// <param name="host">The host.</param>
+        /// <param name="streamPak">if set to <c>true</c> [file pak].</param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentNullException">uri</exception>
+        /// <exception cref="ArgumentOutOfRangeException">pathOrPattern</exception>
+        /// <exception cref="NotSupportedException">Web wildcard access to supported</exception>
+        public string[] GetHostFilePaths(Uri uri, out Uri host, out bool streamPak)
+        {
+            if (uri == null)
+                throw new ArgumentNullException(nameof(uri));
+            var pathOrPattern = uri.LocalPath;
+            var searchPattern = Path.GetFileName(pathOrPattern);
+            var path = Path.GetDirectoryName(pathOrPattern);
+            // file
+            if (!string.IsNullOrEmpty(searchPattern))
+                throw new ArgumentOutOfRangeException(nameof(pathOrPattern), pathOrPattern); //: Web single file access to supported.
+            // folder
+            streamPak = true;
+            searchPattern = Path.GetFileName(path);
+            path = Path.GetDirectoryName(path);
+            if (pathOrPattern.Contains('*'))
+                throw new NotSupportedException("Web wildcard access to supported");
+            host = new UriBuilder(uri)
+            {
+                Fragment = null,
+            }.Uri;
+            return new[] { pathOrPattern };
+        }
 
         /// <summary>
         /// Gets the executable path.
