@@ -22,7 +22,9 @@ namespace GameEstate.Core
         public StreamPakFile(string filePath, Uri host = null) : base(filePath, new PakFormatStream(), null)
         {
             UsePool = false;
-            Host = host != null ? new HttpCache(host) : null;
+            if (host != null)
+                Host = new HttpCache(host, filePath);
+            Open();
         }
         /// <summary>
         /// Initializes a new instance of the <see cref="StreamPakFile"/> class.
@@ -33,7 +35,7 @@ namespace GameEstate.Core
         {
             UsePool = false;
             Files = parent.Files;
-            Process();
+            Open();
         }
 
         /// <summary>
@@ -47,7 +49,7 @@ namespace GameEstate.Core
             if (Host != null)
             {
                 var files = Files = new List<FileMetadata>();
-                var set = await Host.GetSetAsync();
+                var set = await Host.GetSetAsync() ?? throw new NotSupportedException(".set not found");
                 foreach (var item in set)
                     files.Add(new FileMetadata
                     {

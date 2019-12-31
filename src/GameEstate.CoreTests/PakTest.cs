@@ -10,14 +10,14 @@ namespace GameEstate.CoreTests
 {
     public class PakTest
     {
-        [Theory]
-        [InlineData("Data.p4k", CryGame.Unknown01)]
-        public void CryEstate(string pakPath, CryGame game)
-        {
-            var fileManager = new CryFileManager();
-            var path = fileManager.GetGameFilePaths((int)game, pakPath)[0];
-            var pak = new CryPakFile(path);
-        }
+        //[Theory]
+        //[InlineData("Data.p4k", CryGame.Unknown01)]
+        //public void CryEstate(string pakPath, CryGame game)
+        //{
+        //    var fileManager = new CryFileManager();
+        //    var path = fileManager.GetGameFilePaths((int)game, pakPath)[0];
+        //    var pak = new CryPakFile(path);
+        //}
 
         [Theory]
         [InlineData("Data.p4k", RsiGame.StarCitizen)]

@@ -13,6 +13,6 @@ namespace GameEstate.Tes
         /// Initializes a new instance of the <see cref="TesPakFile"/> class.
         /// </summary>
         /// <param name="filePath">The file path.</param>
-        public TesPakFile(string filePath) : base(filePath, new PakFormatTes(), new DatFormatTes()) { }
+        public TesPakFile(string filePath) : base(filePath, new PakFormatTes(), new DatFormatTes()) => Open();
     }
 }

@@ -14,6 +14,6 @@ namespace GameEstate.Red
         /// Initializes a new instance of the <see cref="RedPakFile"/> class.
         /// </summary>
         /// <param name="filePath">The file path.</param>
-        public RedPakFile(string filePath, object tag = null) : base(filePath, new PakFormatRed(tag), new DatFormatRed()) { }
+        public RedPakFile(string filePath, object tag = null) : base(filePath, new PakFormatRed(tag), new DatFormatRed()) => Open();
     }
 }

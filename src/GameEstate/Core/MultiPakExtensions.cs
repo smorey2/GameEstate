@@ -15,16 +15,6 @@ namespace GameEstate.Core
             if (!string.IsNullOrEmpty(filePath) && !Directory.Exists(filePath))
                 Directory.CreateDirectory(filePath);
 
-            //var setPath = Path.Combine(filePath, ".set");
-            //using (var w = new BinaryWriter(new FileStream(setPath, FileMode.Create, FileAccess.Write)))
-            //    await PakFormat.Stream.WriteAsync(source, w, PakFormat.WriteStage._Set);
-            //var metaPath = Path.Combine(filePath, ".meta");
-            //using (var w = new BinaryWriter(new FileStream(metaPath, FileMode.Create, FileAccess.Write)))
-            //    await PakFormat.Stream.WriteAsync(source, w, PakFormat.WriteStage._Meta);
-            //var rawPath = Path.Combine(filePath, ".raw");
-            //if (File.Exists(rawPath))
-            //    File.Delete(rawPath);
-
             // write files
             var hasExtra = source.HasExtra;
             Parallel.For(from, source.Files.Count, new ParallelOptions { /*MaxDegreeOfParallelism = 1*/ }, async index =>

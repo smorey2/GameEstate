@@ -16,23 +16,23 @@ namespace GameEstate.Core
         readonly MemoryCache _cache = new MemoryCache(new MemoryCacheOptions { });
         readonly HttpClient _hc = new HttpClient { Timeout = TimeSpan.FromMinutes(30) };
 
-        public HttpCache(Uri address) => _hc.BaseAddress = address;
+        public HttpCache(Uri address, string folder = null) => _hc.BaseAddress = folder == null ? address : new UriBuilder(address) { Path = $"{address.LocalPath}{folder}/" }.Uri;
 
-        public async Task<T> CallAsync<T>(string path, NameValueCollection nvc = null)
+        public async Task<T> CallAsync<T>(string path, NameValueCollection nvc = null, bool shouldThrow = false)
         {
             var requestUri = ToPathAndQueryString(path, nvc);
             //Core.Debug.Log($"query: {requestUri}");
             var r = await _hc.GetAsync(requestUri).ConfigureAwait(false);
             if (!r.IsSuccessStatusCode)
-                throw new InvalidOperationException(r.ReasonPhrase);
+                return !shouldThrow ? default(T) : throw new InvalidOperationException(r.ReasonPhrase);
             var data = await r.Content.ReadAsByteArrayAsync();
             return FromBytes<T>(data);
         }
 
-        public async Task<HashSet<string>> GetSetAsync() =>
+        public async Task<HashSet<string>> GetSetAsync(bool shouldThrow = false) =>
             await _cache.GetOrCreate(".set", async x => await CallAsync<HashSet<string>>((string)x.Key));
 
-        public async Task<byte[]> GetFileAsync(string filePath) =>
+        public async Task<byte[]> GetFileAsync(string filePath, bool shouldThrow = false) =>
             await _cache.GetOrCreateAsync(filePath.Replace('\\', '/'), async x => await CallAsync<byte[]>((string)x.Key));
 
         static string ToPathAndQueryString(string path, NameValueCollection nvc)

@@ -12,6 +12,6 @@ namespace GameEstate.Cry
         /// Initializes a new instance of the <see cref="CryPakFile"/> class.
         /// </summary>
         /// <param name="filePath">The file path.</param>
-        public CryPakFile(string filePath) : base(filePath, null, null) { }
+        public CryPakFile(string filePath) : base(filePath, null, null) => Open();
     }
 }

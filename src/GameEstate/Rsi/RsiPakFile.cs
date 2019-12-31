@@ -13,6 +13,6 @@ namespace GameEstate.Rsi
         /// Initializes a new instance of the <see cref="RsiPakFile"/> class.
         /// </summary>
         /// <param name="filePath">The file path.</param>
-        public RsiPakFile(string filePath) : base(filePath, new PakFormatP4k(), new DatFormatPk4()) { }
+        public RsiPakFile(string filePath) : base(filePath, new PakFormatP4k(), new DatFormatPk4()) => Open();
     }
 }

@@ -12,6 +12,6 @@ namespace GameEstate.UO
         /// Initializes a new instance of the <see cref="UOPakFile"/> class.
         /// </summary>
         /// <param name="filePath">The file path.</param>
-        public UOPakFile(string filePath) : base(filePath, null, null) { }
+        public UOPakFile(string filePath) : base(filePath, null, null) => Open();
     }
 }

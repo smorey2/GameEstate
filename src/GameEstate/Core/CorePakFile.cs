@@ -48,15 +48,6 @@ namespace GameEstate.Core
             Name = Path.GetFileName(FilePath);
             if (string.IsNullOrEmpty(Name))
                 Name = Path.GetFileName(Path.GetDirectoryName(FilePath));
-            Pool = File.Exists(FilePath) ? new GenericPool<BinaryReader>(() => new BinaryReader(File.Open(filePath, FileMode.Open, FileAccess.Read, FileShare.Read))) : null;
-            if (Pool != null && UsePool)
-            {
-                var r = Pool.Get();
-                try { ReadAsync(r, PakFormat.ReadStage.File).GetAwaiter().GetResult(); }
-                finally { Pool.Release(r); }
-            }
-            else ReadAsync(null, PakFormat.ReadStage.File).GetAwaiter().GetResult();
-            Process();
         }
 
         /// <summary>
@@ -68,6 +59,22 @@ namespace GameEstate.Core
             GC.SuppressFinalize(this);
         }
         ~CorePakFile() => Close();
+
+        /// <summary>
+        /// Opens this instance.
+        /// </summary>
+        protected void Open()
+        {
+            Pool = UsePool && File.Exists(FilePath) ? new GenericPool<BinaryReader>(() => new BinaryReader(File.Open(FilePath, FileMode.Open, FileAccess.Read, FileShare.Read))) : null;
+            if (Pool != null)
+            {
+                var r = Pool.Get();
+                try { ReadAsync(r, PakFormat.ReadStage.File).GetAwaiter().GetResult(); }
+                finally { Pool.Release(r); }
+            }
+            else ReadAsync(null, PakFormat.ReadStage.File).GetAwaiter().GetResult();
+            Process();
+        }
 
         /// <summary>
         /// Closes this instance.

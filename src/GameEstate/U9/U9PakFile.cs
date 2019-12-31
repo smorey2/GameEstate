@@ -12,6 +12,6 @@ namespace GameEstate.U9
         /// Initializes a new instance of the <see cref="U9PakFile"/> class.
         /// </summary>
         /// <param name="filePath">The file path.</param>
-        public U9PakFile(string filePath) : base(filePath, null, null) { }
+        public U9PakFile(string filePath) : base(filePath, null, null) => Open();
     }
 }

@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 using static Microsoft.Win32.Registry;
 
 namespace GameEstate.Core
@@ -133,13 +134,20 @@ namespace GameEstate.Core
             streamPak = true;
             searchPattern = Path.GetFileName(path);
             path = Path.GetDirectoryName(path);
-            if (pathOrPattern.Contains('*'))
-                throw new NotSupportedException("Web wildcard access to supported");
+            if (path.Contains('*'))
+                throw new NotSupportedException("Web wildcard folder access");
             host = new UriBuilder(uri)
             {
+                Path = $"{path}/",
                 Fragment = null,
             }.Uri;
-            return new[] { pathOrPattern };
+            if (searchPattern.Contains('*'))
+            {
+                var set = new HttpCache(host).GetSetAsync().Result ?? throw new NotSupportedException(".set not found. Web wildcard access");
+                var pattern = $"^{Regex.Escape(searchPattern.Replace('*', '%')).Replace("_", ".").Replace("%", ".*")}$";
+                return set.Where(x => Regex.IsMatch(x, pattern)).ToArray();
+            }
+            return new[] { searchPattern };
         }
 
         /// <summary>
