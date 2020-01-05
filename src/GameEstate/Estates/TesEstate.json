@@ -1,0 +1,65 @@
+﻿{
+  "id": "Tes",
+  "name": "The Elder Scrolls",
+  "description": "TES formats used by Bethesda",
+  "pakFileType": "GameEstate.Formats.TesPakFile",
+  "games": {
+    // tes
+    "Morrowind": "Morrowind",
+    "Oblivion": "Oblivion",
+    "Skyrim": "Skyrim",
+    "SkyrimSE": "Skyrim Special Edition",
+    "SkyrimVR": "Skyrim VR",
+    // fallout
+    "Fallout3": "Fallout 3",
+    "FalloutNV": "Fallout New Vegas",
+    "Fallout4": "Fallout 4",
+    "Fallout4VR": "Fallout 4 VR"
+  },
+  "fileManager": {
+    "registry": {
+      "Oblivion": {
+        "key": "Bethesda Softworks/Oblivion",
+        "assets": "Data"
+      },
+      "Skyrim": {
+        "key": "Bethesda Softworks/Skyrim",
+        "assets": "Data"
+      },
+      "Fallout3": {
+        "key": "Bethesda Softworks/Fallout 3",
+        "assets": "Data"
+      },
+      "FalloutNV": {
+        "key": "Bethesda Softworks/Fallout NV",
+        "assets": "Data"
+      },
+      "Morrowind": {
+        "key": "Bethesda Softworks/Morrowind",
+        "assets": "Data"
+      },
+      "Fallout4": {
+        "key": "Bethesda Softworks/Fallout 4",
+        "assets": "Data"
+      },
+      "SkyrimSE": {
+        "key": "Bethesda Softworks/Skyrim SE",
+        "assets": "Data"
+      },
+      "Fallout4VR": {
+        "key": "Bethesda Softworks/Fallout 4 VR",
+        "assets": "Data"
+      },
+      "SkyrimVR": {
+        "key": "Bethesda Softworks/Skyrim VR",
+        "assets": "Data"
+      }
+    },
+    "direct": {
+      "Morrowind": {
+        "path": "C:/Program Files (x86)/Steam/steamapps/common/Morrowind",
+        "assets": "Data Files"
+      }
+    }
+  }
+}

@@ -120,7 +120,7 @@ namespace GameEstate.Core
         /// <exception cref="ArgumentNullException">uri</exception>
         /// <exception cref="ArgumentOutOfRangeException">pathOrPattern</exception>
         /// <exception cref="NotSupportedException">Web wildcard access to supported</exception>
-        public string[] GetHostFilePaths(Uri uri, out Uri host, out bool streamPak)
+        public string[] GetHttpFilePaths(Uri uri, out Uri host, out bool streamPak)
         {
             if (uri == null)
                 throw new ArgumentNullException(nameof(uri));
@@ -143,7 +143,7 @@ namespace GameEstate.Core
             }.Uri;
             if (searchPattern.Contains('*'))
             {
-                var set = new HttpCache(host).GetSetAsync().Result ?? throw new NotSupportedException(".set not found. Web wildcard access");
+                var set = new HttpHost(host).GetSetAsync().Result ?? throw new NotSupportedException(".set not found. Web wildcard access");
                 var pattern = $"^{Regex.Escape(searchPattern.Replace('*', '%')).Replace("_", ".").Replace("%", ".*")}$";
                 return set.Where(x => Regex.IsMatch(x, pattern)).ToArray();
             }

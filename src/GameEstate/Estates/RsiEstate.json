@@ -1,0 +1,16 @@
+﻿{
+  "id": "Rsi",
+  "name": "Roberts Space Industries",
+  "description": "RSI formats used in StarCitizen",
+  "pakFileType": "GameEstate.Formats.RsiPakFile",
+  "games": {
+    "StarCitizen": "Star Citizen"
+  },
+  "fileManager": {
+    "direct": {
+      "StarCitizen": {
+        "path": "D:/Roberts Space Industries/StarCitizen/LIVE"
+      }
+    }
+  }
+}

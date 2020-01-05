@@ -1,0 +1,19 @@
+﻿{
+  "id": "U9",
+  "name": "Ultima IX",
+  "description": "Ultima IX file formats",
+  "pakFileType": "GameEstate.Formats.U9PakFile",
+  "games": {
+    "UltimaIX": "Ultima IX"
+  },
+  "fileManager": {
+    "registry": {
+      "UltimaIX": {
+        "key": [
+          "GOG.com/GOGULTIMA9",
+          "GOG.com/Games/1207659093"
+        ]
+      }
+    }
+  }
+}

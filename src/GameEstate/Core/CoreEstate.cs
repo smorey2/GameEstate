@@ -8,10 +8,11 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 
 namespace GameEstate.Core
 {
-    public abstract class CoreEstate
+    public class CoreEstate
     {
         public struct Resource
         {
@@ -24,6 +25,16 @@ namespace GameEstate.Core
         static CoreEstate()
         {
             var platform = UnsafeUtils.Platform;
+            var assembly = Assembly.GetExecutingAssembly();
+            CoreEstate estate;
+            foreach (var key in new[] { "Cry", "Red", "Rsi", "Tes", "U9", "UO" })
+                using (var r = new StreamReader(assembly.GetManifestResourceStream($"GameEstate.Estates.{key}.json")))
+                    Estates.Add((estate = ParseEstate(r.ReadToEnd())).Id, estate);
+        }
+
+        public static CoreEstate ParseEstate(string body)
+        {
+            return new CoreEstate();
         }
 
         /// <summary>
@@ -34,22 +45,24 @@ namespace GameEstate.Core
         /// </value>
         public static IDictionary<string, CoreEstate> Estates { get; } = new Dictionary<string, CoreEstate>
         {
-            { "Cry", new CryEstate() },
-            { "Red", new RedEstate() },
-            { "Rsi", new RsiEstate() },
-            { "Tes", new TesEstate() },
-            { "U9", new U9Estate() },
-            { "UO", new UOEstate() },
+            //{ "Cry", new CryEstate() },
+            //{ "Red", new RedEstate() },
+            //{ "Rsi", new RsiEstate() },
+            //{ "Tes", new TesEstate() },
+            //{ "U9", new U9Estate() },
+            //{ "UO", new UOEstate() },
         };
 
         /// <summary>
-        /// Parses the specified name.
+        /// Gets the specified estate.
         /// </summary>
         /// <param name="estateName">Name of the estate.</param>
         /// <returns></returns>
         /// <exception cref="ArgumentOutOfRangeException">estateName</exception>
         /// <exception cref="System.ArgumentOutOfRangeException">name</exception>
-        public static CoreEstate Parse(string estateName) => Estates.TryGetValue(estateName, out var estate) ? estate : throw new ArgumentOutOfRangeException(nameof(estateName), estateName);
+        public static CoreEstate GetEstate(string estateName) => Estates.TryGetValue(estateName, out var estate) ? estate : throw new ArgumentOutOfRangeException(nameof(estateName), estateName);
+
+        public virtual string Id { get; }
 
         /// <summary>
         /// Gets the name.
@@ -57,7 +70,7 @@ namespace GameEstate.Core
         /// <value>
         /// The name.
         /// </value>
-        public abstract string Name { get; }
+        public virtual string Name { get; }
 
         /// <summary>
         /// Gets the description.
@@ -65,7 +78,7 @@ namespace GameEstate.Core
         /// <value>
         /// The description.
         /// </value>
-        public abstract string Description { get; }
+        public virtual string Description { get; }
 
         /// <summary>
         /// Gets the type of the game.
@@ -73,7 +86,7 @@ namespace GameEstate.Core
         /// <value>
         /// The type of the game.
         /// </value>
-        public abstract Type GameType { get; }
+        public virtual Type GameType { get; }
 
         /// <summary>
         /// Gets the game.
@@ -97,14 +110,14 @@ namespace GameEstate.Core
         /// <value>
         /// The file manager.
         /// </value>
-        public abstract CoreFileManager FileManager { get; }
+        public virtual CoreFileManager FileManager { get; }
 
         /// <summary>
         /// Opens the pak file.
         /// </summary>
         /// <param name="filePath">The file path.</param>
         /// <returns></returns>
-        public abstract CorePakFile OpenPakFile(string filePath);
+        public virtual CorePakFile OpenPakFile(string filePath) => null;
 
         /// <summary>
         /// Opens the pak file.
@@ -160,7 +173,7 @@ namespace GameEstate.Core
                 r.Paths = FileManager.GetLocalFilePaths(uri.LocalPath, out r.StreamPak) ?? throw new InvalidOperationException($"No {gameName} resources match.");
             // network-scheme
             else
-                r.Paths = FileManager.GetHostFilePaths(uri, out r.Host, out r.StreamPak) ?? throw new InvalidOperationException($"No {gameName} resources match.");
+                r.Paths = FileManager.GetHttpFilePaths(uri, out r.Host, out r.StreamPak) ?? throw new InvalidOperationException($"No {gameName} resources match.");
             return r;
         }
     }

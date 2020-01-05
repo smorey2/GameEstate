@@ -43,9 +43,47 @@ namespace GameEstate.Formats.Binary
             {
                 var entry = (ZipEntry)(file.Tag = new ZipEntry(Path.GetFileName(file.Path)));
                 pak.Add(entry);
-                source.DatFormat.WriteAsync(source, w, file, null, null);
+                source.PakFormat.WriteFileAsync(source, w, file, null, null);
             }
             pak.CommitUpdate();
+            return Task.CompletedTask;
+        }
+
+        public override Task<byte[]> ReadFileAsync(CorePakFile source, BinaryReader r, FileMetadata file, Action<FileMetadata, string> exception = null)
+        {
+            var pak = (ZipFile)source.Tag;
+            var entry = (ZipEntry)file.Tag;
+            //var stream = pak.GetInputStream(entry);
+            //if (!stream.CanRead)
+            //{
+            //    exception?.Invoke(file, $"Stream Closed.");
+            //    return null;
+            //}
+            try
+            {
+                using (var s = pak.GetInputStream(entry))
+                    return Task.FromResult(s.ReadAllBytes());
+            }
+            catch (Exception e)
+            {
+                exception?.Invoke(file, $"Exception: {e.Message}");
+                return null;
+            }
+        }
+
+        public override Task WriteFileAsync(CorePakFile source, BinaryWriter w, FileMetadata file, byte[] data, Action<FileMetadata, string> exception = null)
+        {
+            var pak = (ZipFile)source.Tag;
+            var entry = (ZipEntry)file.Tag;
+            try
+            {
+                using (var s = pak.GetInputStream(entry))
+                    s.Write(data, 0, data.Length);
+            }
+            catch (Exception e)
+            {
+                exception?.Invoke(file, $"Exception: {e.Message}");
+            }
             return Task.CompletedTask;
         }
     }

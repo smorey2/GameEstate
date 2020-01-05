@@ -1,0 +1,34 @@
+﻿{
+  "id": "Red",
+  "name": "REDengine",
+  "description": "REDengine file formats including the Witcher Series",
+  "pakFileType": "GameEstate.Formats.RedPakFile",
+  "games": {
+    "Witcher": "The Witcher",
+    "Witcher2": "The Witcher 2",
+    "Witcher3": "The Witcher 3: Wild Hunt",
+    "Cyberpunk2077": "Cyberpunk 2077"
+  },
+  "fileManager": {
+    "registry": {
+      "Witcher": {
+        "key": "GOG.com/Games/1207658924",
+        "assets": "Data"
+      },
+      "Witcher2": {
+        "key": "GOG.com/Games/1207658930",
+        "assets": "CookedPC"
+      },
+      "Witcher3": {
+        "key": "GOG.com/Games/1495134320",
+        "assets": "content"
+      }
+    }
+  },
+  "_comments": [
+    "Project RED",
+    "REDKit",
+    "https://witcher.fandom.com/wiki/File_format",
+    "http://jlouisb.users.sourceforge.net/"
+  ]
+}

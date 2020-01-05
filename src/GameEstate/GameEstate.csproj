@@ -18,6 +18,24 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Remove="Estates\CryEstate.json" />
+    <None Remove="Estates\RedEstate.json" />
+    <None Remove="Estates\RsiEstate.json" />
+    <None Remove="Estates\TesEstate.json" />
+    <None Remove="Estates\U9Estate.json" />
+    <None Remove="Estates\UOEstate.json" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Estates\CryEstate.json" />
+    <EmbeddedResource Include="Estates\UOEstate.json" />
+    <EmbeddedResource Include="Estates\U9Estate.json" />
+    <EmbeddedResource Include="Estates\TesEstate.json" />
+    <EmbeddedResource Include="Estates\RsiEstate.json" />
+    <EmbeddedResource Include="Estates\RedEstate.json" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Content Include="..\..\lib\x64\libzstd.dll" Link="x64\libzstd.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
@@ -30,6 +48,7 @@
     <PackageReference Include="MathNet.Numerics" Version="4.9.0" />
     <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="3.1.0" />
     <PackageReference Include="Microsoft.Win32.Registry" Version="4.7.0" />
+    <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
     <PackageReference Include="System.Drawing.Common" Version="4.7.0" />
   </ItemGroup>
 

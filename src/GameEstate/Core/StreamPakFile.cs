@@ -12,18 +12,18 @@ namespace GameEstate.Core
     /// <seealso cref="GameEstate.Core.CorePakFile" />
     public class StreamPakFile : CorePakFile
     {
-        readonly HttpCache Host;
+        readonly HttpHost Host;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="StreamPakFile" /> class.
         /// </summary>
         /// <param name="filePath">The file path.</param>
         /// <param name="host">The host.</param>
-        public StreamPakFile(string filePath, Uri host = null) : base(filePath, new PakFormatStream(), null)
+        public StreamPakFile(string filePath, Uri host = null) : base(filePath, new PakFormatStream())
         {
             UsePool = false;
             if (host != null)
-                Host = new HttpCache(host, filePath);
+                Host = new HttpHost(host, filePath);
             Open();
         }
         /// <summary>
@@ -31,7 +31,7 @@ namespace GameEstate.Core
         /// </summary>
         /// <param name="parent">The parent.</param>
         /// <param name="filePath">The file path.</param>
-        public StreamPakFile(CorePakFile parent, string filePath) : base(filePath, new PakFormatStream(), null)
+        public StreamPakFile(CorePakFile parent, string filePath) : base(filePath, new PakFormatStream())
         {
             UsePool = false;
             Files = parent.Files;

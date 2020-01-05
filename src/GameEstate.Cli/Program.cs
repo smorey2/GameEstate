@@ -146,7 +146,7 @@ namespace GameEstate
                 return Task.FromResult(0);
             }
 
-            var estate = CoreEstate.Parse(opts.Estate);
+            var estate = CoreEstate.GetEstate(opts.Estate);
             // list found locations in estate
             if (opts.Uri == null)
             {
@@ -192,7 +192,7 @@ namespace GameEstate
         static async Task<int> RunExportAsync(ExportOptions opts)
         {
             var from = ProgramState.Load(data => Convert.ToInt32(data), 0);
-            var estate = CoreEstate.Parse(opts.Estate);
+            var estate = CoreEstate.GetEstate(opts.Estate);
             using (var multPak = estate.OpenPakFile(estate.ParseResource(opts.Uri)))
             {
                 // write paks header
@@ -224,7 +224,7 @@ namespace GameEstate
         static async Task<int> RunImportAsync(ImportOptions opts)
         {
             var from = ProgramState.Load(data => Convert.ToInt32(data), 0);
-            var estate = CoreEstate.Parse(opts.Estate);
+            var estate = CoreEstate.GetEstate(opts.Estate);
             foreach (var path in estate.ParseResource(opts.Uri).Paths)
             {
                 using (var pak = estate.OpenPakFile(path))
@@ -245,7 +245,7 @@ namespace GameEstate
         static async Task<int> RunXsportAsync(XsportOptions opts)
         {
             var from = ProgramState.Load(data => Convert.ToInt32(data), 0);
-            var estate = CoreEstate.Parse(opts.Estate);
+            var estate = CoreEstate.GetEstate(opts.Estate);
             foreach (var path in estate.ParseResource(opts.Uri).Paths)
             {
                 using (var pak = estate.OpenPakFile(path))

@@ -15,7 +15,6 @@ namespace GameEstate.Core
         public readonly string Name;
         public readonly string FilePath;
         internal readonly PakFormat PakFormat;
-        internal readonly DatFormat DatFormat;
         //
         public IList<FileMetadata> Files;
         internal HashSet<string> FilesRawSet;
@@ -40,11 +39,10 @@ namespace GameEstate.Core
         /// or
         /// datFormat
         /// </exception>
-        public CorePakFile(string filePath, PakFormat pakFormat, DatFormat datFormat)
+        public CorePakFile(string filePath, PakFormat pakFormat)
         {
             FilePath = filePath ?? throw new ArgumentNullException(nameof(filePath));
             PakFormat = pakFormat ?? throw new ArgumentNullException(nameof(pakFormat));
-            DatFormat = datFormat;
             Name = Path.GetFileName(FilePath);
             if (string.IsNullOrEmpty(Name))
                 Name = Path.GetFileName(Path.GetDirectoryName(FilePath));
@@ -160,7 +158,7 @@ namespace GameEstate.Core
         /// <param name="file">The file.</param>
         /// <param name="exception">The exception.</param>
         /// <returns></returns>
-        protected virtual Task<byte[]> ReadFileDataAsync(BinaryReader r, FileMetadata file, Action<FileMetadata, string> exception) => DatFormat.ReadAsync(this, r, file, exception);
+        protected virtual Task<byte[]> ReadFileDataAsync(BinaryReader r, FileMetadata file, Action<FileMetadata, string> exception) => PakFormat.ReadFileAsync(this, r, file, exception);
 
         /// <summary>
         /// Reads the extra data asynchronous.
@@ -169,7 +167,7 @@ namespace GameEstate.Core
         /// <param name="file">The file.</param>
         /// <param name="exception">The exception.</param>
         /// <returns></returns>
-        protected virtual Task<byte[]> ReadExtraDataAsync(BinaryReader r, FileMetadata file, Action<FileMetadata, string> exception) => DatFormat.ReadExtraAsync(this, r, file, exception);
+        protected virtual Task<byte[]> ReadExtraDataAsync(BinaryReader r, FileMetadata file, Action<FileMetadata, string> exception) => PakFormat.ReadExtraAsync(this, r, file, exception);
 
         /// <summary>
         /// Writes the file data asynchronous.
@@ -179,7 +177,7 @@ namespace GameEstate.Core
         /// <param name="data">The data.</param>
         /// <param name="exception">The exception.</param>
         /// <returns></returns>
-        internal protected virtual Task WriteFileDataAsync(BinaryWriter w, FileMetadata file, byte[] data, Action<FileMetadata, string> exception) => DatFormat.WriteAsync(this, w, file, data, exception);
+        internal protected virtual Task WriteFileDataAsync(BinaryWriter w, FileMetadata file, byte[] data, Action<FileMetadata, string> exception) => PakFormat.WriteFileAsync(this, w, file, data, exception);
 
         /// <summary>
         /// Writes the extra data asynchronous.
@@ -189,7 +187,7 @@ namespace GameEstate.Core
         /// <param name="data">The data.</param>
         /// <param name="exception">The exception.</param>
         /// <returns></returns>
-        internal protected virtual Task WriteExtraDataAsync(BinaryWriter w, FileMetadata file, byte[] data, Action<FileMetadata, string> exception) => DatFormat.WriteExtraAsync(this, w, file, data, exception);
+        internal protected virtual Task WriteExtraDataAsync(BinaryWriter w, FileMetadata file, byte[] data, Action<FileMetadata, string> exception) => PakFormat.WriteExtraAsync(this, w, file, data, exception);
 
         /// <summary>
         /// Reads the asynchronous.
