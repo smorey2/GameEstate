@@ -1,4 +1,7 @@
 ﻿{
+  // Project RED, REDKit
+  // https://witcher.fandom.com/wiki/File_format
+  // http://jlouisb.users.sourceforge.net/
   "id": "Red",
   "name": "REDengine",
   "description": "REDengine file formats including the Witcher Series",
@@ -24,11 +27,5 @@
         "assets": "content"
       }
     }
-  },
-  "_comments": [
-    "Project RED",
-    "REDKit",
-    "https://witcher.fandom.com/wiki/File_format",
-    "http://jlouisb.users.sourceforge.net/"
-  ]
+  }
 }

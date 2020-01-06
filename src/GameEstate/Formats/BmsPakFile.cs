@@ -1,6 +1,6 @@
 ﻿using GameEstate.Core;
 
-namespace GameEstate.Bms
+namespace GameEstate.Formats
 {
     /// <summary>
     /// BmsPakFile

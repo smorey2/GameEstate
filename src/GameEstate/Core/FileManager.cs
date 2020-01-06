@@ -1,4 +1,5 @@
 ﻿using Microsoft.Win32;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -9,17 +10,60 @@ using static Microsoft.Win32.Registry;
 namespace GameEstate.Core
 {
     /// <summary>
-    /// CoreFileManager
+    /// FileManager
     /// </summary>
-    public abstract class CoreFileManager
+    public class FileManager
     {
+        public static FileManager ParseFileManager(JObject obj)
+        {
+            var r = new FileManager { };
+            // registry
+            if (obj["registry"] != null)
+                foreach (var x in obj["registry"].Cast<JProperty>())
+                    foreach (var value in x.Value["key"] is JArray a ? a.Values().Select(y => (string)((JValue)y).Value) : new[] { (string)x.Value["key"] })
+                    {
+                        var path = value?.Replace('/', '\\');
+                        path = GetExePath(Is64Bit ? $"Wow6432Node\\{path}" : path);
+                        if (path != null && Directory.Exists(path))
+                        {
+                            var assets = (string)x.Value["assets"];
+                            if (assets != null)
+                                path = Path.Combine(path, assets);
+                            if (Directory.Exists(path))
+                            {
+                                r.Locations.Add(x.Name, path);
+                                break;
+                            }
+                        }
+                    }
+            // direct
+            if (obj["direct"] != null)
+                foreach (var x in obj["direct"].Cast<JProperty>())
+                    foreach (var value in x.Value["path"] is JArray a ? a.Values().Select(y => (string)((JValue)y).Value) : new[] { (string)x.Value["path"] })
+                    {
+                        var path = value?.Replace('/', '\\');
+                        if (path != null && Directory.Exists(path))
+                        {
+                            var assets = (string)x.Value["assets"];
+                            if (assets != null)
+                                path = Path.Combine(path, assets);
+                            if (Directory.Exists(path))
+                            {
+                                r.Locations.Add(x.Name, path);
+                                break;
+                            }
+                        }
+                    }
+            return r;
+        }
+
         /// <summary>
         /// Gets or sets a value indicating whether [is64 bit].
         /// </summary>
         /// <value>
         ///   <c>true</c> if [is64 bit]; otherwise, <c>false</c>.
         /// </value>
-        public bool Is64Bit { get; set; } = true;
+        public static bool Is64Bit { get; set; } = true;
 
         /// <summary>
         /// Gets a value indicating whether this instance is data present.
@@ -32,33 +76,7 @@ namespace GameEstate.Core
         /// <summary>
         /// The locations
         /// </summary>
-        public IDictionary<int, string> Locations = new Dictionary<int, string>();
-
-        /// <summary>
-        /// Loads from reg keys.
-        /// </summary>
-        /// <param name="regkeys">The regkeys.</param>
-        /// <param name="subFolder">The sub folder.</param>
-        /// <param name="many">The many.</param>
-        protected void LoadFromRegKeys(IList<object> regkeys, Func<int, string> subFolder = null, bool? many = null)
-        {
-            for (var i = 0; i < regkeys.Count; i += 2)
-            {
-                var path = GetExePath(Is64Bit ? $"Wow6432Node\\{(string)regkeys[i]}" : (string)regkeys[i]);
-                if (path != null && Directory.Exists(path))
-                {
-                    var game = (int)regkeys[i + 1];
-                    if (subFolder != null)
-                        path = Path.Combine(path, subFolder(game));
-                    if (Directory.Exists(path))
-                    {
-                        Locations.Add(game, path);
-                        if (many == false)
-                            return;
-                    }
-                }
-            }
-        }
+        public IDictionary<string, string> Locations = new Dictionary<string, string>();
 
         /// <summary>
         /// Gets the game file paths.
@@ -68,7 +86,7 @@ namespace GameEstate.Core
         /// <returns></returns>
         /// <exception cref="ArgumentNullException">pathOrPattern</exception>
         /// <exception cref="ArgumentOutOfRangeException">pathOrPattern</exception>
-        public string[] GetGameFilePaths(int game, string pathOrPattern)
+        public string[] GetGameFilePaths(string game, string pathOrPattern)
         {
             if (pathOrPattern == null)
                 throw new ArgumentNullException(nameof(pathOrPattern));

@@ -6,6 +6,9 @@
   "games": {
     "StarCitizen": "Star Citizen"
   },
+  "xforms": {
+    "StarCitizen": "GameEstate.Estates.RsiXform"
+  },
   "fileManager": {
     "direct": {
       "StarCitizen": {

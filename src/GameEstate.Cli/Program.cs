@@ -141,16 +141,16 @@ namespace GameEstate
             if (string.IsNullOrEmpty(opts.Estate))
             {
                 Console.WriteLine("Estates installed:\n");
-                foreach (var estate2 in CoreEstate.Estates)
+                foreach (var estate2 in Estate.Estates)
                     Console.WriteLine($"{estate2.Key} - {estate2.Value.Name}");
                 return Task.FromResult(0);
             }
 
-            var estate = CoreEstate.GetEstate(opts.Estate);
+            var estate = Estate.GetEstate(opts.Estate);
             // list found locations in estate
             if (opts.Uri == null)
             {
-                var estateGames = string.Join(", ", estate.GetGames().Select(x => x.description));
+                var estateGames = string.Join(", ", estate.Games.Values);
                 Console.WriteLine($"{estate.Name}\n{estate.Description}\nGames: {estateGames}\n");
                 var locations = estate.FileManager.Locations;
                 if (locations.Count == 0)
@@ -192,7 +192,7 @@ namespace GameEstate
         static async Task<int> RunExportAsync(ExportOptions opts)
         {
             var from = ProgramState.Load(data => Convert.ToInt32(data), 0);
-            var estate = CoreEstate.GetEstate(opts.Estate);
+            var estate = Estate.GetEstate(opts.Estate);
             using (var multPak = estate.OpenPakFile(estate.ParseResource(opts.Uri)))
             {
                 // write paks header
@@ -224,7 +224,7 @@ namespace GameEstate
         static async Task<int> RunImportAsync(ImportOptions opts)
         {
             var from = ProgramState.Load(data => Convert.ToInt32(data), 0);
-            var estate = CoreEstate.GetEstate(opts.Estate);
+            var estate = Estate.GetEstate(opts.Estate);
             foreach (var path in estate.ParseResource(opts.Uri).Paths)
             {
                 using (var pak = estate.OpenPakFile(path))
@@ -245,7 +245,7 @@ namespace GameEstate
         static async Task<int> RunXsportAsync(XsportOptions opts)
         {
             var from = ProgramState.Load(data => Convert.ToInt32(data), 0);
-            var estate = CoreEstate.GetEstate(opts.Estate);
+            var estate = Estate.GetEstate(opts.Estate);
             foreach (var path in estate.ParseResource(opts.Uri).Paths)
             {
                 using (var pak = estate.OpenPakFile(path))

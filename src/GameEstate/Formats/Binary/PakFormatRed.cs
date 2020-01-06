@@ -1,5 +1,4 @@
 ﻿using GameEstate.Core;
-using GameEstate.Red;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -230,7 +229,7 @@ namespace GameEstate.Formats.Binary
 
         #endregion
 
-        readonly static RedEstate Estate = new RedEstate();
+        readonly static Estate Estate = Estate.GetEstate("Red");
         readonly object Tag;
 
         public PakFormatRed(object tag = null) => Tag = tag;
@@ -269,7 +268,7 @@ namespace GameEstate.Formats.Binary
                     var info = infos[i];
                     r.Position(info.FileNameOffset);
                     var fileName = r.ReadASCII((int)info.FileNameSize);
-                    var newPaths = Estate.FileManager.GetGameFilePaths((int)RedGame.Witcher, fileName);
+                    var newPaths = Estate.FileManager.GetGameFilePaths("Witcher", fileName);
                     string newPath;
                     if (newPaths.Length != 1 || !System.IO.File.Exists(newPath = newPaths[0]))
                         continue;

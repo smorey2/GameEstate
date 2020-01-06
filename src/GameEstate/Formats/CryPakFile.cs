@@ -1,6 +1,6 @@
 ﻿using GameEstate.Core;
 
-namespace GameEstate.Cry
+namespace GameEstate.Formats
 {
     /// <summary>
     /// CryPakFile

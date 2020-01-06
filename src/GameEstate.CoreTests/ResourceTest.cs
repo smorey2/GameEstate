@@ -1,5 +1,4 @@
 using GameEstate.Core;
-using GameEstate.Tes;
 using System;
 using Xunit;
 
@@ -9,21 +8,21 @@ namespace GameEstate.CoreTests
     {
         [Theory]
         // game
-        [InlineData(false, "Tes", "game:/Oblivion*.bsa#Oblivion", (int)TesGame.Oblivion, false, 6, "Oblivion - Meshes.bsa", "trees/treeginkgo.spt", 2059)]
-        [InlineData(true, "Tes", "game:/Oblivion*.bsa/#Oblivion", (int)TesGame.Oblivion, false, 6, "Oblivion - Meshes.bsa", "trees/treeginkgo.spt", 2059)]
+        [InlineData(false, "Tes", "game:/Oblivion*.bsa#Oblivion", "Oblivion", false, 6, "Oblivion - Meshes.bsa", "trees/treeginkgo.spt", 2059)]
+        [InlineData(true, "Tes", "game:/Oblivion*.bsa/#Oblivion", "Oblivion", false, 6, "Oblivion - Meshes.bsa", "trees/treeginkgo.spt", 2059)]
         // file: file
-        [InlineData(false, "Tes", "file:///C:/Program%20Files%20(x86)/Steam/steamapps/common/Oblivion/Data/Oblivion*.bsa#Oblivion", (int)TesGame.Oblivion, false, 6, "Oblivion - Meshes.bsa", "trees/treeginkgo.spt", 2059)]
-        [InlineData(false, "Tes", "file:///C:/Program%20Files%20(x86)/Steam/steamapps/common/Oblivion/Data/Oblivion%20-%20Meshes.bsa#Oblivion", (int)TesGame.Oblivion, false, 1, "Oblivion - Meshes.bsa", "trees/treeginkgo.spt", 2059)]
+        [InlineData(false, "Tes", "file:///C:/Program%20Files%20(x86)/Steam/steamapps/common/Oblivion/Data/Oblivion*.bsa#Oblivion", "Oblivion", false, 6, "Oblivion - Meshes.bsa", "trees/treeginkgo.spt", 2059)]
+        [InlineData(false, "Tes", "file:///C:/Program%20Files%20(x86)/Steam/steamapps/common/Oblivion/Data/Oblivion%20-%20Meshes.bsa#Oblivion", "Oblivion", false, 1, "Oblivion - Meshes.bsa", "trees/treeginkgo.spt", 2059)]
         // file: folder
-        [InlineData(false, "Tes", "file:///D:/T_/Oblivion/Oblivion*.bsa/#Oblivion", (int)TesGame.Oblivion, true, 6, "Oblivion - Meshes.bsa", "trees/treeginkgo.spt", 2059)]
-        [InlineData(false, "Tes", "file:///D:/T_/Oblivion/Oblivion%20-%20Meshes.bsa/#Oblivion", (int)TesGame.Oblivion, true, 1, "Oblivion - Meshes.bsa", "trees/treeginkgo.spt", 2059)]
+        [InlineData(false, "Tes", "file:///D:/T_/Oblivion/Oblivion*.bsa/#Oblivion", "Oblivion", true, 6, "Oblivion - Meshes.bsa", "trees/treeginkgo.spt", 2059)]
+        [InlineData(false, "Tes", "file:///D:/T_/Oblivion/Oblivion%20-%20Meshes.bsa/#Oblivion", "Oblivion", true, 1, "Oblivion - Meshes.bsa", "trees/treeginkgo.spt", 2059)]
         // http
-        [InlineData(true, "Tes", "http://192.168.1.3/Estates/Oblivion/Oblivion*.bsa#Oblivion", (int)TesGame.Oblivion, true, 6, "Oblivion - Meshes.bsa", "trees/treeginkgo.spt", 2059)]
-        [InlineData(false, "Tes", "http://192.168.1.3/Estates/Oblivion/Oblivion*.bsa/#Oblivion", (int)TesGame.Oblivion, true, 6, "Oblivion - Meshes.bsa", "trees/treeginkgo.spt", 2059)]
-        [InlineData(false, "Tes", "http://192.168.1.3/Estates/Oblivion/Oblivion%20-%20Meshes.bsa/#Oblivion", (int)TesGame.Oblivion, true, 1, "Oblivion - Meshes.bsa", "trees/treeginkgo.spt", 2059)]
-        public void Resource(bool shouldThrow, string estateName, string uri, int game, bool filePak, int paks, string firstPak, string sampleFile, int sampleFileSize)
+        [InlineData(true, "Tes", "http://192.168.1.3/Estates/Oblivion/Oblivion*.bsa#Oblivion", "Oblivion", true, 6, "Oblivion - Meshes.bsa", "trees/treeginkgo.spt", 2059)]
+        [InlineData(false, "Tes", "http://192.168.1.3/Estates/Oblivion/Oblivion*.bsa/#Oblivion", "Oblivion", true, 6, "Oblivion - Meshes.bsa", "trees/treeginkgo.spt", 2059)]
+        [InlineData(false, "Tes", "http://192.168.1.3/Estates/Oblivion/Oblivion%20-%20Meshes.bsa/#Oblivion", "Oblivion", true, 1, "Oblivion - Meshes.bsa", "trees/treeginkgo.spt", 2059)]
+        public void Resource(bool shouldThrow, string estateName, string uri, string game, bool filePak, int paks, string firstPak, string sampleFile, int sampleFileSize)
         {
-            var estate = CoreEstate.GetEstate(estateName);
+            var estate = Estate.GetEstate(estateName);
             if (shouldThrow)
             {
                 Assert.Throws<ArgumentOutOfRangeException>(() => estate.ParseResource(new Uri(uri)));

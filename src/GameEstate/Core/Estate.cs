@@ -1,9 +1,4 @@
-﻿using GameEstate.Cry;
-using GameEstate.Red;
-using GameEstate.Rsi;
-using GameEstate.Tes;
-using GameEstate.U9;
-using GameEstate.UO;
+﻿using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -12,29 +7,24 @@ using System.Reflection;
 
 namespace GameEstate.Core
 {
-    public class CoreEstate
+    public class Estate
     {
         public struct Resource
         {
             public bool StreamPak;
             public Uri Host;
             public string[] Paths;
-            public int Game;
+            public string Game;
         }
 
-        static CoreEstate()
+        static Estate()
         {
             var platform = UnsafeUtils.Platform;
             var assembly = Assembly.GetExecutingAssembly();
-            CoreEstate estate;
+            Estate estate;
             foreach (var key in new[] { "Cry", "Red", "Rsi", "Tes", "U9", "UO" })
-                using (var r = new StreamReader(assembly.GetManifestResourceStream($"GameEstate.Estates.{key}.json")))
+                using (var r = new StreamReader(assembly.GetManifestResourceStream($"GameEstate.Estates.{key}Estate.json")))
                     Estates.Add((estate = ParseEstate(r.ReadToEnd())).Id, estate);
-        }
-
-        public static CoreEstate ParseEstate(string body)
-        {
-            return new CoreEstate();
         }
 
         /// <summary>
@@ -43,15 +33,23 @@ namespace GameEstate.Core
         /// <value>
         /// The estates.
         /// </value>
-        public static IDictionary<string, CoreEstate> Estates { get; } = new Dictionary<string, CoreEstate>
+        public static IDictionary<string, Estate> Estates { get; } = new Dictionary<string, Estate>(StringComparer.OrdinalIgnoreCase);
+
+        public static Estate ParseEstate(string json)
         {
-            //{ "Cry", new CryEstate() },
-            //{ "Red", new RedEstate() },
-            //{ "Rsi", new RsiEstate() },
-            //{ "Tes", new TesEstate() },
-            //{ "U9", new U9Estate() },
-            //{ "UO", new UOEstate() },
-        };
+            var assembly = Assembly.GetExecutingAssembly();
+            var p = JObject.Parse(json);
+            return new Estate
+            {
+                Id = (string)p["id"],
+                Name = (string)p["name"],
+                Description = (string)p["description"],
+                PakFileType = assembly.GetType((string)p["pakFileType"], false) ?? throw new ArgumentOutOfRangeException("pakFileType", (string)p["pakFileType"]),
+                Games = p["games"] != null ? p["games"].Cast<JProperty>().ToDictionary(x => x.Name, x => (string)x.Value, StringComparer.OrdinalIgnoreCase) : throw new ArgumentNullException("games"),
+                Xforms = p["xforms"] != null ? p["xforms"].Cast<JProperty>().ToDictionary(x => x.Name, x => (object)(string)x.Value, StringComparer.OrdinalIgnoreCase) : new Dictionary<string, object>(),
+                FileManager = p["fileManager"] != null ? FileManager.ParseFileManager((JObject)p["fileManager"]) : new FileManager(),
+            };
+        }
 
         /// <summary>
         /// Gets the specified estate.
@@ -60,9 +58,15 @@ namespace GameEstate.Core
         /// <returns></returns>
         /// <exception cref="ArgumentOutOfRangeException">estateName</exception>
         /// <exception cref="System.ArgumentOutOfRangeException">name</exception>
-        public static CoreEstate GetEstate(string estateName) => Estates.TryGetValue(estateName, out var estate) ? estate : throw new ArgumentOutOfRangeException(nameof(estateName), estateName);
+        public static Estate GetEstate(string estateName) => Estates.TryGetValue(estateName, out var estate) ? estate : throw new ArgumentOutOfRangeException(nameof(estateName), estateName);
 
-        public virtual string Id { get; }
+        /// <summary>
+        /// Gets the identifier.
+        /// </summary>
+        /// <value>
+        /// The identifier.
+        /// </value>
+        public string Id { get; private set; }
 
         /// <summary>
         /// Gets the name.
@@ -70,7 +74,7 @@ namespace GameEstate.Core
         /// <value>
         /// The name.
         /// </value>
-        public virtual string Name { get; }
+        public string Name { get; private set; }
 
         /// <summary>
         /// Gets the description.
@@ -78,31 +82,37 @@ namespace GameEstate.Core
         /// <value>
         /// The description.
         /// </value>
-        public virtual string Description { get; }
+        public string Description { get; private set; }
 
         /// <summary>
-        /// Gets the type of the game.
+        /// Gets the type of the pak file.
         /// </summary>
         /// <value>
-        /// The type of the game.
+        /// The type of the pak file.
         /// </value>
-        public virtual Type GameType { get; }
+        public Type PakFileType { get; private set; }
 
         /// <summary>
         /// Gets the game.
         /// </summary>
         /// <param name="game">The game.</param>
         /// <returns></returns>
-        public (string name, string description) GetGame(int game) { var name = GameType.GetEnumName(game); return (name, GameType.GetEnumDescription(name)); }
+        /// <exception cref="ArgumentOutOfRangeException">game</exception>
+        public (string game, string description) GetGame(string game) => Games.TryGetValue(game, out var description) ? (game, description) : throw new ArgumentOutOfRangeException(nameof(game), game);
 
         /// <summary>
         /// Gets the games.
         /// </summary>
         /// <returns></returns>
-        public (string name, string description)[] GetGames()
-            => GameType.GetEnumNames().Zip(
-                Enum.GetValues(GameType).Cast<Enum>().Select(x => GameType.GetEnumDescription(x.ToString()))
-            , (name, description) => (name, description)).ToArray();
+        public IDictionary<string, string> Games { get; private set; }
+
+        /// <summary>
+        /// Gets the xforms.
+        /// </summary>
+        /// <value>
+        /// The xforms.
+        /// </value>
+        public IDictionary<string, object> Xforms { get; private set; }
 
         /// <summary>
         /// Gets the file manager.
@@ -110,21 +120,21 @@ namespace GameEstate.Core
         /// <value>
         /// The file manager.
         /// </value>
-        public virtual CoreFileManager FileManager { get; }
+        public FileManager FileManager { get; private set; }
 
         /// <summary>
         /// Opens the pak file.
         /// </summary>
         /// <param name="filePath">The file path.</param>
         /// <returns></returns>
-        public virtual CorePakFile OpenPakFile(string filePath) => null;
+        public CorePakFile OpenPakFile(string filePath) => (CorePakFile)Activator.CreateInstance(PakFileType, filePath);
 
         /// <summary>
         /// Opens the pak file.
         /// </summary>
         /// <param name="filePaths">The file paths.</param>
         /// <returns></returns>
-        public virtual MultiPakFile OpenPakFile(string[] filePaths) => new MultiPakFile(filePaths.Select(x => OpenPakFile(x)).ToArray());
+        public MultiPakFile OpenPakFile(string[] filePaths) => new MultiPakFile(filePaths.Select(x => OpenPakFile(x)).ToArray());
 
         /// <summary>
         /// Opens the pak file.
@@ -163,17 +173,17 @@ namespace GameEstate.Core
         public Resource ParseResource(Uri uri)
         {
             var fragment = uri.Fragment?.Substring(uri.Fragment.Length != 0 ? 1 : 0);
-            var gameName = Enum.GetNames(GameType).FirstOrDefault(x => string.Equals(x, fragment, StringComparison.OrdinalIgnoreCase)) ?? throw new ArgumentOutOfRangeException(nameof(fragment), fragment);
-            var r = new Resource { Game = (int)Enum.Parse(GameType, gameName) };
+            var game = GetGame(fragment);
+            var r = new Resource { Game = game.game };
             // file-scheme
             if (string.Equals(uri.Scheme, "game", StringComparison.OrdinalIgnoreCase))
-                r.Paths = FileManager.GetGameFilePaths(r.Game, uri.LocalPath.Substring(1)) ?? throw new InvalidOperationException($"No {gameName} resources match.");
+                r.Paths = FileManager.GetGameFilePaths(r.Game, uri.LocalPath.Substring(1)) ?? throw new InvalidOperationException($"No {game} resources match.");
             // file-scheme
             else if (uri.IsFile)
-                r.Paths = FileManager.GetLocalFilePaths(uri.LocalPath, out r.StreamPak) ?? throw new InvalidOperationException($"No {gameName} resources match.");
+                r.Paths = FileManager.GetLocalFilePaths(uri.LocalPath, out r.StreamPak) ?? throw new InvalidOperationException($"No {game} resources match.");
             // network-scheme
             else
-                r.Paths = FileManager.GetHttpFilePaths(uri, out r.Host, out r.StreamPak) ?? throw new InvalidOperationException($"No {gameName} resources match.");
+                r.Paths = FileManager.GetHttpFilePaths(uri, out r.Host, out r.StreamPak) ?? throw new InvalidOperationException($"No {game} resources match.");
             return r;
         }
     }
