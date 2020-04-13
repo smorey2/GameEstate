@@ -41,6 +41,9 @@ Makefile
 *.sublime-workspace
 
 # Directories we don't ever want to commit
+_vcpkg
+_build32
+_build64
 _build
 _bundle
 bin

@@ -1,5 +1,6 @@
 ﻿using CommandLine;
 using GameEstate.Core;
+using GameEstate.Dev;
 using GameEstate.Formats.Binary;
 using System;
 using System.IO;
@@ -60,6 +61,16 @@ namespace GameEstate
 
         #region Options
 
+        [Verb("dev", HelpText = "Extract files contents to folder.")]
+        class DevOptions
+        {
+            [Option('e', "estate", HelpText = "Estate")]
+            public string Estate { get; set; }
+
+            [Option('u', "uri", HelpText = "Pak file to be extracted")]
+            public Uri Uri { get; set; }
+        }
+
         [Verb("list", HelpText = "Extract files contents to folder.")]
         class ListOptions
         {
@@ -114,6 +125,8 @@ namespace GameEstate
 
         #endregion
 
+        static string[] dev00 = new[] { "dev" };
+
         static string[] args00 = new[] { "list" };
         static string[] args01 = new[] { "list", "-e", "Red" };
         static string[] args02 = new[] { "list", "-e", "Tes", "-u", "game:/Oblivion*.bsa#Oblivion" };
@@ -127,13 +140,20 @@ namespace GameEstate
         static string[] argsRed1 = new[] { "export", "-e", "Red", "-u", "game:/main.key#Witcher", "--path", @"D:\T_\Witcher" };
         static string[] argsRed2 = new[] { "export", "-e", "Red", "-u", "game:/krbr.dzip#Witcher2", "--path", @"D:\T_\Witcher2" };
 
-        static void Main(string[] args) => Parser.Default.ParseArguments<ListOptions, ExportOptions, ImportOptions, XsportOptions>(argsTes1)
+        static void Main(string[] args) => Parser.Default.ParseArguments<DevOptions, ListOptions, ExportOptions, ImportOptions, XsportOptions>(dev00)
             .MapResult(
+                  (DevOptions opts) => RunDevAsync(opts).GetAwaiter().GetResult(),
                   (ListOptions opts) => RunListAsync(opts).GetAwaiter().GetResult(),
                   (ExportOptions opts) => RunExportAsync(opts).GetAwaiter().GetResult(),
                   (ImportOptions opts) => RunImportAsync(opts).GetAwaiter().GetResult(),
                   (XsportOptions opts) => RunXsportAsync(opts).GetAwaiter().GetResult(),
                   errs => 1);
+
+        static Task<int> RunDevAsync(DevOptions opts)
+        {
+            DevTest.Test();
+            return Task.FromResult(0);
+        }
 
         static Task<int> RunListAsync(ListOptions opts)
         {

@@ -69,4 +69,16 @@
     <Folder Include="x86\" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Include="..\..\_vcpkg\packages\quickbms_x86-windows\bin\libcrypto-1_1.dll" Link="x86\libcrypto-1_1.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\..\_vcpkg\packages\quickbms_x86-windows\bin\libssl-1_1.dll" Link="x86\libssl-1_1.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\..\_vcpkg\packages\quickbms_x86-windows\bin\quickbms.exe" Link="x86\quickbms.exe">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>
