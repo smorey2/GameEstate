@@ -1,16 +1,14 @@
-﻿using GameEstate.Modules;
+using GameEstate.Modules;
 using System.IO;
 using System.Threading.Tasks;
+using Xunit;
 
-namespace GameEstate.Dev
+namespace GameEstate.CoreTests.Modules
 {
-    public class DevTest
+    public class QuickbmsTest
     {
-        public async Task TestAsync()
-        {
-            await ExtractPackageTest("Witcher3", @"D:\Program Files (x86)\GOG Galaxy\Games\The Witcher 3 Wild Hunt GOTY\content\*", "witcher3.bms");
-        }
-
+        [Theory]
+        [InlineData("Witcher3", @"D:\Program Files (x86)\GOG Galaxy\Games\The Witcher 3 Wild Hunt GOTY\content\*", "witcher3.bms")]
         public async Task ExtractPackageTest(string packageName, string contentPath, string scriptFile)
         {
             var packagePath = Path.Combine(Config.AssetPath, packageName);

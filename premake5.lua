@@ -10,30 +10,6 @@ if os.ishost("windows") then
         end
     }
 
-    newaction
-    {
-        trigger     = "native",
-        description = "Build the native libraries",
-        onStart = function()
-            -- install vcpkg
-            if not os.isdir("_vcpkg") then
-                print("vcpkg does not exist. installing...")
-                os.execute "git.exe clone https://github.com/Microsoft/vcpkg.git _vcpkg"
-                os.execute "cd _vcpkg && bootstrap-vcpkg.bat -disableMetrics"
-            end
-            -- install quickbms:x86-windows
-            if not os.isdir("_vcpkg/packages/quickbms_x86-windows") then
-                os.execute "cd _vcpkg && vcpkg install quickbms:x86-windows --overlay-ports=../custom-ports"
-            end
-            -- build quickbms:x86-windows
-            if true or not os.isfile("_vcpkg/packages/quickbms_x86-windows/bin/quickbms.exe") then
-                os.execute "cd _vcpkg/buildtrees/quickbms/src/0.10.1-f19b127b22/ && build.cmd"
-            end
-        end,
-        execute = function ()
-        end
-    }
-
 else
 
      -- MacOSX and Linux.
@@ -59,10 +35,33 @@ end
 
 newaction
 {
+    trigger     = "quickbms",
+    description = "Download quickbms native libraries",
+    execute = function()
+        if os.ishost("windows") then
+            downloadPackage("https://aluigi.altervista.org/papers/quickbms.zip", ".quickbms")
+        else
+            if os.ishost("macosx") then
+                downloadPackage("https://aluigi.altervista.org/papers/quickbms_macosx.zip", ".quickbms")
+            else
+                downloadPackage("https://aluigi.altervista.org/papers/quickbms_linux.zip", ".quickbms")
+            end
+        end
+        downloadPackage("https://aluigi.altervista.org/quickbms_scripts.php", ".quickbms/scripts")
+    end
+}
+
+newaction
+{
     trigger     = "build",
     description = "Build GameEstate",
     execute = function ()
-        os.execute "dotnet build src/xyz.csproj"
+        -- install quickbms
+        if not os.isdir(".quickbms") then
+            print(".quickbms does not exist. installing...")
+            os.execute "premake5 quickbms"
+        end
+        -- os.execute "dotnet build src/xyz.csproj"
     end
 }
 
@@ -137,3 +136,27 @@ newaction
 
     end
 }
+
+function downloadPackage(url, location)
+    if http == nil then
+        return false
+    end
+
+    -- Download the module.
+    local destination = location .. '/temp.zip'
+
+    os.mkdir(location)
+    local result_str, response_code = http.download(url, destination, {
+        progress = http.reportProgress
+    })
+
+    if result_str ~= 'OK' then
+        premake.error('Download of %s failed (%d)\n%s', url, response_code, result_str)
+    end
+
+    -- Unzip the module, and delete the temporary zip file.
+    verbosef(' UNZIP   : %s', destination)
+    zip.extract(destination, location)
+    os.remove(destination)
+    return true;
+end

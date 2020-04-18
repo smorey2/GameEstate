@@ -70,13 +70,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="..\..\_vcpkg\packages\quickbms_x86-windows\bin\libcrypto-1_1.dll" Link="x86\libcrypto-1_1.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="..\..\_vcpkg\packages\quickbms_x86-windows\bin\libssl-1_1.dll" Link="x86\libssl-1_1.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="..\..\_vcpkg\packages\quickbms_x86-windows\bin\quickbms.exe" Link="x86\quickbms.exe">
+    <None Include="..\..\.quickbms\quickbms_4gb_files.exe" Link="Modules\quickbms_4gb_files.exe">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>

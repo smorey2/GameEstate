@@ -14,6 +14,27 @@ namespace GameEstate.Core
     /// </summary>
     public class FileManager
     {
+        public static void WithTmpFile(string body, Action<string> action)
+        {
+            string fileName = null;
+            try
+            {
+                fileName = Path.GetTempFileName();
+                var fileInfo = new FileInfo(fileName)
+                {
+                    Attributes = FileAttributes.Temporary
+                };
+                using (var s = fileInfo.AppendText())
+                    s.Write(body);
+                action(fileName);
+            }
+            finally
+            {
+                if (fileName != null && File.Exists(fileName))
+                    File.Delete(fileName);
+            }
+        }
+
         public static FileManager ParseFileManager(JObject obj)
         {
             var r = new FileManager { };

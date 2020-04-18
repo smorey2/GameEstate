@@ -149,10 +149,10 @@ namespace GameEstate
                   (XsportOptions opts) => RunXsportAsync(opts).GetAwaiter().GetResult(),
                   errs => 1);
 
-        static Task<int> RunDevAsync(DevOptions opts)
+        static async Task<int> RunDevAsync(DevOptions opts)
         {
-            DevTest.Test();
-            return Task.FromResult(0);
+            await new DevTest().TestAsync();
+            return 0;
         }
 
         static Task<int> RunListAsync(ListOptions opts)
