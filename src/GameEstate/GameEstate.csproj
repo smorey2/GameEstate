@@ -70,6 +70,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Include="..\..\.quickbms\quickbms.exe" Link="Modules\quickbms.exe">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="..\..\.quickbms\quickbms_4gb_files.exe" Link="Modules\quickbms_4gb_files.exe">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
