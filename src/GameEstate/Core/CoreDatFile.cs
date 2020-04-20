@@ -19,7 +19,7 @@ namespace GameEstate.Core
         public readonly string Game;
         internal readonly DatFormat DatFormat;
         //
-        internal GenericPool<BinaryReader> Pool;
+        public GenericPool<BinaryReader> Pool;
         internal bool UsePool = true;
         internal object Tag;
 
@@ -48,18 +48,13 @@ namespace GameEstate.Core
         /// </summary>
         protected void Open()
         {
-            Pool = UsePool && File.Exists(FilePath) ? new GenericPool<BinaryReader>(() => new BinaryReader(File.Open(FilePath, FileMode.Open, FileAccess.Read, FileShare.Read))) : null;
-            if (Pool != null)
-            {
-                var r = Pool.Get();
-                try { ReadAsync(r, DatFormat.ReadStage.File).GetAwaiter().GetResult(); }
-                finally { Pool.Release(r); }
-            }
-            else ReadAsync(null, DatFormat.ReadStage.File).GetAwaiter().GetResult();
             var watch = new Stopwatch();
             watch.Start();
+            Pool = UsePool && File.Exists(FilePath) ? new GenericPool<BinaryReader>(() => new BinaryReader(File.Open(FilePath, FileMode.Open, FileAccess.Read, FileShare.Read))) : null;
+            if (Pool != null) Pool.Action(async r => await ReadAsync(r, DatFormat.ReadStage.File));
+            else ReadAsync(null, DatFormat.ReadStage.File).GetAwaiter().GetResult();
             Process();
-            CoreDebug.Log($"Loading: {watch.ElapsedMilliseconds}");
+            CoreDebug.Log($"Opening: {Name} @ {watch.ElapsedMilliseconds}ms");
             watch.Stop();
         }
 

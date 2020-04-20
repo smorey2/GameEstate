@@ -47,9 +47,7 @@ namespace GameEstate.Formats.Binary
                             var path = line.TrimEnd().Replace('\\', '/');
                             if (state == 0)
                             {
-                                if (path == "HasExtra")
-                                    source.HasExtra = true;
-                                else if (path == "HasNamePrefix")
+                                if (path == "HasNamePrefix")
                                     source.HasNamePrefix = true;
                                 else if (path == "AllCompressed")
                                     foreach (var file in source.Files)
@@ -124,8 +122,6 @@ namespace GameEstate.Formats.Binary
                     {
                         var files = source.Files;
                         // meta
-                        if (source.HasExtra)
-                            w.Write(Encoding.ASCII.GetBytes("HasExtra\n"));
                         if (source.HasNamePrefix)
                             w.Write(Encoding.ASCII.GetBytes("HasNamePrefix\n"));
                         // compressed
