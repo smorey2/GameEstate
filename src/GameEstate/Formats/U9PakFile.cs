@@ -9,9 +9,10 @@ namespace GameEstate.Formats
     public class U9PakFile : CorePakFile
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="U9PakFile"/> class.
+        /// Initializes a new instance of the <see cref="U9PakFile" /> class.
         /// </summary>
         /// <param name="filePath">The file path.</param>
-        public U9PakFile(string filePath) : base(filePath, null) => Open();
+        /// <param name="game">The game.</param>
+        public U9PakFile(string filePath, string game) : base(filePath, game, null) => Open();
     }
 }

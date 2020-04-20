@@ -14,6 +14,7 @@ namespace GameEstate.Core
         public uint Version;
         public readonly string Name;
         public readonly string FilePath;
+        public readonly string Game;
         internal readonly PakFormat PakFormat;
         //
         public IList<FileMetadata> Files;
@@ -30,8 +31,8 @@ namespace GameEstate.Core
         /// Initializes a new instance of the <see cref="CorePakFile"/> class.
         /// </summary>
         /// <param name="filePath">The file path.</param>
+        /// <param name="game">The game.</param>
         /// <param name="pakFormat">The pak format.</param>
-        /// <param name="datFormat">The dat format.</param>
         /// <exception cref="ArgumentNullException">
         /// filePath
         /// or
@@ -39,9 +40,10 @@ namespace GameEstate.Core
         /// or
         /// datFormat
         /// </exception>
-        public CorePakFile(string filePath, PakFormat pakFormat)
+        public CorePakFile(string filePath, string game, PakFormat pakFormat)
         {
             FilePath = filePath ?? throw new ArgumentNullException(nameof(filePath));
+            Game = game ?? throw new ArgumentNullException(nameof(game));
             PakFormat = pakFormat ?? throw new ArgumentNullException(nameof(pakFormat));
             Name = Path.GetFileName(FilePath);
             if (string.IsNullOrEmpty(Name))

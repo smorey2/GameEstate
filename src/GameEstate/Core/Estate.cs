@@ -146,7 +146,7 @@ namespace GameEstate.Core
             if (!resource.StreamPak)
                 return OpenPakFile(resource.Paths);
             var filePaths = resource.Paths;
-            return new MultiPakFile(filePaths.Select(x => new StreamPakFile(x, resource.Host)).ToArray());
+            return new MultiPakFile(filePaths.Select(x => new StreamPakFile(x, resource.Game, resource.Host)).ToArray());
         }
 
         /// <summary>

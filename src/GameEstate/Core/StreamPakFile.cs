@@ -18,8 +18,9 @@ namespace GameEstate.Core
         /// Initializes a new instance of the <see cref="StreamPakFile" /> class.
         /// </summary>
         /// <param name="filePath">The file path.</param>
+        /// <param name="game">The game.</param>
         /// <param name="host">The host.</param>
-        public StreamPakFile(string filePath, Uri host = null) : base(filePath, new PakFormatStream())
+        public StreamPakFile(string filePath, string game, Uri host = null) : base(filePath, game, new PakFormatStream())
         {
             UsePool = false;
             if (host != null)
@@ -27,11 +28,12 @@ namespace GameEstate.Core
             Open();
         }
         /// <summary>
-        /// Initializes a new instance of the <see cref="StreamPakFile"/> class.
+        /// Initializes a new instance of the <see cref="StreamPakFile" /> class.
         /// </summary>
         /// <param name="parent">The parent.</param>
+        /// <param name="game">The game.</param>
         /// <param name="filePath">The file path.</param>
-        public StreamPakFile(CorePakFile parent, string filePath) : base(filePath, new PakFormatStream())
+        public StreamPakFile(CorePakFile parent, string game, string filePath) : base(filePath, game, new PakFormatStream())
         {
             UsePool = false;
             Files = parent.Files;

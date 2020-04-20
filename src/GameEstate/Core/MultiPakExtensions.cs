@@ -56,7 +56,7 @@ namespace GameEstate.Core
             });
 
             // write pak-raw
-            await new StreamPakFile(source, filePath).WriteAsync(null, PakFormat.WriteStage.File);
+            await new StreamPakFile(source, source.Game, filePath).WriteAsync(null, PakFormat.WriteStage.File);
 
             //// write pak-raw
             //if (source.FilesRawSet != null && source.FilesRawSet.Count > 0)

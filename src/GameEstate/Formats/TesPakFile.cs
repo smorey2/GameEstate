@@ -10,9 +10,10 @@ namespace GameEstate.Formats
     public class TesPakFile : CorePakFile
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="TesPakFile"/> class.
+        /// Initializes a new instance of the <see cref="TesPakFile" /> class.
         /// </summary>
         /// <param name="filePath">The file path.</param>
-        public TesPakFile(string filePath) : base(filePath, new PakFormatTes()) => Open();
+        /// <param name="game">The game.</param>
+        public TesPakFile(string filePath, string game) : base(filePath, game, new PakFormatTes()) => Open();
     }
 }

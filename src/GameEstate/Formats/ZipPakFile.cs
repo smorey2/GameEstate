@@ -10,9 +10,10 @@ namespace GameEstate.Formats
     public class ZipPakFile : CorePakFile
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="ZipPakFile"/> class.
+        /// Initializes a new instance of the <see cref="ZipPakFile" /> class.
         /// </summary>
         /// <param name="filePath">The file path.</param>
-        public ZipPakFile(string filePath) : base(filePath, new PakFormatZip()) => Open();
+        /// <param name="game">The game.</param>
+        public ZipPakFile(string filePath, string game) : base(filePath, game, new PakFormatZip()) => Open();
     }
 }
