@@ -78,4 +78,8 @@
     </None>
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\GameEstate.Abstract\GameEstate.Abstract.csproj" />
+  </ItemGroup>
+
 </Project>

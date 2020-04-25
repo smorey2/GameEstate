@@ -19,7 +19,7 @@ namespace GameEstate.Core
 
         static Estate()
         {
-            var platform = UnsafeUtils.Platform;
+            _ = UnsafeUtils.Platform;
             var assembly = Assembly.GetExecutingAssembly();
             Estate estate;
             foreach (var key in new[] { "Cry", "Red", "Rsi", "Tes", "U9", "UO" })
@@ -146,7 +146,7 @@ namespace GameEstate.Core
             if (!resource.StreamPak)
                 return OpenPakFile(resource.Paths);
             var filePaths = resource.Paths;
-            return new MultiPakFile(filePaths.Select(x => new StreamPakFile(x, resource.Game, resource.Host)).ToArray());
+            return new MultiPakFile(filePaths.Select(x => new StreamPakFile(HttpHost.Factory, x, resource.Game, resource.Host)).ToArray());
         }
 
         /// <summary>

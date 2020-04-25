@@ -207,7 +207,7 @@ namespace GameEstate.Formats.Binary
                     throw new InvalidOperationException("HEADER FLAGS");
                 var compressToggle = (header.ArchiveFlags & OB_BSAARCHIVE_COMPRESSFILES) != 0;
                 if (header.Version == F3_BSAHEADER_VERSION || header.Version == SSE_BSAHEADER_VERSION)
-                    source.HasNamePrefix = (header.ArchiveFlags & F3_BSAARCHIVE_PREFIXFULLFILENAMES) != 0;
+                    source.Params["namePrefix"] = (header.ArchiveFlags & F3_BSAARCHIVE_PREFIXFULLFILENAMES) != 0 ? "Y" : "N";
                 var folderSize = header.Version != SSE_BSAHEADER_VERSION ? 16 : 24;
 
                 // Create file metadatas
@@ -309,7 +309,7 @@ namespace GameEstate.Formats.Binary
             byte[] fileData;
             int newFileSize;
             r.Position(file.Position);
-            if (source.HasNamePrefix)
+            if (source.Params["namePrefix"] == "Y")
             {
                 var len = r.ReadByte();
                 fileSize -= len + 1;

@@ -226,8 +226,8 @@ namespace GameEstate.Formats.Cry.Core
                                    //Console.WriteLine("method: (5), 3 half floats for verts, 3 colors, 2 half floats for UVs");
                             for (var i = 0; i < NumElements; i++)
                             {
-                                ushort bver = 0;
-                                var ver = 0F;
+                                //ushort bver = 0;
+                                //var ver = 0F;
                                 Vertices[i].x = Byte2HexIntFracToFloat2(r.ReadUInt16().ToString("X4")) / 127f;
                                 Vertices[i].y = Byte2HexIntFracToFloat2(r.ReadUInt16().ToString("X4")) / 127f;
                                 Vertices[i].z = Byte2HexIntFracToFloat2(r.ReadUInt16().ToString("X4")) / 127f;

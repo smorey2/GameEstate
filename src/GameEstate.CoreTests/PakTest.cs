@@ -12,7 +12,7 @@ namespace GameEstate.CoreTests
         //{
         //    var fileManager = new CryFileManager();
         //    var path = fileManager.GetGameFilePaths((int)game, pakPath)[0];
-        //    var pak = new CryPakFile(path);
+        //    var pak = new CryPakFile(path, game);
         //}
 
         [Theory]
@@ -21,7 +21,7 @@ namespace GameEstate.CoreTests
         {
             var fileManager = Estate.GetEstate("Rsi").FileManager;
             var path = fileManager.GetGameFilePaths(game, pakPath)[0];
-            var pak = new RsiPakFile(path);
+            var pak = new RsiPakFile(path, game);
             //pak.ContainsFile("");
             //var abc = pak.LoadFileDataAsync("").Result;
         }
@@ -34,7 +34,7 @@ namespace GameEstate.CoreTests
         {
             var fileManager = Estate.GetEstate("Red").FileManager;
             var path = fileManager.GetGameFilePaths(game, pakPath)[0];
-            var pak = new RedPakFile(path);
+            var pak = new RedPakFile(path, game);
             //pak.ContainsFile("");
             //var abc = pak.LoadFileDataAsync("").Result;
         }
@@ -49,7 +49,7 @@ namespace GameEstate.CoreTests
         {
             var fileManager = Estate.GetEstate("Tes").FileManager;
             var path = fileManager.GetGameFilePaths(game, pakPath)[0];
-            var pak = new TesPakFile(path);
+            var pak = new TesPakFile(path, game);
         }
 
         [Fact]

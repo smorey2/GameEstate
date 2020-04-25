@@ -12,70 +12,9 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="Formats\Binary\_\**" />
-    <EmbeddedResource Remove="Formats\Binary\_\**" />
-    <None Remove="Formats\Binary\_\**" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Remove="Estates\CryEstate.json" />
-    <None Remove="Estates\RedEstate.json" />
-    <None Remove="Estates\RsiEstate.json" />
-    <None Remove="Estates\TesEstate.json" />
-    <None Remove="Estates\U9Estate.json" />
-    <None Remove="Estates\UOEstate.json" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <EmbeddedResource Include="Estates\CryEstate.json" />
-    <EmbeddedResource Include="Estates\UOEstate.json" />
-    <EmbeddedResource Include="Estates\U9Estate.json" />
-    <EmbeddedResource Include="Estates\TesEstate.json" />
-    <EmbeddedResource Include="Estates\RsiEstate.json" />
-    <EmbeddedResource Include="Estates\RedEstate.json" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Content Include="..\..\lib\x64\libzstd.dll" Link="x64\libzstd.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="..\..\lib\x86\libzstd.dll" Link="x86\libzstd.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-  </ItemGroup>
-
-  <ItemGroup>
-    <PackageReference Include="MathNet.Numerics" Version="4.9.0" />
-    <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="3.1.0" />
-    <PackageReference Include="Microsoft.Win32.Registry" Version="4.7.0" />
-    <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
-    <PackageReference Include="System.Drawing.Common" Version="4.7.0" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Reference Include="ICSharpCode.SharpZipLib">
-      <HintPath>..\..\lib\ICSharpCode.SharpZipLib.dll</HintPath>
-    </Reference>
     <Reference Include="UnityEngine">
       <HintPath>..\..\lib\UnityEngine.dll</HintPath>
     </Reference>
-    <Reference Include="Zstd.Net">
-      <HintPath>..\..\lib\Zstd.Net.dll</HintPath>
-    </Reference>
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="x64\" />
-    <Folder Include="x86\" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Include="..\..\.quickbms\quickbms.exe" Link="Modules\quickbms.exe">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="..\..\.quickbms\quickbms_4gb_files.exe" Link="Modules\quickbms_4gb_files.exe">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
   </ItemGroup>
 
 </Project>

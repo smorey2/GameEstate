@@ -221,7 +221,7 @@ namespace GameEstate
                     Directory.CreateDirectory(filePath);
                 var setPath = Path.Combine(filePath, ".set");
                 using (var w = new BinaryWriter(new FileStream(setPath, FileMode.Create, FileAccess.Write)))
-                    await PakFormat.Stream.WriteAsync(new StreamPakFile("Root") { Files = multPak.Paks.Select(x => new FileMetadata { Path = x.Name }).ToList() }, w, PakFormat.WriteStage._Set);
+                    await PakFormat.Stream.WriteAsync(new StreamPakFile(HttpHost.Factory, "Root", null) { Files = multPak.Paks.Select(x => new FileMetadata { Path = x.Name }).ToList() }, w, PakFormat.WriteStage._Set);
 
                 // write paks
                 foreach (var pak in multPak.Paks)
