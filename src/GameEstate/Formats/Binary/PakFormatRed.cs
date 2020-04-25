@@ -276,7 +276,7 @@ namespace GameEstate.Formats.Binary
                     {
                         Path = fileName,
                         PackedSize = info.PackedSize,
-                        Pak = new RedPakFile(newPath, (keys, (uint)i)),
+                        Pak = new RedPakFile(newPath, source.Game, (keys, (uint)i)),
                     };
                 }
             }

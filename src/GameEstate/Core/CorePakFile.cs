@@ -14,6 +14,7 @@ namespace GameEstate.Core
         public uint Version;
         public readonly string Name;
         public readonly string FilePath;
+        public readonly string Game;
         internal readonly PakFormat PakFormat;
         //
         public IList<FileMetadata> Files;
@@ -23,15 +24,14 @@ namespace GameEstate.Core
         internal bool UsePool = true;
         internal object Tag;
         // meta
-        internal bool HasExtra;
         internal bool HasNamePrefix;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="CorePakFile"/> class.
         /// </summary>
         /// <param name="filePath">The file path.</param>
+        /// <param name="game">The game.</param>
         /// <param name="pakFormat">The pak format.</param>
-        /// <param name="datFormat">The dat format.</param>
         /// <exception cref="ArgumentNullException">
         /// filePath
         /// or
@@ -39,9 +39,10 @@ namespace GameEstate.Core
         /// or
         /// datFormat
         /// </exception>
-        public CorePakFile(string filePath, PakFormat pakFormat)
+        public CorePakFile(string filePath, string game, PakFormat pakFormat)
         {
             FilePath = filePath ?? throw new ArgumentNullException(nameof(filePath));
+            Game = game ?? throw new ArgumentNullException(nameof(game));
             PakFormat = pakFormat ?? throw new ArgumentNullException(nameof(pakFormat));
             Name = Path.GetFileName(FilePath);
             if (string.IsNullOrEmpty(Name))
@@ -63,15 +64,14 @@ namespace GameEstate.Core
         /// </summary>
         protected void Open()
         {
+            var watch = new Stopwatch();
+            watch.Start();
             Pool = UsePool && File.Exists(FilePath) ? new GenericPool<BinaryReader>(() => new BinaryReader(File.Open(FilePath, FileMode.Open, FileAccess.Read, FileShare.Read))) : null;
-            if (Pool != null)
-            {
-                var r = Pool.Get();
-                try { ReadAsync(r, PakFormat.ReadStage.File).GetAwaiter().GetResult(); }
-                finally { Pool.Release(r); }
-            }
+            if (Pool != null) Pool.Action(async r => await ReadAsync(r, PakFormat.ReadStage.File));
             else ReadAsync(null, PakFormat.ReadStage.File).GetAwaiter().GetResult();
             Process();
+            CoreDebug.Log($"Opening: {Name} @ {watch.ElapsedMilliseconds}ms");
+            watch.Stop();
         }
 
         /// <summary>
@@ -125,30 +125,8 @@ namespace GameEstate.Core
         /// <returns></returns>
         public Task<byte[]> LoadFileDataAsync(FileMetadata file, Action<FileMetadata, string> exception = null)
         {
-            if (UsePool)
-            {
-                var r = Pool.Get();
-                try { return ReadFileDataAsync(r, file, exception); }
-                finally { Pool.Release(r); }
-            }
+            if (Pool != null) return Pool.Func(r => ReadFileDataAsync(r, file, exception));
             else return ReadFileDataAsync(null, file, exception);
-        }
-
-        /// <summary>
-        /// Loads the extra data asynchronous.
-        /// </summary>
-        /// <param name="file">The file.</param>
-        /// <param name="exception">The exception.</param>
-        /// <returns></returns>
-        public Task<byte[]> LoadExtraDataAsync(FileMetadata file, Action<FileMetadata, string> exception = null)
-        {
-            if (UsePool)
-            {
-                var r = Pool.Get();
-                try { return ReadExtraDataAsync(r, file, exception); }
-                finally { Pool.Release(r); }
-            }
-            else return ReadExtraDataAsync(null, file, exception);
         }
 
         /// <summary>
@@ -161,15 +139,6 @@ namespace GameEstate.Core
         protected virtual Task<byte[]> ReadFileDataAsync(BinaryReader r, FileMetadata file, Action<FileMetadata, string> exception) => PakFormat.ReadFileAsync(this, r, file, exception);
 
         /// <summary>
-        /// Reads the extra data asynchronous.
-        /// </summary>
-        /// <param name="r">The r.</param>
-        /// <param name="file">The file.</param>
-        /// <param name="exception">The exception.</param>
-        /// <returns></returns>
-        protected virtual Task<byte[]> ReadExtraDataAsync(BinaryReader r, FileMetadata file, Action<FileMetadata, string> exception) => PakFormat.ReadExtraAsync(this, r, file, exception);
-
-        /// <summary>
         /// Writes the file data asynchronous.
         /// </summary>
         /// <param name="w">The w.</param>
@@ -178,16 +147,6 @@ namespace GameEstate.Core
         /// <param name="exception">The exception.</param>
         /// <returns></returns>
         internal protected virtual Task WriteFileDataAsync(BinaryWriter w, FileMetadata file, byte[] data, Action<FileMetadata, string> exception) => PakFormat.WriteFileAsync(this, w, file, data, exception);
-
-        /// <summary>
-        /// Writes the extra data asynchronous.
-        /// </summary>
-        /// <param name="w">The w.</param>
-        /// <param name="file">The file.</param>
-        /// <param name="data">The data.</param>
-        /// <param name="exception">The exception.</param>
-        /// <returns></returns>
-        internal protected virtual Task WriteExtraDataAsync(BinaryWriter w, FileMetadata file, byte[] data, Action<FileMetadata, string> exception) => PakFormat.WriteExtraAsync(this, w, file, data, exception);
 
         /// <summary>
         /// Reads the asynchronous.

@@ -3,6 +3,9 @@ using System.Collections.Concurrent;
 
 namespace GameEstate.Core
 {
+    public delegate void GenericPoolAction<T>(Action<T> action);
+    public delegate TResult GenericPoolFunc<T, TResult>(Func<T, TResult> action);
+
     public class GenericPool<T> : IDisposable
         where T : IDisposable
     {
@@ -25,5 +28,19 @@ namespace GameEstate.Core
         }
 
         public T Get() => _items.TryTake(out var item) ? item : Factory();
+
+        public void Action(Action<T> action)
+        {
+            var item = Get();
+            try { action(item); }
+            finally { Release(item); }
+        }
+
+        public TResult Func<TResult>(Func<T, TResult> action)
+        {
+            var item = Get();
+            try { return action(item); }
+            finally { Release(item); }
+        }
     }
 }

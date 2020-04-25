@@ -8,10 +8,9 @@ namespace GameEstate.Formats
     /// <seealso cref="GameEstate.Core.CorePakFile" />
     public class CryPakFile : CorePakFile
     {
-        /// <summary>
-        /// Initializes a new instance of the <see cref="CryPakFile"/> class.
-        /// </summary>
+        /// <summary>Initializes a new instance of the <see cref="CryPakFile" /> class.</summary>
         /// <param name="filePath">The file path.</param>
-        public CryPakFile(string filePath) : base(filePath, null) => Open();
+        /// <param name="game"></param>
+        public CryPakFile(string filePath, string game) : base(filePath, game, null) => Open();
     }
 }

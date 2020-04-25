@@ -16,7 +16,6 @@ namespace GameEstate.Core
                 Directory.CreateDirectory(filePath);
 
             // write files
-            var hasExtra = source.HasExtra;
             Parallel.For(from, source.Files.Count, new ParallelOptions { /*MaxDegreeOfParallelism = 1*/ }, async index =>
             {
                 var file = source.Files[index];
@@ -44,19 +43,13 @@ namespace GameEstate.Core
                     var b = await source.LoadFileDataAsync(file, exception);
                     using (var s = new FileStream(newPath, FileMode.Create, FileAccess.Write))
                         s.Write(b, 0, b.Length);
-                    if (hasExtra && file.ExtraSize > 0)
-                    {
-                        b = await source.LoadExtraDataAsync(file, exception);
-                        using (var s = new FileStream($"{newPath}.~", FileMode.Create, FileAccess.Write))
-                            s.Write(b, 0, b.Length);
-                    }
                     advance?.Invoke(file, index);
                 }
                 catch (Exception e) { exception?.Invoke(file, $"Exception: {e.Message}"); }
             });
 
             // write pak-raw
-            await new StreamPakFile(source, filePath).WriteAsync(null, PakFormat.WriteStage.File);
+            await new StreamPakFile(source, source.Game, filePath).WriteAsync(null, PakFormat.WriteStage.File);
 
             //// write pak-raw
             //if (source.FilesRawSet != null && source.FilesRawSet.Count > 0)
@@ -88,7 +81,6 @@ namespace GameEstate.Core
                 await source.PakFormat.WriteAsync(source, w, PakFormat.WriteStage.Header);
 
             // write files
-            var hasExtra = source.HasExtra;
             Parallel.For(0, source.Files.Count, new ParallelOptions { MaxDegreeOfParallelism = 1 }, async index =>
             {
                 var file = source.Files[index];
@@ -108,12 +100,7 @@ namespace GameEstate.Core
                     await source.PakFormat.WriteAsync(source, w, PakFormat.WriteStage.File);
                     using (var r = File.Open(newPath, FileMode.Open, FileAccess.Read, FileShare.Read))
                         await source.WriteFileDataAsync(w, file, r.ReadAllBytes(), exception);
-                    //if (hasExtra && file.ExtraSize > 0)
-                    //{
-                    //    b = await source.LoadExtraDataAsync(file, exception);
-                    //    using (var s = new FileStream($"{newPath}.~", FileMode.Create, FileAccess.Write))
-                    //        s.Write(b, 0, b.Length);
-                    //}
+ 
                     advance?.Invoke(file, index);
                 }
                 catch (Exception e) { exception?.Invoke(file, $"Exception: {e.Message}"); }
