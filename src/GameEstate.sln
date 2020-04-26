@@ -15,10 +15,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GameEstate.Explorer", "Game
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ACExplorer", "ACExplorer\ACExplorer.csproj", "{924B182E-3798-4B63-BCCD-9C8F2602BDE1}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Lib", "Lib", "{95C5E66F-DCBD-43BF-8C2D-2FF49F4D16FD}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MonoGame.Framework.Wpf.Core", "..\src.wpf\MonoGame.Framework.Wpf.Core\MonoGame.Framework.Wpf.Core.csproj", "{B9056100-FAF9-4864-8C7D-B32B673ED210}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -73,20 +69,9 @@ Global
 		{924B182E-3798-4B63-BCCD-9C8F2602BDE1}.Release|Any CPU.ActiveCfg = Release|x64
 		{924B182E-3798-4B63-BCCD-9C8F2602BDE1}.Release|x64.ActiveCfg = Release|x64
 		{924B182E-3798-4B63-BCCD-9C8F2602BDE1}.Release|x64.Build.0 = Release|x64
-		{B9056100-FAF9-4864-8C7D-B32B673ED210}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{B9056100-FAF9-4864-8C7D-B32B673ED210}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{B9056100-FAF9-4864-8C7D-B32B673ED210}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{B9056100-FAF9-4864-8C7D-B32B673ED210}.Debug|x64.Build.0 = Debug|Any CPU
-		{B9056100-FAF9-4864-8C7D-B32B673ED210}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{B9056100-FAF9-4864-8C7D-B32B673ED210}.Release|Any CPU.Build.0 = Release|Any CPU
-		{B9056100-FAF9-4864-8C7D-B32B673ED210}.Release|x64.ActiveCfg = Release|Any CPU
-		{B9056100-FAF9-4864-8C7D-B32B673ED210}.Release|x64.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
-	EndGlobalSection
-	GlobalSection(NestedProjects) = preSolution
-		{B9056100-FAF9-4864-8C7D-B32B673ED210} = {95C5E66F-DCBD-43BF-8C2D-2FF49F4D16FD}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {751994E6-AD00-4136-A949-4BDE63C2F248}

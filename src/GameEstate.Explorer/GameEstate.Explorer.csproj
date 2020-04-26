@@ -16,10 +16,10 @@
 
   <ItemGroup>
     <PackageReference Include="MonoGame.Content.Builder" Version="3.7.0.9" />
+    <PackageReference Include="MonoGame.Framework.Wpf.Core" Version="1.0.0" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src.wpf\MonoGame.Framework.Wpf.Core\MonoGame.Framework.Wpf.Core.csproj" />
     <ProjectReference Include="..\GameEstate\GameEstate.csproj" />
   </ItemGroup>
 
