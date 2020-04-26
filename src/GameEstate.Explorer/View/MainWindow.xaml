@@ -15,20 +15,22 @@
             <RowDefinition Height="63" />
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="360" />
+            <ColumnDefinition MinWidth="250" Width="250" />
             <ColumnDefinition Width="20" />
             <ColumnDefinition Width=".1*" />
         </Grid.ColumnDefinitions>
 
-        <local:MainMenu Grid.Row="0" Grid.ColumnSpan="3"/>
+        <local:MainMenu x:Name="MainMenu" Grid.Row="0" Grid.ColumnSpan="3"/>
 
         <local:FileExplorer Grid.Row="1" Margin="0,0,0,10"/>
 
-        <GridSplitter Grid.Column="1" Grid.Row="1" HorizontalAlignment="Center" Width="5"/>
+        <GridSplitter Grid.Row="1" Grid.Column="1" Width="5" HorizontalAlignment="Center" />
 
         <scenes:EngineView Grid.Row="1" Grid.Column="2" Margin="0,22,10,10" />
 
-        <TextBox Name="Status" TextWrapping="Wrap" Margin="7.5,0,7.5,7.5" Padding="3" Grid.Row="2" Grid.ColumnSpan="3" ScrollViewer.VerticalScrollBarVisibility="Auto" />
+        <TextBox Name="Status" Grid.Row="2" Grid.ColumnSpan="3" Margin="7.5,0,7.5,7.5" Padding="3"
+                 TextWrapping="Wrap" 
+                 ScrollViewer.VerticalScrollBarVisibility="Auto" />
 
     </Grid>
 </Window>

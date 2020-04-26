@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using GameEstate.Core;
 using Microsoft.Win32;
 
 namespace GameEstate.Explorer.View
@@ -22,41 +23,38 @@ namespace GameEstate.Explorer.View
             InitializeComponent();
         }
 
+        public void OnFirstLoad() => OpenFile_Click(null, null);
+
+        public MultiPakFile PakFile { get; private set; }
+
+        public CoreDatFile DatFile { get; private set; }
+
         void OpenFile_Click(object sender, RoutedEventArgs e)
         {
-            //var openFileDialog = new OpenFileDialog();
-            //openFileDialog.Filter = "DAT files (*.dat)|*.dat|All files (*.*)|*.*";
-            //if (openFileDialog.ShowDialog() == true)
-            //{
-            //    var files = openFileDialog.FileNames;
-            //    if (files.Length < 1) return;
-            //    var file = files[0];
-
-            //    MainWindow.Status.WriteLine("Reading " + file);
-
-            //    await Task.Run(() => ReadDATFile(file));
-
-            //    //Particle.ReadFiles();
-
-            //    //var cellFiles = DatManager.CellDat.AllFiles.Count;
-            //    //var portalFiles = DatManager.PortalDat.AllFiles.Count;
-
-            //    //MainWindow.Status.WriteLine($"CellFiles={cellFiles}, PortalFiles={portalFiles}");
-
-            //    MainWindow.Status.WriteLine("Done");
-
-            //    GameView.PostInit();
-            //}
+            var openDialog = new OpenDialog();
+            if (openDialog.ShowDialog() == true)
+            {
+                PakFile?.Dispose();
+                PakFile = null;
+                DatFile?.Dispose();
+                DatFile = null;
+                //
+                var estate = (Estate)openDialog.Estate.SelectedItem;
+                if (estate == null) return;
+                if (openDialog.PakUri != null)
+                {
+                    MainWindow.Status.WriteLine($"Opening {openDialog.PakUri}");
+                    PakFile = estate.OpenPakFile(openDialog.PakUri);
+                }
+                if (openDialog.DatUri != null)
+                {
+                    MainWindow.Status.WriteLine($"Opening {openDialog.DatUri}");
+                    DatFile = estate.OpenDatFile(openDialog.DatUri);
+                }
+                MainWindow.Status.WriteLine("Done");
+                MainWindow.OnOpened();
+            }
         }
-
-        //public void ReadDATFile(string filename)
-        //{
-        //    var fi = new System.IO.FileInfo(filename);
-        //    var di = fi.Directory;
-
-        //    var loadCell = true;
-        //    DatManager.Initialize(di.FullName, true, loadCell);
-        //}
 
         void Options_Click(object sender, RoutedEventArgs e)
         {
@@ -69,7 +67,7 @@ namespace GameEstate.Explorer.View
             //if (DatManager.CellDat == null || DatManager.PortalDat == null)
             //    return;
 
-            //GameView.ViewMode = ViewMode.Map;
+            //EngineView.ViewMode = ViewMode.Map;
         }
 
         void About_Click(object sender, RoutedEventArgs e)
@@ -80,7 +78,7 @@ namespace GameEstate.Explorer.View
 
         void Guide_Click(object sender, RoutedEventArgs e)
         {
-            Process.Start(@"docs\index.html");
+            //Process.Start(@"docs\index.html");
         }
     }
 }

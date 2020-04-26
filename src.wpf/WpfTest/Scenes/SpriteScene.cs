@@ -26,7 +26,7 @@ namespace WpfTest.Scenes
         protected override void LoadContent()
         {
             base.LoadContent();
-            using var file = File.OpenRead("Content/mech.png");
+            using var file = File.OpenRead(@"Content\mech.png");
             _atlas = Texture2D.FromStream(GraphicsDevice, file);
         }
 

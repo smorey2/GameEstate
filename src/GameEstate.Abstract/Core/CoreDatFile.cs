@@ -73,7 +73,7 @@ namespace GameEstate.Core
         /// <param name="r">The r.</param>
         /// <param name="stage">The stage.</param>
         /// <returns></returns>
-        protected virtual Task ReadAsync(BinaryReader r, DatFormat.ReadStage stage) => DatFormat.ReadAsync(this, r, stage);
+        public virtual Task ReadAsync(BinaryReader r, DatFormat.ReadStage stage) => DatFormat.ReadAsync(this, r, stage);
 
         /// <summary>
         /// Writes the asynchronous.
@@ -81,7 +81,7 @@ namespace GameEstate.Core
         /// <param name="w">The w.</param>
         /// <param name="stage">The stage.</param>
         /// <returns></returns>
-        protected virtual Task WriteAsync(BinaryWriter w, DatFormat.WriteStage stage) => DatFormat.WriteAsync(this, w, stage);
+        public virtual Task WriteAsync(BinaryWriter w, DatFormat.WriteStage stage) => DatFormat.WriteAsync(this, w, stage);
 
         /// <summary>
         /// Processes this instance.

@@ -24,7 +24,7 @@ namespace WpfTest.Scenes
             new WpfGraphicsDeviceService(this);
             Components.Add(new FpsComponent(this));
             Components.Add(new TimingComponent(this));
-            Components.Add(new TextComponent(this, File.ReadAllText("Content\\credits.txt"), new Vector2(1, 0), HorizontalAlignment.Right));
+            Components.Add(new TextComponent(this, File.ReadAllText(@"Content\credits.txt"), new Vector2(1, 0), HorizontalAlignment.Right));
 
             var tilt = MathHelper.ToRadians(0);  // 0 degree angle. Use the world matrix to tilt the cube along x and y axes.
             _worldMatrix = Matrix.CreateRotationX(tilt) * Matrix.CreateRotationY(tilt);
@@ -64,7 +64,7 @@ namespace WpfTest.Scenes
 
         protected override void Draw(GameTime gameTime)
         {
-            //The projection depends on viewport dimensions (aspect ratio).
+            // The projection depends on viewport dimensions (aspect ratio).
             // Because WPF controls can be resized at any time (user resizes window)
             // we need to refresh the values each draw call, otherwise cube will look distorted to user
             RefreshProjection();

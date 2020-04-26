@@ -4,7 +4,11 @@
   "description": "UO formats used in Ultima Online",
   "pakFileType": "GameEstate.Formats.UOPakFile",
   "games": {
-    "UltimaOnline": "Ultima Online"
+    "UltimaOnline": {
+      "name": "Ultima Online",
+      "pak": "game:/*.idx#UltimaOnline",
+      "dat": "game:/*.idx#UltimaOnline"
+    }
   },
   "fileManager": {
     "registry": {

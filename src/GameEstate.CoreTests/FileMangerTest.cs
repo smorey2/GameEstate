@@ -8,7 +8,7 @@ namespace GameEstate.CoreTests
         [Fact]
         public void CryEstate()
         {
-            var fileManager = Estate.GetEstate("Cry").FileManager;
+            var fileManager = EstateManager.GetEstate("Cry").FileManager;
             //Assert.True(fileManager.IsDataPresent);
             //var abc0 = fileManager.GetGameFilePaths((int)CryGame.Unknown01, "Data.p4k");
             //Assert.Single(abc0);
@@ -17,7 +17,7 @@ namespace GameEstate.CoreTests
         [Fact]
         public void RedEstate()
         {
-            var fileManager = Estate.GetEstate("Red").FileManager;
+            var fileManager = EstateManager.GetEstate("Red").FileManager;
             Assert.True(fileManager.IsDataPresent);
             var abc1 = fileManager.GetGameFilePaths("Witcher", "2da00.bif");
             Assert.Single(abc1);
@@ -30,7 +30,7 @@ namespace GameEstate.CoreTests
         [Fact]
         public void RsiEstate()
         {
-            var fileManager = Estate.GetEstate("Rsi").FileManager;
+            var fileManager = EstateManager.GetEstate("Rsi").FileManager;
             Assert.True(fileManager.IsDataPresent);
             var abc0 = fileManager.GetGameFilePaths("StarCitizen", "Data.p4k");
             Assert.Single(abc0);
@@ -39,7 +39,7 @@ namespace GameEstate.CoreTests
         [Fact]
         public void TesEstate()
         {
-            var fileManager = Estate.GetEstate("Tes").FileManager;
+            var fileManager = EstateManager.GetEstate("Tes").FileManager;
             Assert.True(fileManager.IsDataPresent);
             var abc0 = fileManager.GetGameFilePaths("Fallout4VR", "Fallout4 - *.ba2");
             Assert.Equal(21, abc0.Length);
@@ -50,7 +50,7 @@ namespace GameEstate.CoreTests
         [Fact]
         public void U9Estate()
         {
-            var fileManager = Estate.GetEstate("U9").FileManager;
+            var fileManager = EstateManager.GetEstate("U9").FileManager;
             Assert.True(fileManager.IsDataPresent);
             var abc0 = fileManager.GetGameFilePaths("UltimaIX", "static/*.flx");
             Assert.Equal(17, abc0.Length);
@@ -61,7 +61,7 @@ namespace GameEstate.CoreTests
         [Fact]
         public void UOEstate()
         {
-            var fileManager = Estate.GetEstate("UO").FileManager;
+            var fileManager = EstateManager.GetEstate("UO").FileManager;
             Assert.True(fileManager.IsDataPresent);
             var abc0 = fileManager.GetGameFilePaths("UltimaOnline", "*.idx");
             Assert.Equal(7, abc0.Length);

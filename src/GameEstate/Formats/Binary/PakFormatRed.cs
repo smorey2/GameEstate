@@ -229,7 +229,7 @@ namespace GameEstate.Formats.Binary
 
         #endregion
 
-        readonly static Estate Estate = Estate.GetEstate("Red");
+        readonly static Estate Estate = EstateManager.GetEstate("Red");
         readonly object Tag;
 
         public PakFormatRed(object tag = null) => Tag = tag;

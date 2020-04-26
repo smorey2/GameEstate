@@ -426,6 +426,5 @@ namespace GameEstate.Formats.Binary
         }
 
         public override Task WriteFileAsync(CorePakFile source, BinaryWriter w, FileMetadata file, byte[] data, Action<FileMetadata, string> exception = null) => throw new NotImplementedException();
-
     }
 }

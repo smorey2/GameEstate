@@ -4,6 +4,7 @@ using System.Collections.Generic;
 
 namespace Microsoft.Xna.Framework
 {
+    // https://github.com/MarcStan/monogame-framework-wpfinterop
     public abstract class WpfGame : D3D11Host
     {
         readonly string _contentDir;

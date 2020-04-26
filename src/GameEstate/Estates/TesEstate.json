@@ -5,16 +5,50 @@
   "pakFileType": "GameEstate.Formats.TesPakFile",
   "games": {
     // tes
-    "Morrowind": "Morrowind",
-    "Oblivion": "Oblivion",
-    "Skyrim": "Skyrim",
-    "SkyrimSE": "Skyrim Special Edition",
-    "SkyrimVR": "Skyrim VR",
+    "Morrowind": {
+      "name": "Morrowind",
+      "pak": "game:/Morrowind.bsa#Morrowind",
+      "dat": "game:/Morrowind.esm#Morrowind"
+    },
+    "Oblivion": {
+      "name": "Oblivion",
+      "pak": "game:/Oblivion*.bsa#Oblivion",
+      "dat": "game:/Oblivion.esm#Oblivion"
+    },
+    "Skyrim": {
+      "name": "Skyrim",
+      "pak": "game:/Skyrim*.ba2#Skyrim",
+      "dat": "game:/Skyrim.esm#Skyrim"
+    },
+    "SkyrimSE": {
+      "name": "Skyrim Special Edition",
+      "pak": "game:/Skyrim*.ba2#SkyrimSE",
+      "dat": "game:/Skyrim.esm#SkyrimSE"
+    },
+    "SkyrimVR": {
+      "name": "Skyrim VR",
+      "pak": "game:/Skyrim*.ba2#SkyrimVR",
+      "dat": "game:/Skyrim.esm#SkyrimVR"
+    },
     // fallout
-    "Fallout3": "Fallout 3",
-    "FalloutNV": "Fallout New Vegas",
-    "Fallout4": "Fallout 4",
-    "Fallout4VR": "Fallout 4 VR"
+    "Fallout3": {
+      "name": "Fallout 3",
+      "pak": "game:/Fallout3*.bsa#Fallout3",
+      "dat": "game:/Fallout3.esm#Fallout3"
+    },
+    "FalloutNV": {
+      "name": "Fallout New Vegas"
+    },
+    "Fallout4": {
+      "name": "Fallout 4",
+      "pak": "game:/Fallout4*.ba2#Fallout4",
+      "dat": "game:/Fallout4.esm#Fallout4"
+    },
+    "Fallout4VR": {
+      "name": "Fallout 4 VR",
+      "pak": "game:/Fallout4*.ba2#FalloutVR",
+      "dat": "game:/Fallout4.esm#FalloutVR"
+    }
   },
   "fileManager": {
     "registry": {

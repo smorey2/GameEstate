@@ -4,6 +4,8 @@
   "description": "The file formats used in Cry and Lumberyards",
   "pakFileType": "GameEstate.Formats.CryPakFile",
   "games": {
-    "Unknown01": "Unknown"
+    "Unknown01": {
+      "name": "Unknown"
+    }
   }
 }

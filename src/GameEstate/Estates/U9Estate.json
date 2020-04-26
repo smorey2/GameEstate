@@ -4,7 +4,10 @@
   "description": "Ultima IX file formats",
   "pakFileType": "GameEstate.Formats.U9PakFile",
   "games": {
-    "UltimaIX": "Ultima IX"
+    "UltimaIX": {
+      "name": "Ultima IX",
+      "pak": "game:/static/*.flx#UltimaIX"
+    }
   },
   "fileManager": {
     "registry": {

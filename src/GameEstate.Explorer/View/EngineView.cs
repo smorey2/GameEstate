@@ -1,26 +1,27 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework.Input;
+using System;
+using System.Windows;
 
 namespace GameEstate.Explorer.View
 {
-    https://www.reddit.com/r/gamedev/comments/eej7zq/tutorial_dotnet_core_30_31_with_monogame/
-    public class EngineView : Game
+    // https://www.reddit.com/r/gamedev/comments/eej7zq/tutorial_dotnet_core_30_31_with_monogame/
+    public class EngineView : WpfGame
     {
-        //public WpfGraphicsDeviceService _graphicsDeviceManager;
-        //public SpriteBatch SpriteBatch;
-
-        //public WpfKeyboard _keyboard;
-        //public WpfMouse _mouse;
-
-        //public KeyboardState PrevKeyboardState;
-
+        public WpfGraphicsDeviceService _graphicsDeviceManager;
+        public SpriteBatch SpriteBatch;
+        public WpfKeyboard _keyboard;
+        public WpfMouse _mouse;
+        public KeyboardState PrevKeyboardState;
         public static EngineView Instance;
+        public static bool UseMSAA = true;
+        public DateTime LastResizeEvent;
 
         //public new Render.Render Render;
         //public static Camera Camera;
-
-        //public Player Player;
-
+        public Player Player;
+        
         public static MainWindow Window => MainWindow.Instance;
 
         //public static WorldViewer WorldViewer;
@@ -58,35 +59,31 @@ namespace GameEstate.Explorer.View
         //    }
         //}
 
-        //public static bool UseMSAA = true;
+        protected override void Initialize()
+        {
+            // must be initialized. required by Content loading and rendering (will add itself to the Services)
+            // note that MonoGame requires this to be initialized in the constructor, while WpfInterop requires it to
+            // be called inside Initialize (before base.Initialize())
+            //var dummy = new DummyView();
+            _graphicsDeviceManager = new WpfGraphicsDeviceService(this)
+            {
+                PreferMultiSampling = UseMSAA
+            };
 
-        //public DateTime LastResizeEvent;
+            SpriteBatch = new SpriteBatch(GraphicsDevice);
 
-        //protected override void Initialize()
-        //{
-        //    // must be initialized. required by Content loading and rendering (will add itself to the Services)
-        //    // note that MonoGame requires this to be initialized in the constructor, while WpfInterop requires it to
-        //    // be called inside Initialize (before base.Initialize())
-        //    //var dummy = new DummyView();
-        //    _graphicsDeviceManager = new WpfGraphicsDeviceService(this)
-        //    {
-        //        PreferMultiSampling = UseMSAA
-        //    };
+            // wpf and keyboard need reference to the host control in order to receive input
+            // this means every WpfGame control will have it's own keyboard & mouse manager which will only react if the mouse is in the control
+            _keyboard = new WpfKeyboard(this);
+            _mouse = new WpfMouse(this);
 
-        //    SpriteBatch = new SpriteBatch(GraphicsDevice);
-            
-        //    // wpf and keyboard need reference to the host control in order to receive input
-        //    // this means every WpfGame control will have it's own keyboard & mouse manager which will only react if the mouse is in the control
-        //    _keyboard = new WpfKeyboard(this);
-        //    _mouse = new WpfMouse(this);
+            Instance = this;
 
-        //    Instance = this;
+            // must be called after the WpfGraphicsDeviceService instance was created
+            base.Initialize();
 
-        //    // must be called after the WpfGraphicsDeviceService instance was created
-        //    base.Initialize();
-
-        //    SizeChanged += new SizeChangedEventHandler(GameView_SizeChanged);
-        //}
+            SizeChanged += new SizeChangedEventHandler(GameView_SizeChanged);
+        }
 
         //public void PostInit()
         //{
@@ -106,84 +103,81 @@ namespace GameEstate.Explorer.View
         //    Player = new Player();
         //}
 
-        //protected override void Update(GameTime time)
-        //{
-        //    // every update we can now query the keyboard & mouse for our WpfGame
-        //    var mouseState = _mouse.GetState();
-        //    var keyboardState = _keyboard.GetState();
+        protected override void Update(GameTime time)
+        {
+            // every update we can now query the keyboard & mouse for our WpfGame
+            var mouseState = _mouse.GetState();
+            var keyboardState = _keyboard.GetState();
 
-        //    if (keyboardState.IsKeyDown(Keys.C) && !PrevKeyboardState.IsKeyDown(Keys.C))
-        //    {
-        //        // cancel all emitters in progress
-        //        Player.PhysicsObj.ParticleManager.ParticleTable.Clear();
-        //    }
+            if (keyboardState.IsKeyDown(Keys.C) && !PrevKeyboardState.IsKeyDown(Keys.C))
+            {
+                // cancel all emitters in progress
+                //Player.PhysicsObj.ParticleManager.ParticleTable.Clear();
+            }
 
-        //    if (!_graphicsDeviceManager.PreferMultiSampling && UseMSAA && DateTime.Now - LastResizeEvent >= TimeSpan.FromSeconds(1))
-        //    {
-        //        _graphicsDeviceManager.PreferMultiSampling = true;
-        //        _graphicsDeviceManager.ApplyChanges();
-        //    }
+            if (!_graphicsDeviceManager.PreferMultiSampling && UseMSAA && DateTime.Now - LastResizeEvent >= TimeSpan.FromSeconds(1))
+            {
+                _graphicsDeviceManager.PreferMultiSampling = true;
+                _graphicsDeviceManager.ApplyChanges();
+            }
 
-        //    PrevKeyboardState = keyboardState;
+            PrevKeyboardState = keyboardState;
 
-        //    if (Player != null)
-        //        Player.Update(time);
+            //if (Player != null)
+            //    Player.Update(time);
 
-        //    switch (ViewMode)
-        //    {
-        //        case ViewMode.Texture:
-        //            TextureViewer.Update(time);
-        //            break;
-        //        case ViewMode.Model:
-        //            ModelViewer.Update(time);
-        //            break;
-        //        case ViewMode.World:
-        //            WorldViewer.Update(time);
-        //            break;
-        //        case ViewMode.Map:
-        //            MapViewer.Update(time);
-        //            break;
-        //        case ViewMode.Particle:
-        //            ParticleViewer.Update(time);
-        //            break;
-        //    }
-        //}
+            //switch (ViewMode)
+            //{
+            //    case ViewMode.Texture:
+            //        TextureViewer.Update(time);
+            //        break;
+            //    case ViewMode.Model:
+            //        ModelViewer.Update(time);
+            //        break;
+            //    case ViewMode.World:
+            //        WorldViewer.Update(time);
+            //        break;
+            //    case ViewMode.Map:
+            //        MapViewer.Update(time);
+            //        break;
+            //    case ViewMode.Particle:
+            //        ParticleViewer.Update(time);
+            //        break;
+            //}
+        }
 
-        //protected override void Draw(GameTime time)
-        //{
-        //    GraphicsDevice.Clear(new Color(0, 0, 0));
+        protected override void Draw(GameTime time)
+        {
+            GraphicsDevice.Clear(new Color(0, 0, 0));
 
-        //    //if (Render != null)
-        //    //Render.Draw();
+            //switch (ViewMode)
+            //{
+            //    case ViewMode.Texture:
+            //        TextureViewer.Draw(time);
+            //        break;
+            //    case ViewMode.Model:
+            //        ModelViewer.Draw(time);
+            //        break;
+            //    case ViewMode.World:
+            //        WorldViewer.Draw(time);
+            //        break;
+            //    case ViewMode.Map:
+            //        MapViewer.Draw(time);
+            //        break;
+            //    case ViewMode.Particle:
+            //        ParticleViewer.Draw(time);
+            //        break;
+            //}
+        }
 
-        //    switch (ViewMode)
-        //    {
-        //        case ViewMode.Texture:
-        //            TextureViewer.Draw(time);
-        //            break;
-        //        case ViewMode.Model:
-        //            ModelViewer.Draw(time);
-        //            break;
-        //        case ViewMode.World:
-        //            WorldViewer.Draw(time);
-        //            break;
-        //        case ViewMode.Map:
-        //            MapViewer.Draw(time);
-        //            break;
-        //        case ViewMode.Particle:
-        //            ParticleViewer.Draw(time);
-        //            break;
-        //    }
-        //}
-
-        //private void GameView_SizeChanged(object sender, SizeChangedEventArgs e)
-        //{
-        //    if (_graphicsDeviceManager.PreferMultiSampling)
-        //    {
-        //        _graphicsDeviceManager.PreferMultiSampling = false;
-        //        _graphicsDeviceManager.ApplyChanges();
-        //        LastResizeEvent = DateTime.Now;
-        //    }
-        //}
+        void GameView_SizeChanged(object sender, SizeChangedEventArgs e)
+        {
+            if (_graphicsDeviceManager.PreferMultiSampling)
+            {
+                _graphicsDeviceManager.PreferMultiSampling = false;
+                _graphicsDeviceManager.ApplyChanges();
+                LastResizeEvent = DateTime.Now;
+            }
+        }
     }
 }

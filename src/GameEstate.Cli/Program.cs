@@ -5,6 +5,7 @@ using GameEstate.Formats.Binary;
 using System;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 
 namespace GameEstate
@@ -161,12 +162,12 @@ namespace GameEstate
             if (string.IsNullOrEmpty(opts.Estate))
             {
                 Console.WriteLine("Estates installed:\n");
-                foreach (var estate2 in Estate.Estates)
+                foreach (var estate2 in EstateManager.Estates)
                     Console.WriteLine($"{estate2.Key} - {estate2.Value.Name}");
                 return Task.FromResult(0);
             }
 
-            var estate = Estate.GetEstate(opts.Estate);
+            var estate = EstateManager.GetEstate(opts.Estate);
             // list found locations in estate
             if (opts.Uri == null)
             {
@@ -212,7 +213,7 @@ namespace GameEstate
         static async Task<int> RunExportAsync(ExportOptions opts)
         {
             var from = ProgramState.Load(data => Convert.ToInt32(data), 0);
-            var estate = Estate.GetEstate(opts.Estate);
+            var estate = EstateManager.GetEstate(opts.Estate);
             using (var multPak = estate.OpenPakFile(estate.ParseResource(opts.Uri)))
             {
                 // write paks header
@@ -244,19 +245,20 @@ namespace GameEstate
         static async Task<int> RunImportAsync(ImportOptions opts)
         {
             var from = ProgramState.Load(data => Convert.ToInt32(data), 0);
-            var estate = Estate.GetEstate(opts.Estate);
-            foreach (var path in estate.ParseResource(opts.Uri).Paths)
+            var estate = EstateManager.GetEstate(opts.Estate);
+            var resource = estate.ParseResource(opts.Uri);
+            foreach (var path in resource.Paths)
             {
-                using (var pak = estate.OpenPakFile(path))
-                using (var w = new BinaryWriter(new FileStream(path, FileMode.Create, FileAccess.Write)))
-                    await pak.ImportAsync(w, opts.Path, from, (file, index) =>
-                    {
-                        //if ((index % 50) == 0)
-                        //    Console.WriteLine($"{file.Path}");
-                    }, (file, message) =>
-                    {
-                        Console.WriteLine($"{message}: {file?.Path}");
-                    });
+                using var pak = estate.OpenPakFile(path, resource.Game);
+                using var w = new BinaryWriter(new FileStream(path, FileMode.Create, FileAccess.Write));
+                await pak.ImportAsync(w, opts.Path, from, (file, index) =>
+                {
+                    //if ((index % 50) == 0)
+                    //    Console.WriteLine($"{file.Path}");
+                }, (file, message) =>
+                {
+                    Console.WriteLine($"{message}: {file?.Path}");
+                });
             }
             ProgramState.Clear();
             return 0;
@@ -265,19 +267,20 @@ namespace GameEstate
         static async Task<int> RunXsportAsync(XsportOptions opts)
         {
             var from = ProgramState.Load(data => Convert.ToInt32(data), 0);
-            var estate = Estate.GetEstate(opts.Estate);
-            foreach (var path in estate.ParseResource(opts.Uri).Paths)
+            var estate = EstateManager.GetEstate(opts.Estate);
+            var resource = estate.ParseResource(opts.Uri);
+            foreach (var path in resource.Paths)
             {
-                using (var pak = estate.OpenPakFile(path))
-                using (var w = new BinaryWriter(new FileStream(path, FileMode.Create, FileAccess.Write)))
-                    await pak.ImportAsync(w, opts.Path, from, (file, index) =>
-                    {
-                        //if ((index % 50) == 0)
-                        //Console.WriteLine($"{file.Path}");
-                    }, (file, message) =>
-                    {
-                        Console.WriteLine($"{message}: {file.Path}");
-                    });
+                using var pak = estate.OpenPakFile(path, resource.Game);
+                using var w = new BinaryWriter(new FileStream(path, FileMode.Create, FileAccess.Write));
+                await pak.ImportAsync(w, opts.Path, from, (file, index) =>
+                {
+                    //if ((index % 50) == 0)
+                    //Console.WriteLine($"{file.Path}");
+                }, (file, message) =>
+                {
+                    Console.WriteLine($"{message}: {file.Path}");
+                });
             }
             ProgramState.Clear();
             return 0;

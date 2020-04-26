@@ -11,6 +11,10 @@ using System.Web;
 
 namespace GameEstate.Core
 {
+    /// <summary>
+    /// HttpHost
+    /// </summary>
+    /// <seealso cref="GameEstate.Core.AbstractHost" />
     public class HttpHost : AbstractHost
     {
         readonly MemoryCache _cache = new MemoryCache(new MemoryCacheOptions { });

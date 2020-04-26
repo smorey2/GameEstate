@@ -4,7 +4,11 @@
   "description": "RSI formats used in StarCitizen",
   "pakFileType": "GameEstate.Formats.RsiPakFile",
   "games": {
-    "StarCitizen": "Star Citizen"
+    "StarCitizen": {
+      "name": "Star Citizen",
+      "pak": "game:/Data.p4k#StarCitizen",
+      "dat": "game:/Data.p4k#StarCitizen"
+    }
   },
   "xforms": {
     "StarCitizen": "GameEstate.Estates.RsiXform"

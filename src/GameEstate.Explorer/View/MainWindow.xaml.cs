@@ -27,6 +27,11 @@ namespace GameEstate.Explorer.View
         {
             InitializeComponent();
             Instance = this;
+            MainMenu.OnFirstLoad();
+        }
+
+        public void OnOpened()
+        {
         }
     }
 }

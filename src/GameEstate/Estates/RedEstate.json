@@ -7,10 +7,18 @@
   "description": "REDengine file formats including the Witcher Series",
   "pakFileType": "GameEstate.Formats.RedPakFile",
   "games": {
-    "Witcher": "The Witcher",
-    "Witcher2": "The Witcher 2",
-    "Witcher3": "The Witcher 3: Wild Hunt",
-    "Cyberpunk2077": "Cyberpunk 2077"
+    "Witcher": {
+      "name": "The Witcher"
+    },
+    "Witcher2": {
+      "name": "The Witcher 2"
+    },
+    "Witcher3": {
+      "name": "The Witcher 3: Wild Hunt"
+    },
+    "Cyberpunk2077": {
+      "name": "Cyberpunk 2077"
+    }
   },
   "fileManager": {
     "registry": {

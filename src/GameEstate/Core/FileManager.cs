@@ -12,7 +12,7 @@ namespace GameEstate.Core
     /// <summary>
     /// FileManager
     /// </summary>
-    public class FileManager
+    public class FileManager : AbstractFileManager
     {
         public static void WithTmpFile(string body, Action<string> action)
         {
@@ -87,17 +87,42 @@ namespace GameEstate.Core
         public static bool Is64Bit { get; set; } = true;
 
         /// <summary>
-        /// Gets a value indicating whether this instance is data present.
+        /// Gets the host factory.
         /// </summary>
         /// <value>
-        ///   <c>true</c> if this instance is data present; otherwise, <c>false</c>.
+        /// The host factory.
         /// </value>
-        public bool IsDataPresent => Locations.Count != 0;
+        public override Func<Uri, string, AbstractHost> HostFactory => HttpHost.Factory;
 
         /// <summary>
-        /// The locations
+        /// Parses the resource.
         /// </summary>
-        public IDictionary<string, string> Locations = new Dictionary<string, string>();
+        /// <param name="uri">The URI.</param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentOutOfRangeException">fragment</exception>
+        /// <exception cref="InvalidOperationException">
+        /// No {gameName} resources match.
+        /// or
+        /// No {gameName} resources match.
+        /// or
+        /// No {gameName} resources match.
+        /// </exception>
+        public override Estate.Resource ParseResource(Estate estate, Uri uri)
+        {
+            var fragment = uri.Fragment?.Substring(uri.Fragment.Length != 0 ? 1 : 0);
+            var game = estate.GetGame(fragment);
+            var r = new Estate.Resource { Game = game.id };
+            // file-scheme
+            if (string.Equals(uri.Scheme, "game", StringComparison.OrdinalIgnoreCase))
+                r.Paths = GetGameFilePaths(r.Game, uri.LocalPath.Substring(1)) ?? throw new InvalidOperationException($"No {game.id} resources match.");
+            // file-scheme
+            else if (uri.IsFile)
+                r.Paths = GetLocalFilePaths(uri.LocalPath, out r.StreamPak) ?? throw new InvalidOperationException($"No {game.id} resources match.");
+            // network-scheme
+            else
+                r.Paths = GetHttpFilePaths(uri, out r.Host, out r.StreamPak) ?? throw new InvalidOperationException($"No {game.id} resources match.");
+            return r;
+        }
 
         /// <summary>
         /// Gets the game file paths.
@@ -107,7 +132,7 @@ namespace GameEstate.Core
         /// <returns></returns>
         /// <exception cref="ArgumentNullException">pathOrPattern</exception>
         /// <exception cref="ArgumentOutOfRangeException">pathOrPattern</exception>
-        public string[] GetGameFilePaths(string game, string pathOrPattern)
+        public override string[] GetGameFilePaths(string game, string pathOrPattern)
         {
             if (pathOrPattern == null)
                 throw new ArgumentNullException(nameof(pathOrPattern));
@@ -128,7 +153,7 @@ namespace GameEstate.Core
         /// <param name="streamPak">if set to <c>true</c> [file pak].</param>
         /// <returns></returns>
         /// <exception cref="ArgumentNullException">pathOrPattern</exception>
-        public string[] GetLocalFilePaths(string pathOrPattern, out bool streamPak)
+        public override string[] GetLocalFilePaths(string pathOrPattern, out bool streamPak)
         {
             if (pathOrPattern == null)
                 throw new ArgumentNullException(nameof(pathOrPattern));
@@ -138,14 +163,16 @@ namespace GameEstate.Core
             if (!string.IsNullOrEmpty(searchPattern))
             {
                 streamPak = false;
-                return searchPattern.Contains('*') ? Directory.GetFiles(path, searchPattern)
+                return searchPattern.Contains('*')
+                    ? Directory.GetFiles(path, searchPattern)
                     : File.Exists(pathOrPattern) ? new[] { pathOrPattern } : null;
             }
             // folder
             streamPak = true;
             searchPattern = Path.GetFileName(path);
             path = Path.GetDirectoryName(path);
-            return pathOrPattern.Contains('*') ? Directory.GetDirectories(path, searchPattern)
+            return pathOrPattern.Contains('*')
+                ? Directory.GetDirectories(path, searchPattern)
                 : Directory.Exists(pathOrPattern) ? new[] { pathOrPattern } : null;
         }
 
@@ -159,7 +186,7 @@ namespace GameEstate.Core
         /// <exception cref="ArgumentNullException">uri</exception>
         /// <exception cref="ArgumentOutOfRangeException">pathOrPattern</exception>
         /// <exception cref="NotSupportedException">Web wildcard access to supported</exception>
-        public string[] GetHttpFilePaths(Uri uri, out Uri host, out bool streamPak)
+        public override string[] GetHttpFilePaths(Uri uri, out Uri host, out bool streamPak)
         {
             if (uri == null)
                 throw new ArgumentNullException(nameof(uri));

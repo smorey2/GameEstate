@@ -16,13 +16,25 @@
 
   <ItemGroup>
     <PackageReference Include="MonoGame.Content.Builder" Version="3.7.0.9" />
-    <PackageReference Include="MonoGame.Framework.DesktopGL.Core" Version="3.8.0.13" />
-    <PackageReference Include="MonoGame.Framework.WindowsDX" Version="3.7.1.189" />
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\src.wpf\MonoGame.Framework.Wpf.Core\MonoGame.Framework.Wpf.Core.csproj" />
+    <ProjectReference Include="..\GameEstate\GameEstate.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="View\FileExplorer.xaml.cs">
+      <DependentUpon>FileExplorer.xaml</DependentUpon>
+    </Compile>
+    <Compile Update="View\FileInfo.xaml.cs">
+      <DependentUpon>FileInfo.xaml</DependentUpon>
+    </Compile>
     <Compile Update="View\MainMenu.xaml.cs">
       <DependentUpon>MainMenu.xaml</DependentUpon>
+    </Compile>
+    <Compile Update="View\Options - Copy.xaml.cs">
+      <DependentUpon>Options.xaml</DependentUpon>
     </Compile>
     <Compile Update="View\Options.xaml.cs">
       <DependentUpon>Options.xaml</DependentUpon>
@@ -30,7 +42,16 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Page Update="View\FileExplorer.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="View\FileInfo.xaml">
+      <SubType>Designer</SubType>
+    </Page>
     <Page Update="View\MainMenu.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="View\OpenDialog.xaml">
       <SubType>Designer</SubType>
     </Page>
     <Page Update="View\Options.xaml">
