@@ -13,8 +13,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GameEstate.Abstract", "Game
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GameEstate.Explorer", "GameEstate.Explorer\GameEstate.Explorer.csproj", "{0590D5FA-7CE8-4794-99BB-00229725151F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ACExplorer", "ACExplorer\ACExplorer.csproj", "{924B182E-3798-4B63-BCCD-9C8F2602BDE1}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -63,12 +61,6 @@ Global
 		{0590D5FA-7CE8-4794-99BB-00229725151F}.Release|Any CPU.Build.0 = Release|Any CPU
 		{0590D5FA-7CE8-4794-99BB-00229725151F}.Release|x64.ActiveCfg = Release|Any CPU
 		{0590D5FA-7CE8-4794-99BB-00229725151F}.Release|x64.Build.0 = Release|Any CPU
-		{924B182E-3798-4B63-BCCD-9C8F2602BDE1}.Debug|Any CPU.ActiveCfg = Debug|x64
-		{924B182E-3798-4B63-BCCD-9C8F2602BDE1}.Debug|x64.ActiveCfg = Debug|x64
-		{924B182E-3798-4B63-BCCD-9C8F2602BDE1}.Debug|x64.Build.0 = Debug|x64
-		{924B182E-3798-4B63-BCCD-9C8F2602BDE1}.Release|Any CPU.ActiveCfg = Release|x64
-		{924B182E-3798-4B63-BCCD-9C8F2602BDE1}.Release|x64.ActiveCfg = Release|x64
-		{924B182E-3798-4B63-BCCD-9C8F2602BDE1}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
