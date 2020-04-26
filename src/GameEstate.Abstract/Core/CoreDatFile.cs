@@ -17,7 +17,7 @@ namespace GameEstate.Core
         public readonly Dictionary<string, string> Params = new Dictionary<string, string>();
         public uint Version;
         //
-        GenericPool<BinaryReader> Pool;
+        public GenericPool<BinaryReader> Pool;
         public bool UsePool = true;
         public object Tag;
 

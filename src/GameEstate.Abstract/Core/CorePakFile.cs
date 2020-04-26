@@ -21,7 +21,7 @@ namespace GameEstate.Core
         public IList<FileMetadata> Files;
         public HashSet<string> FilesRawSet;
         public ILookup<string, FileMetadata> FilesByPath;
-        GenericPool<BinaryReader> Pool;
+        public GenericPool<BinaryReader> Pool;
         public bool UsePool = true;
         public object Tag;
 
