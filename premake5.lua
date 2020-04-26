@@ -53,6 +53,27 @@ newaction
 
 newaction
 {
+    trigger     = "fakebms",
+    description = "Fake quickbms native libraries",
+    execute = function()
+        os.mkdir(".quickbms")
+        if os.ishost("windows") then
+            os.execute "type NUL > .quickbms/quickbms_4gb_files.exe"
+            os.execute "type NUL > .quickbms/quickbms.exe"
+        else
+            if os.ishost("macosx") then
+                os.execute "type NUL > .quickbms/quickbms_4gb_files.exe"
+                os.execute "type NUL > .quickbms/quickbms.exe"
+            else
+                os.execute "type NUL > .quickbms/quickbms_4gb_files.exe"
+                os.execute "type NUL > .quickbms/quickbms.exe"
+            end
+        end
+    end
+}
+
+newaction
+{
     trigger     = "build",
     description = "Build GameEstate",
     execute = function ()
