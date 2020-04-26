@@ -14,14 +14,14 @@
                   ItemsSource="{Binding Path=Info}">
             <TreeView.ItemTemplate>
                 <HierarchicalDataTemplate DataType="{x:Type model:TreeNode}" ItemsSource="{Binding Path=Items}">
-                    <TreeViewItem Header="{Binding Path=Name}" />
+                    <TextBlock Text="{Binding Path=Name}"/>
                 </HierarchicalDataTemplate>
             </TreeView.ItemTemplate>
-            <!--<TreeView.ItemContainerStyle>
+            <TreeView.ItemContainerStyle>
                 <Style TargetType="{x:Type TreeViewItem}">
                     <Setter Property="IsExpanded" Value="True" />
                 </Style>
-            </TreeView.ItemContainerStyle>-->
+            </TreeView.ItemContainerStyle>
         </TreeView>
     </Grid>
 </UserControl>

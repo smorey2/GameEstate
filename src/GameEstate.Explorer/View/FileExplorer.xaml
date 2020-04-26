@@ -7,20 +7,19 @@
              xmlns:model="clr-namespace:GameEstate.Explorer.ViewModel"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="500">
-    <Grid HorizontalAlignment="Left">
+    <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="25"/>
             <RowDefinition Height="22.5"/>
             <RowDefinition Height=".5*"/>
             <RowDefinition Height=".5*"/>
         </Grid.RowDefinitions>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition MinWidth="250"/>
-        </Grid.ColumnDefinitions>
-        <Label Content="File Filter" Grid.Row="0" />
+        <Label Content="File Filter" Grid.Row="0"/>
         <ComboBox Name="TreeFilter" Grid.Row="1" Margin="7.5,0,0,0"
+                  IsEditable="True"
                   ItemsSource="{Binding TreeFilters}"
                   SelectionChanged="TreeFilter_SelectionChanged"/>
+        <ListBox Name="FilteredNode" Margin="7.5,7.5,0,0" ItemsSource="{Binding FilteredNodes}" Grid.Row="2" SelectionChanged="FilteredNode_SelectionChanged" Visibility="Hidden"/>
         <TreeView Name="Node" Grid.Row="2" Margin="7.5,7.5,0,0"
                   ScrollViewer.VerticalScrollBarVisibility="Auto"
                   VirtualizingStackPanel.IsVirtualizing="True"
@@ -28,9 +27,14 @@
                   SelectedItemChanged="Node_SelectedItemChanged">
             <TreeView.ItemTemplate>
                 <HierarchicalDataTemplate DataType="{x:Type model:TreeNode}" ItemsSource="{Binding Path=Items}">
-                    <TreeViewItem Header="{Binding Path=Name}" />
+                    <TextBlock Text="{Binding Path=Name}"/>
                 </HierarchicalDataTemplate>
             </TreeView.ItemTemplate>
+            <TreeView.ItemContainerStyle>
+                <Style TargetType="{x:Type TreeViewItem}">
+                    <Setter Property="IsExpanded" Value="True" />
+                </Style>
+            </TreeView.ItemContainerStyle>
         </TreeView>
         <local:FileInfo Grid.Row="3" Margin="7.5,7.5,0,0" />
     </Grid>

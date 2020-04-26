@@ -4,7 +4,7 @@ namespace GameEstate.Explorer.View
 {
     public class Player
     {
-        public EngineView GameView => EngineView.Instance;
+        public AbstractEngineView EngineView => AbstractEngineView.Instance;
 
         //public PhysicsObj PhysicsObj;
 
@@ -41,11 +41,9 @@ namespace GameEstate.Explorer.View
 
         public void UpdatePhysics(GameTime time)
         {
-            if (!GameView.IsActive)
+            if (!EngineView.IsActive)
                 return;
-
             //PhysicsObj.ParticleManager.UpdateParticles();
-
         }
 
         //public void QueryParticleManager()

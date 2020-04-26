@@ -22,7 +22,23 @@
 
         <local:MainMenu x:Name="MainMenu" Grid.Row="0" Grid.ColumnSpan="3"/>
 
-        <local:FileExplorer Grid.Row="1" Margin="0,0,0,10"/>
+        <TabControl x:Name="TabControl" Grid.Row="1" Margin="0,0,0,10" >
+            <TabItem Header="Resources">
+                <local:FileExplorer Margin="0,0,10,10" />
+            </TabItem>
+            <TabItem Header="Data">
+                <local:FileExplorer Margin="0,0,0,10" />
+            </TabItem>
+            <TabItem Header="Engine">
+                <ScrollViewer>
+                    <TextBlock TextWrapping="Wrap">
+                    Leverage agile frameworks to provide a robust synopsis for high level overviews. Iterative approaches to corporate strategy foster collaborative thinking to further the overall value proposition. Organically grow the holistic world view of disruptive innovation via workplace diversity and empowerment.
+                    <LineBreak /><LineBreak />
+                    Bring to the table win-win survival strategies to ensure proactive domination. At the end of the day, going forward, a new normal that has evolved from generation X is on the runway heading towards a streamlined cloud solution. User generated content in real-time will have multiple touchpoints for offshoring.
+                    </TextBlock>
+                </ScrollViewer>
+            </TabItem>
+        </TabControl>
 
         <GridSplitter Grid.Row="1" Grid.Column="1" Width="5" HorizontalAlignment="Center" />
 

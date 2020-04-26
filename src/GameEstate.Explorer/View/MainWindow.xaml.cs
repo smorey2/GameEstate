@@ -21,7 +21,7 @@ namespace GameEstate.Explorer.View
     public partial class MainWindow : Window
     {
         public static MainWindow Instance;
-        public EngineView EngineView => EngineView.Instance;
+        //public EngineView EngineView => EngineView.Instance;
 
         public MainWindow()
         {
