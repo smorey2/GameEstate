@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace GameEstate.Formats.Binary
 {
-    public class PakFormatTes : PakFormat
+    public class PakBinaryTes : PakBinary
     {
         #region Header
 
@@ -146,7 +146,7 @@ namespace GameEstate.Formats.Binary
 
         #endregion
 
-        public unsafe override Task ReadAsync(CorePakFile source, BinaryReader r, ReadStage stage)
+        public unsafe override Task ReadAsync(BinaryPakFile source, BinaryReader r, ReadStage stage)
         {
             if (stage != ReadStage.File)
                 throw new ArgumentOutOfRangeException(nameof(stage), stage.ToString());
@@ -301,9 +301,9 @@ namespace GameEstate.Formats.Binary
             return Task.CompletedTask;
         }
 
-        public unsafe override Task WriteAsync(CorePakFile source, BinaryWriter w, WriteStage stage) => throw new NotImplementedException();
+        public unsafe override Task WriteAsync(BinaryPakFile source, BinaryWriter w, WriteStage stage) => throw new NotImplementedException();
 
-        public override Task<byte[]> ReadFileAsync(CorePakFile source, BinaryReader r, FileMetadata file, Action<FileMetadata, string> exception = null)
+        public override Task<byte[]> ReadFileAsync(BinaryPakFile source, BinaryReader r, FileMetadata file, Action<FileMetadata, string> exception = null)
         {
             var fileSize = (int)file.FileSize;
             byte[] fileData;
@@ -316,12 +316,12 @@ namespace GameEstate.Formats.Binary
                 r.Position(file.Position + 1 + len);
             }
             fileData = r.ReadBytes(fileSize);
-            newFileSize = source.Version == PakFormatTes.SSE_BSAHEADER_VERSION && file.Compressed ? r.ReadInt32() - 4 : fileSize;
+            newFileSize = source.Version == PakBinaryTes.SSE_BSAHEADER_VERSION && file.Compressed ? r.ReadInt32() - 4 : fileSize;
             // BSA
             if (file.Compressed)
             {
                 var newFileData = new byte[newFileSize];
-                if (source.Version != PakFormatTes.SSE_BSAHEADER_VERSION)
+                if (source.Version != PakBinaryTes.SSE_BSAHEADER_VERSION)
                 {
                     if (fileData.Length > 4)
                         using (var s = new MemoryStream(fileData, 4, fileSize - 4))
@@ -349,7 +349,7 @@ namespace GameEstate.Formats.Binary
             // Fill DDS Header
             else if (file.Tag != null)
             {
-                var info = (PakFormatTes.F4_HeaderFile2)file.Info;
+                var info = (PakBinaryTes.F4_HeaderFile2)file.Info;
                 //var tag = (PakFormat02.F4_HeaderInfo2Chunk)file.Tag;
                 // Fill DDS Header
                 var ddsHeader = new DDSHeader
@@ -425,6 +425,6 @@ namespace GameEstate.Formats.Binary
             return Task.FromResult(fileData);
         }
 
-        public override Task WriteFileAsync(CorePakFile source, BinaryWriter w, FileMetadata file, byte[] data, Action<FileMetadata, string> exception = null) => throw new NotImplementedException();
+        public override Task WriteFileAsync(BinaryPakFile source, BinaryWriter w, FileMetadata file, byte[] data, Action<FileMetadata, string> exception = null) => throw new NotImplementedException();
     }
 }

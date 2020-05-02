@@ -1,4 +1,5 @@
 ﻿using GameEstate.Core;
+using GameEstate.Estates;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -10,7 +11,7 @@ namespace GameEstate.Formats.Binary
     // https://witcher.fandom.com/wiki/File_format
     // https://witcher.fandom.com/wiki/KEY_BIF_V1.1_format
     // https://witcher.fandom.com/wiki/Extracting_The_Witcher_2_files
-    public class PakFormatRed : PakFormat
+    public class PakBinaryRed : PakBinary
     {
         #region Headers
 
@@ -232,9 +233,9 @@ namespace GameEstate.Formats.Binary
         readonly static Estate Estate = EstateManager.GetEstate("Red");
         readonly object Tag;
 
-        public PakFormatRed(object tag = null) => Tag = tag;
+        public PakBinaryRed(object tag = null) => Tag = tag;
 
-        public unsafe override Task ReadAsync(CorePakFile source, BinaryReader r, ReadStage stage)
+        public unsafe override Task ReadAsync(BinaryPakFile source, BinaryReader r, ReadStage stage)
         {
             if (stage != ReadStage.File)
                 throw new ArgumentOutOfRangeException(nameof(stage), stage.ToString());
@@ -336,7 +337,7 @@ namespace GameEstate.Formats.Binary
         }
 
 
-        //public override Task WriteAsync(CorePakFile source, BinaryWriter w)
+        //public override Task WriteAsync(BinaryPakFile source, BinaryWriter w)
         //{
         //    var files = source.Files = new List<FileMetadata>();
         //    r.BaseStream.Seek(0, SeekOrigin.Begin);
@@ -382,13 +383,13 @@ namespace GameEstate.Formats.Binary
         //    return Task.CompletedTask;
         //}
 
-        public override Task<byte[]> ReadFileAsync(CorePakFile source, BinaryReader r, FileMetadata file, Action<FileMetadata, string> exception = null)
+        public override Task<byte[]> ReadFileAsync(BinaryPakFile source, BinaryReader r, FileMetadata file, Action<FileMetadata, string> exception = null)
         {
             byte[] buf;
             r.Position(file.Position);
-            if (source.Version == PakFormatRed.BIFF_VERSION)
+            if (source.Version == PakBinaryRed.BIFF_VERSION)
                 buf = r.ReadBytes((int)file.FileSize);
-            else if (source.Version == PakFormatRed.DZIP_VERSION)
+            else if (source.Version == PakBinaryRed.DZIP_VERSION)
             {
                 var offsetAdd = r.ReadInt32();
                 buf = new byte[file.PackedSize - offsetAdd];
@@ -417,7 +418,7 @@ namespace GameEstate.Formats.Binary
             return Task.FromResult(buf);
         }
 
-        public override Task WriteFileAsync(CorePakFile source, BinaryWriter w, FileMetadata file, byte[] data, Action<FileMetadata, string> exception = null)
+        public override Task WriteFileAsync(BinaryPakFile source, BinaryWriter w, FileMetadata file, byte[] data, Action<FileMetadata, string> exception = null)
         {
             var buf = data;
             //if (file.Compressed)

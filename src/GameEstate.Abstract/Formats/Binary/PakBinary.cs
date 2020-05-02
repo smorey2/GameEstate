@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace GameEstate.Formats.Binary
 {
-    public class PakFormat
+    public class PakBinary
     {
         /// <summary>
         /// ReadState
@@ -20,7 +20,7 @@ namespace GameEstate.Formats.Binary
         /// <summary>
         /// The file
         /// </summary>
-        public readonly static PakFormat Stream = new PakFormatStream();
+        public readonly static PakBinary Stream = new PakBinaryStream();
 
         /// <summary>
         /// Reads the asynchronous.
@@ -30,7 +30,7 @@ namespace GameEstate.Formats.Binary
         /// <param name="stage">The stage.</param>
         /// <returns></returns>
         /// <exception cref="NotSupportedException"></exception>
-        public virtual Task ReadAsync(CorePakFile source, BinaryReader r, ReadStage stage) => throw new NotSupportedException();
+        public virtual Task ReadAsync(BinaryPakFile source, BinaryReader r, ReadStage stage) => throw new NotSupportedException();
 
         /// <summary>
         /// Writes the asynchronous.
@@ -40,7 +40,7 @@ namespace GameEstate.Formats.Binary
         /// <param name="stage">The stage.</param>
         /// <returns></returns>
         /// <exception cref="NotSupportedException"></exception>
-        public virtual Task WriteAsync(CorePakFile source, BinaryWriter w, WriteStage stage) => throw new NotSupportedException();
+        public virtual Task WriteAsync(BinaryPakFile source, BinaryWriter w, WriteStage stage) => throw new NotSupportedException();
 
         /// <summary>
         /// Reads the asynchronous.
@@ -51,7 +51,7 @@ namespace GameEstate.Formats.Binary
         /// <param name="exception">The exception.</param>
         /// <returns></returns>
         /// <exception cref="NotSupportedException"></exception>
-        public virtual Task<byte[]> ReadFileAsync(CorePakFile source, BinaryReader r, FileMetadata file, Action<FileMetadata, string> exception = null) => throw new NotSupportedException();
+        public virtual Task<byte[]> ReadFileAsync(BinaryPakFile source, BinaryReader r, FileMetadata file, Action<FileMetadata, string> exception = null) => throw new NotSupportedException();
 
         /// <summary>
         /// Writes the asynchronous.
@@ -63,6 +63,6 @@ namespace GameEstate.Formats.Binary
         /// <param name="exception">The exception.</param>
         /// <returns></returns>
         /// <exception cref="NotSupportedException"></exception>
-        public virtual Task WriteFileAsync(CorePakFile source, BinaryWriter w, FileMetadata file, byte[] data, Action<FileMetadata, string> exception = null) => throw new NotSupportedException();
+        public virtual Task WriteFileAsync(BinaryPakFile source, BinaryWriter w, FileMetadata file, byte[] data, Action<FileMetadata, string> exception = null) => throw new NotSupportedException();
     }
 }

@@ -7,9 +7,9 @@ using System.Threading.Tasks;
 
 namespace GameEstate.Formats.Binary
 {
-    public class PakFormatZip : PakFormat
+    public class PakBinaryZip : PakBinary
     {
-        public override Task ReadAsync(CorePakFile source, BinaryReader r, ReadStage stage)
+        public override Task ReadAsync(BinaryPakFile source, BinaryReader r, ReadStage stage)
         {
             if (stage != ReadStage.File)
                 throw new ArgumentOutOfRangeException(nameof(stage), stage.ToString());
@@ -29,7 +29,7 @@ namespace GameEstate.Formats.Binary
             return Task.CompletedTask;
         }
 
-        public override Task WriteAsync(CorePakFile source, BinaryWriter w, WriteStage stage)
+        public override Task WriteAsync(BinaryPakFile source, BinaryWriter w, WriteStage stage)
         {
             source.UsePool = false;
             var files = source.Files;
@@ -39,13 +39,13 @@ namespace GameEstate.Formats.Binary
             {
                 var entry = (ZipEntry)(file.Tag = new ZipEntry(Path.GetFileName(file.Path)));
                 pak.Add(entry);
-                source.PakFormat.WriteFileAsync(source, w, file, null, null);
+                source.PakBinary.WriteFileAsync(source, w, file, null, null);
             }
             pak.CommitUpdate();
             return Task.CompletedTask;
         }
 
-        public override Task<byte[]> ReadFileAsync(CorePakFile source, BinaryReader r, FileMetadata file, Action<FileMetadata, string> exception = null)
+        public override Task<byte[]> ReadFileAsync(BinaryPakFile source, BinaryReader r, FileMetadata file, Action<FileMetadata, string> exception = null)
         {
             var pak = (ZipFile)source.Tag;
             var entry = (ZipEntry)file.Tag;
@@ -61,7 +61,7 @@ namespace GameEstate.Formats.Binary
             }
         }
 
-        public override Task WriteFileAsync(CorePakFile source, BinaryWriter w, FileMetadata file, byte[] data, Action<FileMetadata, string> exception = null)
+        public override Task WriteFileAsync(BinaryPakFile source, BinaryWriter w, FileMetadata file, byte[] data, Action<FileMetadata, string> exception = null)
         {
             var pak = (ZipFile)source.Tag;
             var entry = (ZipEntry)file.Tag;

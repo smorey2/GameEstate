@@ -14,7 +14,7 @@ namespace GameEstate.Formats.Binary
         public long Position;
         // extra
         public object Info;
-        public CorePakFile Pak;
+        public BinaryPakFile Pak;
         public object Tag;
     }
 }

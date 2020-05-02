@@ -9,7 +9,7 @@ namespace GameEstate.Core
     {
         #region Export / Import
 
-        public static async Task ExportAsync(this CorePakFile source, string filePath, int from = 0, Action<FileMetadata, int> advance = null, Action<FileMetadata, string> exception = null)
+        public static async Task ExportAsync(this BinaryPakFile source, string filePath, int from = 0, Action<FileMetadata, int> advance = null, Action<FileMetadata, string> exception = null)
         {
             // write pak
             if (!string.IsNullOrEmpty(filePath) && !Directory.Exists(filePath))
@@ -49,7 +49,7 @@ namespace GameEstate.Core
             });
 
             // write pak-raw
-            await new StreamPakFile(source, source.Game, filePath).WriteAsync(null, PakFormat.WriteStage.File);
+            await new StreamPakFile(source, source.Game, filePath).WriteAsync(null, PakBinary.WriteStage.File);
 
             //// write pak-raw
             //if (source.FilesRawSet != null && source.FilesRawSet.Count > 0)
@@ -57,7 +57,7 @@ namespace GameEstate.Core
             //        await PakFormat.Stream.WriteAsync(source, w, PakFormat.WriteStage._Raw);
         }
 
-        public static async Task ImportAsync(this CorePakFile source, BinaryWriter w, string filePath, int from = 0, Action<FileMetadata, int> advance = null, Action<FileMetadata, string> exception = null)
+        public static async Task ImportAsync(this BinaryPakFile source, BinaryWriter w, string filePath, int from = 0, Action<FileMetadata, int> advance = null, Action<FileMetadata, string> exception = null)
         {
             // read pak
             if (string.IsNullOrEmpty(filePath) || !Directory.Exists(filePath))
@@ -67,18 +67,18 @@ namespace GameEstate.Core
             }
             var setPath = Path.Combine(filePath, ".set");
             using (var r = new BinaryReader(File.Open(setPath, FileMode.Open, FileAccess.Read, FileShare.Read)))
-                await PakFormat.Stream.ReadAsync(source, r, PakFormat.ReadStage._Set);
+                await PakBinary.Stream.ReadAsync(source, r, PakBinary.ReadStage._Set);
             var metaPath = Path.Combine(filePath, ".meta");
             using (var r = new BinaryReader(File.Open(setPath, FileMode.Open, FileAccess.Read, FileShare.Read)))
-                await PakFormat.Stream.ReadAsync(source, r, PakFormat.ReadStage._Meta);
+                await PakBinary.Stream.ReadAsync(source, r, PakBinary.ReadStage._Meta);
             var rawPath = Path.Combine(filePath, ".raw");
             if (File.Exists(rawPath))
                 using (var r = new BinaryReader(File.Open(rawPath, FileMode.Open, FileAccess.Read, FileShare.Read)))
-                    await PakFormat.Stream.ReadAsync(source, r, PakFormat.ReadStage._Raw);
+                    await PakBinary.Stream.ReadAsync(source, r, PakBinary.ReadStage._Raw);
 
             // write header
             if (from == 0)
-                await source.PakFormat.WriteAsync(source, w, PakFormat.WriteStage.Header);
+                await source.PakBinary.WriteAsync(source, w, PakBinary.WriteStage.Header);
 
             // write files
             Parallel.For(0, source.Files.Count, new ParallelOptions { MaxDegreeOfParallelism = 1 }, async index =>
@@ -97,7 +97,7 @@ namespace GameEstate.Core
                 // insert file
                 try
                 {
-                    await source.PakFormat.WriteAsync(source, w, PakFormat.WriteStage.File);
+                    await source.PakBinary.WriteAsync(source, w, PakBinary.WriteStage.File);
                     using (var r = File.Open(newPath, FileMode.Open, FileAccess.Read, FileShare.Read))
                         await source.WriteFileDataAsync(w, file, r.ReadAllBytes(), exception);
  

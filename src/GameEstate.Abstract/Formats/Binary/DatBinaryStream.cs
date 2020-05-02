@@ -5,9 +5,9 @@ using System.Threading.Tasks;
 
 namespace GameEstate.Formats.Binary
 {
-    public class DatFormatStream : DatFormat
+    public class DatBinaryStream : DatBinary
     {
-        public override Task ReadAsync(CoreDatFile source, BinaryReader r, ReadStage stage)
+        public override Task ReadAsync(BinaryDatFile source, BinaryReader r, ReadStage stage)
         {
             switch (stage)
             {
@@ -15,7 +15,7 @@ namespace GameEstate.Formats.Binary
             }
         }
 
-        public override Task WriteAsync(CoreDatFile source, BinaryWriter w, WriteStage stage)
+        public override Task WriteAsync(BinaryDatFile source, BinaryWriter w, WriteStage stage)
         {
             switch (stage)
             {

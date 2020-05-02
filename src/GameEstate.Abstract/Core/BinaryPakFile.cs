@@ -9,11 +9,10 @@ using System.Threading.Tasks;
 namespace GameEstate.Core
 {
     [DebuggerDisplay("{Name}")]
-    public abstract class CorePakFile : IDisposable
+    public abstract class BinaryPakFile : AbstractPakFile
     {
         public readonly string FilePath;
-        public readonly string Game;
-        public readonly PakFormat PakFormat;
+        public readonly PakBinary PakBinary;
         public readonly string Name;
         public readonly Dictionary<string, string> Params = new Dictionary<string, string>();
         public uint Version;
@@ -26,23 +25,16 @@ namespace GameEstate.Core
         public object Tag;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="CorePakFile"/> class.
+        /// Initializes a new instance of the <see cref="BinaryPakFile" /> class.
         /// </summary>
         /// <param name="filePath">The file path.</param>
         /// <param name="game">The game.</param>
-        /// <param name="pakFormat">The pak format.</param>
-        /// <exception cref="ArgumentNullException">
-        /// filePath
-        /// or
-        /// pakFormat
-        /// or
-        /// datFormat
-        /// </exception>
-        public CorePakFile(string filePath, string game, PakFormat pakFormat)
+        /// <param name="pakBinary">The pak binary.</param>
+        /// <exception cref="ArgumentNullException">pakBinary</exception>
+        public BinaryPakFile(string filePath, string game, PakBinary pakBinary) : base(game)
         {
             FilePath = filePath ?? throw new ArgumentNullException(nameof(filePath));
-            Game = game ?? throw new ArgumentNullException(nameof(game));
-            PakFormat = pakFormat ?? throw new ArgumentNullException(nameof(pakFormat));
+            PakBinary = pakBinary ?? throw new ArgumentNullException(nameof(pakBinary));
             var name = Path.GetFileName(FilePath);
             Name = !string.IsNullOrEmpty(name) ? name : Path.GetFileName(Path.GetDirectoryName(FilePath));
         }
@@ -50,12 +42,12 @@ namespace GameEstate.Core
         /// <summary>
         /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
         /// </summary>
-        public void Dispose()
+        public override void Dispose()
         {
             Close();
             GC.SuppressFinalize(this);
         }
-        ~CorePakFile() => Close();
+        ~BinaryPakFile() => Close();
 
         /// <summary>
         /// Opens this instance.
@@ -65,8 +57,8 @@ namespace GameEstate.Core
             var watch = new Stopwatch();
             watch.Start();
             Pool = UsePool && File.Exists(FilePath) ? new GenericPool<BinaryReader>(() => new BinaryReader(File.Open(FilePath, FileMode.Open, FileAccess.Read, FileShare.Read))) : null;
-            if (Pool != null) Pool.Action(async r => await ReadAsync(r, PakFormat.ReadStage.File));
-            else ReadAsync(null, PakFormat.ReadStage.File).GetAwaiter().GetResult();
+            if (Pool != null) Pool.Action(async r => await ReadAsync(r, PakBinary.ReadStage.File));
+            else ReadAsync(null, PakBinary.ReadStage.File).GetAwaiter().GetResult();
             Process();
             CoreDebug.Log($"Opening: {Name} @ {watch.ElapsedMilliseconds}ms");
             watch.Stop();
@@ -75,7 +67,7 @@ namespace GameEstate.Core
         /// <summary>
         /// Closes this instance.
         /// </summary>
-        public void Close()
+        public override void Close()
         {
             Files = null;
             FilesRawSet = null;
@@ -94,7 +86,7 @@ namespace GameEstate.Core
         /// <returns>
         ///   <c>true</c> if the specified file path contains file; otherwise, <c>false</c>.
         /// </returns>
-        public bool Contains(string filePath) => FilesByPath.Contains(filePath.Replace('\\', '/'));
+        public override bool Contains(string filePath) => FilesByPath.Contains(filePath.Replace('\\', '/'));
 
         /// <summary>
         /// Loads the file data asynchronous.
@@ -104,7 +96,7 @@ namespace GameEstate.Core
         /// <returns></returns>
         /// <exception cref="FileNotFoundException"></exception>
         /// <exception cref="InvalidOperationException"></exception>
-        public Task<byte[]> LoadFileDataAsync(string filePath, Action<FileMetadata, string> exception = null)
+        public override Task<byte[]> LoadFileDataAsync(string filePath, Action<FileMetadata, string> exception = null)
         {
             var files = FilesByPath[filePath.Replace('\\', '/')].ToArray();
             if (files.Length == 1)
@@ -134,7 +126,7 @@ namespace GameEstate.Core
         /// <param name="file">The file.</param>
         /// <param name="exception">The exception.</param>
         /// <returns></returns>
-        public virtual Task<byte[]> ReadFileDataAsync(BinaryReader r, FileMetadata file, Action<FileMetadata, string> exception) => PakFormat.ReadFileAsync(this, r, file, exception);
+        public virtual Task<byte[]> ReadFileDataAsync(BinaryReader r, FileMetadata file, Action<FileMetadata, string> exception) => PakBinary.ReadFileAsync(this, r, file, exception);
 
         /// <summary>
         /// Writes the file data asynchronous.
@@ -144,7 +136,7 @@ namespace GameEstate.Core
         /// <param name="data">The data.</param>
         /// <param name="exception">The exception.</param>
         /// <returns></returns>
-        public virtual Task WriteFileDataAsync(BinaryWriter w, FileMetadata file, byte[] data, Action<FileMetadata, string> exception) => PakFormat.WriteFileAsync(this, w, file, data, exception);
+        public virtual Task WriteFileDataAsync(BinaryWriter w, FileMetadata file, byte[] data, Action<FileMetadata, string> exception) => PakBinary.WriteFileAsync(this, w, file, data, exception);
 
         /// <summary>
         /// Reads the asynchronous.
@@ -152,7 +144,7 @@ namespace GameEstate.Core
         /// <param name="r">The r.</param>
         /// <param name="stage">The stage.</param>
         /// <returns></returns>
-        public virtual Task ReadAsync(BinaryReader r, PakFormat.ReadStage stage) => PakFormat.ReadAsync(this, r, stage);
+        public virtual Task ReadAsync(BinaryReader r, PakBinary.ReadStage stage) => PakBinary.ReadAsync(this, r, stage);
 
         /// <summary>
         /// Writes the asynchronous.
@@ -160,7 +152,7 @@ namespace GameEstate.Core
         /// <param name="w">The w.</param>
         /// <param name="stage">The stage.</param>
         /// <returns></returns>
-        public virtual Task WriteAsync(BinaryWriter w, PakFormat.WriteStage stage) => PakFormat.WriteAsync(this, w, stage);
+        public virtual Task WriteAsync(BinaryWriter w, PakBinary.WriteStage stage) => PakBinary.WriteAsync(this, w, stage);
 
         /// <summary>
         /// Processes this instance.

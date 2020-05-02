@@ -1,12 +1,12 @@
 ﻿using GameEstate.Core;
 
-namespace GameEstate.Formats
+namespace GameEstate.Estates
 {
     /// <summary>
     /// CryPakFile
     /// </summary>
-    /// <seealso cref="GameEstate.Core.CorePakFile" />
-    public class CryPakFile : CorePakFile
+    /// <seealso cref="GameEstate.Core.BinaryPakFile" />
+    public class CryPakFile : BinaryPakFile
     {
         /// <summary>Initializes a new instance of the <see cref="CryPakFile" /> class.</summary>
         /// <param name="filePath">The file path.</param>

@@ -8,11 +8,10 @@ using System.Threading.Tasks;
 namespace GameEstate.Core
 {
     [DebuggerDisplay("{Name}")]
-    public abstract class CoreDatFile : IDisposable
+    public abstract class BinaryDatFile : AbstractDatFile
     {
         public readonly string FilePath;
-        public readonly string Game;
-        public DatFormat DatFormat;
+        public DatBinary DatBinary;
         public readonly string Name;
         public readonly Dictionary<string, string> Params = new Dictionary<string, string>();
         public uint Version;
@@ -21,11 +20,10 @@ namespace GameEstate.Core
         public bool UsePool = true;
         public object Tag;
 
-        public CoreDatFile(string filePath, string game, DatFormat datFormat)
+        public BinaryDatFile(string filePath, string game, DatBinary datBinary) : base(game)
         {
             FilePath = filePath ?? throw new ArgumentNullException(nameof(filePath));
-            Game = game ?? throw new ArgumentNullException(nameof(game));
-            DatFormat = datFormat ?? throw new ArgumentNullException(nameof(datFormat));
+            DatBinary = datBinary ?? throw new ArgumentNullException(nameof(datBinary));
             var name = Path.GetFileName(FilePath);
             Name = !string.IsNullOrEmpty(name) ? name : Path.GetFileName(Path.GetDirectoryName(FilePath));
         }
@@ -33,12 +31,12 @@ namespace GameEstate.Core
         /// <summary>
         /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
         /// </summary>
-        public void Dispose()
+        public override void Dispose()
         {
             Close();
             GC.SuppressFinalize(this);
         }
-        ~CoreDatFile() => Close();
+        ~BinaryDatFile() => Close();
 
         /// <summary>
         /// Opens this instance.
@@ -48,8 +46,8 @@ namespace GameEstate.Core
             var watch = new Stopwatch();
             watch.Start();
             Pool = UsePool && FilePath != null && File.Exists(FilePath) ? new GenericPool<BinaryReader>(() => new BinaryReader(File.Open(FilePath, FileMode.Open, FileAccess.Read, FileShare.Read))) : null;
-            if (Pool != null) Pool.Action(async r => await ReadAsync(r, DatFormat.ReadStage.File));
-            else ReadAsync(null, DatFormat.ReadStage.File).GetAwaiter().GetResult();
+            if (Pool != null) Pool.Action(async r => await ReadAsync(r, DatBinary.ReadStage.File));
+            else ReadAsync(null, DatBinary.ReadStage.File).GetAwaiter().GetResult();
             Process();
             CoreDebug.Log($"Opening: {Name} @ {watch.ElapsedMilliseconds}ms");
             watch.Stop();
@@ -62,7 +60,7 @@ namespace GameEstate.Core
         /// <summary>
         /// Closes this instance.
         /// </summary>
-        public void Close()
+        public override void Close()
         {
             Pool?.Dispose();
             Pool = null;
@@ -77,7 +75,7 @@ namespace GameEstate.Core
         /// <param name="r">The r.</param>
         /// <param name="stage">The stage.</param>
         /// <returns></returns>
-        public virtual Task ReadAsync(BinaryReader r, DatFormat.ReadStage stage) => DatFormat.ReadAsync(this, r, stage);
+        public virtual Task ReadAsync(BinaryReader r, DatBinary.ReadStage stage) => DatBinary.ReadAsync(this, r, stage);
 
         /// <summary>
         /// Writes the asynchronous.
@@ -85,11 +83,11 @@ namespace GameEstate.Core
         /// <param name="w">The w.</param>
         /// <param name="stage">The stage.</param>
         /// <returns></returns>
-        public virtual Task WriteAsync(BinaryWriter w, DatFormat.WriteStage stage) => DatFormat.WriteAsync(this, w, stage);
+        public virtual Task WriteAsync(BinaryWriter w, DatBinary.WriteStage stage) => DatBinary.WriteAsync(this, w, stage);
 
         /// <summary>
         /// Processes this instance.
         /// </summary>
-        public virtual void Process() => DatFormat.Process(this);
+        public virtual void Process() => DatBinary.Process(this);
     }
 }

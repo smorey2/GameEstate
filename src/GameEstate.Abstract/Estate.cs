@@ -1,8 +1,8 @@
 ﻿using GameEstate.Core;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Linq;
+using System.Linq.Expressions;
 
 namespace GameEstate
 {
@@ -11,6 +11,18 @@ namespace GameEstate
     /// </summary>
     public class Estate
     {
+        public enum PakMultiType
+        {
+            SingleBinary,
+            Full,
+        }
+
+        public enum DatMultiType
+        {
+            SingleBinary,
+            Full,
+        }
+
         /// <summary>
         /// Resource
         /// </summary>
@@ -109,12 +121,28 @@ namespace GameEstate
         public Type PakFileType { get; set; }
 
         /// <summary>
+        /// Gets or sets the pak multi.
+        /// </summary>
+        /// <value>
+        /// The pak multi.
+        /// </value>
+        public PakMultiType PakMulti { get; set; }
+
+        /// <summary>
         /// Gets the type of the dat file.
         /// </summary>
         /// <value>
         /// The type of the dat file.
         /// </value>
         public Type DatFileType { get; set; }
+
+        /// <summary>
+        /// Gets or sets the dat multi.
+        /// </summary>
+        /// <value>
+        /// The dat multi.
+        /// </value>
+        public DatMultiType DatMulti { get; set; }
 
         /// <summary>
         /// Gets the game.
@@ -158,30 +186,36 @@ namespace GameEstate
         /// <summary>
         /// Opens the pak file.
         /// </summary>
-        /// <param name="filePath">The file path.</param>
-        /// <param name="game">The game.</param>
-        /// <returns></returns>
-        public CorePakFile OpenPakFile(string filePath, string game) => PakFileType != null ? (CorePakFile)Activator.CreateInstance(PakFileType, filePath, game) : null;
-
-        /// <summary>
-        /// Opens the pak file.
-        /// </summary>
         /// <param name="filePaths">The file paths.</param>
         /// <param name="game">The game.</param>
         /// <returns></returns>
-        public MultiPakFile OpenPakFile(string[] filePaths, string game) => new MultiPakFile(filePaths.Select(x => OpenPakFile(x, game)).ToArray());
+        public AbstractPakFile OpenPakFile(string[] filePaths, string game)
+        {
+            if (game == null)
+                throw new ArgumentNullException(nameof(game));
+            if (PakFileType == null || filePaths.Length == 0)
+                return null;
+            switch (PakMulti)
+            {
+                case PakMultiType.SingleBinary:
+                    return filePaths.Length == 1
+                        ? (AbstractPakFile)Activator.CreateInstance(PakFileType, filePaths[0], game)
+                        : new MultiPakFile(game, filePaths.Select(x => (AbstractPakFile)Activator.CreateInstance(PakFileType, x, game)).ToArray());
+                case PakMultiType.Full: return (AbstractPakFile)Activator.CreateInstance(PakFileType, filePaths, game);
+                default: throw new ArgumentOutOfRangeException(nameof(PakMulti), PakMulti.ToString());
+            }
+        }
 
         /// <summary>
         /// Opens the pak file.
         /// </summary>
         /// <param name="resource">The resource.</param>
         /// <returns></returns>
-        public MultiPakFile OpenPakFile(Resource resource)
+        public AbstractPakFile OpenPakFile(Resource resource)
         {
             if (!resource.StreamPak)
                 return OpenPakFile(resource.Paths, resource.Game);
-            var filePaths = resource.Paths;
-            return new MultiPakFile(filePaths.Select(x => new StreamPakFile(FileManager.HostFactory, x, resource.Game, resource.Host)).ToArray());
+            return new MultiPakFile(resource.Game, resource.Paths.Select(x => new StreamPakFile(FileManager.HostFactory, x, resource.Game, resource.Host)).ToArray());
         }
 
         /// <summary>
@@ -190,7 +224,7 @@ namespace GameEstate
         /// <param name="uri">The URI.</param>
         /// <param name="many">if set to <c>true</c> [many].</param>
         /// <returns></returns>
-        public MultiPakFile OpenPakFile(Uri uri) => OpenPakFile(FileManager.ParseResource(this, uri));
+        public AbstractPakFile OpenPakFile(Uri uri) => OpenPakFile(FileManager.ParseResource(this, uri));
 
         #endregion
 
@@ -199,21 +233,35 @@ namespace GameEstate
         /// <summary>
         /// Opens the dat file.
         /// </summary>
-        /// <param name="filePath">The file path.</param>
+        /// <param name="filePaths">The file paths.</param>
         /// <returns></returns>
-        public CoreDatFile OpenDatFile(string filePath, string game) => DatFileType != null ? (CoreDatFile)Activator.CreateInstance(DatFileType, filePath, game) : null;
+        public AbstractDatFile OpenDatFile(string[] filePaths, string game)
+        {
+            if (game == null)
+                throw new ArgumentNullException(nameof(game));
+            if (DatFileType == null || filePaths.Length == 0)
+                return null;
+            switch (DatMulti)
+            {
+                case DatMultiType.SingleBinary:
+                    return filePaths.Length == 1
+                        ? (AbstractDatFile)Activator.CreateInstance(PakFileType, filePaths[0], game)
+                        : new MultiDatFile(game, filePaths.Select(x => (AbstractDatFile)Activator.CreateInstance(DatFileType, x, game)).ToArray());
+                case DatMultiType.Full: return (AbstractDatFile)Activator.CreateInstance(DatFileType, filePaths, game);
+                default: throw new ArgumentOutOfRangeException(nameof(PakMulti), PakMulti.ToString());
+            }
+        }
 
         /// <summary>
         /// Opens the dat file.
         /// </summary>
         /// <param name="resource">The resource.</param>
         /// <returns></returns>
-        public CoreDatFile OpenDatFile(Resource resource)
+        public AbstractDatFile OpenDatFile(Resource resource)
         {
-            var filePath = resource.Paths.SingleOrDefault();
             if (!resource.StreamPak)
-                return OpenDatFile(filePath, resource.Game);
-            return new StreamDatFile(FileManager.HostFactory, filePath, resource.Game, resource.Host);
+                return OpenDatFile(resource.Paths, resource.Game);
+            return new MultiDatFile(resource.Game, resource.Paths.Select(x => new StreamDatFile(FileManager.HostFactory, x, resource.Game, resource.Host)).ToArray());
         }
 
         /// <summary>
@@ -222,7 +270,7 @@ namespace GameEstate
         /// <param name="uri">The URI.</param>
         /// <param name="many">if set to <c>true</c> [many].</param>
         /// <returns></returns>
-        public CoreDatFile OpenDatFile(Uri uri) => OpenDatFile(FileManager.ParseResource(this, uri));
+        public AbstractDatFile OpenDatFile(Uri uri) => OpenDatFile(FileManager.ParseResource(this, uri));
 
         #endregion
     }

@@ -9,9 +9,8 @@ namespace GameEstate.Core
     /// <summary>
     /// StreamDatFile
     /// </summary>
-    /// <typeparam name="AbstractHost">The type of the bstract host.</typeparam>
-    /// <seealso cref="GameEstate.Core.CoreDatFile" />
-    public class StreamDatFile : CoreDatFile
+    /// <seealso cref="GameEstate.Core.BinaryDatFile" />
+    public class StreamDatFile : BinaryDatFile
     {
         readonly AbstractHost Host;
 
@@ -22,7 +21,7 @@ namespace GameEstate.Core
         /// <param name="filePath">The file path.</param>
         /// <param name="game">The game.</param>
         /// <param name="address">The host.</param>
-        public StreamDatFile(Func<Uri, string, AbstractHost> factory, string filePath, string game, Uri address = null) : base(filePath, game, new DatFormatStream())
+        public StreamDatFile(Func<Uri, string, AbstractHost> factory, string filePath, string game, Uri address = null) : base(filePath, game, new DatBinaryStream())
         {
             UsePool = false;
             if (address != null)
@@ -35,7 +34,7 @@ namespace GameEstate.Core
         /// <param name="parent">The parent.</param>
         /// <param name="game">The game.</param>
         /// <param name="filePath">The file path.</param>
-        public StreamDatFile(CorePakFile parent, string game, string filePath) : base(filePath, game, new DatFormatStream())
+        public StreamDatFile(BinaryDatFile parent, string game, string filePath) : base(filePath, game, new DatBinaryStream())
         {
             UsePool = false;
             Open();
@@ -46,7 +45,7 @@ namespace GameEstate.Core
         /// </summary>
         /// <param name="_">The .</param>
         /// <param name="stage">The stage.</param>
-        public override Task ReadAsync(BinaryReader _, DatFormat.ReadStage stage)
+        public override Task ReadAsync(BinaryReader _, DatBinary.ReadStage stage)
         {
             // http dak
             if (Host != null)
@@ -62,7 +61,7 @@ namespace GameEstate.Core
         /// <param name="_">The .</param>
         /// <param name="stage">The stage.</param>
         /// <exception cref="NotSupportedException"></exception>
-        public override Task WriteAsync(BinaryWriter _, DatFormat.WriteStage stage)
+        public override Task WriteAsync(BinaryWriter _, DatBinary.WriteStage stage)
         {
             // http pak
             if (Host != null)

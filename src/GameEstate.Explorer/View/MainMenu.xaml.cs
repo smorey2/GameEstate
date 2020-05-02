@@ -25,9 +25,9 @@ namespace GameEstate.Explorer.View
 
         public void OnFirstLoad() => OpenFile_Click(null, null);
 
-        public MultiPakFile PakFile { get; private set; }
+        public AbstractPakFile PakFile { get; private set; }
 
-        public CoreDatFile DatFile { get; private set; }
+        public AbstractDatFile DatFile { get; private set; }
 
         void OpenFile_Click(object sender, RoutedEventArgs e)
         {

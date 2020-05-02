@@ -8,9 +8,9 @@ using System.Threading.Tasks;
 
 namespace GameEstate.Formats.Binary
 {
-    public class PakFormatStream : PakFormat
+    public class PakBinaryStream : PakBinary
     {
-        public override Task ReadAsync(CorePakFile source, BinaryReader r, ReadStage stage)
+        public override Task ReadAsync(BinaryPakFile source, BinaryReader r, ReadStage stage)
         {
             switch (stage)
             {
@@ -101,7 +101,7 @@ namespace GameEstate.Formats.Binary
             }
         }
 
-        public override Task WriteAsync(CorePakFile source, BinaryWriter w, WriteStage stage)
+        public override Task WriteAsync(BinaryPakFile source, BinaryWriter w, WriteStage stage)
         {
             switch (stage)
             {

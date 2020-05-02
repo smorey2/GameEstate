@@ -1,12 +1,12 @@
 ﻿using GameEstate.Core;
 
-namespace GameEstate.Formats
+namespace GameEstate.Estates
 {
     /// <summary>
     /// U9PakFile
     /// </summary>
-    /// <seealso cref="GameEstate.Core.CorePakFile" />
-    public class U9PakFile : CorePakFile
+    /// <seealso cref="GameEstate.Core.BinaryPakFile" />
+    public class U9PakFile : BinaryPakFile
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="U9PakFile" /> class.

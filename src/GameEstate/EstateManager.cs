@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using static GameEstate.Estate;
 
 namespace GameEstate
 {
@@ -47,15 +48,17 @@ namespace GameEstate
                 Name = (string)p["name"] ?? throw new ArgumentNullException("name"),
                 Description = (string)p["description"] ?? null,
                 PakFileType = p["pakFileType"] != null ? assembly.GetType((string)p["pakFileType"], false) ?? throw new ArgumentOutOfRangeException("pakFileType", (string)p["pakFileType"]) : null,
+                PakMulti = p["pakMulti"] != null ? Enum.TryParse<PakMultiType>((string)p["pakMulti"], true, out var z1) ? z1 : throw new ArgumentOutOfRangeException("pakMulti", (string)p["pakMulti"]) : PakMultiType.SingleBinary,
                 DatFileType = p["datFileType"] != null ? assembly.GetType((string)p["datFileType"], false) ?? throw new ArgumentOutOfRangeException("datFileType", (string)p["datFileType"]) : null,
+                DatMulti = p["datMulti"] != null ? Enum.TryParse<DatMultiType>((string)p["datMulti"], true, out var z2) ? z2 : throw new ArgumentOutOfRangeException("datMulti", (string)p["datMulti"]) : DatMultiType.SingleBinary,
                 Games = p["games"] != null ? p["games"].Cast<JProperty>().ToDictionary(x => x.Name, x => ParseGame(locations, x.Name, x.Value), StringComparer.OrdinalIgnoreCase) : throw new ArgumentNullException("games"),
                 Xforms = p["xforms"] != null ? p["xforms"].Cast<JProperty>().ToDictionary(x => x.Name, x => (object)(string)x.Value, StringComparer.OrdinalIgnoreCase) : new Dictionary<string, object>(),
                 FileManager = fileManager,
             };
         }
 
-        static Estate.EstateGame ParseGame(IDictionary<string, string> locations, string game, JToken p) =>
-            new Estate.EstateGame
+        static EstateGame ParseGame(IDictionary<string, string> locations, string game, JToken p) =>
+            new EstateGame
             {
                 Game = game,
                 Name = (string)p["name"] ?? throw new ArgumentNullException("name"),
