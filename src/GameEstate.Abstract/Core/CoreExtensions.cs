@@ -76,7 +76,7 @@ namespace GameEstate.Core
         public static long Position(this BinaryReader source) => source.BaseStream.Position;
         public static void Position(this BinaryReader source, long position) => source.BaseStream.Position = position;
         public static void Seek(this BinaryReader source, long offset, SeekOrigin origin) => source.BaseStream.Seek(offset, origin);
-        public static void Skip(this BinaryReader source, long count) => source.BaseStream.Position += count;
+        public static void Skip(this BinaryReader source, long count) => source.BaseStream.Seek(count, SeekOrigin.Current); // source.BaseStream.Position += count;
 
         public static byte[] ReadAbsoluteBytes(this BinaryReader source, long position, int count)
         {
@@ -117,7 +117,7 @@ namespace GameEstate.Core
                     for (i = buf.Length - 1; i >= 0 && buf[i] == 0; i--) { }
                     return Encoding.ASCII.GetString(buf, 0, i + 1);
                 case ASCIIFormat.ZeroTerminated:
-                    for (i = 0; i <= buf.Length && buf[i] != 0; i++) { }
+                    for (i = 0; i < buf.Length && buf[i] != 0; i++) { }
                     return Encoding.ASCII.GetString(buf, 0, i);
                 default: throw new ArgumentOutOfRangeException(nameof(format), format.ToString());
             }
@@ -150,8 +150,11 @@ namespace GameEstate.Core
 
         public static T ReadT<T>(this BinaryReader source, int length) => UnsafeUtils.MarshalT<T>(source.ReadBytes(length), length);
         public static T[] ReadTArray<T>(this BinaryReader source, int sizeOf, int count) => UnsafeUtils.MarshalTArray<T>(source.ReadBytes(count * sizeOf), count);
+        
         //public static T[] ReadTArray2<T>(this BinaryReader source, int sizeOf, int count) where T : struct { var r = new T[count]; Buffer.BlockCopy(source.ReadBytes(count * sizeOf), 0, r, 0, count * sizeOf); return r; }
+        public static T[] ReadTArray2<T>(this BinaryReader source, int sizeOf, int count) => UnsafeUtils.MarshalTArray<T>(source.ReadBytes(count * sizeOf), count);
         public static T[] ReadTMany<T>(this BinaryReader source, int length, int count) => UnsafeUtils.MarshalTArray<T>(source.ReadBytes(length), count);
+        public static void ReadTMany<T>(this BinaryReader source, T[] dest, int length) => UnsafeUtils.MarshalTArray<T>((FileStream)source.BaseStream, dest, length);
 
         public static bool ReadBool32(this BinaryReader source) => source.ReadUInt32() != 0;
 

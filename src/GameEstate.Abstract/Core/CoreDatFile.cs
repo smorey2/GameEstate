@@ -47,13 +47,17 @@ namespace GameEstate.Core
         {
             var watch = new Stopwatch();
             watch.Start();
-            Pool = UsePool && File.Exists(FilePath) ? new GenericPool<BinaryReader>(() => new BinaryReader(File.Open(FilePath, FileMode.Open, FileAccess.Read, FileShare.Read))) : null;
+            Pool = UsePool && FilePath != null && File.Exists(FilePath) ? new GenericPool<BinaryReader>(() => new BinaryReader(File.Open(FilePath, FileMode.Open, FileAccess.Read, FileShare.Read))) : null;
             if (Pool != null) Pool.Action(async r => await ReadAsync(r, DatFormat.ReadStage.File));
             else ReadAsync(null, DatFormat.ReadStage.File).GetAwaiter().GetResult();
             Process();
             CoreDebug.Log($"Opening: {Name} @ {watch.ElapsedMilliseconds}ms");
             watch.Stop();
         }
+
+        // SKY:Smell
+        public BinaryReader GetReader(string filePath) => File.Exists(FilePath) ? new BinaryReader(File.Open(Path.Combine(FilePath, filePath), FileMode.Open, FileAccess.Read, FileShare.Read)) : null;
+        public string GetFilePath(string filePath) => File.Exists(FilePath) ? Path.Combine(FilePath, filePath) : null;
 
         /// <summary>
         /// Closes this instance.

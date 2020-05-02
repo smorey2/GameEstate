@@ -80,15 +80,26 @@ namespace GameEstate.Core
             //}
         }
 
+        public static void MarshalTArray<T>(FileStream stream, T[] dest, int length)
+        {
+            var h = GCHandle.Alloc(dest, GCHandleType.Pinned);
+#if !MONO
+            NativeReader.Read(stream.SafeFileHandle.DangerousGetHandle(), h.AddrOfPinnedObject(), length);
+#else
+            NativeReader.Read(stream.Handle, pArray, length);
+#endif
+            h.Free();
+        }
+
         public static unsafe T[] MarshalTArray<T>(byte[] bytes, int count)
         {
+            var result = new T[count];
             fixed (byte* src = bytes)
             {
-                var r = new T[count];
-                var hr = GCHandle.Alloc(r, GCHandleType.Pinned);
-                Memcpy(hr.AddrOfPinnedObject(), new IntPtr(src), (uint)bytes.Length);
-                hr.Free();
-                return r;
+                var hresult = GCHandle.Alloc(result, GCHandleType.Pinned);
+                Memcpy(hresult.AddrOfPinnedObject(), new IntPtr(src), (uint)bytes.Length);
+                hresult.Free();
+                return result;
             }
         }
 
