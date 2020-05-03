@@ -9,6 +9,7 @@ namespace GameEstate.Core
     public abstract class AbstractDatFile : IDisposable
     {
         public readonly string Game;
+        public readonly string Name;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="AbstractDatFile" /> class.
@@ -17,7 +18,11 @@ namespace GameEstate.Core
         /// <exception cref="ArgumentNullException">filePaths
         /// or
         /// game</exception>
-        public AbstractDatFile(string game) => Game = game ?? throw new ArgumentNullException(nameof(game));
+        public AbstractDatFile(string game, string name)
+        {
+            Game = game ?? throw new ArgumentNullException(nameof(game));
+            Name = name;
+        }
 
         /// <summary>
         /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.

@@ -12,7 +12,6 @@ namespace GameEstate.Core
     {
         public readonly string FilePath;
         public DatBinary DatBinary;
-        public readonly string Name;
         public readonly Dictionary<string, string> Params = new Dictionary<string, string>();
         public uint Version;
         //
@@ -20,12 +19,10 @@ namespace GameEstate.Core
         public bool UsePool = true;
         public object Tag;
 
-        public BinaryDatFile(string filePath, string game, DatBinary datBinary) : base(game)
+        public BinaryDatFile(string filePath, string game, DatBinary datBinary) : base(game, !string.IsNullOrEmpty(Path.GetFileName(filePath)) ? Path.GetFileName(filePath) : Path.GetFileName(Path.GetDirectoryName(filePath)))
         {
             FilePath = filePath ?? throw new ArgumentNullException(nameof(filePath));
             DatBinary = datBinary ?? throw new ArgumentNullException(nameof(datBinary));
-            var name = Path.GetFileName(FilePath);
-            Name = !string.IsNullOrEmpty(name) ? name : Path.GetFileName(Path.GetDirectoryName(FilePath));
         }
 
         /// <summary>

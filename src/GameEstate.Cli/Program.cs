@@ -191,20 +191,22 @@ namespace GameEstate
             else
             {
                 Console.WriteLine($"{estate.Name} - {opts.Uri}\n");
-                using (var multPak = estate.OpenPakFile(estate.ParseResource(opts.Uri)))
+                var multiPak = estate.OpenPakFile(estate.ParseResource(opts.Uri)) as MultiPakFile;
+                if (multiPak == null)
+                    throw new InvalidOperationException("multiPak not a MultiPakFile");
+                if (multiPak.Paks.Count == 0)
                 {
-                    if (multPak.Paks.Count == 0)
-                    {
-                        Console.WriteLine("No paks found.");
-                        return Task.FromResult(0);
-                    }
-                    Console.WriteLine("Paks found:");
-                    foreach (var pak in multPak.Paks)
-                    {
-                        Console.WriteLine($"\n{pak.Name}");
-                        foreach (var exts in pak.Files.Select(x => Path.GetExtension(x.Path)).GroupBy(x => x))
-                            Console.WriteLine($"  files{exts.Key}: {exts.Count()}");
-                    }
+                    Console.WriteLine("No paks found.");
+                    return Task.FromResult(0);
+                }
+                Console.WriteLine("Paks found:");
+                foreach (var p in multiPak.Paks)
+                {
+                    if (!(p is BinaryPakFile pak))
+                        throw new InvalidOperationException("multiPak not a BinaryPakFile");
+                    Console.WriteLine($"\n{pak.Name}");
+                    foreach (var exts in pak.Files.Select(x => Path.GetExtension(x.Path)).GroupBy(x => x))
+                        Console.WriteLine($"  files{exts.Key}: {exts.Count()}");
                 }
             }
             return Task.FromResult(0);
@@ -214,29 +216,33 @@ namespace GameEstate
         {
             var from = ProgramState.Load(data => Convert.ToInt32(data), 0);
             var estate = EstateManager.GetEstate(opts.Estate);
-            using (var multPak = estate.OpenPakFile(estate.ParseResource(opts.Uri)))
-            {
-                // write paks header
-                var filePath = opts.Path;
-                if (!string.IsNullOrEmpty(filePath) && !Directory.Exists(filePath))
-                    Directory.CreateDirectory(filePath);
-                var setPath = Path.Combine(filePath, ".set");
-                using (var w = new BinaryWriter(new FileStream(setPath, FileMode.Create, FileAccess.Write)))
-                    await PakFormat.Stream.WriteAsync(new StreamPakFile(HttpHost.Factory, "Root", null) { Files = multPak.Paks.Select(x => new FileMetadata { Path = x.Name }).ToList() }, w, PakFormat.WriteStage._Set);
 
-                // write paks
-                foreach (var pak in multPak.Paks)
+            using var multiPak = estate.OpenPakFile(estate.ParseResource(opts.Uri)) as MultiPakFile;
+            if (multiPak == null)
+                throw new InvalidOperationException("multiPak not a MultiPakFile");
+            // write paks header
+            var filePath = opts.Path;
+            if (!string.IsNullOrEmpty(filePath) && !Directory.Exists(filePath))
+                Directory.CreateDirectory(filePath);
+            var setPath = Path.Combine(filePath, ".set");
+            using (var w = new BinaryWriter(new FileStream(setPath, FileMode.Create, FileAccess.Write)))
+                await PakBinary.Stream.WriteAsync(new StreamPakFile(HttpHost.Factory, "Root", null) { Files = multiPak.Paks.Select(x => new FileMetadata { Path = x.Name }).ToList() }, w, PakBinary.WriteStage._Set);
+
+            // write paks
+            foreach (var p in multiPak.Paks)
+            {
+                if (!(p is BinaryPakFile pak))
+                    throw new InvalidOperationException("multiPak not a BinaryPakFile");
+                var newPath = Path.Combine(filePath, Path.GetFileName(pak.FilePath));
+
+                await pak.ExportAsync(newPath, from, (file, index) =>
                 {
-                    var newPath = Path.Combine(filePath, Path.GetFileName(pak.FilePath));
-                    await pak.ExportAsync(newPath, from, (file, index) =>
-                    {
-                        //if ((index % 50) == 0)
-                        //    Console.WriteLine($"{file.Path}");
-                    }, (file, message) =>
-                    {
-                        Console.WriteLine($"{message}: {file?.Path}");
-                    });
-                }
+                    //if ((index % 50) == 0)
+                    //    Console.WriteLine($"{file.Path}");
+                }, (file, message) =>
+                {
+                    Console.WriteLine($"{message}: {file?.Path}");
+                });
             }
             ProgramState.Clear();
             return 0;
@@ -249,7 +255,9 @@ namespace GameEstate
             var resource = estate.ParseResource(opts.Uri);
             foreach (var path in resource.Paths)
             {
-                using var pak = estate.OpenPakFile(path, resource.Game);
+                using var pak = estate.OpenPakFile(new[] { path }, resource.Game) as BinaryPakFile;
+                if (pak == null)
+                    throw new InvalidOperationException("Pak not a BinaryPakFile");
                 using var w = new BinaryWriter(new FileStream(path, FileMode.Create, FileAccess.Write));
                 await pak.ImportAsync(w, opts.Path, from, (file, index) =>
                 {
@@ -271,7 +279,9 @@ namespace GameEstate
             var resource = estate.ParseResource(opts.Uri);
             foreach (var path in resource.Paths)
             {
-                using var pak = estate.OpenPakFile(path, resource.Game);
+                using var pak = estate.OpenPakFile(new[] { path }, resource.Game) as BinaryPakFile;
+                if (pak == null)
+                    throw new InvalidOperationException("Pak not a BinaryPakFile");
                 using var w = new BinaryWriter(new FileStream(path, FileMode.Create, FileAccess.Write));
                 await pak.ImportAsync(w, opts.Path, from, (file, index) =>
                 {

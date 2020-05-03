@@ -11,6 +11,7 @@ namespace GameEstate.Core
     public abstract class AbstractPakFile : IDisposable
     {
         public readonly string Game;
+        public readonly string Name;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="AbstractPakFile" /> class.
@@ -19,7 +20,11 @@ namespace GameEstate.Core
         /// <exception cref="ArgumentNullException">filePaths
         /// or
         /// game</exception>
-        public AbstractPakFile(string game) => Game = game ?? throw new ArgumentNullException(nameof(game));
+        public AbstractPakFile(string game, string name)
+        {
+            Game = game ?? throw new ArgumentNullException(nameof(game));
+            Name = name;
+        }
 
         /// <summary>
         /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.

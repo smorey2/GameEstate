@@ -3,7 +3,7 @@ using System.Diagnostics;
 
 namespace GameEstate.Core
 {
-    [DebuggerDisplay("Dats: {Dats.Count}")]
+    [DebuggerDisplay("Dats: {Name} #{Dats.Count}")]
     public class MultiDatFile : AbstractDatFile
     {
         /// <summary>
@@ -11,7 +11,7 @@ namespace GameEstate.Core
         /// </summary>
         public readonly IList<AbstractDatFile> Dats;
 
-        public MultiDatFile(string game, IList<AbstractDatFile> dats) : base(game) => Dats = dats;
+        public MultiDatFile(string game, string name, IList<AbstractDatFile> dats) : base(game, name) => Dats = dats;
 
         /// <summary>
         /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.

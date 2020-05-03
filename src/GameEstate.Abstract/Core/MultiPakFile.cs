@@ -20,8 +20,9 @@ namespace GameEstate.Core
         /// Initializes a new instance of the <see cref="MultiPakFile" /> class.
         /// </summary>
         /// <param name="game">The game.</param>
+        /// <param name="name">The name.</param>
         /// <param name="paks">The packs.</param>
-        public MultiPakFile(string game, IList<AbstractPakFile> paks) : base(game) => Paks = paks;
+        public MultiPakFile(string game, string name, IList<AbstractPakFile> paks) : base(game, name) => Paks = paks;
 
         /// <summary>
         /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.

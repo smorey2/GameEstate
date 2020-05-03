@@ -24,10 +24,12 @@
     <None Remove="Estates\TesEstate.json" />
     <None Remove="Estates\U9Estate.json" />
     <None Remove="Estates\UOEstate.json" />
+    <None Remove="Estates\ValveEstate.json" />
   </ItemGroup>
 
   <ItemGroup>
     <EmbeddedResource Include="Estates\CryEstate.json" />
+    <EmbeddedResource Include="Estates\ValveEstate.json" />
     <EmbeddedResource Include="Estates\UOEstate.json" />
     <EmbeddedResource Include="Estates\U9Estate.json" />
     <EmbeddedResource Include="Estates\TesEstate.json" />

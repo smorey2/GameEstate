@@ -1,3 +1,4 @@
+using GameEstate.Estates;
 using GameEstate.Formats;
 using Xunit;
 

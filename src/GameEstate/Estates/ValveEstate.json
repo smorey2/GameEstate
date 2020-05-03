@@ -1,0 +1,22 @@
+﻿{
+  "id": "Valve",
+  "name": "Valve",
+  "description": "Valve formats used by Steam Games",
+  "pakFileType": "GameEstate.Formats.ValvePakFile",
+  "games": {
+    "TBD": {
+      "name": "TBD",
+      "pak": "TBD",
+      "dat": "TBD"
+    }
+  },
+  "fileManager": {
+    "registry": {
+      "TBD": {
+        "key": [
+          "TBD"
+        ]
+      }
+    }
+  }
+}

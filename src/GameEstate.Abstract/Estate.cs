@@ -200,7 +200,7 @@ namespace GameEstate
                 case PakMultiType.SingleBinary:
                     return filePaths.Length == 1
                         ? (AbstractPakFile)Activator.CreateInstance(PakFileType, filePaths[0], game)
-                        : new MultiPakFile(game, filePaths.Select(x => (AbstractPakFile)Activator.CreateInstance(PakFileType, x, game)).ToArray());
+                        : new MultiPakFile(game, "Many", filePaths.Select(x => (AbstractPakFile)Activator.CreateInstance(PakFileType, x, game)).ToArray());
                 case PakMultiType.Full: return (AbstractPakFile)Activator.CreateInstance(PakFileType, filePaths, game);
                 default: throw new ArgumentOutOfRangeException(nameof(PakMulti), PakMulti.ToString());
             }
@@ -215,7 +215,7 @@ namespace GameEstate
         {
             if (!resource.StreamPak)
                 return OpenPakFile(resource.Paths, resource.Game);
-            return new MultiPakFile(resource.Game, resource.Paths.Select(x => new StreamPakFile(FileManager.HostFactory, x, resource.Game, resource.Host)).ToArray());
+            return new MultiPakFile(resource.Game, "Many", resource.Paths.Select(x => new StreamPakFile(FileManager.HostFactory, x, resource.Game, resource.Host)).ToArray());
         }
 
         /// <summary>
@@ -246,7 +246,7 @@ namespace GameEstate
                 case DatMultiType.SingleBinary:
                     return filePaths.Length == 1
                         ? (AbstractDatFile)Activator.CreateInstance(PakFileType, filePaths[0], game)
-                        : new MultiDatFile(game, filePaths.Select(x => (AbstractDatFile)Activator.CreateInstance(DatFileType, x, game)).ToArray());
+                        : new MultiDatFile(game, "Many", filePaths.Select(x => (AbstractDatFile)Activator.CreateInstance(DatFileType, x, game)).ToArray());
                 case DatMultiType.Full: return (AbstractDatFile)Activator.CreateInstance(DatFileType, filePaths, game);
                 default: throw new ArgumentOutOfRangeException(nameof(PakMulti), PakMulti.ToString());
             }
@@ -261,7 +261,7 @@ namespace GameEstate
         {
             if (!resource.StreamPak)
                 return OpenDatFile(resource.Paths, resource.Game);
-            return new MultiDatFile(resource.Game, resource.Paths.Select(x => new StreamDatFile(FileManager.HostFactory, x, resource.Game, resource.Host)).ToArray());
+            return new MultiDatFile(resource.Game, "Many", resource.Paths.Select(x => new StreamDatFile(FileManager.HostFactory, x, resource.Game, resource.Host)).ToArray());
         }
 
         /// <summary>

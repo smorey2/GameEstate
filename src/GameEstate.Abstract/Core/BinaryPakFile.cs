@@ -13,7 +13,6 @@ namespace GameEstate.Core
     {
         public readonly string FilePath;
         public readonly PakBinary PakBinary;
-        public readonly string Name;
         public readonly Dictionary<string, string> Params = new Dictionary<string, string>();
         public uint Version;
         //
@@ -31,12 +30,10 @@ namespace GameEstate.Core
         /// <param name="game">The game.</param>
         /// <param name="pakBinary">The pak binary.</param>
         /// <exception cref="ArgumentNullException">pakBinary</exception>
-        public BinaryPakFile(string filePath, string game, PakBinary pakBinary) : base(game)
+        public BinaryPakFile(string filePath, string game, PakBinary pakBinary) : base(game, !string.IsNullOrEmpty(Path.GetFileName(filePath)) ? Path.GetFileName(filePath) : Path.GetFileName(Path.GetDirectoryName(filePath)))
         {
             FilePath = filePath ?? throw new ArgumentNullException(nameof(filePath));
             PakBinary = pakBinary ?? throw new ArgumentNullException(nameof(pakBinary));
-            var name = Path.GetFileName(FilePath);
-            Name = !string.IsNullOrEmpty(name) ? name : Path.GetFileName(Path.GetDirectoryName(FilePath));
         }
 
         /// <summary>
