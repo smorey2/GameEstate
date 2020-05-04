@@ -1,11 +1,15 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
+    <TargetFramework>netstandard2.1</TargetFramework>
     <ApplicationIcon />
     <OutputType>Library</OutputType>
     <StartupObject />
   </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="ValveResourceFormat" Version="0.1.2.1122" />
+  </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\..\..\..\GameEstate.Abstract\GameEstate.Abstract.csproj" />

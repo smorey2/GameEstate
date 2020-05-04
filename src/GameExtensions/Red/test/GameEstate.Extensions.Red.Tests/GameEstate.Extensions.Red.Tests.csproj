@@ -17,7 +17,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\..\..\GameEstate\GameEstate.csproj" />
-    <ProjectReference Include="..\..\src\GameEstate.Extensions.Valve\GameEstate.Extensions.Valve.csproj" />
+    <ProjectReference Include="..\..\src\GameEstate.Extensions.Red\GameEstate.Extensions.Red.csproj" />
   </ItemGroup>
 
 </Project>

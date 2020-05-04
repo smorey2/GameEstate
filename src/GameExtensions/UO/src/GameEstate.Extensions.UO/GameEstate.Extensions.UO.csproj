@@ -7,14 +7,21 @@
     <StartupObject />
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="Formats+U9\**" />
+    <EmbeddedResource Remove="Formats+U9\**" />
+    <None Remove="Formats+U9\**" />
+  </ItemGroup>
+
   <ItemGroup>
     <ProjectReference Include="..\..\..\..\GameEstate.Abstract\GameEstate.Abstract.csproj" />
   </ItemGroup>
 
   <ItemGroup>
-    <Reference Include="ICSharpCode.SharpZipLib">
-      <HintPath>..\..\..\..\..\lib\ICSharpCode.SharpZipLib.dll</HintPath>
-    </Reference>
     <Reference Include="UnityEngine">
       <HintPath>..\..\..\..\..\lib\UnityEngine.dll</HintPath>
     </Reference>

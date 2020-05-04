@@ -5,7 +5,7 @@ VisualStudioVersion = 16.0.30011.22
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GameEstate", "GameEstate\GameEstate.csproj", "{A73CD2FF-37E0-470C-A984-A62157129417}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GameEstate.CoreTests", "GameEstate.CoreTests\GameEstate.CoreTests.csproj", "{A1121100-B59F-4A9C-BC49-3530A72B8D5A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GameEstate.Tests", "GameEstate.Tests\GameEstate.Tests.csproj", "{A1121100-B59F-4A9C-BC49-3530A72B8D5A}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GameEstate.Cli", "GameEstate.Cli\GameEstate.Cli.csproj", "{9BA30615-1865-4174-A737-5FEC83D982CB}"
 EndProject

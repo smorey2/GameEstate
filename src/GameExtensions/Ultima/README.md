@@ -1,2 +1,0 @@
-# GameEstate.Extensions.Ultima
-

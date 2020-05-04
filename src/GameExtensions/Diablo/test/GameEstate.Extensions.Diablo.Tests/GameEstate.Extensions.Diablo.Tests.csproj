@@ -16,6 +16,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\..\..\GameEstate\GameEstate.csproj" />
     <ProjectReference Include="..\..\src\GameEstate.Extensions.Diablo\GameEstate.Extensions.Diablo.csproj" />
   </ItemGroup>
 

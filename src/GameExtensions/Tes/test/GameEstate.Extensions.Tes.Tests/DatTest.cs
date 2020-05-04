@@ -1,7 +1,7 @@
 using GameEstate.Formats;
 using Xunit;
 
-namespace GameEstate.DataTests
+namespace GameEstate.Extensions.Tes.Tests
 {
     public class DatTest
     {

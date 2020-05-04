@@ -2,7 +2,7 @@
 //using System;
 //using Xunit;
 
-//namespace GameEstate.CoreTests
+//namespace GameEstate.Extensions.Tes.Tests
 //{
 //    public class ResourceTest
 //    {
