@@ -2,7 +2,7 @@
   "id": "Tes",
   "name": "The Elder Scrolls",
   "description": "TES formats used by Bethesda",
-  "pakFileType": "GameEstate.Formats.TesPakFile",
+  "pakFileType": "GameEstate.Estates.TesPakFile",
   "games": {
     // tes
     "Morrowind": {

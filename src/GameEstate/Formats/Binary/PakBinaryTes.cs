@@ -309,7 +309,7 @@ namespace GameEstate.Formats.Binary
             byte[] fileData;
             int newFileSize;
             r.Position(file.Position);
-            if (source.Params["namePrefix"] == "Y")
+            if (source.Params.TryGetValue("namePrefix", out var z) && z == "Y")
             {
                 var len = r.ReadByte();
                 fileSize -= len + 1;

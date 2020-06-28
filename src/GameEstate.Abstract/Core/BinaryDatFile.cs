@@ -1,4 +1,6 @@
-﻿using GameEstate.Formats.Binary;
+﻿using GameEstate.Explorer;
+using GameEstate.Explorer.ViewModel;
+using GameEstate.Formats.Binary;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -86,5 +88,32 @@ namespace GameEstate.Core
         /// Processes this instance.
         /// </summary>
         public virtual void Process() => DatBinary.Process(this);
+
+        #region Explorer
+
+        /// <summary>
+        /// Gets the explorer item nodes.
+        /// </summary>
+        /// <param name="manager">The resource.</param>
+        /// <returns></returns>
+        /// <exception cref="NotImplementedException"></exception>
+        public override Task<List<ExplorerItemNode>> GetExplorerItemNodesAsync(ExplorerManager manager)
+        {
+            return Task.FromResult<List<ExplorerItemNode>>(null);
+        }
+
+        /// <summary>
+        /// Gets the explorer information nodes.
+        /// </summary>
+        /// <param name="manager">The resource.</param>
+        /// <param name="item">The item.</param>
+        /// <returns></returns>
+        /// <exception cref="NotImplementedException"></exception>
+        public override Task<List<ExplorerInfoNode>> GetExplorerInfoNodesAsync(ExplorerManager manager, ExplorerItemNode item)
+        {
+            return Task.FromResult<List<ExplorerInfoNode>>(null);
+        }
+
+        #endregion
     }
 }

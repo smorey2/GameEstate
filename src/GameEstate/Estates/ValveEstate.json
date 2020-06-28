@@ -2,7 +2,7 @@
   "id": "Valve",
   "name": "Valve",
   "description": "Valve formats used by Steam Games",
-  "pakFileType": "GameEstate.Formats.ValvePakFile",
+  "pakFileType": "GameEstate.Estates.ValvePakFile",
   "games": {
     "TBD": {
       "name": "TBD",

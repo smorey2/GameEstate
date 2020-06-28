@@ -1,4 +1,6 @@
-﻿using GameEstate.Formats.Binary;
+﻿using GameEstate.Explorer;
+using GameEstate.Explorer.ViewModel;
+using GameEstate.Formats.Binary;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -58,5 +60,32 @@ namespace GameEstate.Core
         public override Task<byte[]> LoadFileDataAsync(string filePath, Action<FileMetadata, string> exception) =>
             (Paks.FirstOrDefault(x => x.Contains(filePath)) ?? throw new FileNotFoundException($"Could not find file \"{filePath}\"."))
             .LoadFileDataAsync(filePath, exception);
+
+        #region Explorer
+
+        /// <summary>
+        /// Gets the explorer item nodes.
+        /// </summary>
+        /// <param name="manager">The resource.</param>
+        /// <returns></returns>
+        /// <exception cref="NotImplementedException"></exception>
+        public override Task<List<ExplorerItemNode>> GetExplorerItemNodesAsync(ExplorerManager manager)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// Gets the explorer information nodes.
+        /// </summary>
+        /// <param name="manager">The resource.</param>
+        /// <param name="item">The item.</param>
+        /// <returns></returns>
+        /// <exception cref="NotImplementedException"></exception>
+        public override Task<List<ExplorerInfoNode>> GetExplorerInfoNodesAsync(ExplorerManager manager, ExplorerItemNode item)
+        {
+            throw new NotImplementedException();
+        }
+
+        #endregion
     }
 }

@@ -24,10 +24,10 @@
 
         <TabControl x:Name="TabControl" Grid.Row="1" Margin="0,0,0,10" >
             <TabItem Header="Resources">
-                <local:FileExplorer Margin="0,0,10,10" />
+                <local:FileExplorer x:Name="PakFileExplorer" Margin="0,0,10,10" />
             </TabItem>
             <TabItem Header="Data">
-                <local:FileExplorer Margin="0,0,0,10" />
+                <local:FileExplorer x:Name="DatFileExplorer" Margin="0,0,0,10" />
             </TabItem>
             <TabItem Header="Engine">
                 <ScrollViewer>

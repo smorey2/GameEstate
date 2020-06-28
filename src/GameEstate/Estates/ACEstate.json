@@ -2,7 +2,7 @@
   "id": "Cry",
   "name": "Cry/Lumberyard",
   "description": "The file formats used in Cry and Lumberyards",
-  "pakFileType": "GameEstate.Formats.CryPakFile",
+  "pakFileType": "GameEstate.Estates.CryPakFile",
   "games": {
     "Unknown01": {
       "name": "Unknown"

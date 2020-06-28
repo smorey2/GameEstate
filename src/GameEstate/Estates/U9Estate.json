@@ -2,7 +2,7 @@
   "id": "U9",
   "name": "Ultima IX",
   "description": "Ultima IX file formats",
-  "pakFileType": "GameEstate.Formats.U9PakFile",
+  "pakFileType": "GameEstate.Estates.U9PakFile",
   "games": {
     "UltimaIX": {
       "name": "Ultima IX",

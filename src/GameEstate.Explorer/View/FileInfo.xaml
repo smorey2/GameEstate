@@ -4,7 +4,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:GameEstate.Explorer.View"
-             xmlns:model="clr-namespace:GameEstate.Explorer.ViewModel"
+             xmlns:model="clr-namespace:GameEstate.Explorer.ViewModel;assembly=GameEstate.Abstract"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
     <Grid>
@@ -13,7 +13,7 @@
                   VirtualizingStackPanel.IsVirtualizing="True"
                   ItemsSource="{Binding Path=Info}">
             <TreeView.ItemTemplate>
-                <HierarchicalDataTemplate DataType="{x:Type model:TreeNode}" ItemsSource="{Binding Path=Items}">
+                <HierarchicalDataTemplate DataType="{x:Type model:ExplorerInfoNode}" ItemsSource="{Binding Path=Items}">
                     <TextBlock Text="{Binding Path=Name}"/>
                 </HierarchicalDataTemplate>
             </TreeView.ItemTemplate>

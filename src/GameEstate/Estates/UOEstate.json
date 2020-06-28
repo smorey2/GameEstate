@@ -2,7 +2,7 @@
   "id": "UO",
   "name": "Ultima Online",
   "description": "UO formats used in Ultima Online",
-  "pakFileType": "GameEstate.Formats.UOPakFile",
+  "pakFileType": "GameEstate.Estates.UOPakFile",
   "games": {
     "UltimaOnline": {
       "name": "Ultima Online",

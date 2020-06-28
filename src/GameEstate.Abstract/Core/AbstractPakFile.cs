@@ -1,5 +1,8 @@
-﻿using GameEstate.Formats.Binary;
+﻿using GameEstate.Explorer;
+using GameEstate.Explorer.ViewModel;
+using GameEstate.Formats.Binary;
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace GameEstate.Core
@@ -52,5 +55,24 @@ namespace GameEstate.Core
         /// <param name="exception">The exception.</param>
         /// <returns></returns>
         public abstract Task<byte[]> LoadFileDataAsync(string filePath, Action<FileMetadata, string> exception);
+
+        #region Explorer
+
+        /// <summary>
+        /// Gets the explorer item nodes.
+        /// </summary>
+        /// <param name="manager">The resource.</param>
+        /// <returns></returns>
+        public abstract Task<List<ExplorerItemNode>> GetExplorerItemNodesAsync(ExplorerManager manager);
+
+        /// <summary>
+        /// Gets the explorer information nodes.
+        /// </summary>
+        /// <param name="manager">The resource.</param>
+        /// <param name="item">The item.</param>
+        /// <returns></returns>
+        public abstract Task<List<ExplorerInfoNode>> GetExplorerInfoNodesAsync(ExplorerManager manager, ExplorerItemNode item);
+
+        #endregion
     }
 }

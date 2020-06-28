@@ -1,4 +1,5 @@
-﻿using System;
+﻿using GameEstate.Core;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -20,6 +21,7 @@ namespace GameEstate.Explorer.View
     /// </summary>
     public partial class MainWindow : Window
     {
+        public static ExplorerManager Resource = new ResourceManagerProvider();
         public static MainWindow Instance;
         //public EngineView EngineView => EngineView.Instance;
 
@@ -30,8 +32,10 @@ namespace GameEstate.Explorer.View
             MainMenu.OnFirstLoad();
         }
 
-        public void OnOpened()
+        public async Task OnOpenedAsync()
         {
+            PakFileExplorer.Nodes = MainMenu.PakFile != null ? await MainMenu.PakFile.GetExplorerItemNodesAsync(Resource) : null;
+            DatFileExplorer.Nodes = MainMenu.DatFile != null ? await MainMenu.DatFile.GetExplorerItemNodesAsync(Resource) : null;
         }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using GameEstate.Core;
+using GameEstate.Explorer;
 using GameEstate.Formats.Binary;
 
 namespace GameEstate.Estates
@@ -9,6 +10,12 @@ namespace GameEstate.Estates
     /// <seealso cref="GameEstate.Core.BinaryPakFile" />
     public class TesPakFile : BinaryPakFile
     {
+        static TesPakFile()
+        {
+            ExplorerItemAsync = StandardExplorerItem.GetPakFilesAsync;
+            ExplorerInfoAsyncs.Add(".dds", StandardExplorerInfo.GetDdsInfo);
+        }
+
         /// <summary>
         /// Initializes a new instance of the <see cref="TesPakFile" /> class.
         /// </summary>

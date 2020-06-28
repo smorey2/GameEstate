@@ -1,4 +1,6 @@
-﻿using GameEstate.Formats.Binary;
+﻿using GameEstate.Explorer;
+using GameEstate.Explorer.ViewModel;
+using GameEstate.Formats.Binary;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -70,5 +72,26 @@ namespace GameEstate.Core
             // write pak
             return Task.CompletedTask;
         }
+
+        #region Explorer
+
+        /// <summary>
+        /// Gets the explorer item nodes.
+        /// </summary>
+        /// <param name="manager">The resource.</param>
+        /// <returns></returns>
+        /// <exception cref="NotSupportedException"></exception>
+        public override Task<List<ExplorerItemNode>> GetExplorerItemNodesAsync(ExplorerManager manager) => throw new NotSupportedException();
+
+        /// <summary>
+        /// Gets the explorer information nodes.
+        /// </summary>
+        /// <param name="manager">The resource.</param>
+        /// <param name="item">The item.</param>
+        /// <returns></returns>
+        /// <exception cref="NotSupportedException"></exception>
+        public override Task<List<ExplorerInfoNode>> GetExplorerInfoNodesAsync(ExplorerManager manager, ExplorerItemNode item) => throw new NotSupportedException();
+
+        #endregion
     }
 }

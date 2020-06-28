@@ -4,7 +4,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:local="clr-namespace:GameEstate.Explorer.View"
-             xmlns:model="clr-namespace:GameEstate.Explorer.ViewModel"
+             xmlns:model="clr-namespace:GameEstate.Explorer.ViewModel;assembly=GameEstate.Abstract"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="500">
     <Grid>
@@ -26,8 +26,11 @@
                   ItemsSource="{Binding Path=Nodes}"
                   SelectedItemChanged="Node_SelectedItemChanged">
             <TreeView.ItemTemplate>
-                <HierarchicalDataTemplate DataType="{x:Type model:TreeNode}" ItemsSource="{Binding Path=Items}">
-                    <TextBlock Text="{Binding Path=Name}"/>
+                <HierarchicalDataTemplate DataType="{x:Type model:ExplorerItemNode}" ItemsSource="{Binding Path=Items}">
+                    <StackPanel Orientation="Horizontal">
+                        <Image Source="{Binding Path=Icon}"/>
+                        <TextBlock Text="{Binding Path=Name}"/>
+                    </StackPanel>
                 </HierarchicalDataTemplate>
             </TreeView.ItemTemplate>
             <TreeView.ItemContainerStyle>
@@ -36,6 +39,6 @@
                 </Style>
             </TreeView.ItemContainerStyle>
         </TreeView>
-        <local:FileInfo Grid.Row="3" Margin="7.5,7.5,0,0" />
+        <local:FileInfo x:Name="FileInfo" Grid.Row="3" Margin="7.5,7.5,0,0" />
     </Grid>
 </UserControl>

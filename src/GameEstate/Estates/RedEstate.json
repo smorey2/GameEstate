@@ -5,7 +5,7 @@
   "id": "Red",
   "name": "REDengine",
   "description": "REDengine file formats including the Witcher Series",
-  "pakFileType": "GameEstate.Formats.RedPakFile",
+  "pakFileType": "GameEstate.Estates.RedPakFile",
   "games": {
     "Witcher": {
       "name": "The Witcher"

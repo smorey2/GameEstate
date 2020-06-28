@@ -1,6 +1,7 @@
 ﻿using GameEstate.Core;
 using System;
 using System.IO;
+using System.Linq;
 using System.Text;
 using UnityEngine;
 using static GameEstate.Core.CoreDebug;
@@ -217,6 +218,15 @@ namespace GameEstate.Formats
         BC7_UNORM = 98,
     }
 
+    static class ASCIILiteral
+    {
+        public static readonly byte[] DDS_ = Encoding.ASCII.GetBytes("DDS ");
+        public static readonly byte[] DX10 = Encoding.ASCII.GetBytes("DX10");
+        public static readonly byte[] DXT1 = Encoding.ASCII.GetBytes("DXT1");
+        public static readonly byte[] DXT3 = Encoding.ASCII.GetBytes("DXT3");
+        public static readonly byte[] DXT5 = Encoding.ASCII.GetBytes("DXT5");
+    }
+
     public static class DdsReader
     {
         /// <summary>
@@ -233,12 +243,12 @@ namespace GameEstate.Formats
             {
                 // Check the magic string.
                 var magicString = r.ReadBytes(4);
-                if (!"DDS ".Equals(magicString))
+                if (!ASCIILiteral.DDS_.SequenceEqual(magicString))
                     throw new FileFormatException($"Invalid DDS file magic string: \"{Encoding.ASCII.GetString(magicString)}\".");
                 // Deserialize the DDS file header.
                 var header = new DDSHeader();
                 header.Read(r);
-                if ("DX10".Equals(header.ddspf.dwFourCC))
+                if (ASCIILiteral.DX10.SequenceEqual(header.ddspf.dwFourCC))
                 {
                     var header2 = new DDSHeader_DXT10();
                     header2.Read(r);
@@ -513,21 +523,21 @@ namespace GameEstate.Formats
                     r.ReadToEnd(textureData, 0);
                 }
             }
-            else if ("DXT1".Equals(header.ddspf.dwFourCC))
+            else if (ASCIILiteral.DXT1.SequenceEqual(header.ddspf.dwFourCC))
             {
                 textureFormat = TextureFormat.ARGB32;
                 bytesPerPixel = 4;
                 var compressedTextureData = r.ReadToEnd();
                 textureData = DecodeDXT1ToARGB(compressedTextureData, header.dwWidth, header.dwHeight, header.ddspf, DDSMipmapLevelCount);
             }
-            else if ("DXT3".Equals(header.ddspf.dwFourCC))
+            else if (ASCIILiteral.DXT3.SequenceEqual(header.ddspf.dwFourCC))
             {
                 textureFormat = TextureFormat.ARGB32;
                 bytesPerPixel = 4;
                 var compressedTextureData = r.ReadToEnd();
                 textureData = DecodeDXT3ToARGB(compressedTextureData, header.dwWidth, header.dwHeight, header.ddspf, DDSMipmapLevelCount);
             }
-            else if ("DXT5".Equals(header.ddspf.dwFourCC))
+            else if (ASCIILiteral.DXT5.SequenceEqual(header.ddspf.dwFourCC))
             {
                 textureFormat = TextureFormat.ARGB32;
                 bytesPerPixel = 4;

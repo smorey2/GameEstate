@@ -36,17 +36,13 @@ namespace GameEstate.Explorer.View
 
         void NotifyPropertyChanged([CallerMemberName] string propertyName = "") => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
 
-        List<TreeNode> _info;
-        public List<TreeNode> Info
+        List<ExplorerInfoNode> _info;
+        public List<ExplorerInfoNode> Info
         {
             get => _info;
-            set
-            {
-                _info = value;
-                NotifyPropertyChanged("Info");
-            }
+            set { _info = value; NotifyPropertyChanged("Info"); }
         }
 
-        public void SetInfo(TreeNode treeNode) => Info = new List<TreeNode>() { treeNode };
+        public void SetInfo(ExplorerInfoNode info) => Info = new List<ExplorerInfoNode>() { info };
     }
 }

@@ -52,7 +52,7 @@ namespace GameEstate.Explorer.View
                     DatFile = estate.OpenDatFile(openDialog.DatUri);
                 }
                 MainWindow.Status.WriteLine("Done");
-                MainWindow.OnOpened();
+                MainWindow.OnOpenedAsync().Wait();
             }
         }
 

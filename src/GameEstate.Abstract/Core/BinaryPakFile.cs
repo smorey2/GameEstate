@@ -1,4 +1,6 @@
-﻿using GameEstate.Formats.Binary;
+﻿using GameEstate.Explorer;
+using GameEstate.Explorer.ViewModel;
+using GameEstate.Formats.Binary;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -22,6 +24,9 @@ namespace GameEstate.Core
         public GenericPool<BinaryReader> Pool;
         public bool UsePool = true;
         public object Tag;
+        // explorer
+        protected static Func<ExplorerManager, BinaryPakFile, Task<List<ExplorerItemNode>>> ExplorerItemAsync;
+        protected static Dictionary<string, Func<ExplorerManager, BinaryPakFile, FileMetadata, Task<List<ExplorerInfoNode>>>> ExplorerInfoAsyncs = new Dictionary<string, Func<ExplorerManager, BinaryPakFile, FileMetadata, Task<List<ExplorerInfoNode>>>>();
 
         /// <summary>
         /// Initializes a new instance of the <see cref="BinaryPakFile" /> class.
@@ -170,5 +175,33 @@ namespace GameEstate.Core
                 FilesRawSet.Add(file.Path);
             }
         }
+
+        #region Explorer
+
+        /// <summary>
+        /// Gets the explorer item nodes.
+        /// </summary>
+        /// <param name="manager">The resource.</param>
+        /// <returns></returns>
+        /// <exception cref="NotImplementedException"></exception>
+        public override async Task<List<ExplorerItemNode>> GetExplorerItemNodesAsync(ExplorerManager manager) => ExplorerItemAsync != null ? await ExplorerItemAsync(manager, this) : null;
+
+        /// <summary>
+        /// Gets the explorer information nodes.
+        /// </summary>
+        /// <param name="manager">The resource.</param>
+        /// <param name="item">The item.</param>
+        /// <returns></returns>
+        /// <exception cref="NotImplementedException"></exception>
+        public override async Task<List<ExplorerInfoNode>> GetExplorerInfoNodesAsync(ExplorerManager manager, ExplorerItemNode item)
+        {
+            var ext = Path.GetExtension(item.Name).ToLowerInvariant();
+            var file = item.Tag as FileMetadata;
+            if (ExplorerInfoAsyncs.TryGetValue(ext, out var info))
+                return await info(manager, this, file);
+            return null;
+        }
+
+        #endregion
     }
 }

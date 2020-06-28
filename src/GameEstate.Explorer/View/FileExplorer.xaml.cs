@@ -19,49 +19,33 @@ namespace GameEstate.Explorer.View
     {
         public static FileExplorer Instance;
         public static MainWindow MainWindow => MainWindow.Instance;
-        public static FileInfo FileInfo => FileInfo.Instance;
-        public static AbstractEngineView EngineView => AbstractEngineView.Instance; 
+        //public static FileInfo FileInfo => FileInfo.Instance;
+        public static AbstractEngineView EngineView => AbstractEngineView.Instance;
 
         //public static WorldViewer WorldViewer => WorldViewer.Instance; 
         //public static ModelViewer ModelViewer => ModelViewer.Instance;  
         //public static TextureViewer TextureViewer => TextureViewer.Instance; 
 
-        public static List<TreeNode.Filter> TreeFilters { get; set; }
+        public static List<ExplorerItemNode.Filter> TreeFilters { get; set; }
 
-        public static List<TreeNode> FilteredNodes { get; set; }
+        public static List<ExplorerItemNode> FilteredNodes { get; set; }
 
         public FileExplorer()
         {
             InitializeComponent();
             Instance = this;
             DataContext = this;
-            var sub = new List<TreeNode> {
-                new TreeNode { Name = "TEST" },
-                new TreeNode { Name = "TEST 1" },
-                new TreeNode { Name = "TEST 2" },
-            };
-            Nodes = new List<TreeNode> { 
-                new TreeNode { Name = "TEST", Items = sub },
-                new TreeNode { Name = "TEST 1" },
-                new TreeNode { Name = "TEST 2" },
-            };
-
-            FileInfo.SetInfo(sub[0]);
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
 
         void NotifyPropertyChanged([CallerMemberName] string propertyName = "") => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
 
-        List<TreeNode> _nodes;
-        public List<TreeNode> Nodes
+        List<ExplorerItemNode> _nodes;
+        public List<ExplorerItemNode> Nodes
         {
             get => _nodes;
-            set
-            {
-                _nodes = value;
-                NotifyPropertyChanged(nameof(Nodes));
-            }
+            set { _nodes = value; NotifyPropertyChanged(nameof(Nodes)); }
         }
 
         void TreeFilter_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -72,25 +56,21 @@ namespace GameEstate.Explorer.View
         {
         }
 
+        ExplorerItemNode SelectedItem;
+
         void Node_SelectedItemChanged(object sender, RoutedPropertyChangedEventArgs<object> e)
         {
-            //if (e.NewValue is TreeViewItem item && item.Items.Count > 0)
-            //    (item.Items[0] as TreeViewItem).IsSelected = true;
+            if (e.NewValue is TreeViewItem item && item.Items.Count > 0)
+                (item.Items[0] as TreeViewItem).IsSelected = true;
+            if (e.NewValue is ExplorerItemNode itemNode && (itemNode.PakFile != null || itemNode.DatFile != null) && SelectedItem != itemNode)
+                SelectedItem = itemNode;
 
-            //if (e.NewValue is Item)
-            //{
-            //    Item item = e.NewValue as Item;
-            //    if (Item != SelectedItem)
-            //    {
-            //        //keep SelectedItem in sync with Treeview.SelectedItem
-            //        SelectedItem = e.NewValue as Item;
-            //    }
-            //}
-            //else
-            //{
-            //    //if the user tries to select an object that isn't an Item (i.e. a group) reselect the first Item in that group
-            //    //This will then cause stack overflow in methods I've tried so far
-            //}
+            if (SelectedItem != null)
+                FileInfo.Info = SelectedItem.PakFile != null
+                    ? SelectedItem.PakFile.GetExplorerInfoNodesAsync(MainWindow.Resource, SelectedItem).Result
+                    : SelectedItem.DatFile != null
+                    ? SelectedItem.DatFile.GetExplorerInfoNodesAsync(null, SelectedItem).Result
+                    : null;
         }
     }
 }

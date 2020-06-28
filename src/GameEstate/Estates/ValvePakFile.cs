@@ -1,6 +1,9 @@
 ﻿using GameEstate.Core;
+using GameEstate.Explorer;
+using GameEstate.Explorer.ViewModel;
 using GameEstate.Formats.Binary;
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace GameEstate.Estates
@@ -30,5 +33,32 @@ namespace GameEstate.Estates
         {
             throw new NotImplementedException();
         }
+
+        #region Explorer
+
+        /// <summary>
+        /// Gets the explorer item nodes.
+        /// </summary>
+        /// <param name="resource">The resource.</param>
+        /// <returns></returns>
+        /// <exception cref="NotImplementedException"></exception>
+        public override Task<List<ExplorerItemNode>> GetExplorerItemNodesAsync(ExplorerManager resource)
+        {
+            return Task.FromResult<List<ExplorerItemNode>>(null);
+        }
+
+        /// <summary>
+        /// Gets the explorer information nodes.
+        /// </summary>
+        /// <param name="resource">The resource.</param>
+        /// <param name="item">The item.</param>
+        /// <returns></returns>
+        /// <exception cref="NotImplementedException"></exception>
+        public override Task<List<ExplorerInfoNode>> GetExplorerInfoNodesAsync(ExplorerManager resource, ExplorerItemNode item)
+        {
+            return Task.FromResult<List<ExplorerInfoNode>>(null);
+        }
+
+        #endregion
     }
 }

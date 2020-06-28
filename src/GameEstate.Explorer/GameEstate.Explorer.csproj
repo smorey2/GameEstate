@@ -7,6 +7,48 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Icons\agrp.png" />
+    <None Remove="Icons\anim.png" />
+    <None Remove="Icons\bsp.png" />
+    <None Remove="Icons\dds.png" />
+    <None Remove="Icons\dmx.png" />
+    <None Remove="Icons\ents.png" />
+    <None Remove="Icons\fbx.png" />
+    <None Remove="Icons\gnv.png" />
+    <None Remove="Icons\grass.png" />
+    <None Remove="Icons\hcg.png" />
+    <None Remove="Icons\jpg.png" />
+    <None Remove="Icons\map.png" />
+    <None Remove="Icons\mat.png" />
+    <None Remove="Icons\mdl.png" />
+    <None Remove="Icons\mesh.png" />
+    <None Remove="Icons\morf.png" />
+    <None Remove="Icons\OpenFile_16x.png" />
+    <None Remove="Icons\pcf.png" />
+    <None Remove="Icons\pdf.png" />
+    <None Remove="Icons\pdi.png" />
+    <None Remove="Icons\phy.png" />
+    <None Remove="Icons\phys.png" />
+    <None Remove="Icons\png.png" />
+    <None Remove="Icons\post.png" />
+    <None Remove="Icons\psd.png" />
+    <None Remove="Icons\rman.png" />
+    <None Remove="Icons\surf.png" />
+    <None Remove="Icons\ttf.png" />
+    <None Remove="Icons\txt.png" />
+    <None Remove="Icons\vis.png" />
+    <None Remove="Icons\vmt.png" />
+    <None Remove="Icons\vtf.png" />
+    <None Remove="Icons\vtx.png" />
+    <None Remove="Icons\vvd.png" />
+    <None Remove="Icons\wnod.png" />
+    <None Remove="Icons\wrld.png" />
+    <None Remove="Icons\_default.png" />
+    <None Remove="Icons\_folder.png" />
+    <None Remove="Icons\_package.png" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Page Remove="View\App.xaml" />
   </ItemGroup>
 
@@ -15,8 +57,58 @@
   </ItemGroup>
 
   <ItemGroup>
+    <EmbeddedResource Include="Icons_\agrp.png" />
+    <EmbeddedResource Include="Icons_\anim.png" />
+    <EmbeddedResource Include="Icons_\bsp.png" />
+    <EmbeddedResource Include="Icons\css.png" />
+    <EmbeddedResource Include="Icons_\dmx.png" />
+    <EmbeddedResource Include="Icons_\ents.png" />
+    <EmbeddedResource Include="Icons_\fbx.png" />
+    <EmbeddedResource Include="Icons_\gnv.png" />
+    <EmbeddedResource Include="Icons_\grass.png" />
+    <EmbeddedResource Include="Icons_\hcg.png" />
+    <EmbeddedResource Include="Icons\html.png" />
+    <EmbeddedResource Include="Icons_\jpg.png" />
+    <EmbeddedResource Include="Icons_\map.png" />
+    <EmbeddedResource Include="Icons_\mat.png" />
+    <EmbeddedResource Include="Icons_\mdl.png" />
+    <EmbeddedResource Include="Icons_\mesh.png" />
+    <EmbeddedResource Include="Icons_\morf.png" />
+    <EmbeddedResource Include="Icons\mp3.png" />
+    <EmbeddedResource Include="Icons_\OpenFile_16x.png" />
+    <EmbeddedResource Include="Icons_\pcf.png" />
+    <EmbeddedResource Include="Icons_\pdf.png" />
+    <EmbeddedResource Include="Icons_\pdi.png" />
+    <EmbeddedResource Include="Icons_\phy.png" />
+    <EmbeddedResource Include="Icons_\phys.png" />
+    <EmbeddedResource Include="Icons_\png.png" />
+    <EmbeddedResource Include="Icons_\post.png" />
+    <EmbeddedResource Include="Icons_\psd.png" />
+    <EmbeddedResource Include="Icons_\rman.png" />
+    <EmbeddedResource Include="Icons\snd.png" />
+    <EmbeddedResource Include="Icons_\surf.png" />
+    <EmbeddedResource Include="Icons\dds.png" />
+    <EmbeddedResource Include="Icons_\tex.png" />
+    <EmbeddedResource Include="Icons_\ttf.png" />
+    <EmbeddedResource Include="Icons_\txt.png" />
+    <EmbeddedResource Include="Icons_\vis.png" />
+    <EmbeddedResource Include="Icons_\vmt.png" />
+    <EmbeddedResource Include="Icons\_package.png" />
+    <EmbeddedResource Include="Icons_\vtf.png" />
+    <EmbeddedResource Include="Icons_\vtx.png" />
+    <EmbeddedResource Include="Icons_\vvd.png" />
+    <EmbeddedResource Include="Icons\wav.png" />
+    <EmbeddedResource Include="Icons_\wnod.png" />
+    <EmbeddedResource Include="Icons_\wrld.png" />
+    <EmbeddedResource Include="Icons\xml.png" />
+    <EmbeddedResource Include="Icons\_default.png" />
+    <EmbeddedResource Include="Icons\_folder.png" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="MonoGame.Content.Builder" Version="3.7.0.9" />
     <PackageReference Include="MonoGame.Framework.Wpf.Core" Version="1.0.0" />
+    <PackageReference Include="System.Drawing.Common" Version="4.7.0" />
   </ItemGroup>
 
   <ItemGroup>
