@@ -1,15 +1,12 @@
-﻿using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
-using System;
-using System.Windows;
+﻿using GameEstate.Toy.Controls;
 
 namespace GameEstate.Explorer.View
 {
-    public class EngineView : AbstractEngineView
+    public class EngineView : GLViewerControl
     {
         public Player Player;
-        
+
+        public static EngineView Instance;
         public static MainWindow Window => MainWindow.Instance;
 
         //public static WorldViewer WorldViewer;
@@ -65,55 +62,55 @@ namespace GameEstate.Explorer.View
         //    Player = new Player();
         //}
 
-        protected override void Update(GameTime time)
-        {
-            base.Update(time);
+        //protected override void Update(GameTime time)
+        //{
+        //    base.Update(time);
 
-            //if (Player != null)
-            //    Player.Update(time);
+        //    //if (Player != null)
+        //    //    Player.Update(time);
 
-            //switch (ViewMode)
-            //{
-            //    case ViewMode.Texture:
-            //        TextureViewer.Update(time);
-            //        break;
-            //    case ViewMode.Model:
-            //        ModelViewer.Update(time);
-            //        break;
-            //    case ViewMode.World:
-            //        WorldViewer.Update(time);
-            //        break;
-            //    case ViewMode.Map:
-            //        MapViewer.Update(time);
-            //        break;
-            //    case ViewMode.Particle:
-            //        ParticleViewer.Update(time);
-            //        break;
-            //}
-        }
+        //    //switch (ViewMode)
+        //    //{
+        //    //    case ViewMode.Texture:
+        //    //        TextureViewer.Update(time);
+        //    //        break;
+        //    //    case ViewMode.Model:
+        //    //        ModelViewer.Update(time);
+        //    //        break;
+        //    //    case ViewMode.World:
+        //    //        WorldViewer.Update(time);
+        //    //        break;
+        //    //    case ViewMode.Map:
+        //    //        MapViewer.Update(time);
+        //    //        break;
+        //    //    case ViewMode.Particle:
+        //    //        ParticleViewer.Update(time);
+        //    //        break;
+        //    //}
+        //}
 
-        protected override void Draw(GameTime time)
-        {
-            base.Draw(time);
+        //protected override void Draw(GameTime time)
+        //{
+        //    base.Draw(time);
 
-            //switch (ViewMode)
-            //{
-            //    case ViewMode.Texture:
-            //        TextureViewer.Draw(time);
-            //        break;
-            //    case ViewMode.Model:
-            //        ModelViewer.Draw(time);
-            //        break;
-            //    case ViewMode.World:
-            //        WorldViewer.Draw(time);
-            //        break;
-            //    case ViewMode.Map:
-            //        MapViewer.Draw(time);
-            //        break;
-            //    case ViewMode.Particle:
-            //        ParticleViewer.Draw(time);
-            //        break;
-            //}
-        }
+        //    //switch (ViewMode)
+        //    //{
+        //    //    case ViewMode.Texture:
+        //    //        TextureViewer.Draw(time);
+        //    //        break;
+        //    //    case ViewMode.Model:
+        //    //        ModelViewer.Draw(time);
+        //    //        break;
+        //    //    case ViewMode.World:
+        //    //        WorldViewer.Draw(time);
+        //    //        break;
+        //    //    case ViewMode.Map:
+        //    //        MapViewer.Draw(time);
+        //    //        break;
+        //    //    case ViewMode.Particle:
+        //    //        ParticleViewer.Draw(time);
+        //    //        break;
+        //    //}
+        //}
     }
 }

@@ -1,156 +1,161 @@
-//using GameEstate.Toy.Models;
-//using GameEstate.Toy.Renderer;
-//using System;
-//using System.Collections.Generic;
-//using System.Linq;
+﻿using GameEstate.Toy.Renderer;
+using OpenTK;
+using OpenTK.Graphics.OpenGL;
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Runtime.InteropServices;
+using System.Windows;
+using System.Windows.Input;
+using System.Windows.Media;
+using System.Windows.Threading;
 
-//namespace GameEstate.Toy.Controls
-//{
-//    public class GLViewerControl : GLBaseControl
-//    {
-//        readonly List<Label> labels = new List<Label>();
-//        readonly List<UserControl> selectionBoxes = new List<UserControl>();
-//        readonly List<Control> otherControls = new List<Control>();
+namespace GameEstate.Toy.Controls
+{
+    public class GLViewerControl : GLControl
+    {
+        readonly Stopwatch _stopwatch = new Stopwatch();
+        static bool _hasCheckedOpenGL;
 
-//        private void SetFps(double fps)
-//        {
-//            fpsLabel.Text = $"FPS: {Math.Round(fps).ToString(CultureInfo.InvariantCulture)}";
-//        }
+        public class RenderEventArgs
+        {
+            public float FrameTime { get; set; }
+            public Camera Camera { get; set; }
+        }
 
-//        public Label AddLabel(string text)
-//        {
-//            var label = new Label();
-//            label.Text = text;
-//            label.AutoSize = true;
+        public event EventHandler<RenderEventArgs> GLPaint;
+        public event EventHandler GLLoad;
+        readonly DispatcherTimer _timer = new DispatcherTimer() { Interval = new TimeSpan(10) };
 
-//            controlsPanel.Controls.Add(label);
+        public GLViewerControl()
+        {
+            //if (!IsInDesignMode) ConsoleManager.Show();
+        }
 
-//            labels.Add(label);
+        void OnTimerElapsed(object sender, EventArgs e) => InvalidateVisual();
 
-//            RecalculatePositions();
+        void SetFps(double fps) => Console.WriteLine($"FPS: {Math.Round(fps)}");
 
-//            return label;
-//        }
+        public Camera Camera { get; } = new Camera();
 
-//        public void AddControl(Control control)
-//        {
-//            controlsPanel.Controls.Add(control);
-//            otherControls.Add(control);
-//            RecalculatePositions();
-//        }
+        void OnIsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)
+        {
+            if (!HasValidContext || (bool)e.NewValue != true)
+                return;
+            Focus();
+            HandleResize();
+        }
 
-//        public CheckBox AddCheckBox(string name, bool defaultChecked, Action<bool> changeCallback)
-//        {
-//            var checkbox = new GLViewerCheckboxControl(name, defaultChecked);
-//            checkbox.CheckBox.CheckedChanged += (_, __) =>
-//            {
-//                changeCallback(checkbox.CheckBox.Checked);
+        protected override void OnMouseEnter(MouseEventArgs e) { Console.WriteLine("Enter"); Camera.MouseOverRenderArea = true; }
 
-//                GLControl.Focus();
-//            };
+        protected override void OnMouseLeave(MouseEventArgs e) { Console.WriteLine("Leave"); Camera.MouseOverRenderArea = false; }
 
-//            controlsPanel.Controls.Add(checkbox);
-//            otherControls.Add(checkbox);
+        protected override void AttachHandle(HandleRef hwnd)
+        {
+            base.AttachHandle(hwnd);
+            IsVisibleChanged += OnIsVisibleChanged;
+            _timer.Tick += OnTimerElapsed;
+            _timer.Start();
+            if (!HasValidContext)
+                return;
 
-//            RecalculatePositions();
+            MakeCurrent();
 
-//            return checkbox.CheckBox;
-//        }
+            CheckOpenGL();
 
-//        public ComboBox AddSelection(string name, Action<string, int> changeCallback)
-//        {
-//            var selectionControl = new GLViewerSelectionControl(name);
+            _stopwatch.Start();
+            GL.Enable(EnableCap.DepthTest);
+            GLLoad?.Invoke(this, null);
 
-//            controlsPanel.Controls.Add(selectionControl);
-//            selectionBoxes.Add(selectionControl);
+            HandleResize();
+            Draw();
+        }
 
-//            selectionControl.PerformAutoScale();
+        protected override void DestroyHandle(HandleRef hwnd)
+        {
+            IsVisibleChanged -= OnIsVisibleChanged;
+            _timer.Tick -= OnTimerElapsed;
+            _timer.Stop();
+            base.DestroyHandle(hwnd);
+        }
 
-//            RecalculatePositions();
+        protected override void OnRender(DrawingContext drawingContext) { if (HasValidContext) Draw(); else base.OnRender(drawingContext); }
 
-//            selectionControl.ComboBox.SelectionChangeCommitted += (_, __) =>
-//            {
-//                selectionControl.Refresh();
-//                changeCallback(selectionControl.ComboBox.SelectedItem as string, selectionControl.ComboBox.SelectedIndex);
+        void Draw()
+        {
+            if (Visibility != Visibility.Visible)
+                return;
 
-//                GLControl.Focus();
-//            };
+            var frameTime = _stopwatch.ElapsedMilliseconds / 1000f;
+            _stopwatch.Restart();
 
-//            return selectionControl.ComboBox;
-//        }
+            Camera.Tick(frameTime);
+            Camera.HandleInput(OpenTK.Input.Mouse.GetState(), OpenTK.Input.Keyboard.GetState());
 
-//        public CheckedListBox AddMultiSelection(string name, Action<IEnumerable<string>> changeCallback)
-//        {
-//            var selectionControl = new GLViewerMultiSelectionControl(name);
+            //SetFps(1f / frameTime);
 
-//            controlsPanel.Controls.Add(selectionControl);
-//            selectionBoxes.Add(selectionControl);
+            GL.ClearColor(0.2f, 0.3f, 0.3f, 1f);
+            GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
 
-//            selectionControl.PerformAutoScale();
+            GLPaint?.Invoke(this, new RenderEventArgs { FrameTime = frameTime, Camera = Camera });
 
-//            RecalculatePositions();
+            SwapBuffers();
+        }
 
-//            selectionControl.CheckedListBox.ItemCheck += (_, __) =>
-//            {
-//                // ItemCheck is called before CheckedItems is updated
-//                BeginInvoke((MethodInvoker)(() =>
-//                {
-//                    selectionControl.Refresh();
-//                    changeCallback(selectionControl.CheckedListBox.CheckedItems.OfType<string>());
+        protected override void OnRenderSizeChanged(SizeChangedInfo sizeInfo) { if (HasValidContext) { HandleResize(); Draw(); } }
 
-//                    GLControl.Focus();
-//                }));
-//            };
+        public void RecalculatePositions()
+        {
+        }
 
-//            return selectionControl.CheckedListBox;
-//        }
+        void HandleResize()
+        {
+            if (ActualWidth <= 0 || ActualHeight <= 0)
+                return;
 
-//        public void RecalculatePositions()
-//        {
-//            var y = 25;
+            //GL.Viewport(0, 0, (int)ActualWidth, (int)ActualHeight);
+            //var aspectRatio = (float)ActualWidth / (float)ActualHeight;
+            //var projection = Matrix4.CreatePerspectiveFieldOfView(MathHelper.PiOver4, aspectRatio, 1.0f, 40000.0f); //64f
+            //GL.MatrixMode(MatrixMode.Projection);
+            //GL.LoadMatrix(ref projection);
 
-//            foreach (var label in labels)
-//            {
-//                label.Location = new Point(0, y);
-//                y += label.Height;
-//            }
+            Camera.SetViewportSize((int)ActualWidth, (int)ActualHeight);
+            RecalculatePositions();
+        }
 
-//            foreach (var selection in selectionBoxes)
-//            {
-//                selection.Location = new Point(0, y);
-//                y += selection.Height;
-//            }
+        protected override void OnGotFocus(RoutedEventArgs e)
+        {
+            MakeCurrent();
+            HandleResize();
+            Draw();
+        }
 
-//            foreach (var control in otherControls)
-//            {
-//                control.Location = new Point(0, y);
-//                control.Width = glControlContainer.Location.X;
-//                y += control.Height;
-//            }
-//        }
+        void CheckOpenGL()
+        {
+            if (_hasCheckedOpenGL)
+                return;
+            _hasCheckedOpenGL = true;
 
-//       
+            Console.WriteLine($"OpenGL version: {GL.GetString(StringName.Version)}");
+            Console.WriteLine($"OpenGL vendor: {GL.GetString(StringName.Vendor)}");
+            Console.WriteLine($"GLSL version: {GL.GetString(StringName.ShadingLanguageVersion)}");
 
-//        private void Draw()
-//        {
-//            if (GLControl.Visible)
-//            {
-//                var frameTime = stopwatch.ElapsedMilliseconds / 1000f;
-//                stopwatch.Restart();
+            var extensions = new HashSet<string>();
+            var count = GL.GetInteger(GetPName.NumExtensions);
+            for (var i = 0; i < count; i++)
+            {
+                var extension = GL.GetString(StringNameIndexed.Extensions, i);
+                if (!extensions.Contains(extension))
+                    extensions.Add(extension);
+            }
 
-//                Camera.Tick(frameTime);
-//                Camera.HandleInput(Mouse.GetState(), Keyboard.GetState());
-
-//                SetFps(1f / frameTime);
-
-//                GL.ClearColor(Settings.BackgroundColor);
-//                GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
-
-//                GLPaint?.Invoke(this, new RenderEventArgs { FrameTime = frameTime, Camera = Camera });
-
-//                GLControl.SwapBuffers();
-//                GLControl.Invalidate();
-//            }
-//        }
-//    }
-//}
+            if (extensions.Contains("GL_EXT_texture_filter_anisotropic"))
+            {
+                var maxTextureMaxAnisotropy = GL.GetInteger((GetPName)ExtTextureFilterAnisotropic.MaxTextureMaxAnisotropyExt);
+                Console.WriteLine($"MaxTextureMaxAnisotropyExt: {maxTextureMaxAnisotropy}");
+            }
+            else
+                Console.Error.WriteLine("GL_EXT_texture_filter_anisotropic is not supported");
+        }
+    }
+}

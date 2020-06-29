@@ -1,10 +1,11 @@
 ﻿using Microsoft.Win32;
-using Newtonsoft.Json.Linq;
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text.Json;
 using System.Text.RegularExpressions;
+using System.Xml.Linq;
+using System.Xml.XPath;
 using static Microsoft.Win32.Registry;
 
 namespace GameEstate.Core
@@ -35,46 +36,86 @@ namespace GameEstate.Core
             }
         }
 
-        public static FileManager ParseFileManager(JObject obj)
+        static string PathWithSpecialFolders(string path, string rootPath = null) =>
+            path.StartsWith("%Path%", StringComparison.OrdinalIgnoreCase) ? $"{rootPath}{path.Substring(6)}"
+            : path.StartsWith("%AppData%", StringComparison.OrdinalIgnoreCase) ? $"{Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData)}{path.Substring(9)}"
+            : path.StartsWith("%LocalAppData%", StringComparison.OrdinalIgnoreCase) ? $"{Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData)}{path.Substring(14)}"
+            : path;
+
+        public static FileManager ParseFileManager(JsonElement elem)
         {
+            bool TryGetSingleFileValue(string path, string ext, string select, out string value)
+            {
+                value = null;
+                if (!File.Exists(path))
+                    return false;
+                var content = File.ReadAllText(path);
+                value = ext switch
+                {
+                    "xml" => XDocument.Parse(content).XPathSelectElement(select)?.Value,
+                    _ => throw new ArgumentOutOfRangeException(nameof(ext)),
+                };
+                if (value != null)
+                    value = Path.GetDirectoryName(value);
+                return true;
+            }
+            bool TryGetRegistryByKey(string key, JsonProperty prop, JsonElement? keyElem, out string path)
+            {
+                path = GetRegistryExePath(Is64Bit ? $"Wow6432Node\\{key}" : key);
+                if (keyElem == null)
+                    return path != null;
+                if (keyElem.Value.TryGetProperty("xml", out var xml)
+                    && keyElem.Value.TryGetProperty("xmlPath", out var xmlPath)
+                    && TryGetSingleFileValue(PathWithSpecialFolders(xml.GetString(), path), "xml", xmlPath.GetString(), out path))
+                    return path != null;
+                return false;
+            }
             var r = new FileManager { };
+            bool TryAddPath(string path, JsonProperty prop)
+            {
+                if (path == null || !Directory.Exists(path = PathWithSpecialFolders(path)))
+                    return false;
+                path = prop.Value.TryGetProperty("assets", out var z) ? Path.Combine(path, z.GetString()) : path;
+                if (Directory.Exists(path))
+                {
+                    r.Locations.Add(prop.Name, path.Replace('/', '\\'));
+                    return true;
+                }
+                return false;
+            }
+
             // registry
-            if (obj["registry"] != null)
-                foreach (var x in obj["registry"].Cast<JProperty>())
-                    foreach (var value in x.Value["key"] is JArray a ? a.Values().Select(y => (string)((JValue)y).Value) : new[] { (string)x.Value["key"] })
+            if (elem.TryGetProperty("registry", out var z))
+                foreach (var prop in z.EnumerateObject())
+                {
+                    var keys = prop.Value.TryGetProperty("key", out z) ? z.ValueKind switch
                     {
-                        var path = value?.Replace('/', '\\');
-                        path = GetExePath(Is64Bit ? $"Wow6432Node\\{path}" : path);
-                        if (path != null && Directory.Exists(path))
-                        {
-                            var assets = (string)x.Value["assets"];
-                            if (assets != null)
-                                path = Path.Combine(path, assets);
-                            if (Directory.Exists(path))
-                            {
-                                r.Locations.Add(x.Name, path);
+                        JsonValueKind.String => new[] { z.GetString() },
+                        JsonValueKind.Array => z.EnumerateArray().Select(y => y.GetString()),
+                        _ => throw new ArgumentOutOfRangeException(),
+                    } : null;
+                    if (keys != null)
+                        foreach (var key in keys)
+                            if (TryGetRegistryByKey(key, prop, prop.Value.TryGetProperty(key, out z) ? (JsonElement?)z : null, out var path)
+                                && TryAddPath(path, prop))
                                 break;
-                            }
-                        }
-                    }
+                }
+
             // direct
-            if (obj["direct"] != null)
-                foreach (var x in obj["direct"].Cast<JProperty>())
-                    foreach (var value in x.Value["path"] is JArray a ? a.Values().Select(y => (string)((JValue)y).Value) : new[] { (string)x.Value["path"] })
+            if (elem.TryGetProperty("direct", out z))
+                foreach (var prop in z.EnumerateObject())
+                {
+                    var paths = prop.Value.TryGetProperty("path", out z) ? z.ValueKind switch
                     {
-                        var path = value?.Replace('/', '\\');
-                        if (path != null && Directory.Exists(path))
-                        {
-                            var assets = (string)x.Value["assets"];
-                            if (assets != null)
-                                path = Path.Combine(path, assets);
-                            if (Directory.Exists(path))
-                            {
-                                r.Locations.Add(x.Name, path);
+                        JsonValueKind.String => new[] { z.GetString() },
+                        JsonValueKind.Array => z.EnumerateArray().Select(y => y.GetString()),
+                        _ => throw new ArgumentOutOfRangeException(),
+                    } : null;
+                    if (paths != null)
+                        foreach (var path in paths)
+                            if (TryAddPath(path, prop))
                                 break;
-                            }
-                        }
-                    }
+                }
             return r;
         }
 
@@ -219,16 +260,17 @@ namespace GameEstate.Core
         /// <summary>
         /// Gets the executable path.
         /// </summary>
-        /// <param name="subName">Name of the sub.</param>
+        /// <param name="name">Name of the sub.</param>
         /// <returns></returns>
-        protected static string GetExePath(string subName)
+        protected static string GetRegistryExePath(string name)
         {
             try
             {
+                name = name.Replace('/', '\\');
                 var key = new Func<RegistryKey>[] {
-                    () => LocalMachine.OpenSubKey($"SOFTWARE\\{subName}"),
-                    () => CurrentUser.OpenSubKey($"SOFTWARE\\{subName}"),
-                    () => ClassesRoot.OpenSubKey($"VirtualStore\\MACHINE\\SOFTWARE\\{subName}")
+                    () => LocalMachine.OpenSubKey($"SOFTWARE\\{name}"),
+                    () => CurrentUser.OpenSubKey($"SOFTWARE\\{name}"),
+                    () => ClassesRoot.OpenSubKey($"VirtualStore\\MACHINE\\SOFTWARE\\{name}")
                 }.Select(x => x()).FirstOrDefault(x => x != null);
                 if (key == null)
                     return null;

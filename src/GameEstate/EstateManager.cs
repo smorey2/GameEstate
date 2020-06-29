@@ -1,22 +1,26 @@
 ﻿using GameEstate.Core;
-using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Text.Json;
 using static GameEstate.Estate;
 
 namespace GameEstate
 {
     public class EstateManager
     {
+        public static string DefaultEstateKey = "AC";
+        //static string[] AllEstateKeys = new[] { "AC" };
+        static string[] AllEstateKeys = new[] { "AC", "Cry", "Red", "Rsi", "Tes", "U9", "UO" };
+
         static EstateManager()
         {
             _ = UnsafeUtils.Platform;
             var assembly = Assembly.GetExecutingAssembly();
             Estate estate;
-            foreach (var key in new[] { "Cry", "Red", "Rsi", "Tes", "U9", "UO" })
+            foreach (var key in AllEstateKeys)
                 using (var r = new StreamReader(assembly.GetManifestResourceStream($"GameEstate.Estates.{key}Estate.json")))
                     Estates.Add((estate = ParseEstate(r.ReadToEnd())).Id, estate);
         }
@@ -39,31 +43,38 @@ namespace GameEstate
         public static Estate ParseEstate(string json)
         {
             var assembly = Assembly.GetExecutingAssembly();
-            var p = JObject.Parse(json);
-            var fileManager = p["fileManager"] != null ? FileManager.ParseFileManager((JObject)p["fileManager"]) : new FileManager();
-            var locations = fileManager.Locations;
-            return new Estate
+            var options = new JsonDocumentOptions
             {
-                Id = (string)p["id"] ?? throw new ArgumentNullException("id"),
-                Name = (string)p["name"] ?? throw new ArgumentNullException("name"),
-                Description = (string)p["description"] ?? null,
-                PakFileType = p["pakFileType"] != null ? assembly.GetType((string)p["pakFileType"], false) ?? throw new ArgumentOutOfRangeException("pakFileType", (string)p["pakFileType"]) : null,
-                PakMulti = p["pakMulti"] != null ? Enum.TryParse<PakMultiType>((string)p["pakMulti"], true, out var z1) ? z1 : throw new ArgumentOutOfRangeException("pakMulti", (string)p["pakMulti"]) : PakMultiType.SingleBinary,
-                DatFileType = p["datFileType"] != null ? assembly.GetType((string)p["datFileType"], false) ?? throw new ArgumentOutOfRangeException("datFileType", (string)p["datFileType"]) : null,
-                DatMulti = p["datMulti"] != null ? Enum.TryParse<DatMultiType>((string)p["datMulti"], true, out var z2) ? z2 : throw new ArgumentOutOfRangeException("datMulti", (string)p["datMulti"]) : DatMultiType.SingleBinary,
-                Games = p["games"] != null ? p["games"].Cast<JProperty>().ToDictionary(x => x.Name, x => ParseGame(locations, x.Name, x.Value), StringComparer.OrdinalIgnoreCase) : throw new ArgumentNullException("games"),
-                Xforms = p["xforms"] != null ? p["xforms"].Cast<JProperty>().ToDictionary(x => x.Name, x => (object)(string)x.Value, StringComparer.OrdinalIgnoreCase) : new Dictionary<string, object>(),
-                FileManager = fileManager,
+                CommentHandling = JsonCommentHandling.Skip
             };
+            using (var doc = JsonDocument.Parse(json, options))
+            {
+                var elem = doc.RootElement;
+                var fileManager = elem.TryGetProperty("fileManager", out var z) ? FileManager.ParseFileManager(z) : new FileManager();
+                var locations = fileManager.Locations;
+                return new Estate
+                {
+                    Id = (elem.TryGetProperty("id", out z) ? z.GetString() : null) ?? throw new ArgumentNullException("id"),
+                    Name = (elem.TryGetProperty("name", out z) ? z.GetString() : null) ?? throw new ArgumentNullException("name"),
+                    Description = elem.TryGetProperty("description", out z) ? z.GetString() : null,
+                    PakFileType = elem.TryGetProperty("pakFileType", out z) ? assembly.GetType(z.GetString(), false) ?? throw new ArgumentOutOfRangeException("pakFileType", z.GetString()) : null,
+                    PakMulti = elem.TryGetProperty("pakMulti", out z) ? Enum.TryParse<PakMultiType>(z.GetString(), true, out var z1) ? z1 : throw new ArgumentOutOfRangeException("pakMulti", z.GetString()) : PakMultiType.SingleBinary,
+                    DatFileType = elem.TryGetProperty("datFileType", out z) ? assembly.GetType(z.GetString(), false) ?? throw new ArgumentOutOfRangeException("datFileType", z.GetString()) : null,
+                    DatMulti = elem.TryGetProperty("datMulti", out z) ? Enum.TryParse<DatMultiType>(z.GetString(), true, out var z2) ? z2 : throw new ArgumentOutOfRangeException("datMulti", z.GetString()) : DatMultiType.SingleBinary,
+                    Games = elem.TryGetProperty("games", out z) ? z.EnumerateObject().ToDictionary(x => x.Name, x => ParseGame(locations, x.Name, x.Value), StringComparer.OrdinalIgnoreCase) : throw new ArgumentNullException("games"),
+                    Xforms = elem.TryGetProperty("xforms", out z) ? z.EnumerateObject().ToDictionary(x => x.Name, x => (object)x.Value.GetString(), StringComparer.OrdinalIgnoreCase) : new Dictionary<string, object>(),
+                    FileManager = fileManager,
+                };
+            }
         }
 
-        static EstateGame ParseGame(IDictionary<string, string> locations, string game, JToken p) =>
+        static EstateGame ParseGame(IDictionary<string, string> locations, string game, JsonElement elem) =>
             new EstateGame
             {
                 Game = game,
-                Name = (string)p["name"] ?? throw new ArgumentNullException("name"),
-                DefaultPak = p["pak"] != null ? new Uri((string)p["pak"]) : null,
-                DefaultDat = p["dat"] != null ? new Uri((string)p["dat"]) : null,
+                Name = (elem.TryGetProperty("name", out var z) ? z.GetString() : null) ?? throw new ArgumentNullException("name"),
+                DefaultPak = elem.TryGetProperty("pak", out z) ? new Uri(z.GetString()) : null,
+                DefaultDat = elem.TryGetProperty("dat", out z) ? new Uri(z.GetString()) : null,
                 Found = locations.ContainsKey(game),
             };
 

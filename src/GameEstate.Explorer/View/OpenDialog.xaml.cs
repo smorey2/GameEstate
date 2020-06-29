@@ -27,7 +27,9 @@ namespace GameEstate.Explorer.View
         {
             InitializeComponent();
             DataContext = this;
-            Estate.SelectedIndex = 3;
+            //Estate.Items
+            if (!string.IsNullOrEmpty(EstateManager.DefaultEstateKey))
+                Estate.SelectedIndex = EstateManager.Estates.Keys.ToList().IndexOf(EstateManager.DefaultEstateKey);
         }
 
         public event PropertyChangedEventHandler PropertyChanged;

@@ -20,7 +20,7 @@ namespace GameEstate.Explorer.View
         public static FileExplorer Instance;
         public static MainWindow MainWindow => MainWindow.Instance;
         //public static FileInfo FileInfo => FileInfo.Instance;
-        public static AbstractEngineView EngineView => AbstractEngineView.Instance;
+        public static EngineView EngineView => EngineView.Instance;
 
         //public static WorldViewer WorldViewer => WorldViewer.Instance; 
         //public static ModelViewer ModelViewer => ModelViewer.Instance;  

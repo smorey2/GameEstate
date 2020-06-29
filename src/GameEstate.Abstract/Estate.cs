@@ -61,7 +61,7 @@ namespace GameEstate
             /// <value>
             /// The name of the found.
             /// </value>
-            public string NameAndFound => $"{Name}{(Found ? " - found" : null)}";
+            public string NameWithFound => $"{Name}{(Found ? " - found" : null)}";
             /// <summary>
             /// The name
             /// </summary>

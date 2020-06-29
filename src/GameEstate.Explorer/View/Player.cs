@@ -1,10 +1,8 @@
-﻿using Microsoft.Xna.Framework;
-
-namespace GameEstate.Explorer.View
+﻿namespace GameEstate.Explorer.View
 {
     public class Player
     {
-        public AbstractEngineView EngineView => AbstractEngineView.Instance;
+        public EngineView EngineView => EngineView.Instance;
 
         //public PhysicsObj PhysicsObj;
 
@@ -34,17 +32,17 @@ namespace GameEstate.Explorer.View
             //PhysicsObj.ParticleManager = new ParticleManager();
         }
 
-        public void Update(GameTime time)
-        {
-            UpdatePhysics(time);
-        }
+        //public void Update(GameTime time)
+        //{
+        //    UpdatePhysics(time);
+        //}
 
-        public void UpdatePhysics(GameTime time)
-        {
-            if (!EngineView.IsActive)
-                return;
-            //PhysicsObj.ParticleManager.UpdateParticles();
-        }
+        //public void UpdatePhysics(GameTime time)
+        //{
+        //    //if (!EngineView.IsActive)
+        //    //    return;
+        //    //PhysicsObj.ParticleManager.UpdateParticles();
+        //}
 
         //public void QueryParticleManager()
         //{
