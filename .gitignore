@@ -1,55 +1,52 @@
-# Project
+# Bespoke
 .quickbms
 
-# Visual Studio
-*.db
-*.opendb
-*.csproj.user
-.vs/
-.vscode/
-packages/
-packages.config
-
-# Unity3D
-Library/
-UnityGenerated/
-DerivedData/
-Assets/AssetStoreTools*
-Logs/
-*.pidb.meta
-sysinfo.txt
-*.apk
-*.meta
-*.unitypackage
-UIElementsSchema/
-**/Assets/_Ter*
-
-# Unity3D Plugins
-**/Assets/Plugins/**/*
-
-# Python
-__pycache__/
-
-# Makefiles
-Makefile
-*.make
-
-# Misc
-# *.7z
+# System files
+Thumbs.db
+Thumbs.db.meta
+*.DS_Store
+*.directory
+.vs
+.vscode
 *.zip
 *.tar.gz
 
-# Sublime text
-*.sublime-project
-*.sublime-workspace
+# Python files
+__pycache__
 
-# Directories we don't ever want to commit
+# Android Build files
+*.apk
+*.obb
+
+# Visual Studio files
+*.cachefile
+*.csproj
+*.pidb
+*.sln
+*.suo
+*.unityproj
+*.user
+*.userprefs
+*.v11
+*.v12
+*.VC.db
+[C|c]onfig.ini
+#*.db
+#*.opendb
+
+# Folder to exclude
+[Bb]in
+[Dd]ebug*/
+[Rr]elease*/
+Builds/
+Logs/
+Temp/
+ipch/
+obj/
+
+# Folder to exclude #2
 _vcpkg
 _build32
 _build64
 _build
 _bundle
-bin
-obj
-temp
-ipch
