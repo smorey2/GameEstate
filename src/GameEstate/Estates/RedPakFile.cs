@@ -1,4 +1,5 @@
 ﻿using GameEstate.Core;
+using GameEstate.Explorer;
 using GameEstate.Formats.Binary;
 
 namespace GameEstate.Estates
@@ -15,6 +16,11 @@ namespace GameEstate.Estates
         /// <param name="filePath">The file path.</param>
         /// <param name="game">The game.</param>
         /// <param name="tag">The tag.</param>
-        public RedPakFile(string filePath, string game, object tag = null) : base(filePath, game, new PakBinaryRed(tag)) => Open();
+        public RedPakFile(string filePath, string game, object tag = null) : base(filePath, game, new PakBinaryRed(tag))
+        {
+            ExplorerItem = StandardExplorerItem.GetPakFilesAsync;
+            ExplorerInfos.Add(".dds", StandardExplorerInfo.GetDdsAsync);
+            Open();
+        }
     }
 }

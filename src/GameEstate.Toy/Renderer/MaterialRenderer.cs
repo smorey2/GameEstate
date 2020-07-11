@@ -1,4 +1,6 @@
 using System;
+using GameEstate.Graphics;
+using GameEstate.Graphics.OpenGL;
 using OpenTK;
 using OpenTK.Graphics.OpenGL;
 

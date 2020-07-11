@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Numerics;
+using GameEstate.Graphics;
+using GameEstate.Graphics.OpenGL;
 using GameEstate.Toy.Models;
 using GameEstate.Toy.Renderer;
 using OpenTK.Graphics.OpenGL;
@@ -26,7 +28,7 @@ namespace GameEstate.Toy.ParticleRenderer.Renderers
         readonly float _maxLength;
         readonly float _lengthFadeInTime;
 
-        public RenderTrails(Dictionary<string, object> keyValues, GuiContext guiContext)
+        public RenderTrails(IDictionary<string, object> keyValues, GuiContext guiContext)
         {
             _shader = guiContext.ShaderLoader.LoadShader("vrf.particle.trail", new Dictionary<string, bool>());
 

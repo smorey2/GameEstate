@@ -13,7 +13,7 @@ namespace GameEstate.Toy.ParticleRenderer.Initializers
 
         int _counter = 0;
 
-        public RandomSequence(Dictionary<string, object> keyValues)
+        public RandomSequence(IDictionary<string, object> keyValues)
         {
             _sequenceMin = (int)keyValues.GetInt("m_nSequenceMin");
             _sequenceMax = (int)keyValues.GetInt("m_nSequenceMax");

@@ -4,7 +4,7 @@ namespace GameEstate.Core
 {
     public class CoreDebug
     {
-        static CoreDebug() { _ = UnsafeUtils.Platform; }
+        static CoreDebug() => EstateBootstrap.Touch();
 
         public static Action<bool> AssertFunc;
         public static Action<string> LogFunc;

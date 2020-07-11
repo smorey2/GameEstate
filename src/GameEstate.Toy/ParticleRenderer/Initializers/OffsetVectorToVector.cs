@@ -13,7 +13,7 @@ namespace GameEstate.Toy.ParticleRenderer.Initializers
         readonly Vector3 _offsetMin;
         readonly Vector3 _offsetMax;
 
-        public OffsetVectorToVector(Dictionary<string, object> keyValues)
+        public OffsetVectorToVector(IDictionary<string, object> keyValues)
         {
             _inputField = (ParticleField)keyValues.GetInt("m_nFieldInput");
             _outputField = (ParticleField)keyValues.GetInt("m_nFieldOutput");

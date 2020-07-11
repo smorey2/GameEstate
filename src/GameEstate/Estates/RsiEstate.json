@@ -6,17 +6,20 @@
   "games": {
     "StarCitizen": {
       "name": "Star Citizen",
-      "pak": "game:/Data.p4k#StarCitizen",
-      "dat": "game:/Data.p4k#StarCitizen"
+      "pak": "game:/Data.p4k#StarCitizen"
+      //"dat": "game:/Data.p4k#StarCitizen"
     }
   },
   "xforms": {
     "StarCitizen": "GameEstate.Estates.RsiXform"
   },
   "fileManager": {
-    "direct": {
+    "registry": {
       "StarCitizen": {
-        "path": "D:/Roberts Space Industries/StarCitizen/LIVE"
+        "key": "81bfc699-f883-50c7-b674-2483b6baae23",
+        "81bfc699-f883-50c7-b674-2483b6baae23": {
+          "path": "%path%/../StarCitizen/LIVE"
+        }
       }
     }
   }

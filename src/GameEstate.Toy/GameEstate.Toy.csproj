@@ -12,6 +12,15 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="ParticleRenderer\**" />
+    <Compile Remove="Renderer\_\**" />
+    <EmbeddedResource Remove="ParticleRenderer\**" />
+    <EmbeddedResource Remove="Renderer\_\**" />
+    <None Remove="ParticleRenderer\**" />
+    <None Remove="Renderer\_\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="NAudio" Version="1.10.0" />
     <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
     <PackageReference Include="NLayer" Version="1.13.0" />
@@ -20,16 +29,12 @@
 
   <ItemGroup>
     <ProjectReference Include="..\GameEstate.Abstract\GameEstate.Abstract.csproj" />
+    <ProjectReference Include="..\GameEstate.Graphics\GameEstate.Graphics.csproj" />
+    <ProjectReference Include="..\GameEstate\GameEstate.csproj" />
   </ItemGroup>
 
   <ItemGroup>
-    <Reference Include="UnityEngine">
-      <HintPath>..\..\lib\UnityEngine.dll</HintPath>
-    </Reference>
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Controls\" />
+    <Folder Include="Renderer\_\" />
   </ItemGroup>
 
 </Project>

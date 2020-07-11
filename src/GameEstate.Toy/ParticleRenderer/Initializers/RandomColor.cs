@@ -11,7 +11,7 @@ namespace GameEstate.Toy.ParticleRenderer.Initializers
         readonly Vector3 _colorMin = Vector3.One;
         readonly Vector3 _colorMax = Vector3.One;
 
-        public RandomColor(Dictionary<string, object> keyValues)
+        public RandomColor(IDictionary<string, object> keyValues)
         {
             if (keyValues.ContainsKey("m_ColorMin"))
             {

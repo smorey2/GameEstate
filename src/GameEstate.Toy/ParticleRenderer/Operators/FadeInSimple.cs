@@ -7,7 +7,7 @@ namespace GameEstate.Toy.ParticleRenderer.Operators
     {
         readonly float _fadeInTime;
 
-        public FadeInSimple(Dictionary<string, object> keyValues)
+        public FadeInSimple(IDictionary<string, object> keyValues)
         {
             _fadeInTime = keyValues.GetFloat("m_flFadeInTime", .25f);
         }

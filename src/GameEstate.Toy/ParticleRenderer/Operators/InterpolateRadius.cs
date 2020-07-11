@@ -10,7 +10,7 @@ namespace GameEstate.Toy.ParticleRenderer.Operators
         readonly float _startScale = 1;
         readonly float _endScale = 1;
 
-        public InterpolateRadius(Dictionary<string, object> keyValues)
+        public InterpolateRadius(IDictionary<string, object> keyValues)
         {
             _startTime = keyValues.GetFloat("m_flStartTime");
             _endTime = keyValues.GetFloat("m_flEndTime", 1f);

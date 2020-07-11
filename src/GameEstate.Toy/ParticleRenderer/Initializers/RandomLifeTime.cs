@@ -10,7 +10,7 @@ namespace GameEstate.Toy.ParticleRenderer.Initializers
         readonly float _lifetimeMin;
         readonly float _lifetimeMax;
 
-        public RandomLifeTime(Dictionary<string, object> keyValues)
+        public RandomLifeTime(IDictionary<string, object> keyValues)
         {
             _lifetimeMin = keyValues.GetFloat("m_fLifetimeMin");
             _lifetimeMax = keyValues.GetFloat("m_fLifetimeMax");

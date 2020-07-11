@@ -12,7 +12,7 @@ namespace GameEstate.Toy.ParticleRenderer.Operators
         readonly float _startAlpha;
         readonly float _endAlpha;
 
-        public FadeAndKill(Dictionary<string, object> keyValues)
+        public FadeAndKill(IDictionary<string, object> keyValues)
         {
             _startFadeInTime = keyValues.GetFloat("m_flStartFadeInTime");
             _endFadeInTime = keyValues.GetFloat("m_flEndFadeInTime", .5f);

@@ -7,7 +7,7 @@ namespace GameEstate.Toy.ParticleRenderer.Emitters
     {
         public bool IsFinished { get; private set; }
 
-        readonly Dictionary<string, object> _baseProperties;
+        readonly IDictionary<string, object> _baseProperties;
 
         readonly INumberProvider _emissionDuration;
         readonly INumberProvider _startTime;
@@ -19,7 +19,7 @@ namespace GameEstate.Toy.ParticleRenderer.Emitters
         float _time;
         float _lastEmissionTime;
 
-        public ContinuousEmitter(Dictionary<string, object> baseProperties, Dictionary<string, object> keyValues)
+        public ContinuousEmitter(IDictionary<string, object> baseProperties, IDictionary<string, object> keyValues)
         {
             _baseProperties = baseProperties;
             _emissionDuration = keyValues.GetNumberProvider("m_flEmissionDuration") ?? new LiteralNumberProvider(0);

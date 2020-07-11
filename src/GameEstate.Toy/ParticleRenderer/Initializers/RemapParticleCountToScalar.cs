@@ -12,7 +12,7 @@ namespace GameEstate.Toy.ParticleRenderer.Initializers
         readonly float _outputMax = 1f;
         readonly bool _scaleInitialRange = false;
 
-        public RemapParticleCountToScalar(Dictionary<string, object> keyValues)
+        public RemapParticleCountToScalar(IDictionary<string, object> keyValues)
         {
             _fieldOutput = keyValues.GetInt("m_nFieldOutput", 3);
             _inputMin = keyValues.GetInt("m_nInputMin");

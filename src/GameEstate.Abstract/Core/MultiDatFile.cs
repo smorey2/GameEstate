@@ -13,9 +13,9 @@ namespace GameEstate.Core
         /// <summary>
         /// The dats
         /// </summary>
-        public readonly IList<AbstractDatFile> Dats;
+        public readonly IList<AbstractDatFile> DatFiles;
 
-        public MultiDatFile(string game, string name, IList<AbstractDatFile> dats) : base(game, name) => Dats = dats;
+        public MultiDatFile(string game, string name, IList<AbstractDatFile> datFiles) : base(game, name) => DatFiles = datFiles;
 
         /// <summary>
         /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
@@ -27,9 +27,9 @@ namespace GameEstate.Core
         /// </summary>
         public override void Close()
         {
-            if (Dats != null)
-                foreach (var dat in Dats)
-                    dat.Close();
+            if (DatFiles != null)
+                foreach (var datFile in DatFiles)
+                    datFile.Close();
         }
 
         #region Explorer
@@ -40,9 +40,12 @@ namespace GameEstate.Core
         /// <param name="manager">The resource.</param>
         /// <returns></returns>
         /// <exception cref="NotImplementedException"></exception>
-        public override Task<List<ExplorerItemNode>> GetExplorerItemNodesAsync(ExplorerManager manager)
+        public override async Task<List<ExplorerItemNode>> GetExplorerItemNodesAsync(ExplorerManager manager)
         {
-            throw new NotImplementedException();
+            var root = new List<ExplorerItemNode>();
+            foreach (var datFile in DatFiles)
+                root.Add(new ExplorerItemNode(datFile.Name, manager.PackageIcon, items: await datFile.GetExplorerItemNodesAsync(manager)) { DatFile = datFile });
+            return root;
         }
 
         /// <summary>

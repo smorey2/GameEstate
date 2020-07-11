@@ -21,17 +21,19 @@ namespace GameEstate.Explorer.ViewModel
             public override string ToString() => Name;
         }
 
+        public string Name { get; }
+        public object Icon { get; }
+        public object Tag { get; }
+        public List<ExplorerItemNode> Items { get; }
         public AbstractPakFile PakFile { get; set; }
         public AbstractDatFile DatFile { get; set; }
-        public object Icon { get; set; }
-        public string Name { get; set; }
-        public object Tag { get; set; }
-        public List<ExplorerItemNode> Items { get; set; }
 
-        public ExplorerItemNode(string name = "")
+        public ExplorerItemNode(string name, object icon, object tag = null, List<ExplorerItemNode> items = null)
         {
             Name = name;
-            Items = new List<ExplorerItemNode>();
+            Icon = icon;
+            Tag = tag;
+            Items = items ?? new List<ExplorerItemNode>();
         }
     }
 }

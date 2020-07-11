@@ -1,3 +1,4 @@
+using GameEstate.Graphics.Scene;
 using GameEstate.Toy.Models;
 
 namespace GameEstate.Toy.Renderer
@@ -9,7 +10,7 @@ namespace GameEstate.Toy.Renderer
         public ParticleSceneNode(Scene scene, ParticleSystem particleSystem)
             : base(scene)
         {
-            _particleRenderer = new ParticleRenderer.ParticleRenderer(particleSystem, Scene.GuiContext);
+            _particleRenderer = new ParticleRenderer.ParticleRenderer(particleSystem, Scene.Context);
             LocalBoundingBox = _particleRenderer.BoundingBox;
         }
 

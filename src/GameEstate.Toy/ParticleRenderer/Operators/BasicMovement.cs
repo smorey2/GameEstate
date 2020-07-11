@@ -9,7 +9,7 @@ namespace GameEstate.Toy.ParticleRenderer.Operators
         readonly Vector3 _gravity;
         readonly float _drag;
 
-        public BasicMovement(Dictionary<string, object> keyValues)
+        public BasicMovement(IDictionary<string, object> keyValues)
         {
             _gravity = keyValues.TryGet<double[]>("m_Gravity", out var vectorValues)
                 ? new Vector3((float)vectorValues[0], (float)vectorValues[1], (float)vectorValues[2])

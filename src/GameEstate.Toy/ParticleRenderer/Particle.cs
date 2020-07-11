@@ -43,7 +43,7 @@ namespace GameEstate.Toy.ParticleRenderer
 
         public Vector3 Velocity { get; set; }
 
-        public Particle(Dictionary<string, object> baseProperties)
+        public Particle(IDictionary<string, object> baseProperties)
         {
             ParticleCount = 0;
             Alpha = 1.0f;

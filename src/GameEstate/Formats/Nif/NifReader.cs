@@ -2,7 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using UnityEngine;
+using System.Numerics;
 using static GameEstate.Core.CoreDebug;
 
 namespace GameEstate.Formats.Nif

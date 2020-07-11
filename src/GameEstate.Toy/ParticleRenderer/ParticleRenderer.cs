@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
+using GameEstate.Graphics;
 using GameEstate.Toy.Models;
 using GameEstate.Toy.ParticleRenderer.Emitters;
 using GameEstate.Toy.ParticleRenderer.Initializers;
@@ -55,7 +56,7 @@ namespace GameEstate.Toy.ParticleRenderer
 
             BoundingBox = new AABB(pos + new Vector3(-32, -32, -32), pos + new Vector3(32, 32, 32));
 
-            SetupEmitters(particleSystem.Data, particleSystem.GetEmitters());
+            SetupEmitters(particleSystem, particleSystem.GetEmitters());
             SetupInitializers(particleSystem.GetInitializers());
             SetupOperators(particleSystem.GetOperators());
             SetupRenderers(particleSystem.GetRenderers());
@@ -173,7 +174,7 @@ namespace GameEstate.Toy.ParticleRenderer
             if (_particleBag.Count == 0)
                 return;
 
-            if (renderPass == RenderPass.Translucent || renderPass == RenderPass.Both)
+            if (renderPass == RenderPass.Blended || renderPass == RenderPass.Both)
                 foreach (var renderer in Renderers)
                     renderer.Render(_particleBag, camera.ViewProjectionMatrix, camera.CameraViewMatrix);
 
@@ -181,7 +182,7 @@ namespace GameEstate.Toy.ParticleRenderer
                 childParticleRenderer.Render(camera, RenderPass.Both);
         }
 
-        void SetupEmitters(Dictionary<string, object> baseProperties, IEnumerable<Dictionary<string, object>> emitterData)
+        void SetupEmitters(IDictionary<string, object> baseProperties, IEnumerable<Dictionary<string, object>> emitterData)
         {
             var emitters = new List<IParticleEmitter>();
 
@@ -195,7 +196,7 @@ namespace GameEstate.Toy.ParticleRenderer
             Emitters = emitters;
         }
 
-        void SetupInitializers(IEnumerable<Dictionary<string, object>> initializerData)
+        void SetupInitializers(IEnumerable<IDictionary<string, object>> initializerData)
         {
             var initializers = new List<IParticleInitializer>();
 
@@ -209,7 +210,7 @@ namespace GameEstate.Toy.ParticleRenderer
             Initializers = initializers;
         }
 
-        void SetupOperators(IEnumerable<Dictionary<string, object>> operatorData)
+        void SetupOperators(IEnumerable<IDictionary<string, object>> operatorData)
         {
             var operators = new List<IParticleOperator>();
 
@@ -223,7 +224,7 @@ namespace GameEstate.Toy.ParticleRenderer
             Operators = operators;
         }
 
-        void SetupRenderers(IEnumerable<Dictionary<string, object>> rendererData)
+        void SetupRenderers(IEnumerable<IDictionary<string, object>> rendererData)
         {
             var renderers = new List<IParticleRenderer>();
 

@@ -2,6 +2,7 @@
 using GameEstate.Explorer.ViewModel;
 using GameEstate.Formats.Binary;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -20,13 +21,13 @@ namespace GameEstate.Core
         //
         public IList<FileMetadata> Files;
         public HashSet<string> FilesRawSet;
-        public ILookup<string, FileMetadata> FilesByPath;
-        public GenericPool<BinaryReader> Pool;
-        public bool UsePool = true;
+        public ILookup<string, FileMetadata> FilesByPath { get; private set; }
+        ConcurrentDictionary<string, GenericPool<BinaryReader>> BinaryReaders = new ConcurrentDictionary<string, GenericPool<BinaryReader>>();
+        public bool UseBinaryReader = true;
         public object Tag;
         // explorer
-        protected static Func<ExplorerManager, BinaryPakFile, Task<List<ExplorerItemNode>>> ExplorerItemAsync;
-        protected static Dictionary<string, Func<ExplorerManager, BinaryPakFile, FileMetadata, Task<List<ExplorerInfoNode>>>> ExplorerInfoAsyncs = new Dictionary<string, Func<ExplorerManager, BinaryPakFile, FileMetadata, Task<List<ExplorerInfoNode>>>>();
+        protected Func<ExplorerManager, BinaryPakFile, Task<List<ExplorerItemNode>>> ExplorerItem;
+        protected Dictionary<string, Func<ExplorerManager, BinaryPakFile, FileMetadata, Task<List<ExplorerInfoNode>>>> ExplorerInfos = new Dictionary<string, Func<ExplorerManager, BinaryPakFile, FileMetadata, Task<List<ExplorerInfoNode>>>>();
 
         /// <summary>
         /// Initializes a new instance of the <see cref="BinaryPakFile" /> class.
@@ -58,13 +59,19 @@ namespace GameEstate.Core
         {
             var watch = new Stopwatch();
             watch.Start();
-            Pool = UsePool && File.Exists(FilePath) ? new GenericPool<BinaryReader>(() => new BinaryReader(File.Open(FilePath, FileMode.Open, FileAccess.Read, FileShare.Read))) : null;
-            if (Pool != null) Pool.Action(async r => await ReadAsync(r, PakBinary.ReadStage.File));
+            if (UseBinaryReader) GetBinaryReader().Action(async r => await ReadAsync(r, PakBinary.ReadStage.File));
             else ReadAsync(null, PakBinary.ReadStage.File).GetAwaiter().GetResult();
             Process();
             CoreDebug.Log($"Opening: {Name} @ {watch.ElapsedMilliseconds}ms");
             watch.Stop();
         }
+
+        /// <summary>
+        /// Gets the binary reader.
+        /// </summary>
+        /// <param name="path">The path.</param>
+        /// <returns></returns>
+        public GenericPool<BinaryReader> GetBinaryReader(string path = null, int retain = 10) => BinaryReaders.GetOrAdd(path ?? FilePath, filePath => File.Exists(filePath) ? new GenericPool<BinaryReader>(() => new BinaryReader(File.Open(filePath, FileMode.Open, FileAccess.Read, FileShare.Read))) : null);
 
         /// <summary>
         /// Closes this instance.
@@ -74,8 +81,9 @@ namespace GameEstate.Core
             Files = null;
             FilesRawSet = null;
             FilesByPath = null;
-            Pool?.Dispose();
-            Pool = null;
+            foreach (var r in BinaryReaders.Values)
+                r.Dispose();
+            BinaryReaders.Clear();
             if (Tag is IDisposable disposableTag)
                 disposableTag.Dispose();
             Tag = null;
@@ -117,7 +125,7 @@ namespace GameEstate.Core
         /// <returns></returns>
         public Task<byte[]> LoadFileDataAsync(FileMetadata file, Action<FileMetadata, string> exception = null)
         {
-            if (Pool != null) return Pool.Func(r => ReadFileDataAsync(r, file, exception));
+            if (UseBinaryReader) return GetBinaryReader().Func(r => ReadFileDataAsync(r, file, exception));
             else return ReadFileDataAsync(null, file, exception);
         }
 
@@ -184,7 +192,7 @@ namespace GameEstate.Core
         /// <param name="manager">The resource.</param>
         /// <returns></returns>
         /// <exception cref="NotImplementedException"></exception>
-        public override async Task<List<ExplorerItemNode>> GetExplorerItemNodesAsync(ExplorerManager manager) => ExplorerItemAsync != null ? await ExplorerItemAsync(manager, this) : null;
+        public override async Task<List<ExplorerItemNode>> GetExplorerItemNodesAsync(ExplorerManager manager) => ExplorerItem != null ? await ExplorerItem(manager, this) : null;
 
         /// <summary>
         /// Gets the explorer information nodes.
@@ -197,7 +205,9 @@ namespace GameEstate.Core
         {
             var ext = Path.GetExtension(item.Name).ToLowerInvariant();
             var file = item.Tag as FileMetadata;
-            if (ExplorerInfoAsyncs.TryGetValue(ext, out var info))
+            if (ExplorerInfos.TryGetValue(ext, out var info))
+                return await info(manager, this, file);
+            else if (ExplorerInfos.TryGetValue("_default", out info))
                 return await info(manager, this, file);
             return null;
         }

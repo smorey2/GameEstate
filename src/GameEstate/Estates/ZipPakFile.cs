@@ -14,6 +14,7 @@ namespace GameEstate.Estates
         /// </summary>
         /// <param name="filePath">The file path.</param>
         /// <param name="game">The game.</param>
-        public ZipPakFile(string filePath, string game) : base(filePath, game, new PakBinaryZip()) => Open();
+        /// <param name="tag">The tag.</param>
+        public ZipPakFile(string filePath, string game, object tag = null) : base(filePath, game, new PakBinaryZip()) => Open();
     }
 }

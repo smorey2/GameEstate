@@ -1,5 +1,4 @@
 ﻿using GameEstate.Core;
-using GameEstate.Estates;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -10,428 +9,618 @@ namespace GameEstate.Formats.Binary
 {
     public class PakBinaryAC : PakBinary
     {
-        #region Headers
+        #region Attributes
 
-        [StructLayout(LayoutKind.Sequential, Pack = 0x1)]
-        struct KEY_Header
+        [AttributeUsage(AttributeTargets.Field)]
+        public class DataTypeAttribute : Attribute
         {
-            public uint Version;            // Version ("V1.1")
-            public uint NumFiles;           // Number of entries in FILETABLE
-            public uint NumKeys;            // Number of entries in KEYTABLE.
-            public uint NotUsed01;          //
-            public uint FilesPosition;      // Offset to FILETABLE (0x440000).
-            public uint KeysPosition;       // Offset to KEYTABLE.
-            public uint BuildYear;          // Build year (less 1900).
-            public uint BuildDay;           // Build day
-            public ulong NotUsed02;         //
-            public ulong NotUsed03;         //
-            public ulong NotUsed04;         //
-            public ulong NotUsed05;         //
+            public DataTypeAttribute(DataType type) => Type = type;
+            public DataType Type { get; set; }
         }
 
-        [StructLayout(LayoutKind.Sequential, Pack = 0x1)]
-        struct KEY_HeaderFile
+        [AttributeUsage(AttributeTargets.Class)]
+        public class FileTypeAttribute : Attribute
         {
-            public uint PackedSize;         // BIF Filesize
-            public uint FileNameOffset;     // Offset To BIF name
-            public uint FileNameSize;       // Size of BIF name
+            public FileTypeAttribute(FileType fileType) => FileType = fileType;
+            public FileType FileType { get; set; }
         }
 
-        [StructLayout(LayoutKind.Sequential, Pack = 0x1)]
-        unsafe struct KEY_HeaderKey
+        [AttributeUsage(AttributeTargets.Field, AllowMultiple = true)]
+        public class FileExtAttribute : Attribute
         {
-            public fixed byte Name[16];     // Null-padded string Resource Name (sans extension).
-            public ushort ResourceType;     // Resource Type
-            public uint ResourceId;         // Number of entries in FILETABLE
-            public uint Flags;              // Flags (BIF index is now in this value, (flags & 0xFFF00000) >> 20). The rest appears to define 'fixed' index.
+            public FileExtAttribute(string fileExtension) => FileExtension = fileExtension;
+            public string FileExtension { get; set; }
         }
 
-        [StructLayout(LayoutKind.Sequential, Pack = 0x1)]
-        struct BIF_Header
+        [AttributeUsage(AttributeTargets.Field)]
+        public class FileIdRangeAttribute : Attribute
         {
-            public uint Version;            // Version ("V1.1")
-            public uint NumFiles;           // Resource Count
-            public uint NotUsed01;          //
-            public uint FilesPosition;      // Offset to KEYTABLE.
+            public FileIdRangeAttribute(uint beginRange, uint endRange) { BeginRange = beginRange; EndRange = endRange; }
+            public uint BeginRange { get; set; }
+            public uint EndRange { get; set; }
         }
-
-        [StructLayout(LayoutKind.Sequential, Pack = 0x1)]
-        struct BIFF_HeaderFile
-        {
-            public uint FileId;             // Resource ID
-            public uint Flags;              // Flags (BIF index is now in this value, (flags & 0xFFF00000) >> 20). The rest appears to define 'fixed' index.
-            public uint FilePosition;       // Offset to Resource Data.
-            public uint FileSize;           // Size of Resource Data.
-            public ushort FileType;         // Resource Type
-            public ushort NotUsed01;        //
-        }
-
-        [StructLayout(LayoutKind.Sequential, Pack = 0x1)]
-        struct DZIP_Header
-        {
-            public uint Unk01;              //
-            public uint NumFiles;           //
-            public uint Unk02;              //
-            public uint FilesPosition;      //
-        }
-
-        [StructLayout(LayoutKind.Sequential, Pack = 0x1)]
-        struct DZIP_HeaderFile
-        {
-            public uint Unk01;              // 
-            public uint Unk02;              // 
-            public ulong FileSize;          // 
-            public ulong Position;          // 
-            public ulong PackedSize;        // 
-        }
-
-        // 
-        const uint KEY_MAGIC = 0x2059454b; // Version number of a Fallout 4 BA2
-        const uint BIFF_MAGIC = 0x46464942; // Version number of a Fallout 4 BA2
-        const uint DZIP_MAGIC = 0x50495a44; // Version number of a Fallout 4 BA2
-
-        const uint KEY_VERSION = 0x312e3156; // Version number of a Fallout 4 BA2
-        internal const uint BIFF_VERSION = 0x312e3156; // Version number of a Fallout 4 BA2
-        internal const uint DZIP_VERSION = 0x50495a44; // Version number of a Fallout 4 BA2
-
-        readonly static Dictionary<int, string> FileTypes = new Dictionary<int, string>
-        {
-            {0x0000, ".res" },
-            {0x0001, ".bmp"},
-            {0x0002, ".mve"},
-            {0x0003, ".tga"},
-            {0x0004, ".wav"},
-
-            {0x0006, ".plt"},
-            {0x0007, ".ini"},
-            {0x0008, ".mp3"},
-            {0x0009, ".mpg"},
-            {0x000A, ".txt"},
-            {0x000B, ".xml"},
-
-            {0x07D0, ".plh"},
-            {0x07D1, ".tex"},
-            {0x07D2, ".mdl"},
-            {0x07D3, ".thg"},
-
-            {0x07D5, ".fnt"},
-
-            {0x07D7, ".lua"},
-            {0x07D8, ".slt"},
-            {0x07D9, ".nss"},
-            {0x07DA, ".ncs"},
-            {0x07DB, ".mod"},
-            {0x07DC, ".are"},
-            {0x07DD, ".set"},
-            {0x07DE, ".ifo"},
-            {0x07DF, ".bic"},
-            {0x07E0, ".wok"},
-            {0x07E1, ".2da"},
-            {0x07E2, ".tlk"},
-
-            {0x07E6, ".txi"},
-            {0x07E7, ".git"},
-            {0x07E8, ".bti"},
-            {0x07E9, ".uti"},
-            {0x07EA, ".btc"},
-            {0x07EB, ".utc"},
-
-            {0x07ED, ".dlg"},
-            {0x07EE, ".itp"},
-            {0x07EF, ".btt"},
-            {0x07F0, ".utt"},
-            {0x07F1, ".dds"},
-            {0x07F2, ".bts"},
-            {0x07F3, ".uts"},
-            {0x07F4, ".ltr"},
-            {0x07F5, ".gff"},
-            {0x07F6, ".fac"},
-            {0x07F7, ".bte"},
-            {0x07F8, ".ute"},
-            {0x07F9, ".btd"},
-            {0x07FA, ".utd"},
-            {0x07FB, ".btp"},
-            {0x07FC, ".utp"},
-            {0x07FD, ".dft"},
-            {0x07FE, ".gic"},
-            {0x07FF, ".gui"},
-            {0x0800, ".css"},
-            {0x0801, ".ccs"},
-            {0x0802, ".btm"},
-            {0x0803, ".utm"},
-            {0x0804, ".dwk"},
-            {0x0805, ".pwk"},
-            {0x0806, ".btg"},
-
-            {0x0808, ".jrl"},
-            {0x0809, ".sav"},
-            {0x080A, ".utw"},
-            {0x080B, ".4pc"},
-            {0x080C, ".ssf"},
-
-            {0x080F, ".bik"},
-            {0x0810, ".ndb"},
-            {0x0811, ".ptm"},
-            {0x0812, ".ptt"},
-            {0x0813, ".ncm"},
-            {0x0814, ".mfx"},
-            {0x0815, ".mat"},
-            {0x0816, ".mdb"},
-            {0x0817, ".say"},
-            {0x0818, ".ttf"},
-            {0x0819, ".ttc"},
-            {0x081A, ".cut"},
-            {0x081B, ".ka" },
-            {0x081C, ".jpg"},
-            {0x081D, ".ico"},
-            {0x081E, ".ogg"},
-            {0x081F, ".spt"},
-            {0x0820, ".spw"},
-            {0x0821, ".wfx"},
-            {0x0822, ".ugm"},
-            {0x0823, ".qdb"},
-            {0x0824, ".qst"},
-            {0x0825, ".npc"},
-            {0x0826, ".spn"},
-            {0x0827, ".utx"},
-            {0x0828, ".mmd"},
-            {0x0829, ".smm"},
-            {0x082A, ".uta"},
-            {0x082B, ".mde"},
-            {0x082C, ".mdv"},
-            {0x082D, ".mda"},
-            {0x082E, ".mba"},
-            {0x082F, ".oct"},
-            {0x0830, ".bfx"},
-            {0x0831, ".pdb"},
-            {0x0832, ".TheWitcherSave"},
-            {0x0833, ".pvs"},
-            {0x0834, ".cfx"},
-            {0x0835, ".luc"},
-
-            {0x0837, ".prb"},
-            {0x0838, ".cam"},
-            {0x0839, ".vds"},
-            {0x083A, ".bin"},
-            {0x083B, ".wob"},
-            {0x083C, ".api"},
-            {0x083D, ".properties"},
-            {0x083E, ".png"},
-
-            {0x270B, ".big"},
-
-            {0x270D, ".erf"},
-            {0x270E, ".bif"},
-            {0x270F, ".key"},
-        };
 
         #endregion
 
-        readonly static Estate Estate = EstateManager.GetEstate("Red");
-        readonly object Tag;
+        #region StructLayout
 
-        public PakBinaryAC(object tag = null) => Tag = tag;
+        const uint DAT_HEADER_OFFSET = 0x140;
+
+        public enum DataType : uint
+        {
+            Portal = 1, // client_portal.dat and client_highres.dat both have this value
+            Cell = 2, // client_cell_1.dat
+            Language = 3 // client_local_English.dat
+        }
+
+        public enum FileType : uint
+        {
+            /// <summary>
+            /// File Format:
+            ///     DWORD LandblockId
+            ///     DWORD LandblockInfoId
+            ///     WORD x 81 = Terrain Map
+            ///     WORD x 81 = Height Map
+            /// </summary>
+            [DataType(DataType.Cell)]
+            LandBlock = 1, // DB_TYPE_LANDBLOCK
+
+            /// <summary>
+            /// File Format:
+            ///     DWORD LandblockId
+            ///     DWORD Number of Cells
+            ///     DWORD Number of static objects (numObj)
+            ///         numObj of:
+            ///             DWORD Static Object id
+            ///             POSITION Object Position
+            ///     WORD Building Count (numBldg)
+            ///     WORD Building Flags
+            ///         numBldg of:
+            ///             DWORD MeshId
+            ///             POSITION Building Position
+            ///     DWORD unknown
+            ///     DWORD numPortals
+            ///         numPortals of:
+            ///             WORD Flags
+            ///             WORD CellID
+            ///             WORD Unknown
+            ///             WORD numCells
+            ///                 numCells of:
+            ///                     WORD CellID
+            ///             
+            /// POSITION ::
+            ///     FLOAT Vector.X
+            ///     FLOAT Vector.Y
+            ///     FLOAT Vector.Z
+            ///     FLOAT Quat.W
+            ///     FLOAT Quat.X
+            ///     FLOAT Quat.Y
+            ///     FLOAT Quat.Z
+            /// </summary>
+            [DataType(DataType.Cell), FileExt("lbi")]
+            LandBlockInfo = 2, // DB_TYPE_LBI
+
+            [DataType(DataType.Cell), FileIdRange(0x01010000, 0x013EFFFF)]
+            EnvCell = 3, // DB_TYPE_ENVCELL
+
+            /// <summary>
+            /// usage of this is currently unknown.  exists in the client, but has no discernable
+            /// source dat file.  appears to be a server file not distributed to clients.
+            /// </summary>
+            [FileExt("lbo")]
+            LandBlockObjects = 4, // DB_TYPE_LBO
+
+            /// <summary>
+            /// usage of this is currently unknown.  exists in the client, but has no discernable
+            /// source dat file.  appears to be a server file not distributed to clients.
+            /// </summary>
+            [FileExt("ins")]
+            Instantiation = 5, // DB_TYPE_INSTANTIATION
+
+            [DataType(DataType.Portal), FileExt("obj"), FileIdRange(0x01000000, 0x0100FFFF)]
+            GraphicsObject = 6, // DB_TYPE_GFXOBJ
+
+            [DataType(DataType.Portal), FileExt("set"), FileIdRange(0x02000000, 0x0200FFFF)]
+            Setup = 7, // DB_TYPE_SETUP
+
+            [DataType(DataType.Portal), FileExt("anm"), FileIdRange(0x03000000, 0x0300FFFF)]
+            Animation = 8, // DB_TYPE_ANIM
+
+            /// <summary>
+            /// usage of this is currently unknown.  exists in the client, but has no discernable
+            /// source dat file.  appears to be a server file not distributed to clients.
+            /// </summary>
+            [FileExt("hk")]
+            AnimationHook = 9, // DB_TYPE_ANIMATION_HOOK
+
+            [DataType(DataType.Portal), FileExt("pal"), FileIdRange(0x04000000, 0x0400FFFF)]
+            Palette = 10, // DB_TYPE_PALETTE
+
+            [DataType(DataType.Portal), FileExt("texture"), FileIdRange(0x05000000, 0x05FFFFFF)]
+            SurfaceTexture = 11, // DB_TYPE_SURFACETEXTURE
+
+            /// <summary>
+            /// the 5th dword of these files has values from the following enum:
+            /// https://msdn.microsoft.com/en-us/library/windows/desktop/bb172558(v=vs.85).aspx
+            /// plus the additional values:
+            ///     0x000000F4 - Same as 0x00000001C / D3DFMT_A8
+            ///     0x000001F4 - JPEG
+            ///     
+            /// all the files contain a 6-DWORD header (offset indices):
+            ///     0: objectId
+            ///     4: unknown
+            ///     8: width
+            ///     12: height
+            ///     16: format (see above)
+            ///     20: length
+            /// </summary>
+            [DataType(DataType.Portal), FileExt("jpg"), FileExt("dds"), FileExt("tga"), FileExt("iff"), FileExt("256"), FileExt("csi"), FileExt("alp"), FileIdRange(0x06000000, 0x07FFFFFF)]
+            Texture = 12, // DB_TYPE_RENDERSURFACE
+
+            /// <summary>
+            /// indexed in client as "materials" for some reason
+            /// </summary>
+            [DataType(DataType.Portal), FileExt("surface"), FileIdRange(0x08000000, 0x0800FFFF)]
+            Surface = 13, // DB_TYPE_SURFACE
+
+            [DataType(DataType.Portal), FileExt("dsc"), FileIdRange(0x09000000, 0x0900FFFF)]
+            MotionTable = 14, // DB_TYPE_MTABLE
+
+            /// <summary>
+            /// indexed as "sound" in the client
+            /// </summary>
+            [DataType(DataType.Portal), FileExt("wav"), FileIdRange(0x0A000000, 0x0A00FFFF)]
+            Wave = 15, // DB_TYPE_WAVE
+
+            /// <summary>
+            /// File content structure:
+            /// 0: DWORD LandblockId
+            /// 4: DWORD CellCount
+            /// 8: CellCount blocks of Cells
+            /// 
+            /// Cell content:
+            /// 0: DWORD Cell Index
+            /// 4: DWORD Polygon Count (List1)
+            /// 8: DWORD Polygon Count (List2)
+            /// 12: DWORD Polygon Pointer Count (???)
+            /// 16: Vertex Array
+            /// ??: List1 Polygons
+            /// 
+            /// Vertex Array content:
+            /// 0: DWORD Vertex Type
+            /// 4: DWORD Vertex Count
+            /// 8: VertexCount block of Vertecis (whole thing aligned to 32-byte boundary
+            /// 
+            /// Vertex Content:
+            /// 0: WORD Vertex Index
+            /// 2: WORD Count
+            /// 4: FLOAT Origin X
+            /// 8: FLOAT Origin Y
+            /// 12: FLOAT Origin Z
+            /// 16: FLOAT Normal X
+            /// 20: FLOAT Normal Y
+            /// 24: FLOAT Normal Z
+            /// 28: VertexUV Array of Vertex.Count length
+            ///     0: FLOAT Vertex U
+            ///     4: FLOAT Vertex V
+            /// 
+            /// Polygon Content:
+            /// 0: WORD Polygon Index
+            /// 2: BYTE Vertex Count
+            /// 3: BYTE Poly Type
+            /// 4: DWORD Cull Mode - https://msdn.microsoft.com/en-us/library/microsoft.xna.framework.graphics.cullmode(v=xnagamestudio.31).aspx
+            ///     NOTE: AC doesn't seem to fully respect these Cull mode values.  1 appears to be None instead of CCW, and 2 is None.
+            /// 8: WORD Front Texture Index
+            /// 10: WORD Back Texture Index
+            /// 12: VertexCount of:
+            ///     0: WORD Vertex Index in previous Vertex Content
+            /// if ((PolyType & 4) == 0)
+            ///     VertexCount of:
+            ///     BYTE Front-Face Vertex Index
+            /// if ((PolyType & 8) == 0 && CullMode == 2)
+            ///     VertexCount of:
+            ///     BYTE Back-Face Vertex Index
+            /// 
+            /// Note: If CullMode is 1, copy Front-Face data to Back-face
+            /// </summary>
+            [DataType(DataType.Portal), FileExt("env"), FileIdRange(0x0D000000, 0x0D00FFFF)]
+            Environment = 16, // DB_TYPE_ENVIRONMENT
+
+            /// <summary>
+            /// indexed as "ui" in the client
+            /// </summary>
+            [DataType(DataType.Portal), FileExt("cps"), FileIdRange(0x0E000007, 0x0E000007)]
+            ChatPoseTable = 17, // DB_TYPE_CHAT_POSE_TABLE
+
+            /// <summary>
+            /// indexed as "DungeonCfgs" in the client
+            /// </summary>
+            [DataType(DataType.Portal), FileExt("hrc"), FileIdRange(0x0E00000D, 0x0E00000D)]
+            ObjectHierarchy = 18, // DB_TYPE_OBJECT_HIERARCHY
+
+            /// <summary>
+            /// indexed as "weenie" in the client
+            /// </summary>
+            [DataType(DataType.Portal), FileExt("bad"), FileIdRange(0x0E00001A, 0x0E00001A)]
+            BadData = 19, // DB_TYPE_BADDATA
+
+            /// <summary>
+            /// indexed as "weenie" in the client
+            /// </summary>
+            [DataType(DataType.Portal), FileExt("taboo"), FileIdRange(0x0E00001E, 0x0E00001E)]
+            TabooTable = 20, // DB_TYPE_TABOO_TABLE
+
+            [DataType(DataType.Portal), FileIdRange(0x0E00001F, 0x0E00001F)]
+            FileToId = 21, // DB_TYPE_FILE2ID_TABLE
+
+            /// <summary>
+            /// indexed as "namefilter" in the client
+            /// </summary>
+            [DataType(DataType.Portal), FileExt("nft"), FileIdRange(0x0E000020, 0x0E000020)]
+            NameFilterTable = 22, // DB_TYPE_NAME_FILTER_TABLE
+
+            /// <summary>
+            /// indexed as "properties" in the client
+            /// </summary>
+            [DataType(DataType.Portal), FileExt("monprop"), FileIdRange(0x0E020000, 0x0E02FFFF)]
+            MonitoredProperties = 23, // DB_TYPE_MONITOREDPROPERTIES
+
+            [DataType(DataType.Portal)]
+            [FileExt("pst")]
+            [FileIdRange(0x0F000000, 0x0F00FFFF)]
+            PaletteSet = 24, // DB_TYPE_PAL_SET
+
+            [DataType(DataType.Portal), FileExt("clo"), FileIdRange(0x10000000, 0x1000FFFF)]
+            Clothing = 25, // DB_TYPE_CLOTHING
+
+            [DataType(DataType.Portal), FileExt("deg"), FileIdRange(0x11000000, 0x1100FFFF)]
+            DegradeInfo = 26, // DB_TYPE_DEGRADEINFO
+
+            [DataType(DataType.Portal), FileExt("scn"), FileIdRange(0x12000000, 0x1200FFFF)]
+            Scene = 27, // DB_TYPE_SCENE 
+
+            /// <summary>
+            /// indexed as "landscape" by the client
+            /// </summary>
+            [DataType(DataType.Portal), FileExt("rgn"), FileIdRange(0x13000000, 0x1300FFFF)]
+            Region = 28, // DB_TYPE_REGION
+
+            [DataType(DataType.Portal), FileExt("keymap"), FileIdRange(0x14000000, 0x1400FFFF)]
+            KeyMap = 29, // DB_TYPE_KEYMAP
+
+            /// <summary>
+            /// indexed as "textures" in the client
+            /// </summary>
+            [DataType(DataType.Portal), FileExt("rtexture"), FileIdRange(0x15000000, 0x15FFFFFF)]
+            RenderTexture = 30, // DB_TYPE_RENDERTEXTURE 
+
+            /// <summary>
+            /// indexed as "materials" in the client
+            /// </summary>
+            [DataType(DataType.Portal), FileExt("mat"), FileIdRange(0x16000000, 0x16FFFFFF)]
+            RenderMaterial = 31, // DB_TYPE_RENDERMATERIAL 
+
+            /// <summary>
+            /// indexed as "materials" in the client
+            /// </summary>
+            [DataType(DataType.Portal), FileExt("mm"), FileIdRange(0x17000000, 0x17FFFFFF)]
+            MaterialModifier = 32, // DB_TYPE_MATERIALMODIFIER 
+
+            /// <summary>
+            /// indexed as "materials" in the client
+            /// </summary>
+            [DataType(DataType.Portal), FileExt("mi"), FileIdRange(0x18000000, 0x18FFFFFF)]
+            MaterialInstance = 33, // DB_TYPE_MATERIALINSTANCE
+
+            /// <summary>
+            /// SoundTable
+            /// </summary>
+            [DataType(DataType.Portal), FileExt("stb"), FileIdRange(0x20000000, 0x2000FFFF)]
+            SoundTable = 34, // DB_TYPE_STABLE
+
+            /// <summary>
+            /// This is in the Language dat (client_local_English.dat)
+            /// </summary>
+            [DataType(DataType.Portal), FileExt("uil"), FileIdRange(0x21000000, 0x21FFFFFF)]
+            UiLayout = 35, // DB_TYPE_UI_LAYOUT
+
+            /// <summary>
+            /// indexed as "emp" in the client
+            /// </summary>
+            [DataType(DataType.Portal), FileExt("emp"), FileIdRange(0x22000000, 0x22FFFFFF)]
+            EnumMapper = 36, // DB_TYPE_ENUM_MAPPER
+
+            /// <summary>
+            /// This is in the Language dat (client_local_English.dat)
+            /// </summary>
+            [DataType(DataType.Portal), FileExt("stt"), FileIdRange(0x23000000, 0x24FFFFFF)]
+            StringTable = 37, // DB_TYPE_STRING_TABLE 
+
+            /// <summary>
+            /// indexed as "emp/idmap" in the client
+            /// </summary>
+            [DataType(DataType.Portal), FileExt("imp"), FileIdRange(0x25000000, 0x25FFFFFF)]
+            DidMapper = 38, // DB_TYPE_DID_MAPPER 
+
+            [DataType(DataType.Portal), FileExt("actionmap"), FileIdRange(0x26000000, 0x2600FFFF)]
+            ActionMap = 39, // DB_TYPE_ACTIONMAP 
+
+            /// <summary>
+            /// indexed as "emp/idmap" in the client
+            /// </summary>
+            [DataType(DataType.Portal), FileExt("dimp"), FileIdRange(0x27000000, 0x27FFFFFF)]
+            DualDidMapper = 40, // DB_TYPE_DUAL_DID_MAPPER
+
+            [DataType(DataType.Portal), FileExt("str"), FileIdRange(0x31000000, 0x3100FFFF)]
+            String = 41, // DB_TYPE_STRING
+
+            /// <summary>
+            /// inedexed as "emt" in the client
+            /// </summary>
+            [DataType(DataType.Portal), FileExt("emt"), FileIdRange(0x32000000, 0x3200FFFF)]
+            ParticleEmitter = 42, // DB_TYPE_PARTICLE_EMITTER 
+
+            /// <summary>
+            /// inedexed as "pes" in the client
+            /// </summary>
+            [DataType(DataType.Portal), FileExt("pes"), FileIdRange(0x33000000, 0x3300FFFF)]
+            PhysicsScript = 43, // DB_TYPE_PHYSICS_SCRIPT 
+
+            /// <summary>
+            /// inedexed as "pet" in the client
+            /// </summary>
+            [DataType(DataType.Portal), FileExt("pet"), FileIdRange(0x34000000, 0x3400FFFF)]
+            PhysicsScriptTable = 44, // DB_TYPE_PHYSICS_SCRIPT_TABLE 
+
+            /// <summary>
+            /// inedexed as "emt/property" in the client
+            /// </summary>
+            [DataType(DataType.Portal), FileExt("mpr"), FileIdRange(0x39000000, 0x39FFFFFF)]
+            MasterProperty = 45, // DB_TYPE_MASTER_PROPERTY 
+
+            [DataType(DataType.Portal), FileExt("font"), FileIdRange(0x40000000, 0x40000FFF)]
+            Font = 46, // DB_TYPE_FONT 
+
+            [DataType(DataType.Portal), FileExt("font_local"), FileIdRange(0x40001000, 0x400FFFFF)]
+            FontLocal = 47, // DB_TYPE_FONT_LOCAL 
+
+            /// <summary>
+            /// This is located in the Language dat (client_local_English.dat)
+            /// "stringtable" in the client
+            /// </summary>
+            [DataType(DataType.Portal), FileExt("sti"), FileIdRange(0x41000000, 0x41FFFFFF)]
+            StringState = 48, // DB_TYPE_STRING_STATE
+
+            [DataType(DataType.Portal), FileExt("dbpc"), FileExt("pmat"), FileIdRange(0x78000000, 0x7FFFFFFF)]
+            DbProperties = 49, // DB_TYPE_DBPROPERTIES
+
+            /// <summary>
+            /// indexed as "mesh" in the client
+            /// </summary>
+            [DataType(DataType.Portal), FileExt("rendermesh"), FileIdRange(0x19000000, 0x19FFFFFF)]
+            RenderMesh = 50, // DB_TYPE_RENDER_MESH
+
+            // the following special files are called out in a different section of the decompiled client:
+
+            [DataType(DataType.Portal), FileIdRange(0x0E000001, 0x0E000001)]
+            WeenieDefaults = 97, // DB_TYPE_WEENIE_DEF
+
+            [DataType(DataType.Portal), FileIdRange(0x0E000002, 0x0E000002)]
+            CharacterGenerator = 98, // DB_TYPE_CHAR_GEN_0
+
+            [DataType(DataType.Portal), FileIdRange(0x0E000003, 0x0E000003)]
+            SecondaryAttributeTable = 99, // DB_TYPE_ATTRIBUTE_2ND_TABLE_0
+
+            [DataType(DataType.Portal), FileIdRange(0x0E000004, 0x0E000004)]
+            SkillTable = 100, // DB_TYPE_SKILL_TABLE_0
+
+            [DataType(DataType.Portal), FileIdRange(0x0E00000E, 0x0E00000E)]
+            SpellTable = 101, // DB_TYPE_SPELL_TABLE_0
+
+            [DataType(DataType.Portal), FileIdRange(0x0E00000F, 0x0E00000F)]
+            SpellComponentTable = 102, // DB_TYPE_SPELLCOMPONENT_TABLE_0
+
+            [DataType(DataType.Portal), FileIdRange(0x0E000001, 0x0E000001)]
+            TreasureTable = 103, // DB_TYPE_W_TREASURE_SYSTEM
+
+            [DataType(DataType.Portal), FileIdRange(0x0E000019, 0x0E000019)]
+            CraftTable = 104, // DB_TYPE_W_CRAFT_TABLE
+
+            [DataType(DataType.Portal), FileIdRange(0x0E000018, 0x0E000018)]
+            XpTable = 105, // DB_TYPE_XP_TABLE_0
+
+            [DataType(DataType.Portal), FileIdRange(0x0E00001B, 0x0E00001B)]
+            Quests = 106, // DB_TYPE_QUEST_DEF_DB_0
+
+            [DataType(DataType.Portal), FileIdRange(0x0E00001C, 0x0E00001C)]
+            GameEventTable = 107, // DB_TYPE_GAME_EVENT_DB
+
+            [DataType(DataType.Portal), FileIdRange(0x0E010000, 0x0E01FFFF)]
+            QualityFilter = 108, // DB_TYPE_QUALITY_FILTER_0
+
+            [DataType(DataType.Portal), FileIdRange(0x30000000, 0x3000FFFF)]
+            CombatTable = 109, // DB_TYPE_COMBAT_TABLE_0
+
+            [DataType(DataType.Portal), FileIdRange(0x38000000, 0x3800FFFF)]
+            ItemMutation = 110, // DB_TYPE_MUTATE_FILTER
+
+            [DataType(DataType.Portal), FileIdRange(0x0E00001D, 0x0E00001D)]
+            ContractTable = 111, // DB_TYPE_CONTRACT_TABLE_0
+        }
+
+        [StructLayout(LayoutKind.Sequential, Pack = 0x1)]
+        unsafe struct Header
+        {
+            public uint FileType;
+            public uint BlockSize;
+            public uint FileSize;
+            [MarshalAs(UnmanagedType.U4)] public DataType DataSet;
+            public uint DataSubset;
+
+            public uint FreeHead;
+            public uint FreeTail;
+            public uint FreeCount;
+            public uint BTree;
+
+            public uint NewLRU;
+            public uint OldLRU;
+            public uint UseLRU; // UseLRU != 0
+
+            public uint MasterMapID;
+
+            public uint EnginePackVersion;
+            public uint GamePackVersion;
+            
+            public fixed byte VersionMajor[16];
+            public uint VersionMinor;
+        }
+
+        [StructLayout(LayoutKind.Sequential, Pack = 0x1)]
+        unsafe struct DirectoryHeader
+        {
+            internal const int SizeOf = (sizeof(uint) * 0x3E) + sizeof(uint) + (File.SizeOf * 0x3D);
+            public fixed uint Branches[0x3E];
+            public uint EntryCount;
+            [MarshalAs(UnmanagedType.ByValArray, SizeConst = 0x3D)]
+            public File[] Entries;
+        }
+
+        [StructLayout(LayoutKind.Sequential, Pack = 0x1)]
+        unsafe struct File
+        {
+            internal const int SizeOf = sizeof(uint) * 6;
+            public uint BitFlags; // not-used
+            public uint ObjectId;
+            public uint FileOffset;
+            public uint FileSize;
+            public uint Date; // not-used
+            public uint Iteration; // not-used
+
+            public FileType? GetFileType(DataType dataType)
+            {
+                if (dataType == DataType.Cell)
+                {
+                    if ((ObjectId & 0xFFFF) == 0xFFFF) return FileType.LandBlock;
+                    else if ((ObjectId & 0xFFFF) == 0xFFFE) return FileType.LandBlockInfo;
+                    else return FileType.EnvCell;
+                }
+                switch (ObjectId >> 24)
+                {
+                    case 0x01: return FileType.GraphicsObject;
+                    case 0x02: return FileType.Setup;
+                    case 0x03: return FileType.Animation;
+                    case 0x04: return FileType.Palette;
+                    case 0x05: return FileType.SurfaceTexture;
+                    case 0x06: return FileType.Texture;
+                    case 0x08: return FileType.Surface;
+                    case 0x09: return FileType.MotionTable;
+                    case 0x0A: return FileType.Wave;
+                    case 0x0D: return FileType.Environment;
+                    case 0x0F: return FileType.PaletteSet;
+                    case 0x10: return FileType.Clothing;
+                    case 0x11: return FileType.DegradeInfo;
+                    case 0x12: return FileType.Scene;
+                    case 0x13: return FileType.Region;
+                    case 0x20: return FileType.SoundTable;
+                    case 0x22: return FileType.EnumMapper;
+                    case 0x23: return FileType.StringTable;
+                    case 0x25: return FileType.DidMapper;
+                    case 0x27: return FileType.DualDidMapper;
+                    case 0x30: return FileType.CombatTable;
+                    case 0x32: return FileType.ParticleEmitter;
+                    case 0x33: return FileType.PhysicsScript;
+                    case 0x34: return FileType.PhysicsScriptTable;
+                    case 0x40: return FileType.Font;
+                }
+                if (ObjectId == 0x0E000002) return FileType.CharacterGenerator;
+                else if (ObjectId == 0x0E000007) return FileType.ChatPoseTable;
+                else if (ObjectId == 0x0E00000D) return FileType.ObjectHierarchy;
+                else if (ObjectId == 0xE00001A) return FileType.BadData;
+                else if (ObjectId == 0x0E00001E) return FileType.TabooTable;
+                else if (ObjectId == 0x0E00001F) return FileType.FileToId;
+                else if (ObjectId == 0x0E000020) return FileType.NameFilterTable;
+                else if (ObjectId == 0x0E020000) return FileType.MonitoredProperties;
+                Console.WriteLine($"Unknown file type: {ObjectId:X8}");
+                return null;
+            }
+        }
+
+        class Directory
+        {
+            public readonly DirectoryHeader Header;
+            public readonly List<Directory> Directories = new List<Directory>();
+
+            public unsafe Directory(BinaryReader r, long offset, int blockSize)
+            {
+                Header = ReadT<DirectoryHeader>(r, offset, DirectoryHeader.SizeOf, blockSize);
+                if (Header.Branches[0] != 0)
+                    for (var i = 0; i < Header.EntryCount + 1; i++)
+                        Directories.Add(new Directory(r, Header.Branches[i], blockSize));
+            }
+
+            public void AddFiles(DataType dataType, IList<FileMetadata> files, string path)
+            {
+                var did = 0;
+                Directories.ForEach(d => d.AddFiles(dataType, files, Path.Combine(path, did++.ToString())));
+                for (var i = 0; i < Header.EntryCount; i++)
+                {
+                    var entry = Header.Entries[i];
+                    //files[entry.ObjectId] = entry;
+                    var fileType = entry.GetFileType(dataType);
+                    files.Add(new FileMetadata
+                    {
+                        Path = Path.Combine(path, $"{fileType}{entry.ObjectId:X8}"),
+                        Position = entry.FileOffset,
+                        FileSize = entry.FileSize,
+                        Tag = entry,
+                    });
+                }
+            }
+        }
+
+        #endregion
+
+        static T ReadT<T>(BinaryReader r, long offset, int size, int blockSize) => UnsafeUtils.MarshalT<T>(ReadBytes(r, offset, size, blockSize));
+
+        static byte[] ReadBytes(BinaryReader r, long offset, int size, int blockSize)
+        {
+            r.Position(offset);
+            var nextAddress = (long)r.ReadUInt32();
+            var buffer = new byte[size];
+            var bufferIdx = 0;
+            int read;
+            while (size > 0)
+            {
+                if (size > blockSize)
+                {
+                    read = r.Read(buffer, bufferIdx, blockSize - 4);
+                    bufferIdx += read;
+                    size -= read;
+                    r.Position(nextAddress); nextAddress = r.ReadUInt32();
+                }
+                else
+                {
+                    r.Read(buffer, bufferIdx, size);
+                    return buffer;
+                }
+            }
+            return buffer;
+        }
 
         public unsafe override Task ReadAsync(BinaryPakFile source, BinaryReader r, ReadStage stage)
         {
-            if (stage != ReadStage.File)
-                throw new ArgumentOutOfRangeException(nameof(stage), stage.ToString());
-
-            FileMetadata[] files;
-            var Magic = r.ReadUInt32();
-            // Signature("KEY ")
-            if (Magic == KEY_MAGIC)
-            {
-                var header = r.ReadT<KEY_Header>(sizeof(KEY_Header));
-                if (header.Version != KEY_VERSION)
-                    throw new InvalidOperationException("BAD MAGIC");
-                source.Version = header.Version;
-                source.Files = files = new FileMetadata[header.NumFiles];
-
-                // keys
-                var keys = new Dictionary<(uint, uint), string>();
-                r.Position(header.KeysPosition);
-                var infoKeys = r.ReadTArray<KEY_HeaderKey>(sizeof(KEY_HeaderKey), (int)header.NumKeys);
-                for (var i = 0; i < header.NumKeys; i++)
-                {
-                    var infoKey = infoKeys[i];
-                    keys.Add(((infoKey.Flags & 0xFFF00000) >> 20, infoKey.ResourceId), UnsafeUtils.ReadZASCII(infoKey.Name, 16));
-                }
-
-                // files
-                r.Position(header.FilesPosition);
-                var infos = r.ReadTArray<KEY_HeaderFile>(sizeof(KEY_HeaderFile), (int)header.NumFiles);
-                for (var i = 0; i < header.NumFiles; i++)
-                {
-                    var info = infos[i];
-                    r.Position(info.FileNameOffset);
-                    var fileName = r.ReadASCII((int)info.FileNameSize);
-                    var newPaths = Estate.FileManager.GetGameFilePaths("Witcher", fileName);
-                    string newPath;
-                    if (newPaths.Length != 1 || !System.IO.File.Exists(newPath = newPaths[0]))
-                        continue;
-                    files[i] = new FileMetadata
-                    {
-                        Path = fileName,
-                        PackedSize = info.PackedSize,
-                        Pak = new RedPakFile(newPath, source.Game, (keys, (uint)i)),
-                    };
-                }
-            }
-            // Signature("BIFF")
-            else if (Magic == BIFF_MAGIC) // Signature ("BIFF")
-            {
-                if (Tag == null)
-                    throw new InvalidOperationException("BIFF files can only be processed through KEY files");
-                var keyFile = ((Dictionary<(uint, uint), string> keys, uint bifId))Tag;
-                var header = r.ReadT<BIF_Header>(sizeof(BIF_Header));
-                if (header.Version != BIFF_VERSION)
-                    throw new InvalidOperationException("BAD MAGIC");
-                source.Version = header.Version;
-                source.Files = files = new FileMetadata[header.NumFiles];
-
-                // files
-                r.Position(header.FilesPosition);
-                var infos = r.ReadTArray<BIFF_HeaderFile>(sizeof(BIFF_HeaderFile), (int)header.NumFiles);
-                for (var i = 0; i < header.NumFiles; i++)
-                {
-                    var info = infos[i];
-                    // Curiously the last resource entry of djinni.bif seem to be missing
-                    if (info.FileId > i)
-                        continue;
-                    var path = (keyFile.keys.TryGetValue((keyFile.bifId, info.FileId), out var key) ? key : $"{i}") + (FileTypes.TryGetValue(info.FileType, out var extension) ? extension : string.Empty);
-                    files[i] = new FileMetadata
-                    {
-                        Path = path.Replace('\\', '/'),
-                        FileSize = info.FileSize,
-                        Position = info.FilePosition,
-                    };
-                }
-            }
-            // Signature("DZIP")
-            else if (Magic == DZIP_MAGIC)
-            {
-                var header = r.ReadT<DZIP_Header>(sizeof(DZIP_Header));
-                source.Version = DZIP_VERSION;
-                source.Files = files = new FileMetadata[header.NumFiles];
-                r.Position(header.FilesPosition);
-                for (var i = 0; i < header.NumFiles; i++)
-                {
-                    var fileName = r.ReadL16ASCII();
-                    var info = r.ReadT<DZIP_HeaderFile>(sizeof(DZIP_HeaderFile));
-                    files[i] = new FileMetadata
-                    {
-                        Path = fileName.Replace('\\', '/'),
-                        Compressed = true,
-                        PackedSize = (long)info.PackedSize,
-                        FileSize = (long)info.FileSize,
-                        Position = (long)info.Position,
-                    };
-                }
-            }
-            else throw new InvalidOperationException("BAD MAGIC");
+            var files = source.Files = new List<FileMetadata>();
+            r.Position(DAT_HEADER_OFFSET);
+            var header = r.ReadT<Header>(sizeof(Header));
+            var directory = new Directory(r, header.BTree, (int)header.BlockSize);
+            directory.AddFiles(header.DataSet, files, string.Empty);
             return Task.CompletedTask;
         }
-
-
-        //public override Task WriteAsync(BinaryPakFile source, BinaryWriter w)
-        //{
-        //    var files = source.Files = new List<FileMetadata>();
-        //    r.BaseStream.Seek(0, SeekOrigin.Begin);
-        //    var chunk = new byte[16];
-        //    var buf = new byte[100];
-        //    // read in 16 bytes chunks
-        //    while (r.Read(chunk, 0, 0x10) != 0)
-        //    {
-        //        if (chunk[0] != Magic[0] || chunk[1] != Magic[1] || chunk[2] != Magic[2] || chunk[3] != Magic[3])
-        //            continue;
-        //        // file found
-        //        var compressed = BitConverter.ToInt16(chunk, 8) == 0x64;
-        //        r.Read(chunk, 0, 14); //: minus 2
-        //        var fileNameSize = BitConverter.ToInt16(chunk, 0xA);
-        //        var extraFieldSize = BitConverter.ToInt16(chunk, 0xC);
-
-        //        // file name
-        //        var fileNameRead = 2 + ((fileNameSize - 2 + 15) & ~15) + 16;
-        //        if (fileNameRead > buf.Length) buf = new byte[fileNameRead];
-        //        r.Read(buf, 0, fileNameRead);
-        //        var fileName = Encoding.ASCII.GetString(buf, 0, fileNameSize);
-        //        var charIdx = (fileNameSize - 2) % 16;
-
-        //        // file size
-        //        var packedSize = BitConverter.ToUInt32(buf, fileNameSize + 12);
-
-        //        // skip extra
-        //        var extraFieldRead = ((extraFieldSize + 15) & ~15) - (charIdx != 0 ? 32 : 16);
-        //        r.Skip(extraFieldRead); //: var extraField = new byte[extraFieldRead]; r.Read(extraField, 0, extraField.Length);
-
-        //        // add
-        //        files.Add(new FileMetadata
-        //        {
-        //            Position = r.BaseStream.Position,
-        //            Compressed = compressed,
-        //            Path = fileName,
-        //            PackedSize = packedSize,
-        //        });
-
-        //        // file data
-        //        r.Skip(packedSize + (16 - (packedSize % 16))); //: var file = new byte[fileSize]; _r.Read(file, 0, fileSize); _r.Position += 16 - (fileSize % 16);
-        //    }
-        //    return Task.CompletedTask;
-        //}
 
         public override Task<byte[]> ReadFileAsync(BinaryPakFile source, BinaryReader r, FileMetadata file, Action<FileMetadata, string> exception = null)
         {
-            byte[] buf;
             r.Position(file.Position);
-            if (source.Version == PakBinaryRed.BIFF_VERSION)
-                buf = r.ReadBytes((int)file.FileSize);
-            else if (source.Version == PakBinaryRed.DZIP_VERSION)
-            {
-                var offsetAdd = r.ReadInt32();
-                buf = new byte[file.PackedSize - offsetAdd];
-                r.Skip(offsetAdd - 4);
-            }
-            else throw new ArgumentOutOfRangeException(nameof(source.Version), $"{source.Version}");
-            ////
-            //if (file.Compressed)
-            //    using (var decompressor = new Decompressor())
-            //        try
-            //        {
-            //            var src = new ArraySegment<byte>(buf);
-            //            var decompressedSize = Decompressor.GetDecompressedSize(src);
-            //            if (decompressedSize == 0)
-            //            {
-            //                source.AddRawFile(file, "Unable to Decompress");
-            //                return Task.FromResult(buf);
-            //            }
-            //            return Task.FromResult(decompressor.Unwrap(src));
-            //        }
-            //        catch (ZStdException e)
-            //        {
-            //            exception?.Invoke(file, $"ZstdException: {e.Message}");
-            //            return null;
-            //        }
-            return Task.FromResult(buf);
-        }
-
-        public override Task WriteFileAsync(BinaryPakFile source, BinaryWriter w, FileMetadata file, byte[] data, Action<FileMetadata, string> exception = null)
-        {
-            var buf = data;
-            //if (file.Compressed)
-            //    using (var compressor = new Compressor())
-            //        try
-            //        {
-            //            var src = new ArraySegment<byte>(buf);
-            //            buf = compressor.Wrap(src);
-            //        }
-            //        catch (ZStdException e)
-            //        {
-            //            exception?.Invoke(file, $"ZstdException: {e.Message}");
-            //            return Task.CompletedTask;
-            //        }
-            w.Write(buf, 0, buf.Length);
-            return Task.CompletedTask;
+            return Task.FromResult(r.ReadBytes((int)file.FileSize));
         }
     }
 }

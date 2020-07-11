@@ -8,13 +8,22 @@
   "pakFileType": "GameEstate.Estates.RedPakFile",
   "games": {
     "Witcher": {
-      "name": "The Witcher"
+      "name": "The Witcher",
+      "pak": "game:/main.key#Witcher"
+      //"pak": "game:/main.bif#Witcher",
+      //"pakZ": "game:/attackeffects.2da#Witcher",
+      //"pak": "game:/dialog_3.tlk#Witcher",
+      //"pak": "game:/lang_3.key#Witcher"
     },
     "Witcher2": {
-      "name": "The Witcher 2"
+      "name": "The Witcher 2",
+      "pak_": "game:/*#Witcher2",
+      "pak": "game:/base_scripts.dzip#Witcher2",
+      "pak2": "game:/br0.w2strings#Witcher2"
     },
     "Witcher3": {
-      "name": "The Witcher 3: Wild Hunt"
+      "name": "The Witcher 3: Wild Hunt",
+      "pak": "game:/content0/ar.w3strings#Witcher3"
     },
     "Cyberpunk2077": {
       "name": "Cyberpunk 2077"

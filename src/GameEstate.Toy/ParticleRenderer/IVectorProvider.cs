@@ -22,12 +22,12 @@ namespace GameEstate.Toy.ParticleRenderer
 
     public static class IVectorProviderExtensions
     {
-        public static IVectorProvider GetVectorProvider(this Dictionary<string, object> keyValues, string propertyName, IVectorProvider defaultValue = default)
+        public static IVectorProvider GetVectorProvider(this IDictionary<string, object> keyValues, string propertyName, IVectorProvider defaultValue = default)
         {
             if (!keyValues.TryGetValue(propertyName, out var property))
                 return defaultValue;
 
-            if (property is Dictionary<string, object> numberProviderParameters && numberProviderParameters.ContainsKey("m_nType"))
+            if (property is IDictionary<string, object> numberProviderParameters && numberProviderParameters.ContainsKey("m_nType"))
             {
                 var type = numberProviderParameters.Get<string>("m_nType");
                 return type switch

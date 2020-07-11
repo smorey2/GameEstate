@@ -1,4 +1,5 @@
 ﻿using GameEstate.Core;
+using GameEstate.Explorer;
 
 namespace GameEstate.Estates
 {
@@ -13,6 +14,12 @@ namespace GameEstate.Estates
         /// </summary>
         /// <param name="filePath">The file path.</param>
         /// <param name="game">The game.</param>
-        public U9PakFile(string filePath, string game) : base(filePath, game, null) => Open();
+        /// <param name="tag">The tag.</param>
+        public U9PakFile(string filePath, string game, object tag = null) : base(filePath, game, null)
+        {
+            ExplorerItem = StandardExplorerItem.GetPakFilesAsync;
+            ExplorerInfos.Add(".dds", StandardExplorerInfo.GetDdsAsync);
+            Open();
+        }
     }
 }

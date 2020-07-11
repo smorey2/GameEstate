@@ -9,11 +9,15 @@ namespace GameEstate.Core
     public class GenericPool<T> : IDisposable
         where T : IDisposable
     {
-        const int MAX = 10;
         readonly ConcurrentBag<T> _items = new ConcurrentBag<T>();
         public readonly Func<T> Factory;
+        public readonly int Retain;
 
-        public GenericPool(Func<T> factory) => Factory = factory;
+        public GenericPool(Func<T> factory, int retain = 10)
+        {
+            Factory = factory;
+            Retain = retain;
+        }
 
         public void Dispose()
         {
@@ -23,7 +27,7 @@ namespace GameEstate.Core
 
         public void Release(T item)
         {
-            if (_items.Count < MAX) _items.Add(item);
+            if (_items.Count < Retain) _items.Add(item);
             else item.Dispose();
         }
 

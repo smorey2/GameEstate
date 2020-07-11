@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
+using System.Numerics;
 using System.Text;
-using UnityEngine;
 using static GameEstate.Core.CoreDebug;
 
 namespace GameEstate.Core
@@ -13,6 +13,8 @@ namespace GameEstate.Core
 
     public static class CoreExtensions
     {
+        #region System
+
         public static string GetEnumDescription(this Type source, string value)
         {
             var name = Enum.GetNames(source).FirstOrDefault(f => f.Equals(value, StringComparison.OrdinalIgnoreCase));
@@ -33,17 +35,9 @@ namespace GameEstate.Core
             return true;
         }
 
+        #endregion
+
         #region Convert Color
-
-        public static Color B565ToColor(this ushort B565)
-        {
-            var R5 = (B565 >> 11) & 31;
-            var G6 = (B565 >> 5) & 63;
-            var B5 = B565 & 31;
-            return new Color((float)R5 / 31, (float)G6 / 63, (float)B5 / 31, 1);
-        }
-
-        public static Color32 B565ToColor32(this ushort B565) => B565ToColor(B565);
 
         public static uint FromBGR555(this ushort bgr555, bool addAlpha = true)
         {
@@ -57,6 +51,84 @@ namespace GameEstate.Core
                 ((uint)(g << 8) & 0x0000FF00) |
                 ((uint)(b << 0) & 0x000000FF);
             return color;
+        }
+
+        #endregion
+
+        #region Numeric
+
+        public static float Get(this Matrix4x4 source, int row, int column)
+        {
+            if (row == 0)
+            {
+                if (column == 0) return source.M11;
+                else if (column == 1) return source.M12;
+                else if (column == 2) return source.M13;
+                else if (column == 3) return source.M14;
+                else throw new ArgumentOutOfRangeException(nameof(row));
+            }
+            else if (row == 1)
+            {
+                if (column == 0) return source.M21;
+                else if (column == 1) return source.M22;
+                else if (column == 2) return source.M23;
+                else if (column == 3) return source.M24;
+                else throw new ArgumentOutOfRangeException(nameof(row));
+            }
+            else if (row == 2)
+            {
+                if (column == 0) return source.M31;
+                else if (column == 1) return source.M32;
+                else if (column == 2) return source.M33;
+                else if (column == 3) return source.M34;
+                else throw new ArgumentOutOfRangeException(nameof(row));
+            }
+            else if (row == 3)
+            {
+                if (column == 0) return source.M41;
+                else if (column == 1) return source.M42;
+                else if (column == 2) return source.M43;
+                else if (column == 3) return source.M44;
+                else throw new ArgumentOutOfRangeException(nameof(row));
+            }
+            else throw new ArgumentOutOfRangeException(nameof(column));
+        }
+
+        public static void Set(this Matrix4x4 source, int row, int column, float value)
+        {
+            if (row == 0)
+            {
+                if (column == 0) source.M11 = value;
+                else if (column == 1) source.M12 = value;
+                else if (column == 2) source.M13 = value;
+                else if (column == 3) source.M14 = value;
+                else throw new ArgumentOutOfRangeException(nameof(row));
+            }
+            else if (row == 1)
+            {
+                if (column == 0) source.M21 = value;
+                else if (column == 1) source.M22 = value;
+                else if (column == 2) source.M23 = value;
+                else if (column == 3) source.M24 = value;
+                else throw new ArgumentOutOfRangeException(nameof(row));
+            }
+            else if (row == 2)
+            {
+                if (column == 0) source.M31 = value;
+                else if (column == 1) source.M32 = value;
+                else if (column == 2) source.M33 = value;
+                else if (column == 3) source.M34 = value;
+                else throw new ArgumentOutOfRangeException(nameof(row));
+            }
+            else if (row == 3)
+            {
+                if (column == 0) source.M41 = value;
+                else if (column == 1) source.M42 = value;
+                else if (column == 2) source.M43 = value;
+                else if (column == 3) source.M44 = value;
+                else throw new ArgumentOutOfRangeException(nameof(row));
+            }
+            else throw new ArgumentOutOfRangeException(nameof(column));
         }
 
         #endregion
@@ -92,7 +164,7 @@ namespace GameEstate.Core
             Assert(length <= int.MaxValue);
             return source.ReadBytes(length);
         }
-        public static void ReadToEnd(this BinaryReader source, byte[] buffer, int startIndex)
+        public static void ReadToEnd(this BinaryReader source, byte[] buffer, int startIndex = 0)
         {
             var length = (int)source.BaseStream.Length - source.BaseStream.Position;
             Assert(startIndex >= 0 && length <= int.MaxValue && startIndex + length <= buffer.Length);
@@ -122,7 +194,34 @@ namespace GameEstate.Core
                 default: throw new ArgumentOutOfRangeException(nameof(format), format.ToString());
             }
         }
-        public static string ReadZASCII(this BinaryReader source, int length, List<byte> buf = null)
+
+        public static string ReadZEncoding(this BinaryReader source, Encoding encoding)
+        {
+            var characterSize = encoding.GetByteCount("e");
+            using (var s = new MemoryStream())
+            {
+                while (true)
+                {
+                    var data = new byte[characterSize];
+                    source.Read(data, 0, characterSize);
+                    if (encoding.GetString(data, 0, characterSize) == "\0")
+                        break;
+                    s.Write(data, 0, data.Length);
+                }
+                return encoding.GetString(s.ToArray());
+            }
+        }
+        public static string ReadZUTF8(this BinaryReader source, int length = int.MaxValue, List<byte> buf = null)
+        {
+            if (buf == null)
+                buf = new List<byte>(64);
+            buf.Clear();
+            byte c;
+            while (length-- > 0 && (c = source.ReadByte()) != 0)
+                buf.Add(c);
+            return Encoding.UTF8.GetString(buf.ToArray());
+        }
+        public static string ReadZASCII(this BinaryReader source, int length = int.MaxValue, List<byte> buf = null)
         {
             if (buf == null)
                 buf = new List<byte>(64);
@@ -132,7 +231,7 @@ namespace GameEstate.Core
                 buf.Add(c);
             return Encoding.ASCII.GetString(buf.ToArray());
         }
-        public static string[] ReadZASCIIArray(this BinaryReader source, int length, List<byte> buf = null)
+        public static string[] ReadZASCIIArray(this BinaryReader source, int length = int.MaxValue, List<byte> buf = null)
         {
             if (buf == null)
                 buf = new List<byte>(64);
@@ -148,13 +247,13 @@ namespace GameEstate.Core
             return list.ToArray();
         }
 
-        public static T ReadT<T>(this BinaryReader source, int length) => UnsafeUtils.MarshalT<T>(source.ReadBytes(length), length);
-        public static T[] ReadTArray<T>(this BinaryReader source, int sizeOf, int count) => UnsafeUtils.MarshalTArray<T>(source.ReadBytes(count * sizeOf), count);
-        
+        public static T ReadT<T>(this BinaryReader source, int length) => UnsafeUtils.MarshalT<T>(source.ReadBytes(length));
+        public static T[] ReadTArray<T>(this BinaryReader source, int sizeOf, int count) => UnsafeUtils.MarshalTArray<T>(source.ReadBytes(count * sizeOf), 0, count);
+
         //public static T[] ReadTArray2<T>(this BinaryReader source, int sizeOf, int count) where T : struct { var r = new T[count]; Buffer.BlockCopy(source.ReadBytes(count * sizeOf), 0, r, 0, count * sizeOf); return r; }
-        public static T[] ReadTArray2<T>(this BinaryReader source, int sizeOf, int count) => UnsafeUtils.MarshalTArray<T>(source.ReadBytes(count * sizeOf), count);
-        public static T[] ReadTMany<T>(this BinaryReader source, int length, int count) => UnsafeUtils.MarshalTArray<T>(source.ReadBytes(length), count);
-        public static void ReadTMany<T>(this BinaryReader source, T[] dest, int length) => UnsafeUtils.MarshalTArray<T>((FileStream)source.BaseStream, dest, length);
+        public static T[] ReadTArray2<T>(this BinaryReader source, int sizeOf, int count) => UnsafeUtils.MarshalTArray<T>(source.ReadBytes(count * sizeOf), 0, count);
+        public static T[] ReadTMany<T>(this BinaryReader source, int length, int count) => UnsafeUtils.MarshalTArray<T>(source.ReadBytes(length), 0, count);
+        public static void ReadTMany<T>(this BinaryReader source, T[] dest, int length) => UnsafeUtils.MarshalTArray<T>((FileStream)source.BaseStream, dest, 0, length);
 
         public static bool ReadBool32(this BinaryReader source) => source.ReadUInt32() != 0;
 
@@ -171,8 +270,8 @@ namespace GameEstate.Core
                 for (var rowIndex = 0; rowIndex < 4; rowIndex++)
                 {
                     // If we're in the 3x3 part of the matrix, read values. Otherwise, use the identity matrix.
-                    if (rowIndex <= 2 && columnIndex <= 2) matrix[rowIndex, columnIndex] = source.ReadSingle();
-                    else matrix[rowIndex, columnIndex] = rowIndex == columnIndex ? 1 : 0;
+                    if (rowIndex <= 2 && columnIndex <= 2) matrix.Set(rowIndex, columnIndex, source.ReadSingle());
+                    else matrix.Set(rowIndex, columnIndex, rowIndex == columnIndex ? 1f : 0f);
                 }
             return matrix;
         }
@@ -186,8 +285,8 @@ namespace GameEstate.Core
                 for (var columnIndex = 0; columnIndex < 4; columnIndex++)
                 {
                     // If we're in the 3x3 part of the matrix, read values. Otherwise, use the identity matrix.
-                    if (rowIndex <= 2 && columnIndex <= 2) matrix[rowIndex, columnIndex] = source.ReadSingle();
-                    else matrix[rowIndex, columnIndex] = rowIndex == columnIndex ? 1 : 0;
+                    if (rowIndex <= 2 && columnIndex <= 2) matrix.Set(rowIndex, columnIndex, source.ReadSingle());
+                    else matrix.Set(rowIndex, columnIndex, rowIndex == columnIndex ? 1f : 0f);
                 }
             return matrix;
         }
@@ -196,7 +295,7 @@ namespace GameEstate.Core
             var matrix = new Matrix4x4();
             for (var columnIndex = 0; columnIndex < 4; columnIndex++)
                 for (var rowIndex = 0; rowIndex < 4; rowIndex++)
-                    matrix[rowIndex, columnIndex] = source.ReadSingle();
+                    matrix.Set(rowIndex, columnIndex, source.ReadSingle());
             return matrix;
         }
         public static Matrix4x4 ReadRowMajorMatrix4x4(this BinaryReader source)
@@ -204,7 +303,7 @@ namespace GameEstate.Core
             var matrix = new Matrix4x4();
             for (var rowIndex = 0; rowIndex < 4; rowIndex++)
                 for (var columnIndex = 0; columnIndex < 4; columnIndex++)
-                    matrix[rowIndex, columnIndex] = source.ReadSingle();
+                    matrix.Set(rowIndex, columnIndex, source.ReadSingle());
             return matrix;
         }
         public static Quaternion ReadQuaternionWFirst(this BinaryReader source)

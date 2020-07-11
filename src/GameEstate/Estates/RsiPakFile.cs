@@ -10,17 +10,17 @@ namespace GameEstate.Estates
     /// <seealso cref="GameEstate.Core.BinaryPakFile" />
     public class RsiPakFile : BinaryPakFile
     {
-        static RsiPakFile()
-        {
-            ExplorerItemAsync = StandardExplorerItem.GetPakFilesAsync;
-            ExplorerInfoAsyncs.Add(".dds", StandardExplorerInfo.GetDdsInfo);
-        }
-
         /// <summary>
         /// Initializes a new instance of the <see cref="RsiPakFile" /> class.
         /// </summary>
         /// <param name="filePath">The file path.</param>
         /// <param name="game">The game.</param>
-        public RsiPakFile(string filePath, string game) : base(filePath, game, new PakBinaryP4k()) => Open();
+        /// <param name="tag">The tag.</param>
+        public RsiPakFile(string filePath, string game, object tag = null) : base(filePath, game, new PakBinaryP4k())
+        {
+            ExplorerItem = StandardExplorerItem.GetPakFilesAsync;
+            ExplorerInfos.Add(".dds", StandardExplorerInfo.GetDdsAsync);
+            Open();
+        }
     }
 }

@@ -1,64 +1,27 @@
 ﻿using GameEstate.Core;
 using GameEstate.Explorer;
-using GameEstate.Explorer.ViewModel;
 using GameEstate.Formats.Binary;
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace GameEstate.Estates
 {
-    public class ValvePakFile : AbstractPakFile
+    /// <summary>
+    /// UOPakFile
+    /// </summary>
+    /// <seealso cref="GameEstate.Core.BinaryPakFile" />
+    public class ValvePakFile : BinaryPakFile
     {
-        public ValvePakFile(string game, string name) : base(game, name)
-        {
-        }
-
-        public override void Close()
-        {
-            throw new NotImplementedException();
-        }
-
-        public override bool Contains(string filePath)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override void Dispose()
-        {
-            throw new NotImplementedException();
-        }
-
-        public override Task<byte[]> LoadFileDataAsync(string filePath, Action<FileMetadata, string> exception)
-        {
-            throw new NotImplementedException();
-        }
-
-        #region Explorer
-
         /// <summary>
-        /// Gets the explorer item nodes.
+        /// Initializes a new instance of the <see cref="ValvePakFile" /> class.
         /// </summary>
-        /// <param name="resource">The resource.</param>
-        /// <returns></returns>
-        /// <exception cref="NotImplementedException"></exception>
-        public override Task<List<ExplorerItemNode>> GetExplorerItemNodesAsync(ExplorerManager resource)
+        /// <param name="filePath">The file path.</param>
+        /// <param name="game">The game.</param>
+        /// <param name="tag">The tag.</param>
+        public ValvePakFile(string filePath, string game, object tag = null) : base(filePath, game, new PakBinaryValve())
         {
-            return Task.FromResult<List<ExplorerItemNode>>(null);
+            ExplorerItem = StandardExplorerItem.GetPakFilesAsync;
+            ExplorerInfos.Add("_default", StandardExplorerInfo.GetDefaultAsync);
+            ExplorerInfos.Add(".dds", StandardExplorerInfo.GetDdsAsync);
+            Open();
         }
-
-        /// <summary>
-        /// Gets the explorer information nodes.
-        /// </summary>
-        /// <param name="resource">The resource.</param>
-        /// <param name="item">The item.</param>
-        /// <returns></returns>
-        /// <exception cref="NotImplementedException"></exception>
-        public override Task<List<ExplorerInfoNode>> GetExplorerInfoNodesAsync(ExplorerManager resource, ExplorerItemNode item)
-        {
-            return Task.FromResult<List<ExplorerInfoNode>>(null);
-        }
-
-        #endregion
     }
 }

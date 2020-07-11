@@ -2,28 +2,30 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
+using GameEstate.Graphics;
+using GameEstate.Graphics.Scene;
 using OpenTK.Graphics.OpenGL;
 
 namespace GameEstate.Toy.Renderer
 {
     public static class MeshBatchRenderer
     {
-        public struct Request
-        {
-            public Matrix4x4 Transform;
-            public RenderableMesh Mesh;
-            public DrawCall Call;
-            public float DistanceFromCamera;
-        }
+        //public struct Request
+        //{
+        //    public Matrix4x4 Transform;
+        //    public RenderableMesh Mesh;
+        //    public DrawCall Call;
+        //    public float DistanceFromCamera;
+        //}
 
-        public static void Render(List<Request> requests, Scene.RenderContext context)
+        public static void Render(List<MeshBatchRequest> requests, Scene.RenderContext context)
         {
             // Opaque: Grouped by material
             if (context.RenderPass == RenderPass.Both || context.RenderPass == RenderPass.Opaque)
                 DrawBatch(requests, context);
 
-            // Translucent: In reverse order
-            if (context.RenderPass == RenderPass.Both || context.RenderPass == RenderPass.Translucent)
+            // Blended: In reverse order
+            if (context.RenderPass == RenderPass.Both || context.RenderPass == RenderPass.Blended)
             {
                 var holder = new Request[1]; // Holds the one request we render at a time
 
@@ -37,7 +39,7 @@ namespace GameEstate.Toy.Renderer
             }
         }
 
-         static void DrawBatch(IEnumerable<Request> drawCalls, Scene.RenderContext context)
+         static void DrawBatch(IEnumerable<MeshBatchRequest> drawCalls, Scene.RenderContext context)
         {
             GL.Enable(EnableCap.DepthTest);
 

@@ -25,7 +25,7 @@ namespace GameEstate.Core
         /// <param name="address">The host.</param>
         public StreamPakFile(Func<Uri, string, AbstractHost> factory, string filePath, string game, Uri address = null) : base(filePath, game, new PakBinaryStream())
         {
-            UsePool = false;
+            UseBinaryReader = false;
             if (address != null)
                 Host = factory(address, filePath);
             Open();
@@ -38,7 +38,7 @@ namespace GameEstate.Core
         /// <param name="filePath">The file path.</param>
         public StreamPakFile(BinaryPakFile parent, string game, string filePath) : base(filePath, game, new PakBinaryStream())
         {
-            UsePool = false;
+            UseBinaryReader = false;
             Files = parent.Files;
             Open();
         }

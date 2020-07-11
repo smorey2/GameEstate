@@ -11,7 +11,7 @@ namespace GameEstate.Toy.ParticleRenderer.Initializers
         readonly Vector3 _offsetMin;
         readonly Vector3 _offsetMax;
 
-        public PositionOffset(Dictionary<string, object> keyValues)
+        public PositionOffset(IDictionary<string, object> keyValues)
         {
             _offsetMin = keyValues.TryGet<double[]>("m_OffsetMin", out var vectorValues)
                 ? new Vector3((float)vectorValues[0], (float)vectorValues[1], (float)vectorValues[2])

@@ -1,18 +1,18 @@
 ﻿using GameEstate.Core;
+using GameEstate.Graphics.DirectX;
 using ICSharpCode.SharpZipLib.Lzw;
 using ICSharpCode.SharpZipLib.Zip.Compression.Streams;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Runtime.InteropServices;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace GameEstate.Formats.Binary
 {
     public class PakBinaryTes : PakBinary
     {
-        #region Header
+        #region StructLayout
 
         // Default header data
         const uint MW_BSAHEADER_FILEID = 0x00000100; // Magic for Morrowind BSA
@@ -178,7 +178,7 @@ namespace GameEstate.Formats.Binary
                 {
                     for (var i = 0; i < header.NumFiles; i++)
                     {
-                        var fileMetadata = files[i];
+                        //var fileMetadata = files[i];
                         var info = r.ReadT<F4_HeaderFile2>(sizeof(F4_HeaderFile2));
                         var infoChunks = r.ReadTArray<F4_HeaderInfo2Chunk>(sizeof(F4_HeaderInfo2Chunk), info.NumChunks);
                         var firstChunk = infoChunks[0];
@@ -303,7 +303,7 @@ namespace GameEstate.Formats.Binary
 
         public unsafe override Task WriteAsync(BinaryPakFile source, BinaryWriter w, WriteStage stage) => throw new NotImplementedException();
 
-        public override Task<byte[]> ReadFileAsync(BinaryPakFile source, BinaryReader r, FileMetadata file, Action<FileMetadata, string> exception = null)
+        public unsafe override Task<byte[]> ReadFileAsync(BinaryPakFile source, BinaryReader r, FileMetadata file, Action<FileMetadata, string> exception = null)
         {
             var fileSize = (int)file.FileSize;
             byte[] fileData;
@@ -349,10 +349,10 @@ namespace GameEstate.Formats.Binary
             // Fill DDS Header
             else if (file.Tag != null)
             {
-                var info = (PakBinaryTes.F4_HeaderFile2)file.Info;
+                var info = (F4_HeaderFile2)file.Info;
                 //var tag = (PakFormat02.F4_HeaderInfo2Chunk)file.Tag;
                 // Fill DDS Header
-                var ddsHeader = new DDSHeader
+                var ddsHeader = new DDS_HEADER
                 {
                     dwFlags = DDSFlags.HEADER_FLAGS_TEXTURE | DDSFlags.HEADER_FLAGS_LINEARSIZE | DDSFlags.HEADER_FLAGS_MIPMAP,
                     dwHeight = info.Height,
@@ -361,40 +361,42 @@ namespace GameEstate.Formats.Binary
                     dwCaps = DDSCaps.SURFACE_FLAGS_TEXTURE | DDSCaps.SURFACE_FLAGS_MIPMAP,
                     dwCaps2 = info.Unk16 == 2049 ? DDSCaps2.CUBEMAP_ALLFACES : 0,
                 };
-                var dx10Header = new DDSHeader_DXT10();
+                var dx10Header = new DDS_HEADER_DXT10();
                 var dx10 = false;
                 // map tex format
-                switch ((DXGIFormat)info.Format)
+                switch ((DXGI_FORMAT)info.Format)
                 {
-                    case DXGIFormat.BC1_UNORM:
-                        ddsHeader.ddspf.dwFlags = DDSPixelFormats.FourCC;
-                        ddsHeader.ddspf.dwFourCC = Encoding.ASCII.GetBytes("DXT1");
+                    case DXGI_FORMAT.BC1_UNORM:
+                        ddsHeader.ddspf.dwFlags = DDPF.FourCC;
+                        ddsHeader.ddspf.dwFourCC = DDS_HEADER.Literal.DXT1;
                         ddsHeader.dwPitchOrLinearSize = (uint)info.Width * info.Height / 2U; // 4bpp
                         break;
-                    case DXGIFormat.BC2_UNORM:
-                        ddsHeader.ddspf.dwFlags = DDSPixelFormats.FourCC;
-                        ddsHeader.ddspf.dwFourCC = Encoding.ASCII.GetBytes("DXT3");
+                    case DXGI_FORMAT.BC2_UNORM:
+                        ddsHeader.ddspf.dwFlags = DDPF.FourCC;
+                        ddsHeader.ddspf.dwFourCC = DDS_HEADER.Literal.DXT3;
                         ddsHeader.dwPitchOrLinearSize = (uint)info.Width * info.Height; // 8bpp
                         break;
-                    case DXGIFormat.BC3_UNORM:
-                        ddsHeader.ddspf.dwFlags = DDSPixelFormats.FourCC;
-                        ddsHeader.ddspf.dwFourCC = Encoding.ASCII.GetBytes("DXT5");
+                    case DXGI_FORMAT.BC3_UNORM:
+                        ddsHeader.ddspf.dwFlags = DDPF.FourCC;
+                        ddsHeader.ddspf.dwFourCC = DDS_HEADER.Literal.DXT5;
                         ddsHeader.dwPitchOrLinearSize = (uint)info.Width * info.Height; // 8bpp
                         break;
-                    case DXGIFormat.BC5_UNORM:
-                        ddsHeader.ddspf.dwFlags = DDSPixelFormats.FourCC;
-                        ddsHeader.ddspf.dwFourCC = Encoding.ASCII.GetBytes("ATI2");
+                    case DXGI_FORMAT.BC5_UNORM:
+                        ddsHeader.ddspf.dwFlags = DDPF.FourCC;
+                        ddsHeader.ddspf.dwFourCC = DDS_HEADER.Literal.ATI2;
                         ddsHeader.dwPitchOrLinearSize = (uint)info.Width * info.Height; // 8bpp
                         break;
-                    case DXGIFormat.BC7_UNORM:
-                        ddsHeader.ddspf.dwFlags = DDSPixelFormats.FourCC;
-                        ddsHeader.ddspf.dwFourCC = Encoding.ASCII.GetBytes("DX10");
+                    case DXGI_FORMAT.BC7_UNORM:
+                        ddsHeader.ddspf.dwFlags = DDPF.FourCC;
+                        ddsHeader.ddspf.dwFourCC = DDS_HEADER.Literal.DX10;
+                        //fixed (byte* p = DDS_HEADER.Literal.DX10)
+                        //    Buffer.MemoryCopy(ddsHeader.ddspf.dwFourCC, p, 4, 4);
                         ddsHeader.dwPitchOrLinearSize = (uint)info.Width * info.Height; // 8bpp
                         dx10 = true;
-                        dx10Header.dxgiFormat = DXGIFormat.BC7_UNORM;
+                        dx10Header.dxgiFormat = DXGI_FORMAT.BC7_UNORM;
                         break;
-                    case DXGIFormat.DXGI_FORMAT_B8G8R8A8_UNORM:
-                        ddsHeader.ddspf.dwFlags = DDSPixelFormats.RGB | DDSPixelFormats.AlphaPixels;
+                    case DXGI_FORMAT.B8G8R8A8_UNORM:
+                        ddsHeader.ddspf.dwFlags = DDPF.RGB | DDPF.AlphaPixels;
                         ddsHeader.ddspf.dwRGBBitCount = 32;
                         ddsHeader.ddspf.dwRBitMask = 0x00FF0000;
                         ddsHeader.ddspf.dwGBitMask = 0x0000FF00;
@@ -402,8 +404,8 @@ namespace GameEstate.Formats.Binary
                         ddsHeader.ddspf.dwABitMask = 0xFF000000;
                         ddsHeader.dwPitchOrLinearSize = (uint)info.Width * info.Height * 4; // 32bpp
                         break;
-                    case DXGIFormat.DXGI_FORMAT_R8_UNORM:
-                        ddsHeader.ddspf.dwFlags = DDSPixelFormats.RGB;
+                    case DXGI_FORMAT.R8_UNORM:
+                        ddsHeader.ddspf.dwFlags = DDPF.RGB;
                         ddsHeader.ddspf.dwRGBBitCount = 8;
                         ddsHeader.ddspf.dwRBitMask = 0xFF;
                         ddsHeader.dwPitchOrLinearSize = (uint)info.Width * info.Height; // 8bpp
@@ -412,11 +414,11 @@ namespace GameEstate.Formats.Binary
                 }
                 if (dx10)
                 {
-                    dx10Header.resourceDimension = DDSDimension.Texture2D;
+                    dx10Header.resourceDimension = D3D10_RESOURCE_DIMENSION.Texture2D;
                     dx10Header.miscFlag = 0;
                     dx10Header.arraySize = 1;
                     dx10Header.miscFlags2 = 0;
-                    dx10Header.Write(null);
+                    //dx10Header.Write(null);
                     //char dds2[sizeof(dx10Header)];
                     //memcpy(dds2, &dx10Header, sizeof(dx10Header));
                     //content.append(QByteArray::fromRawData(dds2, sizeof(dx10Header)));

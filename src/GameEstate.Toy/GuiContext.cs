@@ -1,3 +1,4 @@
+using GameEstate.Graphics.OpenGL;
 using GameEstate.Toy.Core;
 using GameEstate.Toy.Renderer;
 
@@ -14,7 +15,7 @@ namespace GameEstate.Toy
         public MaterialLoader MaterialLoader { get; }
 
         public ShaderLoader ShaderLoader { get; }
-        public GPUMeshBufferCache MeshBufferCache { get; }
+        public GpuMeshBufferCache MeshBufferCache { get; }
 
         readonly FileLoader FileLoader;
 
@@ -35,9 +36,9 @@ namespace GameEstate.Toy
             //CurrentPackage = package?.Package;
             //ParentPackage = package?.ParentPackage;
             MaterialLoader = new MaterialLoader(this);
-            ShaderLoader = new ShaderLoader();
+            ShaderLoader = new ShaderDebugLoader();
             FileLoader = new FileLoader();
-            MeshBufferCache = new GPUMeshBufferCache();
+            MeshBufferCache = new GpuMeshBufferCache();
         }
 
         public object LoadFileByAnyMeansNecessary(string file) => FileLoader.LoadFileByAnyMeansNecessary(file, this);

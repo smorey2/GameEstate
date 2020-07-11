@@ -1,3 +1,4 @@
+using GameEstate.Graphics.Scene;
 using GameEstate.Toy.Models;
 using System.Collections.Generic;
 using System.Numerics;
@@ -11,7 +12,7 @@ namespace GameEstate.Toy.Renderer
         public MeshSceneNode(Scene scene, Mesh mesh, Dictionary<string, string> skinMaterials = null)
             : base(scene)
         {
-            meshRenderer = new RenderableMesh(mesh, Scene.GuiContext, skinMaterials);
+            meshRenderer = new RenderableMesh(mesh, Scene.Context, skinMaterials);
             LocalBoundingBox = meshRenderer.BoundingBox;
         }
 

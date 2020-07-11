@@ -1,5 +1,5 @@
-﻿using System.Runtime.InteropServices;
-using UnityEngine;
+﻿using System.Numerics;
+using System.Runtime.InteropServices;
 
 namespace GameEstate.Core
 {

@@ -10,7 +10,7 @@ namespace GameEstate.Toy.ParticleRenderer.Operators
         readonly float _fadeStartTime;
         readonly float _fadeEndTime;
 
-        public ColorInterpolate(Dictionary<string, object> keyValues)
+        public ColorInterpolate(IDictionary<string, object> keyValues)
         {
             if (keyValues.ContainsKey("m_ColorFade"))
             {

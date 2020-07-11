@@ -10,7 +10,7 @@ namespace GameEstate.Toy.ParticleRenderer.Initializers
         readonly float _minLength = 0.1f;
         readonly float _maxLength = 0.1f;
 
-        public RandomTrailLength(Dictionary<string, object> keyValues)
+        public RandomTrailLength(IDictionary<string, object> keyValues)
         {
             _minLength = keyValues.GetFloat("m_flMinLength", 0.1f);
             _maxLength = keyValues.GetFloat("m_flMaxLength", 0.1f);

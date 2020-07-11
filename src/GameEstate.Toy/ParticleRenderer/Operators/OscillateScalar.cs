@@ -16,7 +16,7 @@ namespace GameEstate.Toy.ParticleRenderer.Operators
         float _oscillationOffset;
         bool _proportional;
 
-        public OscillateScalar(Dictionary<string, object> keyValues)
+        public OscillateScalar(IDictionary<string, object> keyValues)
         {
             _outputField = (ParticleField)keyValues.GetInt("m_nField", (int)ParticleField.Alpha);
             _rateMin = keyValues.GetFloat("m_RateMin");

@@ -194,13 +194,13 @@ namespace GameEstate
                 var multiPak = estate.OpenPakFile(estate.ParseResource(opts.Uri)) as MultiPakFile;
                 if (multiPak == null)
                     throw new InvalidOperationException("multiPak not a MultiPakFile");
-                if (multiPak.Paks.Count == 0)
+                if (multiPak.PakFiles.Count == 0)
                 {
                     Console.WriteLine("No paks found.");
                     return Task.FromResult(0);
                 }
                 Console.WriteLine("Paks found:");
-                foreach (var p in multiPak.Paks)
+                foreach (var p in multiPak.PakFiles)
                 {
                     if (!(p is BinaryPakFile pak))
                         throw new InvalidOperationException("multiPak not a BinaryPakFile");
@@ -226,10 +226,10 @@ namespace GameEstate
                 Directory.CreateDirectory(filePath);
             var setPath = Path.Combine(filePath, ".set");
             using (var w = new BinaryWriter(new FileStream(setPath, FileMode.Create, FileAccess.Write)))
-                await PakBinary.Stream.WriteAsync(new StreamPakFile(HttpHost.Factory, "Root", null) { Files = multiPak.Paks.Select(x => new FileMetadata { Path = x.Name }).ToList() }, w, PakBinary.WriteStage._Set);
+                await PakBinary.Stream.WriteAsync(new StreamPakFile(HttpHost.Factory, "Root", null) { Files = multiPak.PakFiles.Select(x => new FileMetadata { Path = x.Name }).ToList() }, w, PakBinary.WriteStage._Set);
 
             // write paks
-            foreach (var p in multiPak.Paks)
+            foreach (var p in multiPak.PakFiles)
             {
                 if (!(p is BinaryPakFile pak))
                     throw new InvalidOperationException("multiPak not a BinaryPakFile");

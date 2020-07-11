@@ -10,7 +10,7 @@ namespace GameEstate.Toy.ParticleRenderer.Initializers
         readonly float _radiusMin;
         readonly float _radiusMax;
 
-        public RandomRadius(Dictionary<string, object> keyValues)
+        public RandomRadius(IDictionary<string, object> keyValues)
         {
             _radiusMin = keyValues.GetFloat("m_flRadiusMin");
             _radiusMax = keyValues.GetFloat("m_flRadiusMax");

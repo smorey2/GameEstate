@@ -6,7 +6,7 @@ namespace GameEstate.Toy.ParticleRenderer.Operators
     public class Decay : IParticleOperator
     {
 #pragma warning disable CA1801
-        public Decay(Dictionary<string, object> keyValues) { }
+        public Decay(IDictionary<string, object> keyValues) { }
 #pragma warning restore CA1801
 
         public void Update(Span<Particle> particles, float frameTime, ParticleSystemRenderState particleSystemState)

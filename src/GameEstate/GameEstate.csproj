@@ -49,9 +49,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="MathNet.Numerics" Version="4.9.0" />
-    <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="3.1.0" />
+    <PackageReference Include="MathNet.Numerics" Version="4.11.0" />
+    <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="3.1.5" />
     <PackageReference Include="Microsoft.Win32.Registry" Version="4.7.0" />
+    <PackageReference Include="SkiaSharp" Version="1.68.3" />
     <PackageReference Include="System.Drawing.Common" Version="4.7.0" />
     <PackageReference Include="System.Text.Json" Version="4.7.2" />
   </ItemGroup>
@@ -60,15 +61,13 @@
     <Reference Include="ICSharpCode.SharpZipLib">
       <HintPath>..\..\lib\ICSharpCode.SharpZipLib.dll</HintPath>
     </Reference>
-    <Reference Include="UnityEngine">
-      <HintPath>..\..\lib\UnityEngine.dll</HintPath>
-    </Reference>
     <Reference Include="Zstd.Net">
       <HintPath>..\..\lib\Zstd.Net.dll</HintPath>
     </Reference>
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="Formats\Valve\" />
     <Folder Include="x64\" />
     <Folder Include="x86\" />
   </ItemGroup>

@@ -115,7 +115,7 @@ namespace GameEstate.Formats.Binary.Tes.Records
         public List<RefObj> RefObjs = new List<RefObj>();
         RefObj _lastRef;
 
-        public bool IsInterior => Utils.ContainsBitFlags(DATA.Value, 0x01);
+        public bool IsInterior => (DATA.Value & 0x01) == 0x01;
         public Vector3Int GridId; // => new Vector3Int(XCLC.Value.GridX, XCLC.Value.GridY, !IsInterior ? 0 : -1);
         public Color? AmbientLight => XCLL != null ? (Color?)XCLL.Value.AmbientColor.ToColor32() : null;
 

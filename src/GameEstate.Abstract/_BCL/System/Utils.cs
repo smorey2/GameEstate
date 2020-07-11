@@ -15,16 +15,18 @@ namespace System
 
         public static void Swap<T>(ref T a, ref T b) { var tmp = a; a = b; b = tmp; }
 
+        //public static bool _Set(this Enum source, Enum flags) => false; // (source & flags) == flags;
+
         /// <summary>
         /// Checks if a bit string (an unsigned integer) contains a collection of bit flags.
         /// </summary>
-        public static bool ContainsBitFlags(int bits, params int[] bitFlags)
-        {
-            var allBitFlags = 0U;
-            foreach (var bitFlag in bitFlags)
-                allBitFlags |= (uint)bitFlag;
-            return ((uint)bits & allBitFlags) == allBitFlags;
-        }
+        //public static bool ContainsBitFlags(int bits, params int[] bitFlags)
+        //{
+        //    var allBitFlags = 0U;
+        //    foreach (var bitFlag in bitFlags)
+        //        allBitFlags |= (uint)bitFlag;
+        //    return ((uint)bits & allBitFlags) == allBitFlags;
+        //}
 
         /// <summary>
         /// Extracts a range of bits from a byte array.

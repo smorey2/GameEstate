@@ -36,8 +36,8 @@ namespace GameEstate.CoreTests
             var multiPak = estate.OpenPakFile(new Uri(uri)) as MultiPakFile;
             if (multiPak == null)
                 throw new InvalidOperationException("multiPak not a MultiPakFile");
-            Assert.Equal(paks, multiPak.Paks.Count);
-            var pak = multiPak.Paks[0] as BinaryPakFile;
+            Assert.Equal(paks, multiPak.PakFiles.Count);
+            var pak = multiPak.PakFiles[0] as BinaryPakFile;
             if (pak == null)
                 throw new InvalidOperationException("pak not a BinaryPakFile");
             Assert.Equal(firstPak, pak.Name);

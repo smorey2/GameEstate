@@ -199,8 +199,8 @@ namespace GameEstate
             {
                 case PakMultiType.SingleBinary:
                     return filePaths.Length == 1
-                        ? (AbstractPakFile)Activator.CreateInstance(PakFileType, filePaths[0], game)
-                        : new MultiPakFile(game, "Many", filePaths.Select(x => (AbstractPakFile)Activator.CreateInstance(PakFileType, x, game)).ToArray());
+                        ? (AbstractPakFile)Activator.CreateInstance(PakFileType, filePaths[0], game, null)
+                        : new MultiPakFile(game, "Many", filePaths.Select(x => (AbstractPakFile)Activator.CreateInstance(PakFileType, x, game, null)).ToArray());
                 case PakMultiType.Full: return (AbstractPakFile)Activator.CreateInstance(PakFileType, filePaths, game);
                 default: throw new ArgumentOutOfRangeException(nameof(PakMulti), PakMulti.ToString());
             }

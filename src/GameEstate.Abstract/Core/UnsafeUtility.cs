@@ -3,42 +3,15 @@ using System;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Text;
-using System.Threading.Tasks;
-using Unity.Collections.LowLevel.Unsafe;
 
 namespace GameEstate.Core
 {
     public static class UnsafeUtils
     {
-        public const string PlatformWindows = "Windows";
-        public const string PlatformNone = "";
-        public static readonly string Platform;
-        public static readonly Func<IntPtr, IntPtr, uint, IntPtr> Memcpy;
+        static UnsafeUtils() => EstateBootstrap.Touch();
 
         [DllImport("msvcrt.dll", EntryPoint = "memcpy", CallingConvention = CallingConvention.Cdecl, SetLastError = false)] extern static unsafe IntPtr memcpy(IntPtr dest, IntPtr src, uint count);
-
-        static unsafe UnsafeUtils()
-        {
-            var task = Task.Run(() => UnityEngine.Application.platform.ToString());
-            try
-            {
-                Platform = task.Result;
-                //Debug.Log(Platform);
-                Memcpy = (dest, src, count) => { UnsafeUtility.MemCpy((void*)dest, (void*)src, count); return IntPtr.Zero; };
-                CoreDebug.AssertFunc = x => UnityEngine.Debug.Assert(x);
-                CoreDebug.LogFunc = a => UnityEngine.Debug.Log(a);
-                CoreDebug.LogFormatFunc = (a, b) => UnityEngine.Debug.LogFormat(a, b);
-                return;
-            }
-            catch
-            {
-                Platform = string.Empty;
-                Memcpy = memcpy;
-                CoreDebug.AssertFunc = x => System.Diagnostics.Debug.Assert(x);
-                CoreDebug.LogFunc = a => System.Diagnostics.Debug.Print(a);
-                CoreDebug.LogFormatFunc = (a, b) => System.Diagnostics.Debug.Print(a, b);
-            }
-        }
+        public static Func<IntPtr, IntPtr, uint, IntPtr> Memcpy = memcpy;
 
         public static unsafe string ReadZASCII(byte* name, int length)
         {
@@ -56,17 +29,17 @@ namespace GameEstate.Core
         [DllImport("Kernel32")] extern static unsafe int _lread(SafeFileHandle hFile, void* lpBuffer, int wBytes);
         public static unsafe void ReadBuffer(this FileStream stream, byte[] buf, int length)
         {
-            if (Platform == PlatformWindows)
+            if (EstatePlatform.Platform == EstatePlatform.PlatformWindows)
                 fixed (byte* pbuf = buf)
                     _lread(stream.SafeFileHandle, pbuf, length);
             else
                 stream.Read(buf, 0, length);
         }
 
-        public static unsafe T MarshalT<T>(byte[] bytes, int length)
+        public static unsafe T MarshalT<T>(byte[] bytes, int length = -1)
         {
             var size = Marshal.SizeOf(typeof(T));
-            if (size > length)
+            if (length > 0 && size > length)
                 Array.Resize(ref bytes, size);
             fixed (byte* src = bytes)
                 return (T)Marshal.PtrToStructure(new IntPtr(src), typeof(T));
@@ -74,30 +47,30 @@ namespace GameEstate.Core
             //{
             //    var r = default(T);
             //    var hr = GCHandle.Alloc(r, GCHandleType.Pinned);
-            //    Memcpy(hr.AddrOfPinnedObject(), new IntPtr(src), (uint)bytes.Length);
+            //    Memcpy(hr.AddrOfPinnedObject(), new IntPtr(src + offset), (uint)bytes.Length);
             //    hr.Free();
             //    return r;
             //}
         }
 
-        public static void MarshalTArray<T>(FileStream stream, T[] dest, int length)
+        public static void MarshalTArray<T>(FileStream stream, T[] dest, int offset, int length)
         {
             var h = GCHandle.Alloc(dest, GCHandleType.Pinned);
 #if !MONO
-            NativeReader.Read(stream.SafeFileHandle.DangerousGetHandle(), h.AddrOfPinnedObject(), length);
+            NativeReader.Read(stream.SafeFileHandle.DangerousGetHandle() + offset, h.AddrOfPinnedObject(), length);
 #else
-            NativeReader.Read(stream.Handle, pArray, length);
+            NativeReader.Read(stream.Handle + offset, pArray, length);
 #endif
             h.Free();
         }
 
-        public static unsafe T[] MarshalTArray<T>(byte[] bytes, int count)
+        public static unsafe T[] MarshalTArray<T>(byte[] bytes, int offset, int count)
         {
             var result = new T[count];
             fixed (byte* src = bytes)
             {
                 var hresult = GCHandle.Alloc(result, GCHandleType.Pinned);
-                Memcpy(hresult.AddrOfPinnedObject(), new IntPtr(src), (uint)bytes.Length);
+                Memcpy(hresult.AddrOfPinnedObject(), new IntPtr(src + offset), (uint)bytes.Length);
                 hresult.Free();
                 return result;
             }

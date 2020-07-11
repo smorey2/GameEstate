@@ -10,7 +10,7 @@ namespace GameEstate.Toy.ParticleRenderer.Initializers
         readonly IVectorProvider _outputMax;
         readonly INumberProvider _noiseScale;
 
-        public InitialVelocityNoise(Dictionary<string, object> keyValues)
+        public InitialVelocityNoise(IDictionary<string, object> keyValues)
         {
             _outputMin = keyValues.GetVectorProvider("m_vecOutputMin") ?? new LiteralVectorProvider(Vector3.Zero);
             _outputMax = keyValues.GetVectorProvider("m_vecOutputMax") ?? new LiteralVectorProvider(Vector3.One);

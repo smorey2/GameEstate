@@ -10,17 +10,17 @@ namespace GameEstate.Estates
     /// <seealso cref="GameEstate.Core.BinaryPakFile" />
     public class TesPakFile : BinaryPakFile
     {
-        static TesPakFile()
-        {
-            ExplorerItemAsync = StandardExplorerItem.GetPakFilesAsync;
-            ExplorerInfoAsyncs.Add(".dds", StandardExplorerInfo.GetDdsInfo);
-        }
-
         /// <summary>
         /// Initializes a new instance of the <see cref="TesPakFile" /> class.
         /// </summary>
         /// <param name="filePath">The file path.</param>
         /// <param name="game">The game.</param>
-        public TesPakFile(string filePath, string game) : base(filePath, game, new PakBinaryTes()) => Open();
+        /// <param name="tag">The tag.</param>
+        public TesPakFile(string filePath, string game, object tag = null) : base(filePath, game, new PakBinaryTes())
+        {
+            ExplorerItem = StandardExplorerItem.GetPakFilesAsync;
+            ExplorerInfos.Add(".dds", StandardExplorerInfo.GetDdsAsync);
+            Open();
+        }
     }
 }

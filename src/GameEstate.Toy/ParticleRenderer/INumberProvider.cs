@@ -19,12 +19,12 @@ namespace GameEstate.Toy.ParticleRenderer
 
     public static class INumberProviderExtensions
     {
-        public static INumberProvider GetNumberProvider(this Dictionary<string, object> keyValues, string propertyName, INumberProvider defaultValue = default)
+        public static INumberProvider GetNumberProvider(this IDictionary<string, object> keyValues, string propertyName, INumberProvider defaultValue = default)
         {
             if (!keyValues.TryGetValue(propertyName, out var property))
                 return defaultValue;
 
-            if (property is Dictionary<string, object> numberProviderParameters)
+            if (property is IDictionary<string, object> numberProviderParameters)
             {
                 var type = numberProviderParameters.Get<string>("m_nType");
                 return type switch

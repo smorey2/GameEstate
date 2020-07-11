@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Numerics;
+using GameEstate.Graphics;
+using GameEstate.Graphics.OpenGL;
 using GameEstate.Toy.Renderer;
 using OpenTK.Graphics.OpenGL;
 

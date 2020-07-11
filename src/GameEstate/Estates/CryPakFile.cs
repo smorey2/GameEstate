@@ -1,4 +1,6 @@
 ﻿using GameEstate.Core;
+using GameEstate.Explorer;
+using GameEstate.Formats.Binary;
 
 namespace GameEstate.Estates
 {
@@ -8,9 +10,17 @@ namespace GameEstate.Estates
     /// <seealso cref="GameEstate.Core.BinaryPakFile" />
     public class CryPakFile : BinaryPakFile
     {
-        /// <summary>Initializes a new instance of the <see cref="CryPakFile" /> class.</summary>
+        /// <summary>
+        /// Initializes a new instance of the <see cref="CryPakFile" /> class.
+        /// </summary>
         /// <param name="filePath">The file path.</param>
-        /// <param name="game"></param>
-        public CryPakFile(string filePath, string game) : base(filePath, game, null) => Open();
+        /// <param name="game">The game.</param>
+        /// <param name="tag">The tag.</param>
+        public CryPakFile(string filePath, string game, object tag = null) : base(filePath, game, new PakBinaryZip2())
+        {
+            ExplorerItem = StandardExplorerItem.GetPakFilesAsync;
+            ExplorerInfos.Add(".dds", StandardExplorerInfo.GetDdsAsync);
+            Open();
+        }
     }
 }

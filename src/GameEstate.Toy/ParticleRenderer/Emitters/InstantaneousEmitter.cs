@@ -7,7 +7,7 @@ namespace GameEstate.Toy.ParticleRenderer.Emitters
     {
         public bool IsFinished { get; private set; }
 
-        readonly Dictionary<string, object> _baseProperties;
+        readonly IDictionary<string, object> _baseProperties;
 
         Action _particleEmitCallback;
 
@@ -16,7 +16,7 @@ namespace GameEstate.Toy.ParticleRenderer.Emitters
 
         float _time;
 
-        public InstantaneousEmitter(Dictionary<string, object> baseProperties, Dictionary<string, object> keyValues)
+        public InstantaneousEmitter(IDictionary<string, object> baseProperties, IDictionary<string, object> keyValues)
         {
             _baseProperties = baseProperties;
 

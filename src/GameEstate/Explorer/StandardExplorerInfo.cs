@@ -1,7 +1,7 @@
 ﻿using GameEstate.Core;
 using GameEstate.Explorer.ViewModel;
-using GameEstate.Formats;
 using GameEstate.Formats.Binary;
+using GameEstate.Graphics;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
@@ -10,25 +10,34 @@ namespace GameEstate.Explorer
 {
     public static class StandardExplorerInfo
     {
-        public static List<ExplorerInfoNode> GetFileInfo(ExplorerManager resource, FileMetadata file) =>
-            new List<ExplorerInfoNode> {
-                new ExplorerInfoNode { Name = $"Path: {file.Path}" },
-                new ExplorerInfoNode { Name = $"FileSize: {file.FileSize}" },
-            };
+        static Task<List<ExplorerInfoNode>> GetFileInfoAsync(ExplorerManager resource, FileMetadata file) => Task.FromResult(new List<ExplorerInfoNode> {
+            new ExplorerInfoNode($"Path: {file.Path}"),
+            new ExplorerInfoNode($"FileSize: {file.FileSize}"),
+        });
 
-        public static async Task<List<ExplorerInfoNode>> GetDdsInfo(ExplorerManager resource, BinaryPakFile pakFile, FileMetadata file)
+        public static async Task<List<ExplorerInfoNode>> GetDdsAsync(ExplorerManager resource, BinaryPakFile pakFile, FileMetadata file)
         {
             var data = await pakFile.LoadFileDataAsync(file);
-            var texture = DdsReader.LoadDDSTexture(new MemoryStream(data));
+            var texture = new TextureInfo().LoadDdsTexture(new MemoryStream(data));
             var textureInfo = new List<ExplorerInfoNode> {
-                new ExplorerInfoNode { Name = $"Width: {texture.Width}" },
-                new ExplorerInfoNode { Name = $"Height: {texture.Height}" },
-                new ExplorerInfoNode { Name = $"Format: {texture.Format}" },
-                new ExplorerInfoNode { Name = $"HasMipmaps: {texture.HasMipmaps}" },
+                new ExplorerInfoNode($"Width: {texture.Width}"),
+                new ExplorerInfoNode($"Height: {texture.Height}"),
+                new ExplorerInfoNode($"GLFormat: {texture.GLFormat}"),
+                new ExplorerInfoNode($"Mipmaps: {texture.Mipmaps}"),
             };
             return new List<ExplorerInfoNode> {
-                new ExplorerInfoNode { Name = "File", Items = GetFileInfo(resource, file) },
-                new ExplorerInfoNode { Name = "Texture", Items = textureInfo},
+                new ExplorerInfoNode(".texture", tag: texture),
+                new ExplorerInfoNode("File", items: await GetFileInfoAsync(resource, file)),
+                new ExplorerInfoNode("Texture", items: textureInfo),
+            };
+        }
+
+        public static async Task<List<ExplorerInfoNode>> GetDefaultAsync(ExplorerManager resource, BinaryPakFile pakFile, FileMetadata file)
+        {
+            var data = await pakFile.LoadFileDataAsync(file);
+            return new List<ExplorerInfoNode> {
+                new ExplorerInfoNode(".generic", tag: data),
+                new ExplorerInfoNode("File", items: await GetFileInfoAsync(resource, file)),
             };
         }
     }

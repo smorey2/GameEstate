@@ -7,16 +7,24 @@ using System.Threading.Tasks;
 
 namespace GameEstate.Formats.Binary
 {
+    /// <summary>
+    /// PakBinaryZip
+    /// </summary>
+    /// <seealso cref="GameEstate.Formats.Binary.PakBinary" />
     public class PakBinaryZip : PakBinary
     {
+        readonly byte[] Key;
+
+        public PakBinaryZip(byte[] key = null) => Key = key;
+
         public override Task ReadAsync(BinaryPakFile source, BinaryReader r, ReadStage stage)
         {
             if (stage != ReadStage.File)
                 throw new ArgumentOutOfRangeException(nameof(stage), stage.ToString());
 
-            source.UsePool = false;
+            source.UseBinaryReader = false;
             var files = source.Files = new List<FileMetadata>();
-            var pak = (ZipFile)(source.Tag = new ZipFile(r.BaseStream));
+            var pak = (ZipFile)(source.Tag = new ZipFile(r.BaseStream) { Key = Key });
             foreach (ZipEntry entry in pak)
                 files.Add(new FileMetadata
                 {
@@ -31,9 +39,9 @@ namespace GameEstate.Formats.Binary
 
         public override Task WriteAsync(BinaryPakFile source, BinaryWriter w, WriteStage stage)
         {
-            source.UsePool = false;
+            source.UseBinaryReader = false;
             var files = source.Files;
-            var pak = (ZipFile)(source.Tag = new ZipFile(w.BaseStream));
+            var pak = (ZipFile)(source.Tag = new ZipFile(w.BaseStream) { Key = Key });
             pak.BeginUpdate();
             foreach (var file in files)
             {
@@ -52,12 +60,21 @@ namespace GameEstate.Formats.Binary
             try
             {
                 using (var s = pak.GetInputStream(entry))
-                    return Task.FromResult(s.ReadAllBytes());
+                using (var ms = new MemoryStream())
+                {
+                    if (!s.CanRead)
+                    {
+                        exception?.Invoke(file, $"Unable to read stream.");
+                        return Task.FromResult<byte[]>(null);
+                    }
+                    s.CopyTo(ms);
+                    return Task.FromResult(ms.ToArray());
+                }
             }
             catch (Exception e)
             {
                 exception?.Invoke(file, $"Exception: {e.Message}");
-                return null;
+                return Task.FromResult<byte[]>(null);
             }
         }
 

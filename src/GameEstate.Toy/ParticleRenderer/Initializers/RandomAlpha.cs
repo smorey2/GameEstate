@@ -10,7 +10,7 @@ namespace GameEstate.Toy.ParticleRenderer.Initializers
         readonly int _alphaMin = 255;
         readonly int _alphaMax = 255;
 
-        public RandomAlpha(Dictionary<string, object> keyValue)
+        public RandomAlpha(IDictionary<string, object> keyValue)
         {
             _alphaMin = (int)keyValue.GetInt("m_nAlphaMin", 255);
             _alphaMax = (int)keyValue.GetInt("m_nAlphaMax", 255);

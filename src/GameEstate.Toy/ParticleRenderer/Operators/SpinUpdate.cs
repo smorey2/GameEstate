@@ -6,7 +6,7 @@ namespace GameEstate.Toy.ParticleRenderer.Operators
     public class SpinUpdate : IParticleOperator
     {
 #pragma warning disable CA1801
-        public SpinUpdate(Dictionary<string, object> keyValues)
+        public SpinUpdate(IDictionary<string, object> keyValues)
         {
         }
 #pragma warning restore CA1801

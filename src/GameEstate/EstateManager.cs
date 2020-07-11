@@ -11,13 +11,13 @@ namespace GameEstate
 {
     public class EstateManager
     {
-        public static string DefaultEstateKey = "AC";
-        //static string[] AllEstateKeys = new[] { "AC" };
-        static string[] AllEstateKeys = new[] { "AC", "Cry", "Red", "Rsi", "Tes", "U9", "UO" };
+        public static string DefaultEstateKey = "Tes";
+        //static string[] AllEstateKeys = new[] { "Valve" };
+        static string[] AllEstateKeys = new[] { "AC", "Cry", "Red", "Rsi", "Tes", "U9", "UO", "Valve" };
 
         static EstateManager()
         {
-            _ = UnsafeUtils.Platform;
+            EstateBootstrap.Touch();
             var assembly = Assembly.GetExecutingAssembly();
             Estate estate;
             foreach (var key in AllEstateKeys)

@@ -1,6 +1,5 @@
 ﻿using GameEstate.Core;
 using GameEstate.Explorer.ViewModel;
-using GameEstate.Formats.Binary;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
@@ -28,22 +27,25 @@ namespace GameEstate.Explorer
                 {
                     currentPath = fileFolder;
                     currentFolder = root;
-                    foreach (var folder in fileFolder.Split('\\'))
-                    {
-                        var found = currentFolder.Find(x => x.Name == folder && x.PakFile == null && x.DatFile == null);
-                        if (found != null) currentFolder = found.Items;
-                        else
+                    if (!string.IsNullOrEmpty(fileFolder))
+                        foreach (var folder in fileFolder.Split('\\'))
                         {
-                            found = new ExplorerItemNode { Icon = manager.FolderIcon, Name = folder };
-                            currentFolder.Add(found);
-                            currentFolder = found.Items;
+                            var found = currentFolder.Find(x => x.Name == folder && x.PakFile == null && x.DatFile == null);
+                            if (found != null) currentFolder = found.Items;
+                            else
+                            {
+                                found = new ExplorerItemNode(folder, manager.FolderIcon);
+                                currentFolder.Add(found);
+                                currentFolder = found.Items;
+                            }
                         }
-                    }
                 }
                 // file
                 var fileName = Path.GetFileName(file.Path);
-                var extention = Path.GetExtension(fileName)?.Substring(1);
-                currentFolder.Add(new ExplorerItemNode { PakFile = pakFile, Icon = manager.GetIcon(extention), Name = fileName, Tag = file });
+                var extention = Path.GetExtension(fileName);
+                if (extention.Length > 0)
+                    extention = extention.Substring(1);
+                currentFolder.Add(new ExplorerItemNode(fileName, manager.GetIcon(extention), file) { PakFile = pakFile });
             }
             return Task.FromResult(root);
         }

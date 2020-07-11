@@ -16,15 +16,15 @@ namespace GameEstate.Core
         /// <summary>
         /// The paks
         /// </summary>
-        public readonly IList<AbstractPakFile> Paks;
+        public readonly IList<AbstractPakFile> PakFiles;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="MultiPakFile" /> class.
         /// </summary>
         /// <param name="game">The game.</param>
         /// <param name="name">The name.</param>
-        /// <param name="paks">The packs.</param>
-        public MultiPakFile(string game, string name, IList<AbstractPakFile> paks) : base(game, name) => Paks = paks;
+        /// <param name="pakFiles">The packs.</param>
+        public MultiPakFile(string game, string name, IList<AbstractPakFile> pakFiles) : base(game, name) => PakFiles = pakFiles;
 
         /// <summary>
         /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
@@ -36,9 +36,9 @@ namespace GameEstate.Core
         /// </summary>
         public override void Close()
         {
-            if (Paks != null)
-                foreach (var pak in Paks)
-                    pak.Close();
+            if (PakFiles != null)
+                foreach (var pakFile in PakFiles)
+                    pakFile.Close();
         }
 
         /// <summary>
@@ -48,7 +48,7 @@ namespace GameEstate.Core
         /// <returns>
         ///   <c>true</c> if the specified file path contains file; otherwise, <c>false</c>.
         /// </returns>
-        public override bool Contains(string filePath) => Paks.Any(x => x.Contains(filePath));
+        public override bool Contains(string filePath) => PakFiles.Any(x => x.Contains(filePath));
 
         /// <summary>
         /// Loads the file data asynchronous.
@@ -58,7 +58,7 @@ namespace GameEstate.Core
         /// <returns></returns>
         /// <exception cref="System.IO.FileNotFoundException">Could not find file \"{filePath}\".</exception>
         public override Task<byte[]> LoadFileDataAsync(string filePath, Action<FileMetadata, string> exception) =>
-            (Paks.FirstOrDefault(x => x.Contains(filePath)) ?? throw new FileNotFoundException($"Could not find file \"{filePath}\"."))
+            (PakFiles.FirstOrDefault(x => x.Contains(filePath)) ?? throw new FileNotFoundException($"Could not find file \"{filePath}\"."))
             .LoadFileDataAsync(filePath, exception);
 
         #region Explorer
@@ -69,9 +69,12 @@ namespace GameEstate.Core
         /// <param name="manager">The resource.</param>
         /// <returns></returns>
         /// <exception cref="NotImplementedException"></exception>
-        public override Task<List<ExplorerItemNode>> GetExplorerItemNodesAsync(ExplorerManager manager)
+        public override async Task<List<ExplorerItemNode>> GetExplorerItemNodesAsync(ExplorerManager manager)
         {
-            throw new NotImplementedException();
+            var root = new List<ExplorerItemNode>();
+            foreach (var pakFile in PakFiles)
+                root.Add(new ExplorerItemNode(pakFile.Name, manager.PackageIcon, items: await pakFile.GetExplorerItemNodesAsync(manager)) { PakFile = pakFile });
+            return root;
         }
 
         /// <summary>

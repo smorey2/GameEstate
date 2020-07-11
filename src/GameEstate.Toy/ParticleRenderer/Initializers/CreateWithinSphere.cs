@@ -15,7 +15,7 @@ namespace GameEstate.Toy.ParticleRenderer.Initializers
         readonly Vector3 _localCoordinateSystemSpeedMin;
         readonly Vector3 _localCoordinateSystemSpeedMax;
 
-        public CreateWithinSphere(Dictionary<string, object> keyValues)
+        public CreateWithinSphere(IDictionary<string, object> keyValues)
         {
             _radiusMin = keyValues.GetFloat("m_fRadiusMin");
             _radiusMax = keyValues.GetFloat("m_fRadiusMax");

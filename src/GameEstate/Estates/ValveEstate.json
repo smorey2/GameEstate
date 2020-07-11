@@ -1,21 +1,29 @@
 ﻿{
   "id": "Valve",
   "name": "Valve",
-  "description": "Valve formats used by Steam Games",
+  "description": "Valve formats used by Source/Source 2",
   "pakFileType": "GameEstate.Estates.ValvePakFile",
   "games": {
-    "TBD": {
-      "name": "TBD",
-      "pak": "TBD",
-      "dat": "TBD"
+    "Dota2": {
+      "name": "Dota 2",
+      "pak_": "game:/(core:dota)/*_dir.vpk#Dota2",
+      "pak": "game:/core/pak01_dir.vpk#Dota2",
+      "pak0": "game:/dota/shaders_pc_dir.vpk#Dota2"
+    },
+    "Left4Dead2": {
+      "name": "Left 4 Dead 2",
+      "pak": "game:/*.vpk#Left4Dead2"
     }
   },
   "fileManager": {
     "registry": {
-      "TBD": {
-        "key": [
-          "TBD"
-        ]
+      "Dota2": {
+        "key": "Microsoft/Windows/CurrentVersion/Uninstall/Steam App 570",
+        "assets": "game"
+      },
+      "Left4Dead2": {
+        "key": "Microsoft/Windows/CurrentVersion/Uninstall/Steam App 550",
+        "assets": "left4dead2"
       }
     }
   }

@@ -5,12 +5,14 @@ namespace GameEstate.Explorer.ViewModel
     public class ExplorerInfoNode
     {
         public string Name { get; set; }
-        public List<ExplorerInfoNode> Items { get; set; }
+        public object Tag { get; }
+        public List<ExplorerInfoNode> Items { get; }
 
-        public ExplorerInfoNode(string name = "")
+        public ExplorerInfoNode(string name, object tag = null, List<ExplorerInfoNode> items = null)
         {
             Name = name;
-            Items = new List<ExplorerInfoNode>();
+            Tag = tag;
+            Items = items ?? new List<ExplorerInfoNode>();
         }
     }
 }

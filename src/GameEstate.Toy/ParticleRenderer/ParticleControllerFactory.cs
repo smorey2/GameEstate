@@ -10,16 +10,16 @@ namespace GameEstate.Toy.ParticleRenderer
     public static class ParticleControllerFactory
     {
         // Register particle emitters
-        static readonly IDictionary<string, Func<Dictionary<string, object>, Dictionary<string, object>, IParticleEmitter>> EmitterDictionary
-           = new Dictionary<string, Func<Dictionary<string, object>, Dictionary<string, object>, IParticleEmitter>>
+        static readonly IDictionary<string, Func<IDictionary<string, object>, IDictionary<string, object>, IParticleEmitter>> EmitterDictionary
+           = new Dictionary<string, Func<IDictionary<string, object>, IDictionary<string, object>, IParticleEmitter>>
            {
                ["C_OP_InstantaneousEmitter"] = (baseProperties, emitterInfo) => new InstantaneousEmitter(baseProperties, emitterInfo),
                ["C_OP_ContinuousEmitter"] = (baseProperties, emitterInfo) => new ContinuousEmitter(baseProperties, emitterInfo),
            };
 
         // Register particle initializers
-        static readonly IDictionary<string, Func<Dictionary<string, object>, IParticleInitializer>> InitializerDictionary
-           = new Dictionary<string, Func<Dictionary<string, object>, IParticleInitializer>>
+        static readonly IDictionary<string, Func<IDictionary<string, object>, IParticleInitializer>> InitializerDictionary
+           = new Dictionary<string, Func<IDictionary<string, object>, IParticleInitializer>>
            {
                ["C_INIT_CreateWithinSphere"] = initializerInfo => new CreateWithinSphere(initializerInfo),
                ["C_INIT_InitialVelocityNoise"] = initializerInfo => new InitialVelocityNoise(initializerInfo),
@@ -38,8 +38,8 @@ namespace GameEstate.Toy.ParticleRenderer
            };
 
         // Register particle operators
-        static readonly IDictionary<string, Func<Dictionary<string, object>, IParticleOperator>> OperatorDictionary
-           = new Dictionary<string, Func<Dictionary<string, object>, IParticleOperator>>
+        static readonly IDictionary<string, Func<IDictionary<string, object>, IParticleOperator>> OperatorDictionary
+           = new Dictionary<string, Func<IDictionary<string, object>, IParticleOperator>>
            {
                ["C_OP_Decay"] = operatorInfo => new Decay(operatorInfo),
                ["C_OP_BasicMovement"] = operatorInfo => new BasicMovement(operatorInfo),
@@ -53,14 +53,14 @@ namespace GameEstate.Toy.ParticleRenderer
            };
 
         // Register particle renderers
-        static readonly IDictionary<string, Func<Dictionary<string, object>, GuiContext, IParticleRenderer>> RendererDictionary
-           = new Dictionary<string, Func<Dictionary<string, object>, GuiContext, IParticleRenderer>>
+        static readonly IDictionary<string, Func<IDictionary<string, object>, GuiContext, IParticleRenderer>> RendererDictionary
+           = new Dictionary<string, Func<IDictionary<string, object>, GuiContext, IParticleRenderer>>
            {
                ["C_OP_RenderSprites"] = (rendererInfo, vrfGuiContext) => new RenderSprites(rendererInfo, vrfGuiContext),
                ["C_OP_RenderTrails"] = (rendererInfo, vrfGuiContext) => new RenderTrails(rendererInfo, vrfGuiContext),
            };
 
-        public static bool TryCreateEmitter(string name, Dictionary<string, object> baseProperties, Dictionary<string, object> emitterInfo, out IParticleEmitter emitter)
+        public static bool TryCreateEmitter(string name, IDictionary<string, object> baseProperties, Dictionary<string, object> emitterInfo, out IParticleEmitter emitter)
         {
             if (EmitterDictionary.TryGetValue(name, out var factory))
             {
@@ -72,7 +72,7 @@ namespace GameEstate.Toy.ParticleRenderer
             return false;
         }
 
-        public static bool TryCreateInitializer(string name, Dictionary<string, object> initializerInfo, out IParticleInitializer initializer)
+        public static bool TryCreateInitializer(string name, IDictionary<string, object> initializerInfo, out IParticleInitializer initializer)
         {
             if (InitializerDictionary.TryGetValue(name, out var factory))
             {
@@ -84,7 +84,7 @@ namespace GameEstate.Toy.ParticleRenderer
             return false;
         }
 
-        public static bool TryCreateOperator(string name, Dictionary<string, object> operatorInfo, out IParticleOperator @operator)
+        public static bool TryCreateOperator(string name, IDictionary<string, object> operatorInfo, out IParticleOperator @operator)
         {
             if (OperatorDictionary.TryGetValue(name, out var factory))
             {
@@ -96,7 +96,7 @@ namespace GameEstate.Toy.ParticleRenderer
             return false;
         }
 
-        public static bool TryCreateRender(string name, Dictionary<string, object> rendererInfo, GuiContext vrfGuiContext, out IParticleRenderer renderer)
+        public static bool TryCreateRender(string name, IDictionary<string, object> rendererInfo, GuiContext vrfGuiContext, out IParticleRenderer renderer)
         {
             if (RendererDictionary.TryGetValue(name, out var factory))
             {

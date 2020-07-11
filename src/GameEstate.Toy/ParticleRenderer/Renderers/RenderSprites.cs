@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Numerics;
+using GameEstate.Graphics;
+using GameEstate.Graphics.OpenGL;
 using GameEstate.Toy.Models;
 using GameEstate.Toy.Renderer;
 using OpenTK.Graphics.OpenGL;
@@ -26,7 +28,7 @@ namespace GameEstate.Toy.ParticleRenderer.Renderers
         QuadIndexBuffer _quadIndices;
         int _vertexBufferHandle;
 
-        public RenderSprites(Dictionary<string, object> keyValues, GuiContext guiContext)
+        public RenderSprites(IDictionary<string, object> keyValues, GuiContext guiContext)
         {
             _shader = guiContext.ShaderLoader.LoadShader("vrf.particle.sprite", new Dictionary<string, bool>());
             _quadIndices = guiContext.QuadIndices;

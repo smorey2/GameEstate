@@ -15,7 +15,7 @@ namespace GameEstate.Toy.ParticleRenderer.Initializers
 
         float _orbitCount;
 
-        public RingWave(Dictionary<string, object> keyValues)
+        public RingWave(IDictionary<string, object> keyValues)
         {
             _evenDistribution = keyValues.Get<bool>("m_bEvenDistribution");
             _particlesPerOrbit = keyValues.GetFloat("m_flParticlesPerOrbit", -1f);

@@ -15,7 +15,7 @@ namespace GameEstate.Toy.ParticleRenderer.Initializers
         readonly long _fieldOutput;
         readonly bool _randomlyFlipDirection;
 
-        public RandomRotation(Dictionary<string, object> keyValues)
+        public RandomRotation(IDictionary<string, object> keyValues)
         {
             _degreesMin = keyValues.GetFloat("m_flDegreesMin");
             _degreesMax = keyValues.GetFloat("m_flDegreesMax", 360f);
