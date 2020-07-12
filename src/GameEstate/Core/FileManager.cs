@@ -218,18 +218,18 @@ namespace GameEstate.Core
                 if (!File.Exists(path))
                     return false;
                 var content = File.ReadAllText(path);
-                value = ext switch
+                switch (ext)
                 {
-                    "xml" => XDocument.Parse(content).XPathSelectElement(select)?.Value,
-                    _ => throw new ArgumentOutOfRangeException(nameof(ext)),
-                };
+                    case "xml": value = XDocument.Parse(content).XPathSelectElement(select)?.Value; break;
+                    default: throw new ArgumentOutOfRangeException(nameof(ext));
+                }
                 if (value != null)
                     value = Path.GetDirectoryName(value);
                 return true;
             }
             bool TryGetRegistryByKey(string key, JsonProperty prop, JsonElement? keyElem, out string path)
             {
-                path = GetRegistryExePath(Is64Bit ? new[] { @$"Wow6432Node\{key}", key } : new[] { key });
+                path = GetRegistryExePath(Is64Bit ? new[] { $@"Wow6432Node\{key}", key } : new[] { key });
                 if (keyElem == null)
                     return !string.IsNullOrEmpty(path);
                 if (keyElem.Value.TryGetProperty("path", out var path2))
@@ -251,7 +251,7 @@ namespace GameEstate.Core
                 if (path == null || !Directory.Exists(path = PathWithSpecialFolders(path)))
                     return false;
                 path = Path.GetFullPath(path);
-                path = prop.Value.TryGetProperty("assets", out var z) ? Path.Combine(path, z.GetString()) : path;
+                path = prop.Value.TryGetProperty("assets", out var z2) ? Path.Combine(path, z2.GetString()) : path;
                 if (Directory.Exists(path))
                 {
                     r.Locations.Add(prop.Name, path.Replace('/', '\\'));
@@ -263,35 +263,38 @@ namespace GameEstate.Core
             // registry
             if (elem.TryGetProperty("registry", out var z))
                 foreach (var prop in z.EnumerateObject())
-                {
-                    var keys = prop.Value.TryGetProperty("key", out z) ? z.ValueKind switch
+                    if (prop.Value.TryGetProperty("key", out z))
                     {
-                        JsonValueKind.String => new[] { z.GetString() },
-                        JsonValueKind.Array => z.EnumerateArray().Select(y => y.GetString()),
-                        _ => throw new ArgumentOutOfRangeException(),
-                    } : null;
-                    if (keys != null)
+                        IEnumerable<string> keys;
+                        switch (z.ValueKind)
+                        {
+                            case JsonValueKind.String: keys = new[] { z.GetString() }; break;
+                            case JsonValueKind.Array: keys = z.EnumerateArray().Select(y => y.GetString()); break;
+                            default: throw new ArgumentOutOfRangeException();
+                        }
                         foreach (var key in keys)
                             if (TryGetRegistryByKey(key, prop, prop.Value.TryGetProperty(key, out z) ? (JsonElement?)z : null, out var path)
                                 && TryAddPath(path, prop))
                                 break;
-                }
+
+                    }
 
             // direct
             if (elem.TryGetProperty("direct", out z))
                 foreach (var prop in z.EnumerateObject())
-                {
-                    var paths = prop.Value.TryGetProperty("path", out z) ? z.ValueKind switch
+                    if (prop.Value.TryGetProperty("path", out z))
                     {
-                        JsonValueKind.String => new[] { z.GetString() },
-                        JsonValueKind.Array => z.EnumerateArray().Select(y => y.GetString()),
-                        _ => throw new ArgumentOutOfRangeException(),
-                    } : null;
-                    if (paths != null)
+                        IEnumerable<string> paths;
+                        switch (z.ValueKind)
+                        {
+                            case JsonValueKind.String: paths = new[] { z.GetString() }; break;
+                            case JsonValueKind.Array: paths = z.EnumerateArray().Select(y => y.GetString()); break;
+                            default: throw new ArgumentOutOfRangeException();
+                        }
                         foreach (var path in paths)
                             if (TryAddPath(path, prop))
                                 break;
-                }
+                    }
             return r;
         }
 

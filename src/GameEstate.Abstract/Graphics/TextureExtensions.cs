@@ -41,7 +41,7 @@ namespace GameEstate.Graphics
                 case TextureGLFormat.BGRA8888: return 4;
                 case TextureGLFormat.ATI1N: return 8;
                 default: return 1;
-            };
+            }
         }
 
         #region CustomImage

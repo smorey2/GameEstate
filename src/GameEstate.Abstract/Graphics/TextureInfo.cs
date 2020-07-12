@@ -85,7 +85,7 @@ namespace GameEstate.Graphics
             return offset;
         }
 
-        public Span<byte> GetDataSpanForMip(int mipLevel)
+        public object GetDataSpanForMip(int mipLevel)
         {
             return null;
             //var offset = GetDataOffsetForMip(mipLevel);

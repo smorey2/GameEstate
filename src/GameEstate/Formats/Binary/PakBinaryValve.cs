@@ -261,10 +261,10 @@ namespace GameEstate.Formats.Binary
             if (file.FileSize > 0)
             {
                 if (file.Tag is string path)
-                    source.GetBinaryReader(path).Action(r =>
+                    source.GetBinaryReader(path).Action(r2 =>
                     {
-                        r.Position(file.Position);
-                        r.Read(data, file.Extra.Length, (int)file.FileSize);
+                        r2.Position(file.Position);
+                        r2.Read(data, file.Extra.Length, (int)file.FileSize);
                     });
                 else
                 {

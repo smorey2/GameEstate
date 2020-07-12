@@ -1,0 +1,21 @@
+<linker>
+	<assembly fullname="UnityEngine.SubsystemsModule" preserve="nothing">
+<!--THIS FILE IS GENERATED DURING BUILD. DO NOT HAND EDIT. See https://confluence.hq.unity3d.com/display/DEV/How+to+Use+Scripting+Classes+and+Methods+from+Native+Code for more info.-->
+		<type fullname="UnityEngine.Internal_SubsystemDescriptors" preserve="nothing">
+			<method name="Internal_AddDescriptor"/>
+			<method name="Internal_ClearManagedDescriptors"/>
+			<method name="Internal_InitializeManagedDescriptor"/>
+		</type>
+<!--THIS FILE IS GENERATED DURING BUILD. DO NOT HAND EDIT. See https://confluence.hq.unity3d.com/display/DEV/How+to+Use+Scripting+Classes+and+Methods+from+Native+Code for more info.-->
+		<type fullname="UnityEngine.Internal_SubsystemInstances" preserve="nothing">
+			<method name="Internal_ClearManagedInstances"/>
+			<method name="Internal_InitializeManagedInstance"/>
+			<method name="Internal_RemoveInstanceByPtr"/>
+		</type>
+<!--THIS FILE IS GENERATED DURING BUILD. DO NOT HAND EDIT. See https://confluence.hq.unity3d.com/display/DEV/How+to+Use+Scripting+Classes+and+Methods+from+Native+Code for more info.-->
+		<type fullname="UnityEngine.SubsystemManager" preserve="nothing">
+			<method name="Internal_ReloadSubsystemsCompleted"/>
+			<method name="Internal_ReloadSubsystemsStarted"/>
+		</type>
+	</assembly>
+</linker>
