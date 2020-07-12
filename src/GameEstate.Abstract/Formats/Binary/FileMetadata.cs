@@ -8,7 +8,6 @@ namespace GameEstate.Formats.Binary
     {
         public int Id;
         public string Path;
-        public string Type; //? delete?
         public bool Compressed;
         public bool Crypted;
         public long PackedSize;

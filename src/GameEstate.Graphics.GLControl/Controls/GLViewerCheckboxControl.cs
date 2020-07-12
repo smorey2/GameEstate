@@ -1,7 +1,7 @@
 //using System.Windows;
 //using System.Windows.Controls;
 
-//namespace GameEstate.Toy.Controls
+//namespace GameEstate.Graphics.Controls
 //{
 //    public class GLViewerCheckboxControl : FrameworkElement
 //    {

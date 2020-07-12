@@ -1,10 +1,13 @@
 ﻿using System;
 
-namespace GameEstate.Core
+namespace GameEstate
 {
-    public class CoreDebug
+    /// <summary>
+    /// EstateDebug
+    /// </summary>
+    public class EstateDebug
     {
-        static CoreDebug() => EstateBootstrap.Touch();
+        static EstateDebug() => Estate.Bootstrap();
 
         public static Action<bool> AssertFunc;
         public static Action<string> LogFunc;

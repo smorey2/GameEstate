@@ -1,7 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
-using static GameEstate.Core.CoreDebug;
+using static GameEstate.EstateDebug;
 
 namespace GameEstate.Core
 {

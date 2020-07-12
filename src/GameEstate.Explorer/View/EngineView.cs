@@ -1,4 +1,4 @@
-﻿using GameEstate.Toy.Controls;
+﻿using GameEstate.Graphics.Controls;
 
 namespace GameEstate.Explorer.View
 {

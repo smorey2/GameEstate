@@ -3,7 +3,7 @@
 //using System.IO;
 //using System.Linq;
 //using System.Text;
-//using static GameEstate.Core.CoreDebug;
+//using static GameEstate.CoreDebug;
 
 //namespace GameEstate.Formats
 //{

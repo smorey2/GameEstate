@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Numerics;
-using static GameEstate.Core.CoreDebug;
+using static GameEstate.EstateDebug;
 
 namespace GameEstate.Formats.Nif
 {
@@ -47,7 +47,7 @@ namespace GameEstate.Formats.Nif
             return refs;
         }
 
-        public static ushort ReadFlags(BinaryReader r) => r.ReadUInt16();
+        public static NiAVObject.NiFlags ReadFlags(BinaryReader r) => (NiAVObject.NiFlags)r.ReadUInt16();
 
         public static T Read<T>(BinaryReader r)
         {
@@ -597,12 +597,13 @@ namespace GameEstate.Formats.Nif
 
     public abstract class NiAVObject : NiObjectNET
     {
-        public enum NiFlags
+        [Flags]
+        public enum NiFlags : ushort
         {
             Hidden = 0x1
         }
 
-        public ushort Flags;
+        public NiFlags Flags; //: ushort
         public Vector3 Translation;
         public Matrix4x4 Rotation;
         public float Scale;
@@ -795,7 +796,7 @@ namespace GameEstate.Formats.Nif
 
     public class NiTexturingProperty : NiProperty
     {
-        public ushort Flags;
+        public NiAVObject.NiFlags Flags;
         public ApplyMode ApplyMode;
         public uint TextureCount;
         //public bool HasBaseTexture;
@@ -890,7 +891,7 @@ namespace GameEstate.Formats.Nif
 
     public class NiVertexColorProperty : NiProperty
     {
-        public ushort Flags;
+        public NiAVObject.NiFlags Flags;
         public VertMode VertexMode;
         public LightMode LightingMode;
 
@@ -905,7 +906,7 @@ namespace GameEstate.Formats.Nif
 
     public class NiShadeProperty : NiProperty
     {
-        public ushort Flags;
+        public NiAVObject.NiFlags Flags;
 
         public override void Deserialize(BinaryReader r)
         {
@@ -1529,7 +1530,7 @@ namespace GameEstate.Formats.Nif
 
     public class NiMaterialProperty : NiProperty
     {
-        public ushort Flags;
+        public NiAVObject.NiFlags Flags;
         public Color3 AmbientColor;
         public Color3 DiffuseColor;
         public Color3 SpecularColor;

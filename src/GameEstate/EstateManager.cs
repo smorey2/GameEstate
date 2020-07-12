@@ -17,7 +17,7 @@ namespace GameEstate
 
         static EstateManager()
         {
-            EstateBootstrap.Touch();
+            Bootstrap();
             var assembly = Assembly.GetExecutingAssembly();
             Estate estate;
             foreach (var key in AllEstateKeys)

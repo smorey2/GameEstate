@@ -3,7 +3,7 @@
 //using System.Linq;
 //using System.Numerics;
 
-//namespace GameEstate.Toy.Renderer
+//namespace namespace GameEstate.Graphics.Renderer
 //{
 //    /// <summary>
 //    /// GL Render control with world controls (render mode, camera selection).

@@ -48,7 +48,7 @@ namespace GameEstate.Core
             if (Pool != null) Pool.Action(async r => await ReadAsync(r, DatBinary.ReadStage.File));
             else ReadAsync(null, DatBinary.ReadStage.File).GetAwaiter().GetResult();
             Process();
-            CoreDebug.Log($"Opening: {Name} @ {watch.ElapsedMilliseconds}ms");
+            EstateDebug.Log($"Opening: {Name} @ {watch.ElapsedMilliseconds}ms");
             watch.Stop();
         }
 

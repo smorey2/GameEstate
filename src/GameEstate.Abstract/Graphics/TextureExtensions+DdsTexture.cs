@@ -12,14 +12,45 @@ namespace GameEstate.Graphics
     /// </summary>
     static partial class TextureExtensions
     {
+        public static TextureInfo LoadDxtTexture(this TextureInfo source, TextureUnityFormat format, byte[] data)
+        {
+            if (format != TextureUnityFormat.DXT1 && format != TextureUnityFormat.DXT5)
+                throw new ArgumentOutOfRangeException(nameof(format), "Invalid TextureFormat. Only DXT1 and DXT5 formats are supported by this method.");
+            source.UnityFormat = format;
+            var ddsSize = data[4];
+            if (ddsSize != DDS_HEADER.SizeOf)
+                throw new ArgumentOutOfRangeException(nameof(data), "Invalid DDS DXTn texture. Unable to read");
+            source.Height = (data[13] << 8) | data[12];
+            source.Width = (data[17] << 8) | data[16];
+            var fileData = new byte[data.Length - DDS_HEADER.SizeOf];
+            Buffer.BlockCopy(fileData, DDS_HEADER.SizeOf, fileData, 0, data.Length - DDS_HEADER.SizeOf);
+            source.Data = fileData;
+            return source;
+        }
+
         /// <summary>
         /// Loads a DDS texture from a file.
         /// </summary>
-        public static TextureInfo LoadDdsTexture(this TextureInfo source, string filePath) => source.LoadDdsTexture(File.Open(filePath, FileMode.Open, FileAccess.Read));
+        /// <param name="source">The source.</param>
+        /// <param name="path">The path.</param>
+        /// <returns></returns>
+        public static TextureInfo LoadDdsTexture(this TextureInfo source, string path) => source.LoadDdsTexture(File.Open(path, FileMode.Open, FileAccess.Read));
+
+        /// <summary>
+        /// Loads the DDS texture.
+        /// </summary>
+        /// <param name="source">The source.</param>
+        /// <param name="data">The data.</param>
+        /// <returns></returns>
+        public static TextureInfo LoadDdsTexture(this TextureInfo source, byte[] data) => source.LoadDdsTexture(new MemoryStream(data));
 
         /// <summary>
         /// Loads a DDS texture from an input stream.
         /// </summary>
+        /// <param name="source">The source.</param>
+        /// <param name="stream">The stream.</param>
+        /// <returns></returns>
+        /// <exception cref="FileFormatException">Invalid DDS file magic string: \"{Encoding.ASCII.GetString(magicString)}\".</exception>
         public unsafe static TextureInfo LoadDdsTexture(this TextureInfo source, Stream stream)
         {
             using (var r = new BinaryReader(stream))

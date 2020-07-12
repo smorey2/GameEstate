@@ -13,6 +13,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\GameEstate.Abstract\GameEstate.Abstract.csproj" />
+    <ProjectReference Include="..\GameEstate\GameEstate.csproj" />
   </ItemGroup>
 
   <ItemGroup>
@@ -20,5 +21,9 @@
       <HintPath>..\..\lib\UnityEngine.dll</HintPath>
     </Reference>
   </ItemGroup>
+
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+    <Exec Command="copy &quot;$(TargetDir)GameEstate*.dll&quot; &quot;$(ProjectDir)..\..\unity\Simple\Assets\Plugins\&quot;" />
+  </Target>
 
 </Project>

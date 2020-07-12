@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using static GameEstate.Core.CoreDebug;
+using static GameEstate.EstateDebug;
 
 namespace GameEstate.Formats.Wavefront
 {

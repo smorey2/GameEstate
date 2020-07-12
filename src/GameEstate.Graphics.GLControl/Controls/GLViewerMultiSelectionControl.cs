@@ -1,6 +1,6 @@
 //using System.Windows.Forms;
 
-//namespace GameEstate.Toy.Controls
+//namespace GameEstate.Graphics.Controls
 //{
 //    public class GLViewerMultiSelectionControl : UserControl
 //    {

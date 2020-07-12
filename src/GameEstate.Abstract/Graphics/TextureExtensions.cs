@@ -1,4 +1,5 @@
-﻿using System;
+﻿using GameEstate.Graphics.DirectX;
+using System;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -10,8 +11,6 @@ namespace GameEstate.Graphics
     /// </summary>
     public static partial class TextureExtensions
     {
-        const int DDS_HEADER_SIZE = 128;
-
         static partial class Literal
         {
             public static readonly byte[] IMG_ = Encoding.ASCII.GetBytes("IMG ");
@@ -43,21 +42,6 @@ namespace GameEstate.Graphics
         };
 
         #region CustomImage
-
-        public static void LoadDxt(this TextureInfo source, TextureUnityFormat format, byte[] data)
-        {
-            if (format != TextureUnityFormat.DXT1 && format != TextureUnityFormat.DXT5)
-                throw new ArgumentOutOfRangeException(nameof(format), "Invalid TextureFormat. Only DXT1 and DXT5 formats are supported by this method.");
-            source.UnityFormat = format;
-            var ddsSizeCheck = data[4];
-            if (ddsSizeCheck != 124)
-                throw new ArgumentOutOfRangeException(nameof(data), "Invalid DDS DXTn texture. Unable to read"); // this header byte should be 124 for DDS image files
-            source.Height = (data[13] << 8) | data[12];
-            source.Width = (data[17] << 8) | data[16];
-            var dxtBytes = new byte[data.Length - DDS_HEADER_SIZE];
-            Buffer.BlockCopy(dxtBytes, DDS_HEADER_SIZE, dxtBytes, 0, data.Length - DDS_HEADER_SIZE);
-            source.Data = dxtBytes;
-        }
 
         public static void LoadImage(this TextureInfo source, byte[] data)
         {
@@ -151,11 +135,6 @@ namespace GameEstate.Graphics
             source.Data = b.ToArray();
             return source;
         }
-
-        #endregion
-
-        #region Bitmap
-
 
         #endregion
     }

@@ -8,7 +8,7 @@ namespace GameEstate.Core
 {
     public static class UnsafeUtils
     {
-        static UnsafeUtils() => EstateBootstrap.Touch();
+        static UnsafeUtils() => Estate.Bootstrap();
 
         [DllImport("msvcrt.dll", EntryPoint = "memcpy", CallingConvention = CallingConvention.Cdecl, SetLastError = false)] extern static unsafe IntPtr memcpy(IntPtr dest, IntPtr src, uint count);
         public static Func<IntPtr, IntPtr, uint, IntPtr> Memcpy = memcpy;

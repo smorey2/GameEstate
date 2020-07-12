@@ -2,7 +2,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Linq.Expressions;
 
 namespace GameEstate
 {
@@ -11,6 +10,22 @@ namespace GameEstate
     /// </summary>
     public class Estate
     {
+        static unsafe Estate()
+        {
+            foreach (var startup in EstatePlatform.Startups)
+                if (startup())
+                    return;
+            EstatePlatform.Platform = EstatePlatform.PlatformUnknown;
+            EstateDebug.AssertFunc = x => System.Diagnostics.Debug.Assert(x);
+            EstateDebug.LogFunc = a => System.Diagnostics.Debug.Print(a);
+            EstateDebug.LogFormatFunc = (a, b) => System.Diagnostics.Debug.Print(a, b);
+        }
+
+        /// <summary>
+        /// Touches this instance.
+        /// </summary>
+        public static void Bootstrap() { }
+
         public enum PakMultiType
         {
             SingleBinary,

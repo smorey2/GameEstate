@@ -4,7 +4,7 @@
 //using System.Windows;
 ////using static GUI.Controls.GLViewerControl;
 
-//namespace GameEstate.Toy.Renderer
+//namespace namespace GameEstate.Graphics.Renderer
 //{
 //    /// <summary>
 //    /// GL Render control with material controls (render modes maybe at some point?).

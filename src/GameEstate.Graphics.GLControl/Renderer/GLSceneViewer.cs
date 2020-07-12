@@ -5,7 +5,7 @@
 //using OpenTK.Graphics.OpenGL;
 ////using static GUI.Controls.GLViewerControl;
 
-//namespace GameEstate.Toy.Renderer
+//namespace namespace GameEstate.Graphics.Renderer
 //{
 //    public abstract class GLSceneViewer
 //    {

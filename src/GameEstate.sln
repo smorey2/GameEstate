@@ -15,7 +15,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GameEstate.Explorer", "Game
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GameEstate.Toy", "GameEstate.Toy\GameEstate.Toy.csproj", "{6160F8F0-7B4A-48B7-801D-E1BA9DB10EAB}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GameEstate.ToyApp", "GameEstate.ToyApp\GameEstate.ToyApp.csproj", "{3B1FD93A-9CF4-4C12-BE3B-A779A56A4C70}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GameEstate.Graphics.GLControl", "GameEstate.Graphics.GLControl\GameEstate.Graphics.GLControl.csproj", "{3B1FD93A-9CF4-4C12-BE3B-A779A56A4C70}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "3rd", "3rd", "{AFB380A5-D6A4-4F27-855B-83067427F08E}"
 EndProject

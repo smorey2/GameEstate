@@ -2,7 +2,7 @@
 //using System.Collections.Generic;
 //using System.Linq;
 
-//namespace GameEstate.Toy.Renderer
+//namespace namespace GameEstate.Graphics.Renderer
 //{
 //    /// <summary>
 //    /// GL Render control with model controls (render mode, animation panels).

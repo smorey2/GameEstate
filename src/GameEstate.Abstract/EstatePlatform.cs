@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace GameEstate.Core
+namespace GameEstate
 {
     public static class EstatePlatform
     {

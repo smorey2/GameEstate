@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-using static GameEstate.Core.CoreDebug;
+using static GameEstate.EstateDebug;
 
 namespace GameEstate.Formats.Cry.Core
 {

@@ -1,6 +1,7 @@
 ﻿using GameEstate.Explorer;
 using GameEstate.Explorer.ViewModel;
 using GameEstate.Formats.Binary;
+using GameEstate.Graphics;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;

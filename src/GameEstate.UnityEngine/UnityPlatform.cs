@@ -1,9 +1,10 @@
-﻿using System;
+﻿using GameEstate.Core;
+using System;
 using System.Threading.Tasks;
 using Unity.Collections.LowLevel.Unsafe;
 using UnityEngine;
 
-namespace GameEstate.Core
+namespace GameEstate
 {
     public static class UnityPlatform
     {
@@ -15,9 +16,9 @@ namespace GameEstate.Core
                 EstatePlatform.Platform = task.Result;
                 //Debug.Log(Platform);
                 UnsafeUtils.Memcpy = (dest, src, count) => { UnsafeUtility.MemCpy((void*)dest, (void*)src, count); return IntPtr.Zero; };
-                CoreDebug.AssertFunc = x => Debug.Assert(x);
-                CoreDebug.LogFunc = a => Debug.Log(a);
-                CoreDebug.LogFormatFunc = (a, b) => Debug.LogFormat(a, b);
+                EstateDebug.AssertFunc = x => Debug.Assert(x);
+                EstateDebug.LogFunc = a => Debug.Log(a);
+                EstateDebug.LogFormatFunc = (a, b) => Debug.LogFormat(a, b);
                 return true;
             }
             catch { return false; }

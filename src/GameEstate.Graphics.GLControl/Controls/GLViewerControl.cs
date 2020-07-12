@@ -1,5 +1,4 @@
-﻿using GameEstate.Toy.Renderer;
-using OpenTK;
+﻿using OpenTK;
 using OpenTK.Graphics.OpenGL;
 using System;
 using System.Collections.Generic;
@@ -10,7 +9,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Threading;
 
-namespace GameEstate.Toy.Controls
+namespace GameEstate.Graphics.Controls
 {
     public class GLViewerControl : GLControl
     {
@@ -36,7 +35,7 @@ namespace GameEstate.Toy.Controls
 
         void SetFps(double fps) => Console.WriteLine($"FPS: {Math.Round(fps)}");
 
-        public Camera Camera { get; } = new Camera();
+        public DebugCamera Camera { get; } = new DebugCamera();
 
         void OnIsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)
         {

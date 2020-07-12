@@ -1,6 +1,6 @@
 //using System.Windows.Forms;
 
-//namespace GUI.Controls
+//namespace GameEstate.Graphics.Controls
 //{
 //    public partial class GLViewerSelectionControl : UserControl
 //    {

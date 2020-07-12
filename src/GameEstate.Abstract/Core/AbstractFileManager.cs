@@ -30,7 +30,7 @@ namespace GameEstate.Core
         /// <value>
         ///   <c>true</c> if this instance is data present; otherwise, <c>false</c>.
         /// </value>
-        public bool IsDataPresent => Locations.Count != 0;
+        public bool IsDataPresent => Locations.Count != 0; //? rename (HasLocations?)
 
         /// <summary>
         /// The locations

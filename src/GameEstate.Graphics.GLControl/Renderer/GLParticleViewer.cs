@@ -3,7 +3,7 @@
 //using System.Numerics;
 ////using static GUI.Controls.GLViewerControl;
 
-//namespace GameEstate.Toy.Renderer
+//namespace namespace GameEstate.Graphics.Renderer
 //{
 //    /// <summary>
 //    /// GL Render control with particle controls (control points? particle counts?).

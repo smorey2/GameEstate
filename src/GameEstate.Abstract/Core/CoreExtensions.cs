@@ -5,7 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Numerics;
 using System.Text;
-using static GameEstate.Core.CoreDebug;
+using static GameEstate.EstateDebug;
 
 namespace GameEstate.Core
 {

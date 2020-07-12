@@ -75,7 +75,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\GameEstate.ToyApp\GameEstate.ToyApp.csproj" />
+    <ProjectReference Include="..\GameEstate.Graphics.GLControl\GameEstate.Graphics.GLControl.csproj" />
     <ProjectReference Include="..\GameEstate\GameEstate.csproj" />
   </ItemGroup>
 
