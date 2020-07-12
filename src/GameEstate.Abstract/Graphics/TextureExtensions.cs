@@ -16,30 +16,33 @@ namespace GameEstate.Graphics
             public static readonly byte[] IMG_ = Encoding.ASCII.GetBytes("IMG ");
         }
 
-        public static int GetBlockSize(this TextureGLFormat source) => source switch
+        public static int GetBlockSize(this TextureGLFormat source)
         {
-            TextureGLFormat.DXT1 => 8,
-            TextureGLFormat.DXT5 => 16,
-            TextureGLFormat.RGBA8888 => 4,
-            TextureGLFormat.R16 => 2,
-            TextureGLFormat.RG1616 => 4,
-            TextureGLFormat.RGBA16161616 => 8,
-            TextureGLFormat.R16F => 2,
-            TextureGLFormat.RG1616F => 4,
-            TextureGLFormat.RGBA16161616F => 8,
-            TextureGLFormat.R32F => 4,
-            TextureGLFormat.RG3232F => 8,
-            TextureGLFormat.RGB323232F => 12,
-            TextureGLFormat.RGBA32323232F => 16,
-            TextureGLFormat.BC6H => 16,
-            TextureGLFormat.BC7 => 16,
-            TextureGLFormat.IA88 => 2,
-            TextureGLFormat.ETC2 => 8,
-            TextureGLFormat.ETC2_EAC => 16,
-            TextureGLFormat.BGRA8888 => 4,
-            TextureGLFormat.ATI1N => 8,
-            _ => 1,
-        };
+            switch (source)
+            {
+                case TextureGLFormat.DXT1: return 8;
+                case TextureGLFormat.DXT5: return 6;
+                case TextureGLFormat.RGBA8888: return 4;
+                case TextureGLFormat.R16: return 2;
+                case TextureGLFormat.RG1616: return 4;
+                case TextureGLFormat.RGBA16161616: return 8;
+                case TextureGLFormat.R16F: return 2;
+                case TextureGLFormat.RG1616F: return 4;
+                case TextureGLFormat.RGBA16161616F: return 8;
+                case TextureGLFormat.R32F: return 4;
+                case TextureGLFormat.RG3232F: return 8;
+                case TextureGLFormat.RGB323232F: return 12;
+                case TextureGLFormat.RGBA32323232F: return 16;
+                case TextureGLFormat.BC6H: return 16;
+                case TextureGLFormat.BC7: return 16;
+                case TextureGLFormat.IA88: return 2;
+                case TextureGLFormat.ETC2: return 8;
+                case TextureGLFormat.ETC2_EAC: return 16;
+                case TextureGLFormat.BGRA8888: return 4;
+                case TextureGLFormat.ATI1N: return 8;
+                default: return 1;
+            };
+        }
 
         #region CustomImage
 
