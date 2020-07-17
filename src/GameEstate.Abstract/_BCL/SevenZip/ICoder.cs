@@ -22,7 +22,7 @@ namespace SevenZip
 		public InvalidParamException(): base("Invalid Parameter") { }
 	}
 
-	internal interface ICodeProgress
+	public interface ICodeProgress
 	{
 		/// <summary>
 		/// Callback progress.

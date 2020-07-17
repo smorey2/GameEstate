@@ -1,6 +1,7 @@
 ﻿using GameEstate.Core;
 using GameEstate.Explorer.ViewModel;
 using GameEstate.Formats.Binary;
+using GameEstate.Formats.Nif;
 using GameEstate.Graphics;
 using System.Collections.Generic;
 using System.IO;
@@ -38,6 +39,20 @@ namespace GameEstate.Explorer
             return new List<ExplorerInfoNode> {
                 new ExplorerInfoNode(".generic", tag: data),
                 new ExplorerInfoNode("File", items: await GetFileInfoAsync(resource, file)),
+            };
+        }
+
+        public static async Task<List<ExplorerInfoNode>> GetNifAsync(ExplorerManager resource, BinaryPakFile pakFile, FileMetadata file)
+        {
+            var data = await pakFile.LoadFileDataAsync(file);
+            var nif = new NiFile(Path.GetFileNameWithoutExtension(file.Path));
+            nif.Deserialize(new BinaryReader(new MemoryStream(data)));
+            var nifInfo = new List<ExplorerInfoNode> {
+                new ExplorerInfoNode($"NumBlocks: {nif.Header.NumBlocks}"),
+            };
+            return new List<ExplorerInfoNode> {
+                new ExplorerInfoNode("File", items: await GetFileInfoAsync(resource, file)),
+                new ExplorerInfoNode("Nif", items: nifInfo),
             };
         }
     }

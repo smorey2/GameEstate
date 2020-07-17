@@ -25,6 +25,7 @@ namespace GameEstate.Estates
         public TesPakFile(string filePath, string game, object tag = null) : base(filePath, game, new PakBinaryTes())
         {
             ExplorerItem = StandardExplorerItem.GetPakFilesAsync;
+            ExplorerInfos.Add(".nif", StandardExplorerInfo.GetNifAsync);
             ExplorerInfos.Add(".dds", StandardExplorerInfo.GetDdsAsync);
             Open();
         }

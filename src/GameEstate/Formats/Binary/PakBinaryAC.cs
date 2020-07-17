@@ -62,9 +62,7 @@ namespace GameEstate.Formats.Binary
             ///     WORD x 81 = Terrain Map
             ///     WORD x 81 = Height Map
             /// </summary>
-            [DataType(DataType.Cell)]
-            LandBlock = 1, // DB_TYPE_LANDBLOCK
-
+            [DataType(DataType.Cell)] LandBlock = 1, // DB_TYPE_LANDBLOCK
             /// <summary>
             /// File Format:
             ///     DWORD LandblockId
@@ -97,48 +95,28 @@ namespace GameEstate.Formats.Binary
             ///     FLOAT Quat.Y
             ///     FLOAT Quat.Z
             /// </summary>
-            [DataType(DataType.Cell), FileExt("lbi")]
-            LandBlockInfo = 2, // DB_TYPE_LBI
-
-            [DataType(DataType.Cell), FileIdRange(0x01010000, 0x013EFFFF)]
-            EnvCell = 3, // DB_TYPE_ENVCELL
-
+            [DataType(DataType.Cell), FileExt("lbi")] LandBlockInfo = 2, // DB_TYPE_LBI
+            [DataType(DataType.Cell), FileIdRange(0x01010000, 0x013EFFFF)] EnvCell = 3, // DB_TYPE_ENVCELL
             /// <summary>
             /// usage of this is currently unknown.  exists in the client, but has no discernable
             /// source dat file.  appears to be a server file not distributed to clients.
             /// </summary>
-            [FileExt("lbo")]
-            LandBlockObjects = 4, // DB_TYPE_LBO
-
+            [FileExt("lbo")] LandBlockObjects = 4, // DB_TYPE_LBO
             /// <summary>
             /// usage of this is currently unknown.  exists in the client, but has no discernable
             /// source dat file.  appears to be a server file not distributed to clients.
             /// </summary>
-            [FileExt("ins")]
-            Instantiation = 5, // DB_TYPE_INSTANTIATION
-
-            [DataType(DataType.Portal), FileExt("obj"), FileIdRange(0x01000000, 0x0100FFFF)]
-            GraphicsObject = 6, // DB_TYPE_GFXOBJ
-
-            [DataType(DataType.Portal), FileExt("set"), FileIdRange(0x02000000, 0x0200FFFF)]
-            Setup = 7, // DB_TYPE_SETUP
-
-            [DataType(DataType.Portal), FileExt("anm"), FileIdRange(0x03000000, 0x0300FFFF)]
-            Animation = 8, // DB_TYPE_ANIM
-
+            [FileExt("ins")] Instantiation = 5, // DB_TYPE_INSTANTIATION
+            [DataType(DataType.Portal), FileExt("obj"), FileIdRange(0x01000000, 0x0100FFFF)] GraphicsObject = 6, // DB_TYPE_GFXOBJ
+            [DataType(DataType.Portal), FileExt("set"), FileIdRange(0x02000000, 0x0200FFFF)] Setup = 7, // DB_TYPE_SETUP
+            [DataType(DataType.Portal), FileExt("anm"), FileIdRange(0x03000000, 0x0300FFFF)] Animation = 8, // DB_TYPE_ANIM
             /// <summary>
             /// usage of this is currently unknown.  exists in the client, but has no discernable
             /// source dat file.  appears to be a server file not distributed to clients.
             /// </summary>
-            [FileExt("hk")]
-            AnimationHook = 9, // DB_TYPE_ANIMATION_HOOK
-
-            [DataType(DataType.Portal), FileExt("pal"), FileIdRange(0x04000000, 0x0400FFFF)]
-            Palette = 10, // DB_TYPE_PALETTE
-
-            [DataType(DataType.Portal), FileExt("texture"), FileIdRange(0x05000000, 0x05FFFFFF)]
-            SurfaceTexture = 11, // DB_TYPE_SURFACETEXTURE
-
+            [FileExt("hk")] AnimationHook = 9, // DB_TYPE_ANIMATION_HOOK
+            [DataType(DataType.Portal), FileExt("pal"), FileIdRange(0x04000000, 0x0400FFFF)] Palette = 10, // DB_TYPE_PALETTE
+            [DataType(DataType.Portal), FileExt("texture"), FileIdRange(0x05000000, 0x05FFFFFF)] SurfaceTexture = 11, // DB_TYPE_SURFACETEXTURE
             /// <summary>
             /// the 5th dword of these files has values from the following enum:
             /// https://msdn.microsoft.com/en-us/library/windows/desktop/bb172558(v=vs.85).aspx
@@ -154,24 +132,16 @@ namespace GameEstate.Formats.Binary
             ///     16: format (see above)
             ///     20: length
             /// </summary>
-            [DataType(DataType.Portal), FileExt("jpg"), FileExt("dds"), FileExt("tga"), FileExt("iff"), FileExt("256"), FileExt("csi"), FileExt("alp"), FileIdRange(0x06000000, 0x07FFFFFF)]
-            Texture = 12, // DB_TYPE_RENDERSURFACE
-
+            [DataType(DataType.Portal), FileExt("jpg"), FileExt("dds"), FileExt("tga"), FileExt("iff"), FileExt("256"), FileExt("csi"), FileExt("alp"), FileIdRange(0x06000000, 0x07FFFFFF)] Texture = 12, // DB_TYPE_RENDERSURFACE
             /// <summary>
             /// indexed in client as "materials" for some reason
             /// </summary>
-            [DataType(DataType.Portal), FileExt("surface"), FileIdRange(0x08000000, 0x0800FFFF)]
-            Surface = 13, // DB_TYPE_SURFACE
-
-            [DataType(DataType.Portal), FileExt("dsc"), FileIdRange(0x09000000, 0x0900FFFF)]
-            MotionTable = 14, // DB_TYPE_MTABLE
-
+            [DataType(DataType.Portal), FileExt("surface"), FileIdRange(0x08000000, 0x0800FFFF)] Surface = 13, // DB_TYPE_SURFACE
+            [DataType(DataType.Portal), FileExt("dsc"), FileIdRange(0x09000000, 0x0900FFFF)] MotionTable = 14, // DB_TYPE_MTABLE
             /// <summary>
             /// indexed as "sound" in the client
             /// </summary>
-            [DataType(DataType.Portal), FileExt("wav"), FileIdRange(0x0A000000, 0x0A00FFFF)]
-            Wave = 15, // DB_TYPE_WAVE
-
+            [DataType(DataType.Portal), FileExt("wav"), FileIdRange(0x0A000000, 0x0A00FFFF)] Wave = 15, // DB_TYPE_WAVE
             /// <summary>
             /// File content structure:
             /// 0: DWORD LandblockId
@@ -223,229 +193,127 @@ namespace GameEstate.Formats.Binary
             /// 
             /// Note: If CullMode is 1, copy Front-Face data to Back-face
             /// </summary>
-            [DataType(DataType.Portal), FileExt("env"), FileIdRange(0x0D000000, 0x0D00FFFF)]
-            Environment = 16, // DB_TYPE_ENVIRONMENT
-
+            [DataType(DataType.Portal), FileExt("env"), FileIdRange(0x0D000000, 0x0D00FFFF)] Environment = 16, // DB_TYPE_ENVIRONMENT
             /// <summary>
             /// indexed as "ui" in the client
             /// </summary>
-            [DataType(DataType.Portal), FileExt("cps"), FileIdRange(0x0E000007, 0x0E000007)]
-            ChatPoseTable = 17, // DB_TYPE_CHAT_POSE_TABLE
-
+            [DataType(DataType.Portal), FileExt("cps"), FileIdRange(0x0E000007, 0x0E000007)] ChatPoseTable = 17, // DB_TYPE_CHAT_POSE_TABLE
             /// <summary>
             /// indexed as "DungeonCfgs" in the client
             /// </summary>
-            [DataType(DataType.Portal), FileExt("hrc"), FileIdRange(0x0E00000D, 0x0E00000D)]
-            ObjectHierarchy = 18, // DB_TYPE_OBJECT_HIERARCHY
-
+            [DataType(DataType.Portal), FileExt("hrc"), FileIdRange(0x0E00000D, 0x0E00000D)] ObjectHierarchy = 18, // DB_TYPE_OBJECT_HIERARCHY
             /// <summary>
             /// indexed as "weenie" in the client
             /// </summary>
-            [DataType(DataType.Portal), FileExt("bad"), FileIdRange(0x0E00001A, 0x0E00001A)]
-            BadData = 19, // DB_TYPE_BADDATA
-
+            [DataType(DataType.Portal), FileExt("bad"), FileIdRange(0x0E00001A, 0x0E00001A)] BadData = 19, // DB_TYPE_BADDATA
             /// <summary>
             /// indexed as "weenie" in the client
             /// </summary>
-            [DataType(DataType.Portal), FileExt("taboo"), FileIdRange(0x0E00001E, 0x0E00001E)]
-            TabooTable = 20, // DB_TYPE_TABOO_TABLE
-
-            [DataType(DataType.Portal), FileIdRange(0x0E00001F, 0x0E00001F)]
-            FileToId = 21, // DB_TYPE_FILE2ID_TABLE
-
+            [DataType(DataType.Portal), FileExt("taboo"), FileIdRange(0x0E00001E, 0x0E00001E)] TabooTable = 20, // DB_TYPE_TABOO_TABLE
+            [DataType(DataType.Portal), FileIdRange(0x0E00001F, 0x0E00001F)] FileToId = 21, // DB_TYPE_FILE2ID_TABLE
             /// <summary>
             /// indexed as "namefilter" in the client
             /// </summary>
-            [DataType(DataType.Portal), FileExt("nft"), FileIdRange(0x0E000020, 0x0E000020)]
-            NameFilterTable = 22, // DB_TYPE_NAME_FILTER_TABLE
-
+            [DataType(DataType.Portal), FileExt("nft"), FileIdRange(0x0E000020, 0x0E000020)] NameFilterTable = 22, // DB_TYPE_NAME_FILTER_TABLE
             /// <summary>
             /// indexed as "properties" in the client
             /// </summary>
-            [DataType(DataType.Portal), FileExt("monprop"), FileIdRange(0x0E020000, 0x0E02FFFF)]
-            MonitoredProperties = 23, // DB_TYPE_MONITOREDPROPERTIES
-
-            [DataType(DataType.Portal)]
-            [FileExt("pst")]
-            [FileIdRange(0x0F000000, 0x0F00FFFF)]
-            PaletteSet = 24, // DB_TYPE_PAL_SET
-
-            [DataType(DataType.Portal), FileExt("clo"), FileIdRange(0x10000000, 0x1000FFFF)]
-            Clothing = 25, // DB_TYPE_CLOTHING
-
-            [DataType(DataType.Portal), FileExt("deg"), FileIdRange(0x11000000, 0x1100FFFF)]
-            DegradeInfo = 26, // DB_TYPE_DEGRADEINFO
-
-            [DataType(DataType.Portal), FileExt("scn"), FileIdRange(0x12000000, 0x1200FFFF)]
-            Scene = 27, // DB_TYPE_SCENE 
-
+            [DataType(DataType.Portal), FileExt("monprop"), FileIdRange(0x0E020000, 0x0E02FFFF)] MonitoredProperties = 23, // DB_TYPE_MONITOREDPROPERTIES
+            [DataType(DataType.Portal), FileExt("pst"), FileIdRange(0x0F000000, 0x0F00FFFF)] PaletteSet = 24, // DB_TYPE_PAL_SET
+            [DataType(DataType.Portal), FileExt("clo"), FileIdRange(0x10000000, 0x1000FFFF)] Clothing = 25, // DB_TYPE_CLOTHING
+            [DataType(DataType.Portal), FileExt("deg"), FileIdRange(0x11000000, 0x1100FFFF)] DegradeInfo = 26, // DB_TYPE_DEGRADEINFO
+            [DataType(DataType.Portal), FileExt("scn"), FileIdRange(0x12000000, 0x1200FFFF)] Scene = 27, // DB_TYPE_SCENE 
             /// <summary>
             /// indexed as "landscape" by the client
             /// </summary>
-            [DataType(DataType.Portal), FileExt("rgn"), FileIdRange(0x13000000, 0x1300FFFF)]
-            Region = 28, // DB_TYPE_REGION
-
-            [DataType(DataType.Portal), FileExt("keymap"), FileIdRange(0x14000000, 0x1400FFFF)]
-            KeyMap = 29, // DB_TYPE_KEYMAP
-
+            [DataType(DataType.Portal), FileExt("rgn"), FileIdRange(0x13000000, 0x1300FFFF)] Region = 28, // DB_TYPE_REGION
+            [DataType(DataType.Portal), FileExt("keymap"), FileIdRange(0x14000000, 0x1400FFFF)] KeyMap = 29, // DB_TYPE_KEYMAP
             /// <summary>
             /// indexed as "textures" in the client
             /// </summary>
-            [DataType(DataType.Portal), FileExt("rtexture"), FileIdRange(0x15000000, 0x15FFFFFF)]
-            RenderTexture = 30, // DB_TYPE_RENDERTEXTURE 
-
+            [DataType(DataType.Portal), FileExt("rtexture"), FileIdRange(0x15000000, 0x15FFFFFF)] RenderTexture = 30, // DB_TYPE_RENDERTEXTURE 
             /// <summary>
             /// indexed as "materials" in the client
             /// </summary>
-            [DataType(DataType.Portal), FileExt("mat"), FileIdRange(0x16000000, 0x16FFFFFF)]
-            RenderMaterial = 31, // DB_TYPE_RENDERMATERIAL 
-
+            [DataType(DataType.Portal), FileExt("mat"), FileIdRange(0x16000000, 0x16FFFFFF)] RenderMaterial = 31, // DB_TYPE_RENDERMATERIAL 
             /// <summary>
             /// indexed as "materials" in the client
             /// </summary>
-            [DataType(DataType.Portal), FileExt("mm"), FileIdRange(0x17000000, 0x17FFFFFF)]
-            MaterialModifier = 32, // DB_TYPE_MATERIALMODIFIER 
-
+            [DataType(DataType.Portal), FileExt("mm"), FileIdRange(0x17000000, 0x17FFFFFF)] MaterialModifier = 32, // DB_TYPE_MATERIALMODIFIER 
             /// <summary>
             /// indexed as "materials" in the client
             /// </summary>
-            [DataType(DataType.Portal), FileExt("mi"), FileIdRange(0x18000000, 0x18FFFFFF)]
-            MaterialInstance = 33, // DB_TYPE_MATERIALINSTANCE
-
+            [DataType(DataType.Portal), FileExt("mi"), FileIdRange(0x18000000, 0x18FFFFFF)] MaterialInstance = 33, // DB_TYPE_MATERIALINSTANCE
             /// <summary>
             /// SoundTable
             /// </summary>
-            [DataType(DataType.Portal), FileExt("stb"), FileIdRange(0x20000000, 0x2000FFFF)]
-            SoundTable = 34, // DB_TYPE_STABLE
-
+            [DataType(DataType.Portal), FileExt("stb"), FileIdRange(0x20000000, 0x2000FFFF)] SoundTable = 34, // DB_TYPE_STABLE
             /// <summary>
             /// This is in the Language dat (client_local_English.dat)
             /// </summary>
-            [DataType(DataType.Portal), FileExt("uil"), FileIdRange(0x21000000, 0x21FFFFFF)]
-            UiLayout = 35, // DB_TYPE_UI_LAYOUT
-
+            [DataType(DataType.Portal), FileExt("uil"), FileIdRange(0x21000000, 0x21FFFFFF)] UiLayout = 35, // DB_TYPE_UI_LAYOUT
             /// <summary>
             /// indexed as "emp" in the client
             /// </summary>
-            [DataType(DataType.Portal), FileExt("emp"), FileIdRange(0x22000000, 0x22FFFFFF)]
-            EnumMapper = 36, // DB_TYPE_ENUM_MAPPER
-
+            [DataType(DataType.Portal), FileExt("emp"), FileIdRange(0x22000000, 0x22FFFFFF)] EnumMapper = 36, // DB_TYPE_ENUM_MAPPER
             /// <summary>
             /// This is in the Language dat (client_local_English.dat)
             /// </summary>
-            [DataType(DataType.Portal), FileExt("stt"), FileIdRange(0x23000000, 0x24FFFFFF)]
-            StringTable = 37, // DB_TYPE_STRING_TABLE 
-
+            [DataType(DataType.Portal), FileExt("stt"), FileIdRange(0x23000000, 0x24FFFFFF)] StringTable = 37, // DB_TYPE_STRING_TABLE 
             /// <summary>
             /// indexed as "emp/idmap" in the client
             /// </summary>
-            [DataType(DataType.Portal), FileExt("imp"), FileIdRange(0x25000000, 0x25FFFFFF)]
-            DidMapper = 38, // DB_TYPE_DID_MAPPER 
-
-            [DataType(DataType.Portal), FileExt("actionmap"), FileIdRange(0x26000000, 0x2600FFFF)]
-            ActionMap = 39, // DB_TYPE_ACTIONMAP 
-
+            [DataType(DataType.Portal), FileExt("imp"), FileIdRange(0x25000000, 0x25FFFFFF)] DidMapper = 38, // DB_TYPE_DID_MAPPER 
+            [DataType(DataType.Portal), FileExt("actionmap"), FileIdRange(0x26000000, 0x2600FFFF)] ActionMap = 39, // DB_TYPE_ACTIONMAP 
             /// <summary>
             /// indexed as "emp/idmap" in the client
             /// </summary>
-            [DataType(DataType.Portal), FileExt("dimp"), FileIdRange(0x27000000, 0x27FFFFFF)]
-            DualDidMapper = 40, // DB_TYPE_DUAL_DID_MAPPER
-
-            [DataType(DataType.Portal), FileExt("str"), FileIdRange(0x31000000, 0x3100FFFF)]
-            String = 41, // DB_TYPE_STRING
-
+            [DataType(DataType.Portal), FileExt("dimp"), FileIdRange(0x27000000, 0x27FFFFFF)] DualDidMapper = 40, // DB_TYPE_DUAL_DID_MAPPER
+            [DataType(DataType.Portal), FileExt("str"), FileIdRange(0x31000000, 0x3100FFFF)] String = 41, // DB_TYPE_STRING
             /// <summary>
             /// inedexed as "emt" in the client
             /// </summary>
-            [DataType(DataType.Portal), FileExt("emt"), FileIdRange(0x32000000, 0x3200FFFF)]
-            ParticleEmitter = 42, // DB_TYPE_PARTICLE_EMITTER 
-
+            [DataType(DataType.Portal), FileExt("emt"), FileIdRange(0x32000000, 0x3200FFFF)] ParticleEmitter = 42, // DB_TYPE_PARTICLE_EMITTER 
             /// <summary>
             /// inedexed as "pes" in the client
             /// </summary>
-            [DataType(DataType.Portal), FileExt("pes"), FileIdRange(0x33000000, 0x3300FFFF)]
-            PhysicsScript = 43, // DB_TYPE_PHYSICS_SCRIPT 
-
+            [DataType(DataType.Portal), FileExt("pes"), FileIdRange(0x33000000, 0x3300FFFF)] PhysicsScript = 43, // DB_TYPE_PHYSICS_SCRIPT 
             /// <summary>
             /// inedexed as "pet" in the client
             /// </summary>
-            [DataType(DataType.Portal), FileExt("pet"), FileIdRange(0x34000000, 0x3400FFFF)]
-            PhysicsScriptTable = 44, // DB_TYPE_PHYSICS_SCRIPT_TABLE 
-
+            [DataType(DataType.Portal), FileExt("pet"), FileIdRange(0x34000000, 0x3400FFFF)] PhysicsScriptTable = 44, // DB_TYPE_PHYSICS_SCRIPT_TABLE 
             /// <summary>
             /// inedexed as "emt/property" in the client
             /// </summary>
-            [DataType(DataType.Portal), FileExt("mpr"), FileIdRange(0x39000000, 0x39FFFFFF)]
-            MasterProperty = 45, // DB_TYPE_MASTER_PROPERTY 
-
-            [DataType(DataType.Portal), FileExt("font"), FileIdRange(0x40000000, 0x40000FFF)]
-            Font = 46, // DB_TYPE_FONT 
-
-            [DataType(DataType.Portal), FileExt("font_local"), FileIdRange(0x40001000, 0x400FFFFF)]
-            FontLocal = 47, // DB_TYPE_FONT_LOCAL 
-
+            [DataType(DataType.Portal), FileExt("mpr"), FileIdRange(0x39000000, 0x39FFFFFF)] MasterProperty = 45, // DB_TYPE_MASTER_PROPERTY 
+            [DataType(DataType.Portal), FileExt("font"), FileIdRange(0x40000000, 0x40000FFF)] Font = 46, // DB_TYPE_FONT 
+            [DataType(DataType.Portal), FileExt("font_local"), FileIdRange(0x40001000, 0x400FFFFF)] FontLocal = 47, // DB_TYPE_FONT_LOCAL 
             /// <summary>
             /// This is located in the Language dat (client_local_English.dat)
             /// "stringtable" in the client
             /// </summary>
-            [DataType(DataType.Portal), FileExt("sti"), FileIdRange(0x41000000, 0x41FFFFFF)]
-            StringState = 48, // DB_TYPE_STRING_STATE
-
-            [DataType(DataType.Portal), FileExt("dbpc"), FileExt("pmat"), FileIdRange(0x78000000, 0x7FFFFFFF)]
-            DbProperties = 49, // DB_TYPE_DBPROPERTIES
-
+            [DataType(DataType.Portal), FileExt("sti"), FileIdRange(0x41000000, 0x41FFFFFF)] StringState = 48, // DB_TYPE_STRING_STATE
+            [DataType(DataType.Portal), FileExt("dbpc"), FileExt("pmat"), FileIdRange(0x78000000, 0x7FFFFFFF)] DbProperties = 49, // DB_TYPE_DBPROPERTIES
             /// <summary>
             /// indexed as "mesh" in the client
             /// </summary>
-            [DataType(DataType.Portal), FileExt("rendermesh"), FileIdRange(0x19000000, 0x19FFFFFF)]
-            RenderMesh = 50, // DB_TYPE_RENDER_MESH
-
+            [DataType(DataType.Portal), FileExt("rendermesh"), FileIdRange(0x19000000, 0x19FFFFFF)] RenderMesh = 50, // DB_TYPE_RENDER_MESH
             // the following special files are called out in a different section of the decompiled client:
-
-            [DataType(DataType.Portal), FileIdRange(0x0E000001, 0x0E000001)]
-            WeenieDefaults = 97, // DB_TYPE_WEENIE_DEF
-
-            [DataType(DataType.Portal), FileIdRange(0x0E000002, 0x0E000002)]
-            CharacterGenerator = 98, // DB_TYPE_CHAR_GEN_0
-
-            [DataType(DataType.Portal), FileIdRange(0x0E000003, 0x0E000003)]
-            SecondaryAttributeTable = 99, // DB_TYPE_ATTRIBUTE_2ND_TABLE_0
-
-            [DataType(DataType.Portal), FileIdRange(0x0E000004, 0x0E000004)]
-            SkillTable = 100, // DB_TYPE_SKILL_TABLE_0
-
-            [DataType(DataType.Portal), FileIdRange(0x0E00000E, 0x0E00000E)]
-            SpellTable = 101, // DB_TYPE_SPELL_TABLE_0
-
-            [DataType(DataType.Portal), FileIdRange(0x0E00000F, 0x0E00000F)]
-            SpellComponentTable = 102, // DB_TYPE_SPELLCOMPONENT_TABLE_0
-
-            [DataType(DataType.Portal), FileIdRange(0x0E000001, 0x0E000001)]
-            TreasureTable = 103, // DB_TYPE_W_TREASURE_SYSTEM
-
-            [DataType(DataType.Portal), FileIdRange(0x0E000019, 0x0E000019)]
-            CraftTable = 104, // DB_TYPE_W_CRAFT_TABLE
-
-            [DataType(DataType.Portal), FileIdRange(0x0E000018, 0x0E000018)]
-            XpTable = 105, // DB_TYPE_XP_TABLE_0
-
-            [DataType(DataType.Portal), FileIdRange(0x0E00001B, 0x0E00001B)]
-            Quests = 106, // DB_TYPE_QUEST_DEF_DB_0
-
-            [DataType(DataType.Portal), FileIdRange(0x0E00001C, 0x0E00001C)]
-            GameEventTable = 107, // DB_TYPE_GAME_EVENT_DB
-
-            [DataType(DataType.Portal), FileIdRange(0x0E010000, 0x0E01FFFF)]
-            QualityFilter = 108, // DB_TYPE_QUALITY_FILTER_0
-
-            [DataType(DataType.Portal), FileIdRange(0x30000000, 0x3000FFFF)]
-            CombatTable = 109, // DB_TYPE_COMBAT_TABLE_0
-
-            [DataType(DataType.Portal), FileIdRange(0x38000000, 0x3800FFFF)]
-            ItemMutation = 110, // DB_TYPE_MUTATE_FILTER
-
-            [DataType(DataType.Portal), FileIdRange(0x0E00001D, 0x0E00001D)]
-            ContractTable = 111, // DB_TYPE_CONTRACT_TABLE_0
+            [DataType(DataType.Portal), FileIdRange(0x0E000001, 0x0E000001)] WeenieDefaults = 97, // DB_TYPE_WEENIE_DEF
+            [DataType(DataType.Portal), FileIdRange(0x0E000002, 0x0E000002)] CharacterGenerator = 98, // DB_TYPE_CHAR_GEN_0
+            [DataType(DataType.Portal), FileIdRange(0x0E000003, 0x0E000003)] SecondaryAttributeTable = 99, // DB_TYPE_ATTRIBUTE_2ND_TABLE_0
+            [DataType(DataType.Portal), FileIdRange(0x0E000004, 0x0E000004)] SkillTable = 100, // DB_TYPE_SKILL_TABLE_0
+            [DataType(DataType.Portal), FileIdRange(0x0E00000E, 0x0E00000E)] SpellTable = 101, // DB_TYPE_SPELL_TABLE_0
+            [DataType(DataType.Portal), FileIdRange(0x0E00000F, 0x0E00000F)] SpellComponentTable = 102, // DB_TYPE_SPELLCOMPONENT_TABLE_0
+            [DataType(DataType.Portal), FileIdRange(0x0E000001, 0x0E000001)] TreasureTable = 103, // DB_TYPE_W_TREASURE_SYSTEM
+            [DataType(DataType.Portal), FileIdRange(0x0E000019, 0x0E000019)] CraftTable = 104, // DB_TYPE_W_CRAFT_TABLE
+            [DataType(DataType.Portal), FileIdRange(0x0E000018, 0x0E000018)] XpTable = 105, // DB_TYPE_XP_TABLE_0
+            [DataType(DataType.Portal), FileIdRange(0x0E00001B, 0x0E00001B)] Quests = 106, // DB_TYPE_QUEST_DEF_DB_0
+            [DataType(DataType.Portal), FileIdRange(0x0E00001C, 0x0E00001C)] GameEventTable = 107, // DB_TYPE_GAME_EVENT_DB
+            [DataType(DataType.Portal), FileIdRange(0x0E010000, 0x0E01FFFF)] QualityFilter = 108, // DB_TYPE_QUALITY_FILTER_0
+            [DataType(DataType.Portal), FileIdRange(0x30000000, 0x3000FFFF)] CombatTable = 109, // DB_TYPE_COMBAT_TABLE_0
+            [DataType(DataType.Portal), FileIdRange(0x38000000, 0x3800FFFF)] ItemMutation = 110, // DB_TYPE_MUTATE_FILTER
+            [DataType(DataType.Portal), FileIdRange(0x0E00001D, 0x0E00001D)] ContractTable = 111, // DB_TYPE_CONTRACT_TABLE_0
         }
 
         [StructLayout(LayoutKind.Sequential, Pack = 0x1)]
@@ -470,7 +338,7 @@ namespace GameEstate.Formats.Binary
 
             public uint EnginePackVersion;
             public uint GamePackVersion;
-            
+
             public fixed byte VersionMajor[16];
             public uint VersionMinor;
         }
@@ -590,7 +458,6 @@ namespace GameEstate.Formats.Binary
             var bufferIdx = 0;
             int read;
             while (size > 0)
-            {
                 if (size > blockSize)
                 {
                     read = r.Read(buffer, bufferIdx, blockSize - 4);
@@ -603,7 +470,6 @@ namespace GameEstate.Formats.Binary
                     r.Read(buffer, bufferIdx, size);
                     return buffer;
                 }
-            }
             return buffer;
         }
 

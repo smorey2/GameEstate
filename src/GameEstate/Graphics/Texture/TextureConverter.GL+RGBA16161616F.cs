@@ -1,4 +1,4 @@
-using GameEstate.Core.Algorithms;
+using GameEstate.Graphics.Algorithms;
 using SkiaSharp;
 using System;
 using System.IO;

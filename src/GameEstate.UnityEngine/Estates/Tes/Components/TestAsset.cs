@@ -1,6 +1,7 @@
 ﻿using GameEstate.Graphics;
 using System;
 using UnityEngine;
+using static GameEstate.EstateDebug;
 
 namespace GameEstate.Estates.Tes.Components
 {

@@ -56,7 +56,6 @@ namespace GameEstate.Graphics
             {
                 w.WriteLine($"Count: {vertexBuffer.Count}");
                 w.WriteLine($"Size: {vertexBuffer.Size}");
-
                 for (var i = 0; i < vertexBuffer.Attributes.Count; i++)
                 {
                     var vertexAttribute = vertexBuffer.Attributes[i];
@@ -66,7 +65,6 @@ namespace GameEstate.Graphics
                 }
                 w.WriteLine();
             }
-
             w.WriteLine();
             w.WriteLine("Index buffers:");
             foreach (var indexBuffer in IndexBuffers)

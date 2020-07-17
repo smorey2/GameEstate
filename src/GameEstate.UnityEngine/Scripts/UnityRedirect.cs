@@ -16,10 +16,10 @@ using Redirect = GameEstate.Estates.Tes.Components.TestAsset;
 //using Redirect = GameEstate.Estates.U9.Components.LoadData;
 //using Redirect = GameEstate.Estates.U9.Components.LoadEngine;
 
-public class RedirectComponent : UnityEngine.MonoBehaviour
+public class UnityRedirect : UnityEngine.MonoBehaviour
 {
-    public static void Awake() => Redirect.Awake();
-    public static void Start() => Redirect.Start();
-    public static void OnDestroy() => Redirect.OnDestroy();
-    public static void Update() => Redirect.Update();
+    public void Awake() => Redirect.Awake();
+    public void Start() => Redirect.Start();
+    public void OnDestroy() => Redirect.OnDestroy();
+    public void Update() => Redirect.Update();
 }

@@ -147,8 +147,29 @@ namespace GameEstate.Core
 
         public static long Position(this BinaryReader source) => source.BaseStream.Position;
         public static void Position(this BinaryReader source, long position) => source.BaseStream.Position = position;
+        public static long Position(this BinaryReader source, long position, int align)
+        {
+            if (position % 4 != 0)
+                position += 4 - (position % 4);
+            source.BaseStream.Position = position;
+            return position;
+        }
         public static void Seek(this BinaryReader source, long offset, SeekOrigin origin) => source.BaseStream.Seek(offset, origin);
         public static void Skip(this BinaryReader source, long count) => source.BaseStream.Seek(count, SeekOrigin.Current); // source.BaseStream.Position += count;
+
+        public static void Peek(this BinaryReader source, int offset, Action action)
+        {
+            var position = source.BaseStream.Position;
+            if (offset != 0) source.BaseStream.Position += offset;
+            action();
+            source.BaseStream.Position = position;
+        }
+
+        public static void CopyTo(this BinaryReader source, Stream destination, bool resetPosition = true)
+        {
+            source.BaseStream.CopyTo(destination);
+            if (resetPosition) destination.Position = 0;
+        }
 
         public static byte[] ReadAbsoluteBytes(this BinaryReader source, long position, int count)
         {
@@ -170,6 +191,8 @@ namespace GameEstate.Core
             Assert(startIndex >= 0 && length <= int.MaxValue && startIndex + length <= buffer.Length);
             source.Read(buffer, startIndex, (int)length);
         }
+
+        public static Guid ReadGuid(this BinaryReader source) => new Guid(source.ReadBytes(16));
 
 
         public static byte[] ReadL32Bytes(this BinaryReader source) => source.ReadBytes((int)source.ReadUInt32());
@@ -211,6 +234,31 @@ namespace GameEstate.Core
                 return encoding.GetString(s.ToArray());
             }
         }
+
+        public static string ReadO32Encoding(this BinaryReader source, Encoding encoding)
+        {
+            var currentOffset = source.BaseStream.Position;
+            var offset = source.ReadUInt32();
+            if (offset == 0)
+                return string.Empty;
+            source.BaseStream.Position = currentOffset + offset;
+            var str = ReadZEncoding(source, encoding);
+            source.BaseStream.Position = currentOffset + 4;
+            return str;
+        }
+
+        public static string ReadO32UTF8(this BinaryReader source)
+        {
+            var currentOffset = source.BaseStream.Position;
+            var offset = source.ReadUInt32();
+            if (offset == 0)
+                return string.Empty;
+            source.BaseStream.Position = currentOffset + offset;
+            var str = ReadZUTF8(source);
+            source.BaseStream.Position = currentOffset + 4;
+            return str;
+        }
+
         public static string ReadZUTF8(this BinaryReader source, int length = int.MaxValue, List<byte> buf = null)
         {
             if (buf == null)
