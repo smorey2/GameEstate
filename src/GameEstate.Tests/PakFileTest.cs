@@ -40,8 +40,8 @@ namespace GameEstate.CoreTests
 
         [Theory]
         [InlineData("main.key", "Witcher", "2da00.bif", 0)]
-        [InlineData("krbr.dzip", "Witcher2", "globals/ch_credits_main.csv", 0)]
-        //[InlineData("", "Witcher3", "", 0)]
+        [InlineData("krbr.dzip", "Witcher2", "globals/ch_credits_main.csv", 2498)]
+        [InlineData("", "Witcher3", "", 0)]
         public void RedEstate(string pakPath, string game, string sampleFile, int sampleFileSize)
         {
             var fileManager = EstateManager.GetEstate("Red").FileManager;

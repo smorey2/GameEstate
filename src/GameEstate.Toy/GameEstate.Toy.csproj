@@ -13,11 +13,8 @@
 
   <ItemGroup>
     <Compile Remove="ParticleRenderer\**" />
-    <Compile Remove="Renderer\_\**" />
     <EmbeddedResource Remove="ParticleRenderer\**" />
-    <EmbeddedResource Remove="Renderer\_\**" />
     <None Remove="ParticleRenderer\**" />
-    <None Remove="Renderer\_\**" />
   </ItemGroup>
 
   <ItemGroup>
@@ -31,10 +28,6 @@
     <ProjectReference Include="..\GameEstate.Abstract\GameEstate.Abstract.csproj" />
     <ProjectReference Include="..\GameEstate.Graphics\GameEstate.Graphics.csproj" />
     <ProjectReference Include="..\GameEstate\GameEstate.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Renderer\_\" />
   </ItemGroup>
 
 </Project>

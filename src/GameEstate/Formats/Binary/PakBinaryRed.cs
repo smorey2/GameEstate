@@ -285,7 +285,7 @@ namespace GameEstate.Formats.Binary
             {
                 if (Tag == null)
                     throw new InvalidOperationException("BIFF files can only be processed through KEY files");
-                var keyFile = ((Dictionary<(uint, uint), string> keys, uint bifId))Tag;
+                var (keys, bifId) = ((Dictionary<(uint, uint), string> keys, uint bifId))Tag;
                 var header = r.ReadT<BIF_Header>(sizeof(BIF_Header));
                 if (header.Version != BIFF_VERSION)
                     throw new InvalidOperationException("BAD MAGIC");
@@ -301,7 +301,7 @@ namespace GameEstate.Formats.Binary
                     // Curiously the last resource entry of djinni.bif seem to be missing
                     if (info.FileId > i)
                         continue;
-                    var path = (keyFile.keys.TryGetValue((keyFile.bifId, info.FileId), out var key) ? key : $"{i}") + (FileTypes.TryGetValue(info.FileType, out var extension) ? extension : string.Empty);
+                    var path = (keys.TryGetValue((bifId, info.FileId), out var key) ? key : $"{i}") + (FileTypes.TryGetValue(info.FileType, out var extension) ? extension : string.Empty);
                     files[i] = new FileMetadata
                     {
                         Path = path.Replace('\\', '/'),
@@ -319,7 +319,7 @@ namespace GameEstate.Formats.Binary
                 r.Position(header.FilesPosition);
                 for (var i = 0; i < header.NumFiles; i++)
                 {
-                    var fileName = r.ReadL16ASCII();
+                    var fileName = r.ReadL16ASCII(true);
                     var info = r.ReadT<DZIP_HeaderFile>(sizeof(DZIP_HeaderFile));
                     files[i] = new FileMetadata
                     {
@@ -331,7 +331,7 @@ namespace GameEstate.Formats.Binary
                     };
                 }
             }
-            else throw new InvalidOperationException("BAD MAGIC");
+            else throw new FileFormatException($"Unknown File Type {Magic}");
             return Task.CompletedTask;
         }
 
@@ -339,9 +339,9 @@ namespace GameEstate.Formats.Binary
         {
             byte[] buf;
             r.Position(file.Position);
-            if (source.Version == PakBinaryRed.BIFF_VERSION)
+            if (source.Version == BIFF_VERSION)
                 buf = r.ReadBytes((int)file.FileSize);
-            else if (source.Version == PakBinaryRed.DZIP_VERSION)
+            else if (source.Version == DZIP_VERSION)
             {
                 var offsetAdd = r.ReadInt32();
                 buf = new byte[file.PackedSize - offsetAdd];

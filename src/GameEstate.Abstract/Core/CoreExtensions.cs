@@ -194,10 +194,11 @@ namespace GameEstate.Core
 
         public static Guid ReadGuid(this BinaryReader source) => new Guid(source.ReadBytes(16));
 
-
         public static byte[] ReadL32Bytes(this BinaryReader source) => source.ReadBytes((int)source.ReadUInt32());
         public static string ReadL32ASCII(this BinaryReader source) => Encoding.ASCII.GetString(source.ReadBytes((int)source.ReadUInt32()));
-        public static string ReadL16ASCII(this BinaryReader source) => Encoding.ASCII.GetString(source.ReadBytes((int)source.ReadUInt16()));
+        public static string ReadL32ASCII(this BinaryReader source, bool nullTerminated) { var bytes = source.ReadBytes((int)source.ReadUInt32()); var newLength = bytes.Length - 1; return Encoding.ASCII.GetString(bytes, 0, nullTerminated && bytes[newLength] == 0 ? newLength : bytes.Length); }
+        public static string ReadL16ASCII(this BinaryReader source) => Encoding.ASCII.GetString(source.ReadBytes(source.ReadUInt16()));
+        public static string ReadL16ASCII(this BinaryReader source, bool nullTerminated) { var bytes = source.ReadBytes(source.ReadUInt16()); var newLength = bytes.Length - 1; return Encoding.ASCII.GetString(bytes, 0, nullTerminated && bytes[newLength] == 0 ? newLength : bytes.Length); }
         public static string ReadASCII(this BinaryReader source, int length) => Encoding.ASCII.GetString(source.ReadBytes(length));
         public static string ReadASCII(this BinaryReader source, int length, ASCIIFormat format)
         {

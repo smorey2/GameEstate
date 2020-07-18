@@ -1,48 +1,48 @@
-using GameEstate.Graphics.OpenGL;
-using GameEstate.Toy.Core;
-using GameEstate.Toy.Renderer;
+//using GameEstate.Graphics.OpenGL;
+//using GameEstate.Toy.Core;
+//using GameEstate.Toy.Renderer;
 
-namespace GameEstate.Toy
-{
-    public class GuiContext
-    {
-        public string FileName { get; }
+//namespace GameEstate.Toy
+//{
+//    public class GuiContext
+//    {
+//        public string FileName { get; }
 
-        //public Package CurrentPackage { get; }
+//        //public Package CurrentPackage { get; }
 
-        //public Package ParentPackage { get; }
+//        //public Package ParentPackage { get; }
 
-        public MaterialLoader MaterialLoader { get; }
+//        public MaterialLoader MaterialLoader { get; }
 
-        public ShaderLoader ShaderLoader { get; }
-        public GpuMeshBufferCache MeshBufferCache { get; }
+//        public ShaderLoader ShaderLoader { get; }
+//        public GpuMeshBufferCache MeshBufferCache { get; }
 
-        readonly FileLoader FileLoader;
+//        readonly FileLoader FileLoader;
 
-        QuadIndexBuffer _quadIndices;
-        public QuadIndexBuffer QuadIndices
-        {
-            get
-            {
-                if (_quadIndices == null)
-                    _quadIndices = new QuadIndexBuffer(65532);
-                return _quadIndices;
-            }
-        }
+//        QuadIndexBuffer _quadIndices;
+//        public QuadIndexBuffer QuadIndices
+//        {
+//            get
+//            {
+//                if (_quadIndices == null)
+//                    _quadIndices = new QuadIndexBuffer(65532);
+//                return _quadIndices;
+//            }
+//        }
 
-        public GuiContext(string fileName, object package)
-        {
-            FileName = fileName;
-            //CurrentPackage = package?.Package;
-            //ParentPackage = package?.ParentPackage;
-            MaterialLoader = new MaterialLoader(this);
-            ShaderLoader = new ShaderDebugLoader();
-            FileLoader = new FileLoader();
-            MeshBufferCache = new GpuMeshBufferCache();
-        }
+//        public GuiContext(string fileName, object package)
+//        {
+//            FileName = fileName;
+//            //CurrentPackage = package?.Package;
+//            //ParentPackage = package?.ParentPackage;
+//            MaterialLoader = new MaterialLoader(this);
+//            ShaderLoader = new ShaderDebugLoader();
+//            FileLoader = new FileLoader();
+//            MeshBufferCache = new GpuMeshBufferCache();
+//        }
 
-        public object LoadFileByAnyMeansNecessary(string file) => FileLoader.LoadFileByAnyMeansNecessary(file, this);
+//        public object LoadFileByAnyMeansNecessary(string file) => FileLoader.LoadFileByAnyMeansNecessary(file, this);
 
-        public void ClearCache() => FileLoader.ClearCache();
-    }
-}
+//        public void ClearCache() => FileLoader.ClearCache();
+//    }
+//}

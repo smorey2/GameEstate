@@ -49,14 +49,13 @@ namespace GameEstate.Formats.Valve.Blocks.Animation
         /// <summary>
         /// Get animation matrices as an array.
         /// </summary>
-        public float[] GetAnimationMatricesAsArray(float time, ModelSkeleton skeleton) => Flatten(GetAnimationMatrices(time, skeleton));
+        public float[] GetAnimationMatricesAsArray(float time, ModelSkeleton skeleton) => GetAnimationMatrices(time, skeleton).Flatten();
 
         /// <summary>
         /// Get the animation matrix for each bone.
         /// </summary>
         public Matrix4x4[] GetAnimationMatrices(float time, ModelSkeleton skeleton)
         {
-            // Create output array
             var matrices = new Matrix4x4[skeleton.AnimationTextureSize + 1];
             // Get bone transformations
             var transforms = GetTransformsAtTime(time);
@@ -301,39 +300,7 @@ namespace GameEstate.Formats.Valve.Blocks.Animation
             }
             return array;
         }
-
-        /// <summary>
-        /// Flatten an array of matrices to an array of floats.
-        /// </summary>
-        static float[] Flatten(Matrix4x4[] matrices)
-        {
-            var returnArray = new float[matrices.Length * 16];
-            for (var i = 0; i < matrices.Length; i++)
-            {
-                var mat = matrices[i];
-                returnArray[i * 16] = mat.M11;
-                returnArray[(i * 16) + 1] = mat.M12;
-                returnArray[(i * 16) + 2] = mat.M13;
-                returnArray[(i * 16) + 3] = mat.M14;
-
-                returnArray[(i * 16) + 4] = mat.M21;
-                returnArray[(i * 16) + 5] = mat.M22;
-                returnArray[(i * 16) + 6] = mat.M23;
-                returnArray[(i * 16) + 7] = mat.M24;
-
-                returnArray[(i * 16) + 8] = mat.M31;
-                returnArray[(i * 16) + 9] = mat.M32;
-                returnArray[(i * 16) + 10] = mat.M33;
-                returnArray[(i * 16) + 11] = mat.M34;
-
-                returnArray[(i * 16) + 12] = mat.M41;
-                returnArray[(i * 16) + 13] = mat.M42;
-                returnArray[(i * 16) + 14] = mat.M43;
-                returnArray[(i * 16) + 15] = mat.M44;
-            }
-            return returnArray;
-        }
-
+        
         public override string ToString() => Name;
     }
 }
