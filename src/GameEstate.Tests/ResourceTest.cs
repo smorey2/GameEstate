@@ -6,21 +6,25 @@ namespace GameEstate.CoreTests
 {
     public class ResourceTest
     {
+        const string OblivionFile = "file:///D:/Program%20Files%20(x86)/Steam/steamapps/common/Oblivion";
+        const string OblivionFolder = "file:////192.168.1.3/User/_SERVE/Assets/Oblivion";
+        const string OblivionHttp = "http://192.168.1.3/Estates/Oblivion";
+
         [Theory]
         // game
         [InlineData(false, "Tes", "game:/Oblivion*.bsa#Oblivion", "Oblivion", false, 6, "Oblivion - Meshes.bsa", "trees/treeginkgo.spt", 2059)]
         [InlineData(true, "Tes", "game:/Oblivion*.bsa/#Oblivion", "Oblivion", false, 6, "Oblivion - Meshes.bsa", "trees/treeginkgo.spt", 2059)]
         // file: file
-        [InlineData(false, "Tes", "file:///C:/Program%20Files%20(x86)/Steam/steamapps/common/Oblivion/Data/Oblivion*.bsa#Oblivion", "Oblivion", false, 6, "Oblivion - Meshes.bsa", "trees/treeginkgo.spt", 2059)]
-        [InlineData(false, "Tes", "file:///C:/Program%20Files%20(x86)/Steam/steamapps/common/Oblivion/Data/Oblivion%20-%20Meshes.bsa#Oblivion", "Oblivion", false, 1, "Oblivion - Meshes.bsa", "trees/treeginkgo.spt", 2059)]
+        [InlineData(false, "Tes", OblivionFile + "/Data/Oblivion*.bsa#Oblivion", "Oblivion", false, 6, "Oblivion - Meshes.bsa", "trees/treeginkgo.spt", 2059)]
+        [InlineData(false, "Tes", OblivionFile + "/Data/Oblivion%20-%20Meshes.bsa#Oblivion", "Oblivion", false, 1, "Oblivion - Meshes.bsa", "trees/treeginkgo.spt", 2059)]
         // file: folder
-        [InlineData(false, "Tes", "file:///D:/T_/Oblivion/Oblivion*.bsa/#Oblivion", "Oblivion", true, 6, "Oblivion - Meshes.bsa", "trees/treeginkgo.spt", 2059)]
-        [InlineData(false, "Tes", "file:///D:/T_/Oblivion/Oblivion%20-%20Meshes.bsa/#Oblivion", "Oblivion", true, 1, "Oblivion - Meshes.bsa", "trees/treeginkgo.spt", 2059)]
+        //[InlineData(false, "Tes", OblivionFolder + "/Oblivion*.bsa/#Oblivion", "Oblivion", true, 6, "Oblivion - Meshes.bsa", "trees/treeginkgo.spt", 2059)]
+        //[InlineData(false, "Tes", OblivionFolder + "/Oblivion%20-%20Meshes.bsa/#Oblivion", "Oblivion", true, 1, "Oblivion - Meshes.bsa", "trees/treeginkgo.spt", 2059)]
         // http
-        [InlineData(true, "Tes", "http://192.168.1.3/Estates/Oblivion/Oblivion*.bsa#Oblivion", "Oblivion", true, 6, "Oblivion - Meshes.bsa", "trees/treeginkgo.spt", 2059)]
-        [InlineData(false, "Tes", "http://192.168.1.3/Estates/Oblivion/Oblivion*.bsa/#Oblivion", "Oblivion", true, 6, "Oblivion - Meshes.bsa", "trees/treeginkgo.spt", 2059)]
-        [InlineData(false, "Tes", "http://192.168.1.3/Estates/Oblivion/Oblivion%20-%20Meshes.bsa/#Oblivion", "Oblivion", true, 1, "Oblivion - Meshes.bsa", "trees/treeginkgo.spt", 2059)]
-        public void Resource(bool shouldThrow, string estateName, string uri, string game, bool filePak, int paks, string firstPak, string sampleFile, int sampleFileSize)
+        [InlineData(true, "Tes", OblivionHttp + "/Oblivion*.bsa#Oblivion", "Oblivion", true, 6, "Oblivion - Meshes.bsa", "trees/treeginkgo.spt", 2059)]
+        [InlineData(false, "Tes", OblivionHttp + "/Oblivion*.bsa/#Oblivion", "Oblivion", true, 6, "Oblivion - Meshes.bsa", "trees/treeginkgo.spt", 2059)]
+        [InlineData(false, "Tes", OblivionHttp + "/Oblivion%20-%20Meshes.bsa/#Oblivion", "Oblivion", true, 1, "Oblivion - Meshes.bsa", "trees/treeginkgo.spt", 2059)]
+        public void Resource(bool shouldThrow, string estateName, string uri, string game, bool streamPak, int pathsFound, string firstPak, string sampleFile, int sampleFileSize)
         {
             var estate = EstateManager.GetEstate(estateName);
             if (shouldThrow)
@@ -30,19 +34,19 @@ namespace GameEstate.CoreTests
             }
             var resource = estate.ParseResource(new Uri(uri));
             Assert.Equal(game, resource.Game);
-            Assert.Equal(filePak, resource.StreamPak);
-            Assert.Equal(paks, resource.Paths.Length);
-            // multiPak
-            var multiPak = estate.OpenPakFile(new Uri(uri)) as MultiPakFile;
-            if (multiPak == null)
-                throw new InvalidOperationException("multiPak not a MultiPakFile");
-            Assert.Equal(paks, multiPak.PakFiles.Count);
-            var pak = multiPak.PakFiles[0] as BinaryPakFile;
-            if (pak == null)
-                throw new InvalidOperationException("pak not a BinaryPakFile");
-            Assert.Equal(firstPak, pak.Name);
-            Assert.True(pak.Contains(sampleFile));
-            Assert.Equal(sampleFileSize, pak.LoadFileDataAsync(sampleFile).Result.Length);
+            Assert.Equal(streamPak, resource.StreamPak);
+            Assert.Equal(pathsFound, resource.Paths.Length);
+            var pakFile = estate.OpenPakFile(new Uri(uri));
+            if (pakFile is MultiPakFile multiPakFile)
+            {
+                Assert.Equal(pathsFound, multiPakFile.PakFiles.Count);
+                pakFile = multiPakFile.PakFiles[0];
+            }
+            if (pakFile == null)
+                throw new InvalidOperationException("pak not opened");
+            Assert.Equal(firstPak, pakFile.Name);
+            Assert.True(pakFile.Contains(sampleFile));
+            Assert.Equal(sampleFileSize, pakFile.LoadFileDataAsync(sampleFile).Result.Length);
         }
     }
 }

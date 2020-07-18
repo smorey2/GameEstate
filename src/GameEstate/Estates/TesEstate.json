@@ -46,8 +46,8 @@
     },
     "Fallout4VR": {
       "name": "Fallout 4 VR",
-      "pak": "game:/Fallout4*.ba2#FalloutVR",
-      "dat": "game:/Fallout4.esm#FalloutVR"
+      "pak": "game:/Fallout4*.ba2#Fallout4VR",
+      "dat": "game:/Fallout4.esm#Fallout4VR"
     }
   },
   "fileManager": {

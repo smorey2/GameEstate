@@ -2,9 +2,9 @@
 using System.IO;
 using System.Threading.Tasks;
 
-namespace GameEstate.Dev
+namespace GameEstate
 {
-    public class DevTest
+    public class EstateTest
     {
         public async Task TestAsync()
         {

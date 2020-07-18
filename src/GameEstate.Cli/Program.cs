@@ -1,15 +1,14 @@
 ﻿using CommandLine;
 using GameEstate.Core;
-using GameEstate.Dev;
 using GameEstate.Formats.Binary;
 using System;
 using System.IO;
 using System.Linq;
-using System.Reflection;
 using System.Threading.Tasks;
 
 namespace GameEstate
 {
+    // test
     // list -e "Tes"
     // import -e "Tes" -u "game:/Oblivion*.bsa#Oblivion" --path "D:\T_\Test2"
     // export -e "Tes" -u "game:/Oblivion*.bsa#Oblivion" --path "D:\T_\Test2"
@@ -63,7 +62,7 @@ namespace GameEstate
         #region Options
 
         [Verb("dev", HelpText = "Extract files contents to folder.")]
-        class DevOptions
+        class TestOptions
         {
             [Option('e', "estate", HelpText = "Estate")]
             public string Estate { get; set; }
@@ -126,7 +125,7 @@ namespace GameEstate
 
         #endregion
 
-        static string[] dev00 = new[] { "dev" };
+        static string[] test00 = new[] { "test" };
 
         static string[] args00 = new[] { "list" };
         static string[] args01 = new[] { "list", "-e", "Red" };
@@ -141,18 +140,18 @@ namespace GameEstate
         static string[] argsRed1 = new[] { "export", "-e", "Red", "-u", "game:/main.key#Witcher", "--path", @"D:\T_\Witcher" };
         static string[] argsRed2 = new[] { "export", "-e", "Red", "-u", "game:/krbr.dzip#Witcher2", "--path", @"D:\T_\Witcher2" };
 
-        static void Main(string[] args) => Parser.Default.ParseArguments<DevOptions, ListOptions, ExportOptions, ImportOptions, XsportOptions>(dev00)
+        static void Main(string[] args) => Parser.Default.ParseArguments<TestOptions, ListOptions, ExportOptions, ImportOptions, XsportOptions>(test00)
             .MapResult(
-                  (DevOptions opts) => RunDevAsync(opts).GetAwaiter().GetResult(),
+                  (TestOptions opts) => RunTestAsync(opts).GetAwaiter().GetResult(),
                   (ListOptions opts) => RunListAsync(opts).GetAwaiter().GetResult(),
                   (ExportOptions opts) => RunExportAsync(opts).GetAwaiter().GetResult(),
                   (ImportOptions opts) => RunImportAsync(opts).GetAwaiter().GetResult(),
                   (XsportOptions opts) => RunXsportAsync(opts).GetAwaiter().GetResult(),
                   errs => 1);
 
-        static async Task<int> RunDevAsync(DevOptions opts)
+        static async Task<int> RunTestAsync(TestOptions opts)
         {
-            await new DevTest().TestAsync();
+            await new EstateTest().TestAsync();
             return 0;
         }
 

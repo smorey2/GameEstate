@@ -55,7 +55,7 @@ namespace GameEstate.Core
         /// <param name="filePath">The file path.</param>
         /// <param name="exception">The exception.</param>
         /// <returns></returns>
-        public abstract Task<byte[]> LoadFileDataAsync(string filePath, Action<FileMetadata, string> exception);
+        public abstract Task<byte[]> LoadFileDataAsync(string filePath, Action<FileMetadata, string> exception = null);
 
         #region Explorer
 

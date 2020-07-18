@@ -36,7 +36,7 @@ namespace GameEstate.Explorer.View
 
         public void NotifyPropertyChanged(string propName) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propName));
 
-        public ICollection<Estate> Estates { get; } = EstateManager.Estates.Values;
+        public ICollection<Estate> Estates { get; } = EstateManager.Estates.Values; //.Where(x => x.FileManager.FoundGames).ToList();
 
         ICollection<Estate.EstateGame> _estateGames;
         public ICollection<Estate.EstateGame> EstateGames

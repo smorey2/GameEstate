@@ -25,12 +25,12 @@ namespace GameEstate.Core
         public abstract Estate.Resource ParseResource(Estate estate, Uri uri);
 
         /// <summary>
-        /// Gets a value indicating whether this instance is data present.
+        /// Gets a value indicating whether this instance has locations.
         /// </summary>
         /// <value>
         ///   <c>true</c> if this instance is data present; otherwise, <c>false</c>.
         /// </value>
-        public bool IsDataPresent => Locations.Count != 0; //? rename (HasLocations?)
+        public bool FoundGames => Locations.Count != 0;
 
         /// <summary>
         /// The locations

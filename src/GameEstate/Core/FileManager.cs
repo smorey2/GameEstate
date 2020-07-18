@@ -16,6 +16,12 @@ namespace GameEstate.Core
     /// </summary>
     public class FileManager : AbstractFileManager
     {
+        /// <summary>
+        /// Withes the temporary file.
+        /// </summary>
+        /// <param name="body">The body.</param>
+        /// <param name="action">The action.</param>
+        [Obsolete]
         public static void WithTmpFile(string body, Action<string> action)
         {
             string fileName = null;
@@ -36,14 +42,6 @@ namespace GameEstate.Core
                     File.Delete(fileName);
             }
         }
-
-        /// <summary>
-        /// Gets or sets a value indicating whether [is64 bit].
-        /// </summary>
-        /// <value>
-        ///   <c>true</c> if [is64 bit]; otherwise, <c>false</c>.
-        /// </value>
-        public static bool Is64Bit { get; set; } = true;
 
         /// <summary>
         /// Gets the host factory.
@@ -229,7 +227,7 @@ namespace GameEstate.Core
             }
             bool TryGetRegistryByKey(string key, JsonProperty prop, JsonElement? keyElem, out string path)
             {
-                path = GetRegistryExePath(Is64Bit ? new[] { $@"Wow6432Node\{key}", key } : new[] { key });
+                path = GetRegistryExePath(new[] { $@"Wow6432Node\{key}", key });
                 if (keyElem == null)
                     return !string.IsNullOrEmpty(path);
                 if (keyElem.Value.TryGetProperty("path", out var path2))
@@ -305,13 +303,15 @@ namespace GameEstate.Core
         /// <returns></returns>
         protected static string GetRegistryExePath(string[] paths)
         {
+            var localMachine64 = RegistryKey.OpenBaseKey(RegistryHive.LocalMachine, RegistryView.Registry64);
+            var currentUser64 = RegistryKey.OpenBaseKey(RegistryHive.CurrentUser, RegistryView.Registry64);
             foreach (var path in paths)
                 try
                 {
                     var key = path.Replace('/', '\\');
                     var foundKey = new Func<RegistryKey>[] {
-                        () => LocalMachine.OpenSubKey($"SOFTWARE\\{key}"),
-                        () => CurrentUser.OpenSubKey($"SOFTWARE\\{key}"),
+                        () => localMachine64.OpenSubKey($"SOFTWARE\\{key}"),
+                        () => currentUser64.OpenSubKey($"SOFTWARE\\{key}"),
                         () => ClassesRoot.OpenSubKey($"VirtualStore\\MACHINE\\SOFTWARE\\{key}") }
                         .Select(x => x()).FirstOrDefault(x => x != null);
                     if (foundKey == null)
