@@ -8,7 +8,7 @@
   "pakFileType": "GameEstate.Estates.RedPakFile",
   "games": {
     "Witcher": {
-      "name": "The Witcher",
+      "name": "The Witcher Enhanced Edition",
       "pak": "game:/main.key#Witcher"
       //"pak": "game:/main.bif#Witcher",
       //"pakZ": "game:/attackeffects.2da#Witcher",
@@ -23,7 +23,8 @@
     },
     "Witcher3": {
       "name": "The Witcher 3: Wild Hunt",
-      "pak": "game:/content0/ar.w3strings#Witcher3"
+      "pak": "game:/content0/bundles/xml.bundle#Witcher3",
+      "pak_": "game:/content0/ar.w3strings#Witcher3"
     },
     "Cyberpunk2077": {
       "name": "Cyberpunk 2077"
@@ -40,7 +41,11 @@
         "assets": "CookedPC"
       },
       "Witcher3": {
-        "key": "GOG.com/Games/1495134320",
+        "key": [
+          "GOG.com/Games/1207664643",
+          //"GOG.com/Games/1430742867",
+          "GOG.com/Games/1495134320"
+        ],
         "assets": "content"
       }
     }

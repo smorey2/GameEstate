@@ -1,9 +1,6 @@
-﻿using System;
-using UnityEngine;
-
-namespace GameEstate.Core
+﻿namespace GameEstate.Graphics
 {
-    public static class CoreExtensions
+    public static class ColorExtensions
     {
         #region Convert Color
 

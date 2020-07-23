@@ -4,21 +4,22 @@ using GameEstate.Explorer;
 namespace GameEstate.Estates
 {
     /// <summary>
-    /// UOPakFile
+    /// UknPakFile
     /// </summary>
     /// <seealso cref="GameEstate.Core.BinaryPakFile" />
-    public class UOPakFile : BinaryPakFile
+    public class UknPakFile : BinaryPakFile
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="UOPakFile" /> class.
+        /// Initializes a new instance of the <see cref="UknPakFile" /> class.
         /// </summary>
         /// <param name="filePath">The file path.</param>
         /// <param name="game">The game.</param>
         /// <param name="tag">The tag.</param>
-        public UOPakFile(string filePath, string game, object tag = null) : base(filePath, game, null)
+        public UknPakFile(string filePath, string game, object tag = null) : base(filePath, game, null)
         {
             ExplorerItem = StandardExplorerItem.GetPakFilesAsync;
             ExplorerInfos.Add("_default", StandardExplorerInfo.GetDefaultAsync);
+            ExplorerInfos.Add(".nif", StandardExplorerInfo.GetNifAsync);
             ExplorerInfos.Add(".dds", StandardExplorerInfo.GetDdsAsync);
             Open();
         }

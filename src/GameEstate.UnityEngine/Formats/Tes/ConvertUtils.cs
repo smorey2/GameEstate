@@ -1,4 +1,4 @@
-﻿namespace GameEstate.Formats.Nif
+﻿namespace GameEstate.Formats.Tes
 {
     public static class ConvertUtils
     {

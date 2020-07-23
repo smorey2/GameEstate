@@ -1,21 +1,22 @@
 ﻿using GameEstate.Core;
 using GameEstate.Explorer;
+using GameEstate.Formats.Binary;
 
 namespace GameEstate.Estates
 {
     /// <summary>
-    /// UOPakFile
+    /// ArkanePakFile
     /// </summary>
     /// <seealso cref="GameEstate.Core.BinaryPakFile" />
-    public class UOPakFile : BinaryPakFile
+    public class ArkanePakFile : BinaryPakFile
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="UOPakFile" /> class.
+        /// Initializes a new instance of the <see cref="ArkanePakFile" /> class.
         /// </summary>
         /// <param name="filePath">The file path.</param>
         /// <param name="game">The game.</param>
         /// <param name="tag">The tag.</param>
-        public UOPakFile(string filePath, string game, object tag = null) : base(filePath, game, null)
+        public ArkanePakFile(string filePath, string game, object tag = null) : base(filePath, game, new PakBinaryArkane())
         {
             ExplorerItem = StandardExplorerItem.GetPakFilesAsync;
             ExplorerInfos.Add("_default", StandardExplorerInfo.GetDefaultAsync);

@@ -53,7 +53,7 @@ namespace GameEstate.Formats.Binary
                                     state = 0;
                                 else if (path == "AllCompressed")
                                     foreach (var file in source.Files)
-                                        file.Compressed = true;
+                                        file.Compressed = 1;
                                 else if (path == "Compressed:")
                                     state = 1;
                                 else if (path == "Crypted:")
@@ -75,7 +75,7 @@ namespace GameEstate.Formats.Binary
                                         continue;
                                     case 1:
                                         if (files != null)
-                                            files.First().Compressed = true;
+                                            files.First().Compressed = 1;
                                         continue;
                                     case 2:
                                         if (files != null)
@@ -142,13 +142,13 @@ namespace GameEstate.Formats.Binary
                         }
                         // compressed
                         var files = source.Files;
-                        var numCompressed = files.Count(x => x.Compressed);
+                        var numCompressed = files.Count(x => x.Compressed != 0);
                         if (files.Count == numCompressed)
                             w.Write(Encoding.ASCII.GetBytes("AllCompressed\n"));
                         else if (numCompressed > 0)
                         {
                             w.Write(Encoding.ASCII.GetBytes("Compressed:\n"));
-                            foreach (var file in files.Where(x => x.Compressed))
+                            foreach (var file in files.Where(x => x.Compressed != 0))
                             {
                                 w.Write(Encoding.ASCII.GetBytes(file.Path));
                                 w.Write((byte)'\n');

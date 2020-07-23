@@ -3,7 +3,7 @@ using System;
 using UnityEngine;
 using static GameEstate.EstateDebug;
 
-namespace GameEstate.Formats.Nif
+namespace GameEstate.Formats.Tes
 {
     public class NifObjectBuilder
     {

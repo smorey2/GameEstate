@@ -81,7 +81,7 @@ namespace GameEstate.Graphics
             for (var j = Mipmaps - 1; j > mipLevel; j--)
                 offset += CompressedSizeForMipLevel != null
                     ? CompressedSizeForMipLevel[j]
-                    : GetMipmapDataSize(Width, Height, Depth, GLFormat, j) * (Flags.HasFlag(TextureFlags.CUBE_TEXTURE) ? 6 : 1);
+                    : GetMipmapTrueDataSize(Width, Height, Depth, GLFormat, j) * (Flags.HasFlag(TextureFlags.CUBE_TEXTURE) ? 6 : 1);
             return offset;
         }
 
@@ -124,15 +124,17 @@ namespace GameEstate.Graphics
             return mipMapCount;
         }
 
-        public int GetMipmapDataSize()
+        public int GetMipmapDataSize() => GetMipmapDataSize(Width, Height, BytesPerPixel);
+
+        public static int GetMipmapDataSize(int width, int height, int bytesPerPixel)
         {
-            Assert(Width > 0 && Height > 0 && BytesPerPixel > 0);
+            Assert(width > 0 && height > 0 && bytesPerPixel > 0);
             var dataSize = 0;
-            var currentWidth = Width;
-            var currentHeight = Height;
+            var currentWidth = width;
+            var currentHeight = height;
             while (true)
             {
-                dataSize += currentWidth * currentHeight * BytesPerPixel;
+                dataSize += currentWidth * currentHeight * bytesPerPixel;
                 if (currentWidth == 1 && currentHeight == 1)
                     break;
                 currentWidth = currentWidth > 1 ? (currentWidth / 2) : currentWidth;
@@ -141,7 +143,7 @@ namespace GameEstate.Graphics
             return dataSize;
         }
 
-        public static int GetMipmapDataSize(int width, int height, int depth, TextureGLFormat format, int mipLevel)
+        public static int GetMipmapTrueDataSize(int width, int height, int depth, TextureGLFormat format, int mipLevel)
         {
             var bytesPerPixel = format.GetBlockSize();
             var currentWidth = width >> mipLevel;

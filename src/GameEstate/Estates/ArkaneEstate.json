@@ -1,0 +1,20 @@
+﻿{
+  "id": "Arkane",
+  "name": "Arkane Studios",
+  "description": "The file formats used in the Void engine",
+  "pakFileType": "GameEstate.Estates.ArkanePakFile",
+  "games": {
+    "Dishonored2": {
+      "name": "Dishonored 2",
+      "pak": "game:/game1.index#Dishonored2"
+    }
+  },
+  "fileManager": {
+    "registry": {
+      "Dishonored2": {
+        "key": "GOG.com/Games/1431426311",
+        "assets": "base"
+      }
+    }
+  }
+}

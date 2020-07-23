@@ -1,4 +1,4 @@
-using GameEstate.Estates;
+using System;
 using Xunit;
 
 namespace GameEstate.CoreTests
@@ -6,95 +6,51 @@ namespace GameEstate.CoreTests
     public class PakFileTest
     {
         [Theory]
-        [InlineData("client_highres.dat", "AC", "Texture060043BE", 32792)]
-        public void ACEstate(string pakPath, string game, string sampleFile, int sampleFileSize)
-        {
-            var fileManager = EstateManager.GetEstate("AC").FileManager;
-            var path = fileManager.GetGameFilePaths(game, pakPath)[0];
-            var pakFile = new ACPakFile(path, game);
-            Assert.True(pakFile.Contains(sampleFile));
-            Assert.Equal(sampleFileSize, pakFile.LoadFileDataAsync(sampleFile).Result.Length);
-        }
+        [InlineData("game:/client_highres.dat#AC", "Texture060043BE", 32792)]
+        public void ACEstate(string uri, string sampleFile, int sampleFileSize) => EstateLoadFileData("AC", uri, sampleFile, sampleFileSize);
 
         [Theory]
-        [InlineData("GameData.pak", "MechWarriorOnline", "GameModeObjects.xml", 153832)]
-        public void CryEstate(string pakPath, string game, string sampleFile, int sampleFileSize)
-        {
-            var fileManager = EstateManager.GetEstate("Cry").FileManager;
-            var path = fileManager.GetGameFilePaths(game, pakPath)[0];
-            var pakFile = new CryPakFile(path, game);
-            Assert.True(pakFile.Contains(sampleFile));
-            Assert.Equal(sampleFileSize, pakFile.LoadFileDataAsync(sampleFile).Result.Length);
-        }
+        [InlineData("game:/GameData.pak#MechWarriorOnline", "GameModeObjects.xml", 153832)]
+        public void CryEstate(string uri, string sampleFile, int sampleFileSize) => EstateLoadFileData("Cry", uri, sampleFile, sampleFileSize);
 
         [Theory]
-        [InlineData("Data.p4k", "StarCitizen", "Engine/default_cch.dds", 16520)]
-        public void RsiEstate(string pakPath, string game, string sampleFile, int sampleFileSize)
-        {
-            var fileManager = EstateManager.GetEstate("Rsi").FileManager;
-            var path = fileManager.GetGameFilePaths(game, pakPath)[0];
-            var pakFile = new RsiPakFile(path, game);
-            Assert.True(pakFile.Contains(sampleFile));
-            Assert.Equal(sampleFileSize, pakFile.LoadFileDataAsync(sampleFile).Result.Length);
-        }
+        [InlineData("game:/Data.p4k#StarCitizen", "Engine/default_cch.dds", 16520)]
+        public void RsiEstate(string uri, string sampleFile, int sampleFileSize) => EstateLoadFileData("Rsi", uri, sampleFile, sampleFileSize);
 
         [Theory]
-        [InlineData("main.key", "Witcher", "2da00.bif", 0)]
-        [InlineData("krbr.dzip", "Witcher2", "globals/ch_credits_main.csv", 2498)]
-        [InlineData("", "Witcher3", "", 0)]
-        public void RedEstate(string pakPath, string game, string sampleFile, int sampleFileSize)
-        {
-            var fileManager = EstateManager.GetEstate("Red").FileManager;
-            var path = fileManager.GetGameFilePaths(game, pakPath)[0];
-            var pakFile = new RedPakFile(path, game);
-            Assert.True(pakFile.Contains(sampleFile));
-            Assert.Equal(sampleFileSize, pakFile.LoadFileDataAsync(sampleFile).Result.Length);
-        }
+        [InlineData("game:/main.key#Witcher", "2da00.bif", 887368)]
+        [InlineData("game:/krbr.dzip#Witcher2", "globals/ch_credits_main.csv", 6716)]
+        [InlineData("game:/content0/bundles/xml.bundle#Witcher3", "engine/physics/apexclothmaterialpresets.xml", 2512)]
+        [InlineData("game:/content0/collision.cache#Witcher3", "engine/physics/apexclothmaterialpresets.xml", 2512)]
+        [InlineData("game:/content0/dep.cache#Witcher3", "engine/physics/apexclothmaterialpresets.xml", 2512)]
+        public void RedEstate(string uri, string sampleFile, int sampleFileSize) => EstateLoadFileData("Red", uri, sampleFile, sampleFileSize);
 
         [Theory]
-        [InlineData("Fallout4 - Startup.ba2", "Fallout4VR", "Textures/Water/WaterRainRipples.dds", 0)]
-        [InlineData("Fallout4 - Textures8.ba2", "Fallout4VR", "Textures/Terrain/DiamondCity/DiamondCity.16.-2.-2.DDS", 131072)]
-        [InlineData("Oblivion - Meshes.bsa", "Oblivion", "trees/treecottonwoodsu.spt", 1333)]
-        [InlineData("Oblivion - Textures - Compressed.bsa", "Oblivion", "textures/trees/canopyshadow.dds", 113732)]
-        [InlineData("Morrowind.bsa", "Morrowind", "textures/vfx_poison03.dds", 11040)]
-        public void TesEstate(string pakPath, string game, string sampleFile, int sampleFileSize)
-        {
-            var fileManager = EstateManager.GetEstate("Tes").FileManager;
-            var path = fileManager.GetGameFilePaths(game, pakPath)[0];
-            var pakFile = new TesPakFile(path, game);
-            Assert.True(pakFile.Contains(sampleFile));
-            Assert.Equal(sampleFileSize, pakFile.LoadFileDataAsync(sampleFile).Result.Length);
-        }
+        [InlineData("Morrowind.bsa#Morrowind", "textures/vfx_poison03.dds", 11040)]
+        [InlineData("Oblivion - Meshes.bsa#Oblivion", "trees/treecottonwoodsu.spt", 1333)]
+        [InlineData("Oblivion - Textures - Compressed.bsa#Oblivion", "textures/trees/canopyshadow.dds", 113732)]
+        [InlineData("Skyrim - Meshes0.bsa#SkyrimSE", "meshes/scalegizmo.nif", 113732)]
+        [InlineData("Skyrim - Textures0.bsa#SkyrimSE", "textures/actors/dog/dog.dds", 113732)]
+        [InlineData("Fallout4 - Startup.ba2#Fallout4VR", "Textures/Water/WaterRainRipples.dds", 0)]
+        [InlineData("Fallout4 - Textures8.ba2#Fallout4VR", "Textures/Terrain/DiamondCity/DiamondCity.16.-2.-2.DDS", 131072)]
+        public void TesEstate(string uri, string sampleFile, int sampleFileSize) => EstateLoadFileData("Tes", uri, sampleFile, sampleFileSize);
 
         [Theory]
-        [InlineData("static/activity.flx", "UltimaIX", "Engine/default_cch.dds", 16520)]
-        public void U9Estate(string pakPath, string game, string sampleFile, int sampleFileSize)
-        {
-            var fileManager = EstateManager.GetEstate("U9").FileManager;
-            var path = fileManager.GetGameFilePaths(game, pakPath)[0];
-            var pakFile = new U9PakFile(path, game);
-            Assert.True(pakFile.Contains(sampleFile));
-            Assert.Equal(sampleFileSize, pakFile.LoadFileDataAsync(sampleFile).Result.Length);
-        }
+        [InlineData("game:/static/activity.flx#UltimaIX", "Engine/default_cch.dds", 16520)]
+        public void U9Estate(string uri, string sampleFile, int sampleFileSize) => EstateLoadFileData("U9", uri, sampleFile, sampleFileSize);
 
         [Theory]
-        [InlineData("anim.idx", "UltimaOnline", "Engine/default_cch.dds", 16520)]
-        public void UOEstate(string pakPath, string game, string sampleFile, int sampleFileSize)
-        {
-            var fileManager = EstateManager.GetEstate("UO").FileManager;
-            var path = fileManager.GetGameFilePaths(game, pakPath)[0];
-            var pakFile = new UOPakFile(path, game);
-            Assert.True(pakFile.Contains(sampleFile));
-            Assert.Equal(sampleFileSize, pakFile.LoadFileDataAsync(sampleFile).Result.Length);
-        }
+        [InlineData("game:/anim.idx#UltimaOnline", "Engine/default_cch.dds", 16520)]
+        public void UOEstate(string uri, string sampleFile, int sampleFileSize) => EstateLoadFileData("UO", uri, sampleFile, sampleFileSize);
 
         [Theory]
-        [InlineData("core/pak01_dir.vpk", "Dota2", "stringtokendatabase.txt", 35624)]
-        public void ValveEstate(string pakPath, string game, string sampleFile, int sampleFileSize)
+        [InlineData("game:/core/pak01_dir.vpk#Dota2",  "stringtokendatabase.txt", 35624)]
+        public void ValveEstate(string uri, string sampleFile, int sampleFileSize) => EstateLoadFileData("Valve", uri, sampleFile, sampleFileSize);
+
+        static void EstateLoadFileData(string estate, string uri, string sampleFile, int sampleFileSize)
         {
-            var fileManager = EstateManager.GetEstate("Valve").FileManager;
-            var path = fileManager.GetGameFilePaths(game, pakPath)[0];
-            var pakFile = new ValvePakFile(path, game);
+            if (sampleFile == null) return;
+            var pakFile = EstateManager.GetEstate(estate).OpenPakFile(new Uri(uri));
             Assert.True(pakFile.Contains(sampleFile));
             Assert.Equal(sampleFileSize, pakFile.LoadFileDataAsync(sampleFile).Result.Length);
         }

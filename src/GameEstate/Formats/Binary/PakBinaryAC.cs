@@ -42,7 +42,7 @@ namespace GameEstate.Formats.Binary
 
         #endregion
 
-        #region StructLayout
+        #region Header
 
         const uint DAT_HEADER_OFFSET = 0x140;
 

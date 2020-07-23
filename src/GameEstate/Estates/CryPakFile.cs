@@ -19,6 +19,7 @@ namespace GameEstate.Estates
         public CryPakFile(string filePath, string game, object tag = null) : base(filePath, game, new PakBinaryZip2())
         {
             ExplorerItem = StandardExplorerItem.GetPakFilesAsync;
+            ExplorerInfos.Add("_default", StandardExplorerInfo.GetDefaultAsync);
             ExplorerInfos.Add(".dds", StandardExplorerInfo.GetDdsAsync);
             Open();
         }

@@ -12,7 +12,7 @@ namespace GameEstate.Formats.Binary
 {
     public class PakBinaryValve : PakBinary
     {
-        #region StructLayout
+        #region Header
 
         public const int MAGIC = 0x55AA1234;
 

@@ -18,6 +18,7 @@ namespace GameEstate.Estates
         public U9PakFile(string filePath, string game, object tag = null) : base(filePath, game, null)
         {
             ExplorerItem = StandardExplorerItem.GetPakFilesAsync;
+            ExplorerInfos.Add("_default", StandardExplorerInfo.GetDefaultAsync);
             ExplorerInfos.Add(".dds", StandardExplorerInfo.GetDdsAsync);
             Open();
         }

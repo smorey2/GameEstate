@@ -1,4 +1,5 @@
 ﻿using GameEstate.Core;
+using GameEstate.Explorer;
 using GameEstate.Formats.Binary;
 
 namespace GameEstate.Estates
@@ -15,6 +16,12 @@ namespace GameEstate.Estates
         /// <param name="filePath">The file path.</param>
         /// <param name="game">The game.</param>
         /// <param name="tag">The tag.</param>
-        public ZipPakFile(string filePath, string game, object tag = null) : base(filePath, game, new PakBinaryZip()) => Open();
+        public ZipPakFile(string filePath, string game, object tag = null) : base(filePath, game, new PakBinaryZip())
+        {
+            ExplorerItem = StandardExplorerItem.GetPakFilesAsync;
+            ExplorerInfos.Add("_default", StandardExplorerInfo.GetDefaultAsync);
+            ExplorerInfos.Add(".dds", StandardExplorerInfo.GetDdsAsync);
+            Open();
+        }
     }
 }

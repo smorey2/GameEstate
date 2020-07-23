@@ -1,7 +1,7 @@
 ﻿using GameEstate.Core;
 using GameEstate.Explorer;
 using GameEstate.Formats.Binary;
-using GameEstate.Formats.Nif;
+using GameEstate.Formats.Tes;
 using GameEstate.Graphics;
 using System;
 using System.IO;
@@ -25,6 +25,7 @@ namespace GameEstate.Estates
         public TesPakFile(string filePath, string game, object tag = null) : base(filePath, game, new PakBinaryTes())
         {
             ExplorerItem = StandardExplorerItem.GetPakFilesAsync;
+            ExplorerInfos.Add("_default", StandardExplorerInfo.GetDefaultAsync);
             ExplorerInfos.Add(".nif", StandardExplorerInfo.GetNifAsync);
             ExplorerInfos.Add(".dds", StandardExplorerInfo.GetDdsAsync);
             Open();

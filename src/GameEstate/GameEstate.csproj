@@ -9,6 +9,7 @@
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <DefineConstants>TRACE</DefineConstants>
   </PropertyGroup>
 
   <ItemGroup>
@@ -19,18 +20,24 @@
 
   <ItemGroup>
     <None Remove="Estates\ACEstate.json" />
+    <None Remove="Estates\ArkaneEstate.json" />
     <None Remove="Estates\CryEstate.json" />
+    <None Remove="Estates\CyanideEstate.json" />
     <None Remove="Estates\RedEstate.json" />
     <None Remove="Estates\RsiEstate.json" />
     <None Remove="Estates\TesEstate.json" />
     <None Remove="Estates\U9Estate.json" />
+    <None Remove="Estates\UknEstate.json" />
     <None Remove="Estates\UOEstate.json" />
     <None Remove="Estates\ValveEstate.json" />
   </ItemGroup>
 
   <ItemGroup>
+    <EmbeddedResource Include="Estates\ArkaneEstate.json" />
     <EmbeddedResource Include="Estates\ACEstate.json" />
     <EmbeddedResource Include="Estates\CryEstate.json" />
+    <EmbeddedResource Include="Estates\CyanideEstate.json" />
+    <EmbeddedResource Include="Estates\UknEstate.json" />
     <EmbeddedResource Include="Estates\ValveEstate.json" />
     <EmbeddedResource Include="Estates\UOEstate.json" />
     <EmbeddedResource Include="Estates\U9Estate.json" />
@@ -62,13 +69,16 @@
     <Reference Include="ICSharpCode.SharpZipLib">
       <HintPath>..\..\lib\ICSharpCode.SharpZipLib.dll</HintPath>
     </Reference>
-    <Reference Include="Zstd.Net">
+    <!--<Reference Include="Zstd.Net">
       <HintPath>..\..\lib\Zstd.Net.dll</HintPath>
-    </Reference>
+    </Reference>-->
   </ItemGroup>
 
   <ItemGroup>
     <Folder Include="Formats\AC\" />
+    <Folder Include="Formats\Arkane\" />
+    <Folder Include="Formats\Cyanide\" />
+    <Folder Include="Formats\Red\" />
     <Folder Include="x64\" />
     <Folder Include="x86\" />
   </ItemGroup>

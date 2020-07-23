@@ -24,6 +24,7 @@ namespace GameEstate.Core
         public ILookup<string, FileMetadata> FilesByPath { get; private set; }
         ConcurrentDictionary<string, GenericPool<BinaryReader>> BinaryReaders = new ConcurrentDictionary<string, GenericPool<BinaryReader>>();
         public bool UseBinaryReader = true;
+        public object DecryptKey;
         public object Tag;
         // explorer
         protected Func<ExplorerManager, BinaryPakFile, Task<List<ExplorerItemNode>>> ExplorerItem;

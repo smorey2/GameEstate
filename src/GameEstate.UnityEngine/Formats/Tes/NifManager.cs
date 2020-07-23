@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using UnityEngine;
 using static GameEstate.EstateDebug;
 
-namespace GameEstate.Formats.Nif
+namespace GameEstate.Formats.Tes
 {
     /// <summary>
     /// Manages loading and instantiation of NIF models.

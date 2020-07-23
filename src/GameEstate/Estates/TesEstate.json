@@ -17,17 +17,17 @@
     },
     "Skyrim": {
       "name": "Skyrim",
-      "pak": "game:/Skyrim*.ba2#Skyrim",
+      "pak": "game:/Skyrim*.bsa#Skyrim",
       "dat": "game:/Skyrim.esm#Skyrim"
     },
     "SkyrimSE": {
       "name": "Skyrim Special Edition",
-      "pak": "game:/Skyrim*.ba2#SkyrimSE",
+      "pak": "game:/Skyrim*.bsa#SkyrimSE",
       "dat": "game:/Skyrim.esm#SkyrimSE"
     },
     "SkyrimVR": {
       "name": "Skyrim VR",
-      "pak": "game:/Skyrim*.ba2#SkyrimVR",
+      "pak": "game:/Skyrim*.bsa#SkyrimVR",
       "dat": "game:/Skyrim.esm#SkyrimVR"
     },
     // fallout
@@ -52,14 +52,41 @@
   },
   "fileManager": {
     "registry": {
+      // tes
       "Oblivion": {
-        "key": "Bethesda Softworks/Oblivion",
+        "key": [
+          "Bethesda Softworks/Oblivion",
+          "Microsoft/Windows/CurrentVersion/Uninstall/Steam App 22330"
+        ],
         "assets": "Data"
+      },
+      "Morrowind": {
+        "key": "Microsoft/Windows/CurrentVersion/Uninstall/Steam App 22320",
+        "assets": "Data Files"
       },
       "Skyrim": {
-        "key": "Bethesda Softworks/Skyrim",
+        "key": [
+          "Bethesda Softworks/Skyrim",
+          "Microsoft/Windows/CurrentVersion/Uninstall/Steam App 72850"
+        ],
         "assets": "Data"
       },
+      "SkyrimSE": {
+        "key": [
+          "Bethesda Softworks/Skyrim SE",
+          "Bethesda Softworks/Skyrim Special Edition",
+          "Microsoft/Windows/CurrentVersion/Uninstall/Steam App 489830"
+        ],
+        "assets": "Data"
+      },
+      "SkyrimVR": {
+        "key": [
+          "Bethesda Softworks/Skyrim VR",
+          "Microsoft/Windows/CurrentVersion/Uninstall/Steam App 611670"
+        ],
+        "assets": "Data"
+      },
+      // fallout
       "Fallout3": {
         "key": "Bethesda Softworks/Fallout 3",
         "assets": "Data"
@@ -68,28 +95,29 @@
         "key": "Bethesda Softworks/Fallout NV",
         "assets": "Data"
       },
-      "Morrowind": {
-        "key": "Bethesda Softworks/Morrowind",
-        "assets": "Data"
-      },
       "Fallout4": {
-        "key": "Bethesda Softworks/Fallout 4",
-        "assets": "Data"
-      },
-      "SkyrimSE": {
-        "key": "Bethesda Softworks/Skyrim SE",
+        "key": [
+          "Bethesda Softworks/Fallout4",
+          "Microsoft/Windows/CurrentVersion/Uninstall/Steam App 377160"
+        ],
         "assets": "Data"
       },
       "Fallout4VR": {
-        "key": "Bethesda Softworks/Fallout 4 VR",
+        "key": [
+          "Bethesda Softworks/Fallout 4 VR",
+          "Microsoft/Windows/CurrentVersion/Uninstall/Steam App 611660"
+        ],
         "assets": "Data"
       },
-      "SkyrimVR": {
-        "key": "Bethesda Softworks/Skyrim VR",
+      "Fallout76": {
+        "key": [
+          "Bethesda Softworks/Fallout 76",
+          "Microsoft/Windows/CurrentVersion/Uninstall/Steam App 115340"
+        ],
         "assets": "Data"
       }
     },
-    "direct": {
+    "direct_": {
       "Morrowind": {
         "path": "D:/Program Files (x86)/Steam/steamapps/common/Morrowind",
         "assets": "Data Files"

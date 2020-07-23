@@ -1,0 +1,24 @@
+﻿{
+  "id": "Ukn",
+  "name": "Unknown",
+  "description": "Unknown formats",
+  "pakFileType": "GameEstate.Estates.UknPakFile",
+  "games": {
+    "TheCouncil": {
+      "name": "The Council",
+      "pak": "game:/Morrowind.bsa#TheCouncil",
+      "dat": "game:/Morrowind.esm#TheCouncil"
+    }
+  },
+  "fileManager": {
+    "registry": {
+      "TheCouncil": {
+        "key": [
+          "GOG.com/Games/1207658930",
+          "Microsoft/Windows/CurrentVersion/Uninstall/Steam App 287630"
+        ],
+        "assets": "Data"
+      }
+    }
+  }
+}

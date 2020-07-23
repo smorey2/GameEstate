@@ -1,7 +1,7 @@
 ﻿using GameEstate.Core;
 using GameEstate.Explorer.ViewModel;
 using GameEstate.Formats.Binary;
-using GameEstate.Formats.Nif;
+using GameEstate.Formats.Tes;
 using GameEstate.Graphics;
 using System.Collections.Generic;
 using System.IO;

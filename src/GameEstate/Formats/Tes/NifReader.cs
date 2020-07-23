@@ -5,7 +5,7 @@ using System.IO;
 using System.Numerics;
 using static GameEstate.EstateDebug;
 
-namespace GameEstate.Formats.Nif
+namespace GameEstate.Formats.Tes
 {
     // Refers to an object before the current one in the hierarchy.
     public struct Ptr<T>

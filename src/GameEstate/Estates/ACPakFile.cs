@@ -19,6 +19,7 @@ namespace GameEstate.Estates
         public ACPakFile(string filePath, string game, object tag = null) : base(filePath, game, new PakBinaryAC())
         {
             ExplorerItem = StandardExplorerItem.GetPakFilesAsync;
+            ExplorerInfos.Add("_default", StandardExplorerInfo.GetDefaultAsync);
             ExplorerInfos.Add(".dds", StandardExplorerInfo.GetDdsAsync);
             Open();
         }

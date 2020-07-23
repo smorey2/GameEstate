@@ -40,7 +40,7 @@ namespace GameEstate.Graphics.Materials
                     yDown = source.GetPixel(x, y + 1).grayscale * strength;
                     xDelta = (xLeft - xRight + 1) * 0.5f;
                     yDelta = (yUp - yDown + 1) * 0.5f;
-                    normalTexture.SetPixel(x, y, new Color(xDelta, yDelta, 1.0f, yDelta));
+                    normalTexture.SetPixel(x, y, new UnityEngine.Color(xDelta, yDelta, 1.0f, yDelta));
                 }
             normalTexture.Apply();
             return normalTexture;

@@ -1,5 +1,5 @@
 ﻿using GameEstate.Core;
-using GameEstate.Formats.Nif;
+using GameEstate.Formats.Tes;
 using GameEstate.Graphics;
 using System;
 using UnityEngine;

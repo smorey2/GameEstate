@@ -8,7 +8,7 @@ namespace GameEstate.Formats.Binary
     {
         public int Id;
         public string Path;
-        public bool Compressed;
+        public int Compressed;
         public bool Crypted;
         public long PackedSize;
         public long FileSize;
@@ -16,7 +16,7 @@ namespace GameEstate.Formats.Binary
         public long Digest;
         // extra
         public byte[] Extra;
-        public object Info;
+        public object FileInfo;
         public BinaryPakFile Pak;
         public object Tag;
     }
