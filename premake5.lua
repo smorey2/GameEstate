@@ -10,6 +10,15 @@ if os.ishost("windows") then
         end
     }
 
+    newaction
+    {
+        trigger     = "unity.bundle",
+        description = "Bundle .net dlls and copy to unity",
+        execute = function ()
+            os.execute "dotnet msbuild src/GameEstate.UnityEngine/GameEstate.UnityEngine.csproj -t:Bundle"
+        end
+    }
+
 else
 
      -- MacOSX and Linux.

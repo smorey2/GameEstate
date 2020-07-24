@@ -13,9 +13,21 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Formats\AC\**" />
+    <Compile Remove="Formats\Arkane\**" />
     <Compile Remove="Formats\Binary\_\**" />
+    <Compile Remove="Formats\Cyanide\**" />
+    <Compile Remove="Formats\Red\**" />
+    <EmbeddedResource Remove="Formats\AC\**" />
+    <EmbeddedResource Remove="Formats\Arkane\**" />
     <EmbeddedResource Remove="Formats\Binary\_\**" />
+    <EmbeddedResource Remove="Formats\Cyanide\**" />
+    <EmbeddedResource Remove="Formats\Red\**" />
+    <None Remove="Formats\AC\**" />
+    <None Remove="Formats\Arkane\**" />
     <None Remove="Formats\Binary\_\**" />
+    <None Remove="Formats\Cyanide\**" />
+    <None Remove="Formats\Red\**" />
   </ItemGroup>
 
   <ItemGroup>
@@ -57,7 +69,6 @@
 
   <ItemGroup>
     <PackageReference Include="K4os.Compression.LZ4" Version="1.1.11" />
-    <PackageReference Include="MathNet.Numerics" Version="4.11.0" />
     <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="3.1.5" />
     <PackageReference Include="Microsoft.Win32.Registry" Version="4.7.0" />
     <PackageReference Include="SkiaSharp" Version="2.80.0" />
@@ -75,25 +86,13 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Formats\AC\" />
-    <Folder Include="Formats\Arkane\" />
-    <Folder Include="Formats\Cyanide\" />
-    <Folder Include="Formats\Red\" />
     <Folder Include="x64\" />
     <Folder Include="x86\" />
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="..\..\.quickbms\quickbms.exe" Link="Modules\quickbms.exe">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="..\..\.quickbms\quickbms_4gb_files.exe" Link="Modules\quickbms_4gb_files.exe">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\GameEstate.Abstract\GameEstate.Abstract.csproj" />
+    <ProjectReference Include="..\GameEstate.Formats\GameEstate.Formats.csproj" />
   </ItemGroup>
 
 </Project>

@@ -12,13 +12,17 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="ILMerge" Version="3.0.41" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\GameEstate.Abstract\GameEstate.Abstract.csproj" />
     <ProjectReference Include="..\GameEstate\GameEstate.csproj" />
   </ItemGroup>
 
   <ItemGroup>
     <Reference Include="UnityEngine">
-      <HintPath>..\..\lib\UnityEngine.dll</HintPath>
+      <HintPath>..\..\lib\Unity\UnityEngine.dll</HintPath>
     </Reference>
   </ItemGroup>
 
@@ -26,4 +30,29 @@
     <Exec Command="copy &quot;$(TargetDir)GameEstate*.dll&quot; &quot;$(ProjectDir)..\..\unity\Simple\Assets\Plugins\&quot;" />
   </Target>
 
+  <Target Name="Bundle">
+    <Exec Command="copy &quot;..\..\lib\Unity\Plugins\x64\*.dll&quot; &quot;$(ProjectDir)..\..\unity\Simple\Assets\Plugins\x64&quot;" />
+    <Exec Command="copy &quot;..\..\lib\Unity\Plugins\x86\*.dll&quot; &quot;$(ProjectDir)..\..\unity\Simple\Assets\Plugins\x86&quot;" />
+    <Exec Command="copy &quot;..\..\lib\Unity\Plugins\System.Memory.dll&quot; &quot;$(ProjectDir)..\..\unity\Simple\Assets\Plugins\&quot;" />
+    <Exec Command="copy &quot;..\..\lib\Unity\Plugins\System.Text.Json.dll&quot; &quot;$(ProjectDir)..\..\unity\Simple\Assets\Plugins\&quot;" />
+    <Exec Command="$(ILMergeConsolePath) /out:$(ProjectDir)..\..\unity\Simple\Assets\Plugins\SystemBundle.dll ^
+    ..\..\lib\Unity\Plugins\System.Buffers.dll ^
+    ..\..\lib\Unity\Plugins\System.Drawing.Common.dll ^
+    ..\..\lib\Unity\Plugins\System.Runtime.CompilerServices.Unsafe.dll ^
+    ..\..\lib\Unity\Plugins\System.Text.Encodings.Web.dll ^
+    ..\..\lib\Unity\Plugins\System.Threading.Tasks.Extensions.dll ^
+    ..\..\lib\Unity\Plugins\Microsoft.Bcl.AsyncInterfaces.dll ^
+    ..\..\lib\Unity\Plugins\Microsoft.Extensions.Caching.Abstractions.dll ^
+    ..\..\lib\Unity\Plugins\Microsoft.Extensions.Caching.Memory.dll ^
+    ..\..\lib\Unity\Plugins\Microsoft.Extensions.DependencyInjection.Abstractions.dll ^
+    ..\..\lib\Unity\Plugins\Microsoft.Extensions.Logging.Abstractions.dll ^
+    ..\..\lib\Unity\Plugins\Microsoft.Extensions.Options.dll ^
+    ..\..\lib\Unity\Plugins\Microsoft.Extensions.Primitives.dll ^" />
+    <Exec Command="$(ILMergeConsolePath) /out:$(ProjectDir)..\..\unity\Simple\Assets\Plugins\BespokeBundle.dll ^
+    ..\..\lib\Unity\Plugins\ICSharpCode.SharpZipLib.dll ^
+    ..\..\lib\Unity\Plugins\MathNet.Numerics.dll ^
+    ..\..\lib\Unity\Plugins\SkiaSharp.dll ^
+    ..\..\lib\Unity\Plugins\Zstd.Net.dll ^" />
+  </Target>
+  
 </Project>

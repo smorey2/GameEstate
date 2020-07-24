@@ -1,4 +1,4 @@
-namespace GameEstate.CoreTests
+namespace GameEstate.Tests
 {
     public static class Config
     {
