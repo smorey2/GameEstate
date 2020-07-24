@@ -12,10 +12,19 @@ if os.ishost("windows") then
 
     newaction
     {
-        trigger     = "unity.bundle",
+        trigger     = "bundle",
+        description = "Bundle .net dlls",
+        execute = function ()
+            os.execute "dotnet msbuild src/GameEstate/GameEstate.csproj -t:Bundle"
+        end
+    }
+
+    newaction
+    {
+        trigger     = "unity.plugins",
         description = "Bundle .net dlls and copy to unity",
         execute = function ()
-            os.execute "dotnet msbuild src/GameEstate.UnityEngine/GameEstate.UnityEngine.csproj -t:Bundle"
+            os.execute "dotnet msbuild src/GameEstate.UnityEngine/GameEstate.UnityEngine.csproj -t:Plugins"
         end
     }
 

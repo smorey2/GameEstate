@@ -68,6 +68,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="ILMerge" Version="3.0.41" />
     <PackageReference Include="K4os.Compression.LZ4" Version="1.1.11" />
     <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="3.1.5" />
     <PackageReference Include="Microsoft.Win32.Registry" Version="4.7.0" />
@@ -94,5 +95,10 @@
     <ProjectReference Include="..\GameEstate.Abstract\GameEstate.Abstract.csproj" />
     <ProjectReference Include="..\GameEstate.Formats\GameEstate.Formats.csproj" />
   </ItemGroup>
+
+  <Target Name="Bundle">
+   <Exec Command="$(ILMergeConsolePath) /out:$(ProjectDir)..\..\lib\Microsoft.Extensions.Bundle.dll ^&#xD;&#xA;    ..\..\lib\Bundle\Microsoft.Extensions\Microsoft.Extensions.Caching.Abstractions.dll ^&#xD;&#xA;    ..\..\lib\Bundle\Microsoft.Extensions\Microsoft.Extensions.Caching.Memory.dll ^&#xD;&#xA;    ..\..\lib\Bundle\Microsoft.Extensions\Microsoft.Extensions.DependencyInjection.Abstractions.dll ^&#xD;&#xA;    ..\..\lib\Bundle\Microsoft.Extensions\Microsoft.Extensions.Logging.Abstractions.dll ^&#xD;&#xA;    ..\..\lib\Bundle\Microsoft.Extensions\Microsoft.Extensions.Options.dll ^&#xD;&#xA;    ..\..\lib\Bundle\Microsoft.Extensions\Microsoft.Extensions.Primitives.dll ^&#xD;&#xA;    " />
+    <Exec Command="$(ILMergeConsolePath) /out:$(ProjectDir)..\..\lib\Bespoke.Bundle.dll ^&#xD;&#xA;    ..\..\lib\Bundle\Bespoke\K4os.Compression.LZ4.dll ^&#xD;&#xA;    ..\..\lib\Bundle\Bespoke\ICSharpCode.SharpZipLib.dll ^&#xD;&#xA;    ..\..\lib\Bundle\Bespoke\MathNet.Numerics.dll ^&#xD;&#xA;    ..\..\lib\Bundle\Bespoke\SkiaSharp.dll ^&#xD;&#xA;    ..\..\lib\Bundle\Bespoke\System.Drawing.Common.dll ^&#xD;&#xA;    ..\..\lib\Bundle\Bespoke\Zstd.Net.dll ^&#xD;&#xA;    " />
+  </Target>
 
 </Project>

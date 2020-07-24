@@ -11,9 +11,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GameEstate.Cli", "GameEstat
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GameEstate.Abstract", "GameEstate.Abstract\GameEstate.Abstract.csproj", "{F8F2B771-E739-4C39-B099-F81E676C2D29}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GameEstate.Explorer", "GameEstate.Explorer\GameEstate.Explorer.csproj", "{0590D5FA-7CE8-4794-99BB-00229725151F}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GameEstate.Toy", "GameEstate.Toy\GameEstate.Toy.csproj", "{6160F8F0-7B4A-48B7-801D-E1BA9DB10EAB}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GameEstate.App.Explorer", "GameEstate.App.Explorer\GameEstate.App.Explorer.csproj", "{0590D5FA-7CE8-4794-99BB-00229725151F}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GameEstate.Graphics.GLControl", "GameEstate.Graphics.GLControl\GameEstate.Graphics.GLControl.csproj", "{3B1FD93A-9CF4-4C12-BE3B-A779A56A4C70}"
 EndProject
@@ -23,11 +21,15 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenTK.GLControl", "..\src.
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GameEstate.Graphics", "GameEstate.Graphics\GameEstate.Graphics.csproj", "{D4451B5A-D418-4A99-9D9B-22674DC3CF51}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GameEstate.UnityEngine", "GameEstate.UnityEngine\GameEstate.UnityEngine.csproj", "{D01F2761-9C4A-4BA2-82BD-2144457C8EC4}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GameEstate.App.UnityEngine", "GameEstate.App.UnityEngine\GameEstate.App.UnityEngine.csproj", "{D01F2761-9C4A-4BA2-82BD-2144457C8EC4}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GameEstate.Formats", "GameEstate.Formats\GameEstate.Formats.csproj", "{5CA07DF8-1CF0-4ACD-B1D9-A6E49F3BD551}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GameEstate.Modules", "GameEstate.Modules\GameEstate.Modules.csproj", "{7F08D017-6C49-4747-8194-360AA9CB807C}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GameEstate.App.OpenGL", "GameEstate.App.OpenGL\GameEstate.App.OpenGL.csproj", "{A4D81DFA-6FFA-4E1C-B26D-55CF29A30234}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GameEstate.App.Unreal", "GameEstate.App.Unreal\GameEstate.App.Unreal.csproj", "{9119282F-1BDD-4C59-84A8-5AA13EEC0D52}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -77,14 +79,6 @@ Global
 		{0590D5FA-7CE8-4794-99BB-00229725151F}.Release|Any CPU.Build.0 = Release|Any CPU
 		{0590D5FA-7CE8-4794-99BB-00229725151F}.Release|x64.ActiveCfg = Release|Any CPU
 		{0590D5FA-7CE8-4794-99BB-00229725151F}.Release|x64.Build.0 = Release|Any CPU
-		{6160F8F0-7B4A-48B7-801D-E1BA9DB10EAB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{6160F8F0-7B4A-48B7-801D-E1BA9DB10EAB}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{6160F8F0-7B4A-48B7-801D-E1BA9DB10EAB}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{6160F8F0-7B4A-48B7-801D-E1BA9DB10EAB}.Debug|x64.Build.0 = Debug|Any CPU
-		{6160F8F0-7B4A-48B7-801D-E1BA9DB10EAB}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{6160F8F0-7B4A-48B7-801D-E1BA9DB10EAB}.Release|Any CPU.Build.0 = Release|Any CPU
-		{6160F8F0-7B4A-48B7-801D-E1BA9DB10EAB}.Release|x64.ActiveCfg = Release|Any CPU
-		{6160F8F0-7B4A-48B7-801D-E1BA9DB10EAB}.Release|x64.Build.0 = Release|Any CPU
 		{3B1FD93A-9CF4-4C12-BE3B-A779A56A4C70}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{3B1FD93A-9CF4-4C12-BE3B-A779A56A4C70}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3B1FD93A-9CF4-4C12-BE3B-A779A56A4C70}.Debug|x64.ActiveCfg = Debug|Any CPU
@@ -133,6 +127,22 @@ Global
 		{7F08D017-6C49-4747-8194-360AA9CB807C}.Release|Any CPU.Build.0 = Release|Any CPU
 		{7F08D017-6C49-4747-8194-360AA9CB807C}.Release|x64.ActiveCfg = Release|Any CPU
 		{7F08D017-6C49-4747-8194-360AA9CB807C}.Release|x64.Build.0 = Release|Any CPU
+		{A4D81DFA-6FFA-4E1C-B26D-55CF29A30234}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A4D81DFA-6FFA-4E1C-B26D-55CF29A30234}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A4D81DFA-6FFA-4E1C-B26D-55CF29A30234}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{A4D81DFA-6FFA-4E1C-B26D-55CF29A30234}.Debug|x64.Build.0 = Debug|Any CPU
+		{A4D81DFA-6FFA-4E1C-B26D-55CF29A30234}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A4D81DFA-6FFA-4E1C-B26D-55CF29A30234}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A4D81DFA-6FFA-4E1C-B26D-55CF29A30234}.Release|x64.ActiveCfg = Release|Any CPU
+		{A4D81DFA-6FFA-4E1C-B26D-55CF29A30234}.Release|x64.Build.0 = Release|Any CPU
+		{9119282F-1BDD-4C59-84A8-5AA13EEC0D52}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9119282F-1BDD-4C59-84A8-5AA13EEC0D52}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9119282F-1BDD-4C59-84A8-5AA13EEC0D52}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{9119282F-1BDD-4C59-84A8-5AA13EEC0D52}.Debug|x64.Build.0 = Debug|Any CPU
+		{9119282F-1BDD-4C59-84A8-5AA13EEC0D52}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9119282F-1BDD-4C59-84A8-5AA13EEC0D52}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9119282F-1BDD-4C59-84A8-5AA13EEC0D52}.Release|x64.ActiveCfg = Release|Any CPU
+		{9119282F-1BDD-4C59-84A8-5AA13EEC0D52}.Release|x64.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

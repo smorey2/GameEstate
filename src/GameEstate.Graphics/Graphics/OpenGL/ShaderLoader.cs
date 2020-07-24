@@ -24,7 +24,9 @@ namespace GameEstate.Graphics.OpenGL
 
         protected abstract string GetShaderSource(string shaderName);
 
-        public Shader LoadShader(string shaderName, IDictionary<string, bool> arguments)
+        public Shader LoadShader(string shaderName, IDictionary<string, bool> arguments, Shader.ShaderKind kind) => kind == Shader.ShaderKind.Normal ? LoadNormalShader(shaderName, arguments) : LoadPlaneShader(shaderName, arguments);
+
+        Shader LoadNormalShader(string shaderName, IDictionary<string, bool> arguments)
         {
             var shaderFileName = GetShaderFileByName(shaderName);
 
@@ -127,7 +129,7 @@ namespace GameEstate.Graphics.OpenGL
             return shader;
         }
 
-        public Shader LoadPlaneShader(string shaderName, IDictionary<string, bool> arguments)
+        Shader LoadPlaneShader(string shaderName, IDictionary<string, bool> arguments)
         {
             var shaderFileName = GetShaderFileByName(shaderName);
 

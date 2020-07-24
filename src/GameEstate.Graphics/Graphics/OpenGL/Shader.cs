@@ -5,6 +5,12 @@ namespace GameEstate.Graphics.OpenGL
 {
     public class Shader
     {
+        public enum ShaderKind
+        {
+            Normal,
+            Plane
+        }
+
         public string Name { get; set; }
         public int Program { get; set; }
 #pragma warning disable CA2227 // Collection properties should be read only
