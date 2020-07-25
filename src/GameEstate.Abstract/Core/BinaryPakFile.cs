@@ -35,12 +35,14 @@ namespace GameEstate.Core
         /// </summary>
         /// <param name="filePath">The file path.</param>
         /// <param name="game">The game.</param>
+        /// <param name="tag">The tag.</param>
         /// <param name="pakBinary">The pak binary.</param>
         /// <exception cref="ArgumentNullException">pakBinary</exception>
-        public BinaryPakFile(string filePath, string game, PakBinary pakBinary) : base(game, !string.IsNullOrEmpty(Path.GetFileName(filePath)) ? Path.GetFileName(filePath) : Path.GetFileName(Path.GetDirectoryName(filePath)))
+        public BinaryPakFile(string filePath, string game, PakBinary pakBinary, object tag = null) : base(game, !string.IsNullOrEmpty(Path.GetFileName(filePath)) ? Path.GetFileName(filePath) : Path.GetFileName(Path.GetDirectoryName(filePath)))
         {
             FilePath = filePath ?? throw new ArgumentNullException(nameof(filePath));
             PakBinary = pakBinary ?? throw new ArgumentNullException(nameof(pakBinary));
+            Tag = tag;
         }
 
         /// <summary>

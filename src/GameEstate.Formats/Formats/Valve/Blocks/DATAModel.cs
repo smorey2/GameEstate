@@ -26,7 +26,7 @@ namespace GameEstate.Formats.Valve.Blocks
                 {
                     var dataBlockIndex = (int)embeddedMesh.GetInt("data_block");
                     var vbibBlockIndex = (int)embeddedMesh.GetInt("vbib_block");
-                    meshes.Add(new DATAMesh(Resource.GetBlockByIndex<DATA>(dataBlockIndex), Resource.GetBlockByIndex<VBIB>(vbibBlockIndex)));
+                    meshes.Add(new DATAMesh(Resource.GetBlockByIndex<DATA>(dataBlockIndex), Resource.GetBlockByIndex<VBIB_>(vbibBlockIndex)));
                 }
             }
             return meshes;

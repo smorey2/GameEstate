@@ -1,13 +1,11 @@
 //#define DEBUG_SHADERS
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Reflection;
-using System.Text;
-using System.Text.RegularExpressions;
 using GameEstate.Core.Algorithms;
 using OpenTK.Graphics.OpenGL;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Text.RegularExpressions;
 
 namespace GameEstate.Graphics.OpenGL
 {
@@ -24,9 +22,7 @@ namespace GameEstate.Graphics.OpenGL
 
         protected abstract string GetShaderSource(string shaderName);
 
-        public Shader LoadShader(string shaderName, IDictionary<string, bool> arguments, Shader.ShaderKind kind) => kind == Shader.ShaderKind.Normal ? LoadNormalShader(shaderName, arguments) : LoadPlaneShader(shaderName, arguments);
-
-        Shader LoadNormalShader(string shaderName, IDictionary<string, bool> arguments)
+        public Shader LoadShader(string shaderName, IDictionary<string, bool> arguments)
         {
             var shaderFileName = GetShaderFileByName(shaderName);
 
@@ -90,7 +86,7 @@ namespace GameEstate.Graphics.OpenGL
                 .Select(k => k.Substring(renderMode.Length))
                 .ToList();
 
-            var shader = new Shader
+            var shader = new Shader(GL.GetUniformLocation)
             {
                 Name = shaderName,
                 Parameters = arguments,
@@ -129,7 +125,7 @@ namespace GameEstate.Graphics.OpenGL
             return shader;
         }
 
-        Shader LoadPlaneShader(string shaderName, IDictionary<string, bool> arguments)
+        public Shader LoadPlaneShader(string shaderName, IDictionary<string, bool> arguments)
         {
             var shaderFileName = GetShaderFileByName(shaderName);
 
@@ -169,7 +165,7 @@ namespace GameEstate.Graphics.OpenGL
                 throw new Exception($"Error setting up Fragment Shader \"{shaderName}\": {fsInfo}");
             }
 
-            var shader = new Shader
+            var shader = new Shader(GL.GetUniformLocation)
             {
                 Name = shaderName,
                 Program = GL.CreateProgram(),

@@ -30,7 +30,7 @@ namespace GameEstate.Estates.Tes.Components
         public static void OnDestroy() { DatFile?.Dispose(); DatFile = null; }
         public static void Update() { }
 
-        //public static Vector3Int GetCellId(Vector3 point, int world) => new Vector3Int(Mathf.FloorToInt(point.x / ConvertUtils.ExteriorCellSideLengthInMeters), Mathf.FloorToInt(point.z / ConvertUtils.ExteriorCellSideLengthInMeters), world);
+        //public static Int3 GetCellId(Vector3 point, int world) => new Int3(Mathf.FloorToInt(point.x / ConvertUtils.ExteriorCellSideLengthInMeters), Mathf.FloorToInt(point.z / ConvertUtils.ExteriorCellSideLengthInMeters), world);
 
         //static void TestLoadCell(Vector3 position)
         //{

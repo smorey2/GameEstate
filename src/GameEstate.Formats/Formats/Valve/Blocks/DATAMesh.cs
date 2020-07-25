@@ -1,14 +1,15 @@
+using GameEstate.Graphics;
 using System;
 using System.Collections.Generic;
 using System.Numerics;
 
 namespace GameEstate.Formats.Valve.Blocks
 {
-    public class DATAMesh
+    public class DATAMesh : IMeshInfo
     {
         public DATA Data { get; }
 
-        public VBIB VBIB { get; }
+        public IVBIB VBIB { get; }
 
         public Vector3 MinBounds { get; private set; }
         public Vector3 MaxBounds { get; private set; }
@@ -20,7 +21,7 @@ namespace GameEstate.Formats.Valve.Blocks
             GetBounds();
         }
 
-        public DATAMesh(DATA data, VBIB vbib)
+        public DATAMesh(DATA data, IVBIB vbib)
         {
             Data = data;
             VBIB = vbib;

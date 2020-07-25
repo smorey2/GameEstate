@@ -16,7 +16,7 @@ namespace GameEstate.Estates
         /// <param name="filePath">The file path.</param>
         /// <param name="game">The game.</param>
         /// <param name="tag">The tag.</param>
-        public ArkanePakFile(string filePath, string game, object tag = null) : base(filePath, game, new PakBinaryArkane())
+        public ArkanePakFile(string filePath, string game, object tag = null) : base(filePath, game, PakBinaryArkane.Instance, tag)
         {
             ExplorerItem = StandardExplorerItem.GetPakFilesAsync;
             ExplorerInfos.Add("_default", StandardExplorerInfo.GetDefaultAsync);

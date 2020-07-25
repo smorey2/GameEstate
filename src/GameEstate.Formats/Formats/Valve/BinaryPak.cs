@@ -1,6 +1,6 @@
 using GameEstate.Core;
 using GameEstate.Formats.Valve.Blocks;
-using GameEstate.Formats.Valve.Shader;
+using GameEstate.Formats.Valve.Shaders;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
@@ -18,7 +18,7 @@ namespace GameEstate.Formats.Valve
         public RERL RERL => GetBlockByType<RERL>();
         public REDI REDI => GetBlockByType<REDI>();
         public NTRO NTRO => GetBlockByType<NTRO>();
-        public VBIB VBIB => GetBlockByType<VBIB>();
+        public VBIB_ VBIB => GetBlockByType<VBIB_>();
         public DATA DATA => GetBlockByType<DATA>();
 
         public T GetBlockByIndex<T>(int index) where T : Block => Blocks[index] as T;

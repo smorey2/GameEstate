@@ -1,17 +1,12 @@
 using System;
-using System.Collections.Generic;
 
 namespace GameEstate.Graphics.OpenGL
 {
-    public interface IGLContext
+    public interface IGLContext : IGraphicContext
     {
-        // loader
-        public Func<string, IDictionary<string, bool>, Shader.ShaderKind, Shader> LoadShader { get; }
-        //public Func<string, IDictionary<string, bool>, object> LoadMaterial { get; }
-
-        // texture
-        public Func<string, (int texture, TextureInfo info)> LoadTexture { get; }
-        public int ErrorTexture { get; }
+        // material
+        public Func<string, Material> LoadMaterial { get; }
+        int CreateSolidTexture(float v1, float v2, float v3);
 
         // cache
         public GpuMeshBufferCache MeshBufferCache { get; }

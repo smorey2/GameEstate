@@ -1,6 +1,6 @@
 using GameEstate.Formats.Valve.Blocks;
+using GameEstate.Graphics;
 using GameEstate.Graphics.OpenGL;
-using GameEstate.Graphics.Scene;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -44,11 +44,10 @@ namespace GameEstate.Formats.Valve
             {
                 if (worldNode != null)
                 {
-                    var newResource = _context.LoadFileByAnyMeansNecessary(worldNode + ".vwnod_c");
+                    var newResource = _context.LoadFile<BinaryPak>($"{worldNode}.vwnod_c");
                     if (newResource == null)
                         throw new Exception("WTF");
-
-                    var subloader = new WorldNodeLoader(_context, (DATAWorldNode)newResource.DataBlock);
+                    var subloader = new WorldNodeLoader(_context, (DATAWorldNode)newResource.DATA);
                     subloader.Load(scene);
                 }
             }
@@ -58,12 +57,11 @@ namespace GameEstate.Formats.Valve
                 if (lumpName == null)
                     return result;
 
-                var newResource = _context.LoadFileByAnyMeansNecessary(lumpName + "_c");
-
+                var newResource = _context.LoadFile<BinaryPak>($"{lumpName}_c");
                 if (newResource == null)
                     return result;
 
-                var entityLump = (DATAEntityLump)newResource.DataBlock;
+                var entityLump = (DATAEntityLump)newResource.DATA;
                 LoadEntitiesFromLump(scene, result, entityLump, "world_layer_base"); // TODO
             }
 
@@ -76,13 +74,13 @@ namespace GameEstate.Formats.Valve
 
             foreach (var childEntityName in childEntities)
             {
-                var newResource = _context.LoadFileByAnyMeansNecessary(childEntityName + "_c");
+                var newResource = _context.LoadFile<BinaryPak>($"{childEntityName}_c");
 
                 if (newResource == null)
                     continue;
 
-                var childLump = (DATAEntityLump)newResource.DataBlock;
-                var childName = childLump.Data.GetProperty<string>("m_name");
+                var childLump = (DATAEntityLump)newResource.DATA;
+                var childName = childLump.Data.Get<string>("m_name");
 
                 LoadEntitiesFromLump(scene, result, childLump, childName);
             }
@@ -110,10 +108,10 @@ namespace GameEstate.Formats.Valve
                     var targetmapname = entity.Get<string>("targetmapname");
 
                     var skyboxWorldPath = $"maps/{Path.GetFileNameWithoutExtension(targetmapname)}/world.vwrld_c";
-                    var skyboxPackage = _context.LoadFileByAnyMeansNecessary(skyboxWorldPath);
+                    var skyboxPackage = _context.LoadFile<BinaryPak>(skyboxWorldPath);
 
                     if (skyboxPackage != null)
-                        result.Skybox = (DATAWorld)skyboxPackage.DataBlock;
+                        result.Skybox = (DATAWorld)skyboxPackage.DATA;
                 }
 
                 var scale = entity.Get<string>("scales");
@@ -155,11 +153,11 @@ namespace GameEstate.Formats.Valve
 
                 if (particle != null)
                 {
-                    var particleResource = _context.LoadFileByAnyMeansNecessary(particle + "_c");
+                    var particleResource = _context.LoadFile<BinaryPak>($"{particle}_c");
 
                     if (particleResource != null)
                     {
-                        var particleSystem = (DATAParticleSystem)particleResource.DataBlock;
+                        var particleSystem = (DATAParticleSystem)particleResource.DATA;
                         var origin = new Vector3(positionVector.X, positionVector.Y, positionVector.Z);
 
                         try
@@ -216,15 +214,15 @@ namespace GameEstate.Formats.Valve
                     objColor.W = colourBytes[3] / 255.0f;
                 }
 
-                var newEntity = _context.LoadFileByAnyMeansNecessary(model + "_c");
+                var newEntity = _context.LoadFile<BinaryPak>($"{model}_c");
 
                 if (newEntity == null)
                 {
-                    var errorModelResource = _context.LoadFileByAnyMeansNecessary("models/dev/error.vmdl_c");
+                    var errorModelResource = _context.LoadFile<BinaryPak>("models/dev/error.vmdl_c");
 
                     if (errorModelResource != null)
                     {
-                        var errorModel = new ModelSceneNode(scene, (DATAModel)errorModelResource.DataBlock, skin, false)
+                        var errorModel = new ModelSceneNode(scene, (DATAModel)errorModelResource.DATA, skin, false)
                         {
                             Transform = transformationMatrix,
                             LayerName = layerName,
@@ -237,7 +235,7 @@ namespace GameEstate.Formats.Valve
                     continue;
                 }
 
-                var newModel = (DATAModel)newEntity.DataBlock;
+                var newModel = (DATAModel)newEntity.DATA;
 
                 var modelNode = new ModelSceneNode(scene, newModel, skin, false)
                 {
@@ -252,7 +250,7 @@ namespace GameEstate.Formats.Valve
                     modelNode.SetAnimation(animation);
                 }
 
-                var bodyHash = EntityLumpKeyLookup.Get("body");
+                var bodyHash = DATAEntityLump.EntityLumpKeyLookup.Get("body");
                 if (entity.Properties.ContainsKey(bodyHash))
                 {
                     var groups = modelNode.GetMeshGroups();

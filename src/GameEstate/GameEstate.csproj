@@ -13,24 +13,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="Formats\AC\**" />
-    <Compile Remove="Formats\Arkane\**" />
-    <Compile Remove="Formats\Binary\_\**" />
-    <Compile Remove="Formats\Cyanide\**" />
-    <Compile Remove="Formats\Red\**" />
-    <EmbeddedResource Remove="Formats\AC\**" />
-    <EmbeddedResource Remove="Formats\Arkane\**" />
-    <EmbeddedResource Remove="Formats\Binary\_\**" />
-    <EmbeddedResource Remove="Formats\Cyanide\**" />
-    <EmbeddedResource Remove="Formats\Red\**" />
-    <None Remove="Formats\AC\**" />
-    <None Remove="Formats\Arkane\**" />
-    <None Remove="Formats\Binary\_\**" />
-    <None Remove="Formats\Cyanide\**" />
-    <None Remove="Formats\Red\**" />
-  </ItemGroup>
-
-  <ItemGroup>
     <None Remove="Estates\ACEstate.json" />
     <None Remove="Estates\ArkaneEstate.json" />
     <None Remove="Estates\CryEstate.json" />
@@ -59,36 +41,12 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Content Include="..\..\lib\x64\libzstd.dll" Link="x64\libzstd.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="..\..\lib\x86\libzstd.dll" Link="x86\libzstd.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-  </ItemGroup>
-
-  <ItemGroup>
     <PackageReference Include="ILMerge" Version="3.0.41" />
-    <PackageReference Include="K4os.Compression.LZ4" Version="1.1.11" />
     <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="3.1.5" />
     <PackageReference Include="Microsoft.Win32.Registry" Version="4.7.0" />
     <PackageReference Include="SkiaSharp" Version="2.80.0" />
     <PackageReference Include="System.Drawing.Common" Version="4.7.0" />
     <PackageReference Include="System.Text.Json" Version="4.7.2" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Reference Include="ICSharpCode.SharpZipLib">
-      <HintPath>..\..\lib\ICSharpCode.SharpZipLib.dll</HintPath>
-    </Reference>
-    <!--<Reference Include="Zstd.Net">
-      <HintPath>..\..\lib\Zstd.Net.dll</HintPath>
-    </Reference>-->
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="x64\" />
-    <Folder Include="x86\" />
   </ItemGroup>
 
   <ItemGroup>

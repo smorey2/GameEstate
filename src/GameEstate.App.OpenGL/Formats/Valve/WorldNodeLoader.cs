@@ -1,9 +1,9 @@
 using GameEstate.Formats.Valve.Blocks;
 using GameEstate.Graphics.OpenGL;
-using GameEstate.Graphics.Scene;
 using System.Collections.Generic;
 using System;
 using System.Numerics;
+using GameEstate.Graphics;
 
 namespace GameEstate.Formats.Valve
 {
@@ -23,7 +23,7 @@ namespace GameEstate.Formats.Valve
             var data = _node.Data;
 
             var worldLayers = data.ContainsKey("m_layerNames") ? data.Get<string[]>("m_layerNames") : Array.Empty<string>();
-            var sceneObjectLayerIndices = data.ContainsKey("m_sceneObjectLayerIndices") ? data.GetIntegerArray("m_sceneObjectLayerIndices") : null;
+            var sceneObjectLayerIndices = data.ContainsKey("m_sceneObjectLayerIndices") ? data.GetIntArray("m_sceneObjectLayerIndices") : null;
             var sceneObjects = data.GetArray("m_sceneObjects");
             var i = 0;
 
@@ -43,10 +43,10 @@ namespace GameEstate.Formats.Valve
 
                 if (renderableModel != null)
                 {
-                    var newResource = _context.LoadFileByAnyMeansNecessary(renderableModel + "_c");
+                    var newResource = _context.LoadFile<BinaryPak>($"{renderableModel}_c");
                     if (newResource == null)
                         continue;
-                    var modelNode = new ModelSceneNode(scene, (DATAModel)newResource.DataBlock, null, false)
+                    var modelNode = new ModelSceneNode(scene, (DATAModel)newResource.DATA, null, false)
                     {
                         Transform = matrix,
                         Tint = tintColor,
@@ -58,7 +58,7 @@ namespace GameEstate.Formats.Valve
                 var renderable = sceneObject.Get<string>("m_renderable");
                 if (renderable != null)
                 {
-                    var newResource = _context.LoadFileByAnyMeansNecessary(renderable + "_c");
+                    var newResource = _context.LoadFile<BinaryPak>($"{renderable}_c");
                     if (newResource == null)
                         continue;
                     var meshNode = new MeshSceneNode(scene, new DATAMesh(newResource))

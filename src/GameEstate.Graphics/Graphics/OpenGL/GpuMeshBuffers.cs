@@ -16,7 +16,7 @@ namespace GameEstate.Graphics.OpenGL
         public Buffer[] VertexBuffers { get; private set; }
         public Buffer[] IndexBuffers { get; private set; }
 
-        public GpuMeshBuffers(VBIB vbib)
+        public GpuMeshBuffers(IVBIB vbib)
         {
             VertexBuffers = new Buffer[vbib.VertexBuffers.Count];
             IndexBuffers = new Buffer[vbib.IndexBuffers.Count];

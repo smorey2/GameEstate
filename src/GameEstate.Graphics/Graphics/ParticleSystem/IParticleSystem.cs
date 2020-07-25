@@ -2,12 +2,13 @@ using System.Collections.Generic;
 
 namespace GameEstate.Graphics.ParticleSystem
 {
-    public interface IParticleSystem : IDictionary<string, object>
+    public interface IParticleSystem
     {
-        IEnumerable<IDictionary<string, object>> GetRenderers();
-        IEnumerable<IDictionary<string, object>> GetOperators();
-        IEnumerable<IDictionary<string, object>> GetInitializers();
-        IEnumerable<IDictionary<string, object>> GetEmitters();
+        IDictionary<string, object> Data { get; }
+        IEnumerable<IDictionary<string, object>> Renderers { get; }
+        IEnumerable<IDictionary<string, object>> Operators { get; }
+        IEnumerable<IDictionary<string, object>> Initializers { get; }
+        IEnumerable<IDictionary<string, object>> Emitters { get; }
         IEnumerable<string> GetChildParticleNames(bool enabledOnly = false);
     }
 }

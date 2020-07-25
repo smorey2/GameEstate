@@ -33,8 +33,8 @@ namespace GameEstate.Graphics.ParticleSystem
             }
         }
 
-        readonly List<GLParticleRenderer> _childParticleRenderers;
         readonly IGLContext _context;
+        readonly List<GLParticleRenderer> _childParticleRenderers;
         bool _hasStarted = false;
 
         ParticleBag _particleBag;
@@ -42,10 +42,10 @@ namespace GameEstate.Graphics.ParticleSystem
         ParticleSystemRenderState _systemRenderState;
 
         // TODO: Passing in position here was for testing, do it properly
-        public GLParticleRenderer(IParticleSystem particleSystem, IGLContext context, Vector3 pos = default)
+        public GLParticleRenderer(IGLContext context, IParticleSystem particleSystem, Vector3 pos = default)
         {
-            _childParticleRenderers = new List<GLParticleRenderer>();
             _context = context;
+            _childParticleRenderers = new List<GLParticleRenderer>();
 
             _particleBag = new ParticleBag(100, true);
             _systemRenderState = new ParticleSystemRenderState();
@@ -54,10 +54,10 @@ namespace GameEstate.Graphics.ParticleSystem
 
             BoundingBox = new AABB(pos + new Vector3(-32, -32, -32), pos + new Vector3(32, 32, 32));
 
-            SetupEmitters(particleSystem, particleSystem.GetEmitters());
-            SetupInitializers(particleSystem.GetInitializers());
-            SetupOperators(particleSystem.GetOperators());
-            SetupRenderers(particleSystem.GetRenderers());
+            SetupEmitters(particleSystem.Data, particleSystem.Emitters);
+            SetupInitializers(particleSystem.Initializers);
+            SetupOperators(particleSystem.Operators);
+            SetupRenderers(particleSystem.Renderers);
 
             SetupChildParticles(particleSystem.GetChildParticleNames(true));
         }

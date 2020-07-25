@@ -1,3 +1,4 @@
+using GameEstate.Graphics;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -5,7 +6,7 @@ using System.Numerics;
 
 namespace GameEstate.Formats.Valve.Blocks
 {
-    public class DATAMaterial : DATABinaryKV3OrNTRO
+    public class DATAMaterial : DATABinaryKV3OrNTRO, IMaterialInfo
     {
         public string Name { get; set; }
         public string ShaderName { get; set; }
@@ -60,8 +61,8 @@ namespace GameEstate.Formats.Valve.Blocks
                 arguments.Add(name, value != 0);
             }
             var specialDeps = (REDISpecialDependencies)Resource.REDI.Structs[REDI.REDIStruct.SpecialDependencies];
-            bool hemiOctIsoRoughness_RG_B = specialDeps.List.Any(dependancy => dependancy.CompilerIdentifier == "CompileTexture" && dependancy.String == "Texture Compiler Version Mip HemiOctIsoRoughness_RG_B");
-            bool invert = specialDeps.List.Any(dependancy => dependancy.CompilerIdentifier == "CompileTexture" && dependancy.String == "Texture Compiler Version LegacySource1InvertNormals");
+            var hemiOctIsoRoughness_RG_B = specialDeps.List.Any(dependancy => dependancy.CompilerIdentifier == "CompileTexture" && dependancy.String == "Texture Compiler Version Mip HemiOctIsoRoughness_RG_B");
+            var invert = specialDeps.List.Any(dependancy => dependancy.CompilerIdentifier == "CompileTexture" && dependancy.String == "Texture Compiler Version LegacySource1InvertNormals");
             if (hemiOctIsoRoughness_RG_B)
                 arguments.Add("HemiOctIsoRoughness_RG_B", true);
             if (invert)

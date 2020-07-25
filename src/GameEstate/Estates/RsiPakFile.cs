@@ -16,7 +16,7 @@ namespace GameEstate.Estates
         /// <param name="filePath">The file path.</param>
         /// <param name="game">The game.</param>
         /// <param name="tag">The tag.</param>
-        public RsiPakFile(string filePath, string game, object tag = null) : base(filePath, game, new PakBinaryP4k())
+        public RsiPakFile(string filePath, string game, object tag = null) : base(filePath, game, PakBinaryP4k.Instance,tag)
         {
             ExplorerItem = StandardExplorerItem.GetPakFilesAsync;
             ExplorerInfos.Add("_default", StandardExplorerInfo.GetDefaultAsync);

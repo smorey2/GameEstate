@@ -16,7 +16,7 @@ namespace GameEstate.Estates
         /// <param name="filePath">The file path.</param>
         /// <param name="game">The game.</param>
         /// <param name="tag">The tag.</param>
-        public U9PakFile(string filePath, string game, object tag = null) : base(filePath, game, new PakBinaryU9())
+        public U9PakFile(string filePath, string game, object tag = null) : base(filePath, game, PakBinaryU9.Instance, tag)
         {
             ExplorerItem = StandardExplorerItem.GetPakFilesAsync;
             ExplorerInfos.Add("_default", StandardExplorerInfo.GetDefaultAsync);

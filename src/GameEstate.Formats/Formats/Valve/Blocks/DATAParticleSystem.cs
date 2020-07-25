@@ -1,33 +1,26 @@
+using System.Collections.Generic;
+using System.Linq;
+
 namespace GameEstate.Formats.Valve.Blocks
 {
     public class DATAParticleSystem : DATABinaryKV3OrNTRO
     {
-        //public IEnumerable<IKeyValueCollection> GetRenderers()
-        //    => Data.GetArray("m_Renderers") ?? Enumerable.Empty<IKeyValueCollection>();
+        public IEnumerable<IDictionary<string, object>> Renderers => Data.GetArray("m_Renderers") ?? Enumerable.Empty<IDictionary<string, object>>();
 
-        //public IEnumerable<IKeyValueCollection> GetOperators()
-        //    => Data.GetArray("m_Operators") ?? Enumerable.Empty<IKeyValueCollection>();
+        public IEnumerable<IDictionary<string, object>> Operators => Data.GetArray("m_Operators") ?? Enumerable.Empty<IDictionary<string, object>>();
 
-        //public IEnumerable<IKeyValueCollection> GetInitializers()
-        //    => Data.GetArray("m_Initializers") ?? Enumerable.Empty<IKeyValueCollection>();
+        public IEnumerable<IDictionary<string, object>> Initializers => Data.GetArray("m_Initializers") ?? Enumerable.Empty<IDictionary<string, object>>();
 
-        //public IEnumerable<IKeyValueCollection> GetEmitters()
-        //    => Data.GetArray("m_Emitters") ?? Enumerable.Empty<IKeyValueCollection>();
+        public IEnumerable<IDictionary<string, object>> Emitters => Data.GetArray("m_Emitters") ?? Enumerable.Empty<IDictionary<string, object>>();
 
-        //public IEnumerable<string> GetChildParticleNames(bool enabledOnly = false)
-        //{
-        //    IEnumerable<IKeyValueCollection> children = Data.GetArray("m_Children");
-        //    if (children == null)
-        //    {
-        //        return Enumerable.Empty<string>();
-        //    }
-
-        //    if (enabledOnly)
-        //    {
-        //        children = children.Where(c => !c.ContainsKey("m_bDisableChild") || !c.GetProperty<bool>("m_bDisableChild"));
-        //    }
-
-        //    return children.Select(c => c.GetProperty<string>("m_ChildRef")).ToList();
-        //}
+        public IEnumerable<string> GetChildParticleNames(bool enabledOnly = false)
+        {
+            var children = Data.GetArray("m_Children");
+            if (children == null)
+                return Enumerable.Empty<string>();
+            if (enabledOnly)
+                children = children.Where(c => !c.ContainsKey("m_bDisableChild") || !c.Get<bool>("m_bDisableChild")).ToArray();
+            return children.Select(c => c.Get<string>("m_ChildRef")).ToList();
+        }
     }
 }

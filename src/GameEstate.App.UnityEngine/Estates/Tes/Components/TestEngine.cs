@@ -24,10 +24,10 @@
 //            Engine = new SimpleEngine(TesEstateHandler.Handler, assetUri, dataUri);
 
 //            // engine
-//            Engine.SpawnPlayer(PlayerPrefab, new Vector3(-137.94f, 2.30f, -1037.6f)); // new Vector3Int(-2, -9)
+//            Engine.SpawnPlayer(PlayerPrefab, new Vector3(-137.94f, 2.30f, -1037.6f)); // new Int3(-2, -9)
 
 //            // engine - oblivion
-//            //Engine.SpawnPlayer(PlayerPrefab, new Vector3Int(0, 0, 60), new Vector3(0, 0, 0));
+//            //Engine.SpawnPlayer(PlayerPrefab, new Int3(0, 0, 60), new Vector3(0, 0, 0));
 //        }
 
 //        public static void OnDestroy() => Engine?.Dispose();

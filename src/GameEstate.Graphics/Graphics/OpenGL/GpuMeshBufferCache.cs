@@ -7,7 +7,7 @@ namespace GameEstate.Graphics.OpenGL
 {
     public class GpuMeshBufferCache
     {
-        Dictionary<VBIB, GpuMeshBuffers> _gpuBuffers = new Dictionary<VBIB, GpuMeshBuffers>();
+        Dictionary<IVBIB, GpuMeshBuffers> _gpuBuffers = new Dictionary<IVBIB, GpuMeshBuffers>();
         Dictionary<VAOKey, uint> _vertexArrayObjects = new Dictionary<VAOKey, uint>();
 
         struct VAOKey
@@ -20,7 +20,7 @@ namespace GameEstate.Graphics.OpenGL
 
         public GpuMeshBufferCache() { }
 
-        public GpuMeshBuffers GetVertexIndexBuffers(VBIB vbib)
+        public GpuMeshBuffers GetVertexIndexBuffers(IVBIB vbib)
         {
             if (_gpuBuffers.TryGetValue(vbib, out var gpuVbib))
                 return gpuVbib;
@@ -32,7 +32,7 @@ namespace GameEstate.Graphics.OpenGL
             }
         }
 
-        public uint GetVertexArrayObject(VBIB vbib, Shader shader, uint vtxIndex, uint idxIndex)
+        public uint GetVertexArrayObject(IVBIB vbib, Shader shader, uint vtxIndex, uint idxIndex)
         {
             var gpuVbib = GetVertexIndexBuffers(vbib);
             var vaoKey = new VAOKey { VBIB = gpuVbib, Shader = shader, VertexIndex = vtxIndex, IndexIndex = idxIndex };

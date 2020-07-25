@@ -1,20 +1,20 @@
 using GameEstate.Formats.Valve.Blocks;
 using GameEstate.Formats.Valve.Blocks.Animation;
+using GameEstate.Graphics;
 using GameEstate.Graphics.OpenGL;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using static GameEstate.Estate;
 
 namespace GameEstate.Formats.Valve
 {
     public static class AnimationGroupLoader
     {
-        static IDictionary<string, object> GetData(Resource resource) => resource.DataBlock is DATABinaryNTRO ntro
+        static IDictionary<string, object> GetData(BinaryPak resource) => resource.DATA is DATABinaryNTRO ntro
            ? ntro.Data
-           : ((DATABinaryKV3)resource.DataBlock).Data;
+           : ((DATABinaryKV3)resource.DATA).Data;
 
-        public static IEnumerable<ModelAnimation> LoadAnimationGroup(IGLContext context, Resource resource)
+        public static IEnumerable<ModelAnimation> LoadAnimationGroup(IGraphicContext context, BinaryPak resource)
         {
             var data = GetData(resource);
             var animArray = data.Get<string[]>("m_localHAnimArray").Where(a => a != null); // Get the list of animation files
@@ -27,7 +27,7 @@ namespace GameEstate.Formats.Valve
             return list;
         }
 
-        public static IEnumerable<ModelAnimation> TryLoadSingleAnimationFileFromGroup(IGLContext context, Resource resource, string animationName)
+        public static IEnumerable<ModelAnimation> TryLoadSingleAnimationFileFromGroup(IGraphicContext context, BinaryPak resource, string animationName)
         {
             var data = GetData(resource);
             var animArray = data.Get<string[]>("m_localHAnimArray").Where(a => a != null); // Get the list of animation files
@@ -37,9 +37,9 @@ namespace GameEstate.Formats.Valve
             return animation != default ? LoadAnimationFile(context, animation, decodeKey) : null;
         }
 
-        static IEnumerable<ModelAnimation> LoadAnimationFile(IGLContext context, string animationFile, IDictionary<string, object> decodeKey)
+        static IEnumerable<ModelAnimation> LoadAnimationFile(IGraphicContext context, string animationFile, IDictionary<string, object> decodeKey)
         {
-            var animResource = context.LoadFileByAnyMeansNecessary(animationFile + "_c");
+            var animResource = context.LoadFile<BinaryPak>($"{animationFile}_c");
             if (animResource == null)
                 throw new FileNotFoundException($"Failed to load {animationFile}_c. Did you configure game paths correctly?");
             // Build animation classes
