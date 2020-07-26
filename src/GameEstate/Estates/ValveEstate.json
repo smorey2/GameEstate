@@ -2,7 +2,7 @@
   "id": "Valve",
   "name": "Valve",
   "description": "Valve formats used by Source/Source 2",
-  "pakFileType": "GameEstate.Estates.ValvePakFile",
+  "pakFileType": "GameEstate.Estates.ValvePakFile, GameEstate",
   "games": {
     "Dota2": {
       "name": "Dota 2",

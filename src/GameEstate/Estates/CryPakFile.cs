@@ -8,7 +8,7 @@ namespace GameEstate.Estates
     /// CryPakFile
     /// </summary>
     /// <seealso cref="GameEstate.Core.BinaryPakFile" />
-    public class CryPakFile : BinaryPakFile
+    public class CryPakFile : BinaryPakMultiFile
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="CryPakFile" /> class.

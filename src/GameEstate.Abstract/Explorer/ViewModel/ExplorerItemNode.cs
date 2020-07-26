@@ -26,7 +26,7 @@ namespace GameEstate.Explorer.ViewModel
         public object Tag { get; }
         public List<ExplorerItemNode> Items { get; }
         public AbstractPakFile PakFile { get; set; }
-        public AbstractDatFile DatFile { get; set; }
+        public AbstractPakFile Pak2File { get; set; }
 
         public ExplorerItemNode(string name, object icon, object tag = null, List<ExplorerItemNode> items = null)
         {

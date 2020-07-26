@@ -37,13 +37,13 @@
         <Button Grid.Row="2" Grid.Column="2" Margin="2,0,0,5"
                 Content="*"
                 Click="PakUriFile_Click" />
-        
-        <Label Grid.Row="3">Data Uri:</Label>
+
+        <Label Grid.Row="3">Resource Uri:</Label>
         <TextBox Grid.Row="3" Grid.Column="1" Margin="0,0,0,5"
-                 Text="{Binding DatUri}" />
+                 Text="{Binding Pak2Uri}" />
         <Button Grid.Row="3" Grid.Column="2" Margin="2,0,0,5"
                 Content="*"
-                Click="DatUriFile_Click" />
+                Click="Pak2UriFile_Click" />
 
         <WrapPanel Grid.Row="4" Grid.Column="1" HorizontalAlignment="Right">
             <Button Margin="0,0,0,5" Content=" Cancel " Click="Cancel_Click" />

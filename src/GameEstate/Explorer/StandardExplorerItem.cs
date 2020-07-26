@@ -16,10 +16,11 @@ namespace GameEstate.Explorer
         /// <returns></returns>
         public static Task<List<ExplorerItemNode>> GetPakFilesAsync(ExplorerManager manager, BinaryPakFile pakFile)
         {
+            var pakMultiFile = pakFile as BinaryPakMultiFile;
             var root = new List<ExplorerItemNode>();
             string currentPath = null;
             List<ExplorerItemNode> currentFolder = null;
-            foreach (var file in pakFile.Files)
+            foreach (var file in pakMultiFile.Files)
             {
                 // folder
                 var fileFolder = Path.GetDirectoryName(file.Path);
@@ -30,7 +31,7 @@ namespace GameEstate.Explorer
                     if (!string.IsNullOrEmpty(fileFolder))
                         foreach (var folder in fileFolder.Split('\\'))
                         {
-                            var found = currentFolder.Find(x => x.Name == folder && x.PakFile == null && x.DatFile == null);
+                            var found = currentFolder.Find(x => x.Name == folder && x.PakFile == null && x.Pak2File == null);
                             if (found != null) currentFolder = found.Items;
                             else
                             {

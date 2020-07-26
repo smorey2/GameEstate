@@ -64,5 +64,12 @@ namespace GameEstate.Formats.Binary
         /// <returns></returns>
         /// <exception cref="NotSupportedException"></exception>
         public virtual Task WriteFileAsync(BinaryPakFile source, BinaryWriter w, FileMetadata file, byte[] data, Action<FileMetadata, string> exception = null) => throw new NotSupportedException();
-    }
+
+        /// <summary>
+        /// Processes this instance.
+        /// </summary>
+        /// <param name="source">The source.</param>
+        /// <exception cref="NotSupportedException"></exception>
+        public virtual void Process(BinaryPakFile source) { }
+}
 }

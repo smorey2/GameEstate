@@ -16,6 +16,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\GameEstate.Abstract\GameEstate.Abstract.csproj" />
     <ProjectReference Include="..\GameEstate\GameEstate.csproj" />
   </ItemGroup>
 

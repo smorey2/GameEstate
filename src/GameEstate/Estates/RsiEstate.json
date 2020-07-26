@@ -2,12 +2,11 @@
   "id": "Rsi",
   "name": "Roberts Space Industries",
   "description": "RSI formats used in StarCitizen",
-  "pakFileType": "GameEstate.Estates.RsiPakFile",
+  "pakFileType": "GameEstate.Estates.RsiPakFile, GameEstate",
   "games": {
     "StarCitizen": {
       "name": "Star Citizen",
       "pak": "game:/Data.p4k#StarCitizen"
-      //"dat": "game:/Data.p4k#StarCitizen"
     }
   },
   "xforms": {

@@ -2,7 +2,7 @@
   "id": "Cyanide",
   "name": "Cyanide",
   "description": "Cyanide formats",
-  "pakFileType": "GameEstate.Estates.CyanidePakFile",
+  "pakFileType": "GameEstate.Estates.CyanidePakFile, GameEstate",
   "games": {
     "TheCouncil": {
       "name": "The Council",

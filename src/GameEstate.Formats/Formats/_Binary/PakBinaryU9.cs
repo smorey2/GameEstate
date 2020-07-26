@@ -26,6 +26,11 @@ namespace GameEstate.Formats.Binary
 
         public unsafe override Task ReadAsync(BinaryPakFile source, BinaryReader r, ReadStage stage)
         {
+            if (!(source is BinaryPakMultiFile multiSource))
+                throw new NotSupportedException();
+            if (stage != ReadStage.File)
+                throw new ArgumentOutOfRangeException(nameof(stage), stage.ToString());
+
             var fileName = Path.GetFileNameWithoutExtension(source.FilePath).ToLowerInvariant();
             var prefix
                 = fileName.Contains("bitmap") ? "bitmap"
@@ -36,7 +41,7 @@ namespace GameEstate.Formats.Binary
             var numFiles = r.ReadInt32();
             r.Position(0x80);
             var headerFiles = r.ReadTArray<FLX_HeaderFile>(sizeof(FLX_HeaderFile), numFiles);
-            var files = source.Files = new FileMetadata[numFiles];
+            var files = multiSource.Files = new FileMetadata[numFiles];
             for (var i = 0; i < files.Count; i++)
             {
                 var headerFile = headerFiles[i];

@@ -140,7 +140,10 @@ namespace GameEstate.Formats.Binary
 
         public unsafe override Task ReadAsync(BinaryPakFile source, BinaryReader r, ReadStage stage)
         {
-            var files = source.Files = new List<FileMetadata>();
+            if (!(source is BinaryPakMultiFile multiSource))
+                throw new NotSupportedException();
+            if (stage != ReadStage.File)
+                throw new ArgumentOutOfRangeException(nameof(stage), stage.ToString());
 
             if (r.ReadUInt32() != MAGIC)
                 throw new InvalidDataException("Given file is not a VPK.");
@@ -169,6 +172,7 @@ namespace GameEstate.Formats.Binary
             else throw new InvalidDataException($"Bad VPK version. ({version})");
 
             // sourceFilePath
+            var files = multiSource.Files = new List<FileMetadata>();
             var sourceFilePath = source.FilePath;
             var sourceFileDirVpk = sourceFilePath.EndsWith("_dir.vpk", StringComparison.OrdinalIgnoreCase);
             if (sourceFileDirVpk)

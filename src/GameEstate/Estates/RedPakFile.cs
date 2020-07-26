@@ -8,7 +8,7 @@ namespace GameEstate.Estates
     /// RedPakFile
     /// </summary>
     /// <seealso cref="GameEstate.Core.BinaryPakFile" />
-    public class RedPakFile : BinaryPakFile
+    public class RedPakFile : BinaryPakMultiFile
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="RedPakFile" /> class.

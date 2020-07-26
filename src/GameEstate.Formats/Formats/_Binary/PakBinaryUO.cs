@@ -12,6 +12,11 @@ namespace GameEstate.Formats.Binary
 
         public unsafe override Task ReadAsync(BinaryPakFile source, BinaryReader r, ReadStage stage)
         {
+            if (!(source is BinaryPakMultiFile multiSource))
+                throw new NotSupportedException();
+            if (stage != ReadStage.File)
+                throw new ArgumentOutOfRangeException(nameof(stage), stage.ToString());
+
             return Task.CompletedTask;
         }
 

@@ -8,7 +8,7 @@ namespace GameEstate.Estates
     /// RsiPakFile
     /// </summary>
     /// <seealso cref="GameEstate.Core.BinaryPakFile" />
-    public class RsiPakFile : BinaryPakFile
+    public class RsiPakFile : BinaryPakMultiFile
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="RsiPakFile" /> class.

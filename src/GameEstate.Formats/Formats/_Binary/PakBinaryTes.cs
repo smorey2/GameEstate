@@ -185,6 +185,8 @@ namespace GameEstate.Formats.Binary
 
         public unsafe override Task ReadAsync(BinaryPakFile source, BinaryReader r, ReadStage stage)
         {
+            if (!(source is BinaryPakMultiFile multiSource))
+                throw new NotSupportedException();
             if (stage != ReadStage.File)
                 throw new ArgumentOutOfRangeException(nameof(stage), stage.ToString());
 
@@ -196,7 +198,7 @@ namespace GameEstate.Formats.Binary
                 if (header.Version != F4_BSAHEADER_VERSION)
                     throw new FileFormatException("BAD MAGIC");
                 source.Version = header.Version;
-                source.Files = files = new FileMetadata[header.NumFiles];
+                multiSource.Files = files = new FileMetadata[header.NumFiles];
                 if (header.Type == F4_HEADERTYPE_GNRL) // General BA2 Format
                 {
                     var headerFiles = r.ReadTArray<F4_HeaderFile>(sizeof(F4_HeaderFile), (int)header.NumFiles);
@@ -246,7 +248,7 @@ namespace GameEstate.Formats.Binary
                 var folderSize = header.Version != SSE_BSAHEADER_VERSION ? 16 : 24;
 
                 // Create file metadatas
-                source.Files = files = new FileMetadata[header.FileCount];
+                multiSource.Files = files = new FileMetadata[header.FileCount];
                 var filenamesPosition = header.FolderRecordOffset + header.FolderNameLength + header.FolderCount * (folderSize + 1) + header.FileCount * 16;
                 r.Position(filenamesPosition);
                 var buf = new List<byte>(100);
@@ -300,7 +302,7 @@ namespace GameEstate.Formats.Binary
                 var fileDataPostion = hashTablePosition + (8 * header.FileCount);
 
                 // Create file metadatas
-                source.Files = files = new FileMetadata[header.FileCount];
+                multiSource.Files = files = new FileMetadata[header.FileCount];
                 var headerFiles = r.ReadTArray<MW_HeaderFile>(sizeof(MW_HeaderFile), (int)header.FileCount);
                 for (var i = 0; i < header.FileCount; i++)
                 {

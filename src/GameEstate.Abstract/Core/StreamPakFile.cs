@@ -11,8 +11,8 @@ namespace GameEstate.Core
     /// <summary>
     /// StreamPakFile
     /// </summary>
-    /// <seealso cref="GameEstate.Core.BinaryPakFile" />
-    public class StreamPakFile : BinaryPakFile
+    /// <seealso cref="GameEstate.Core.BinaryPakMultiFile" />
+    public class StreamPakFile : BinaryPakMultiFile
     {
         readonly AbstractHost Host;
 
@@ -36,7 +36,7 @@ namespace GameEstate.Core
         /// <param name="parent">The parent.</param>
         /// <param name="game">The game.</param>
         /// <param name="filePath">The file path.</param>
-        public StreamPakFile(BinaryPakFile parent, string game, string filePath) : base(filePath, game, new PakBinaryStream())
+        public StreamPakFile(BinaryPakMultiFile parent, string game, string filePath) : base(filePath, game, new PakBinaryStream())
         {
             UseBinaryReader = false;
             Files = parent.Files;

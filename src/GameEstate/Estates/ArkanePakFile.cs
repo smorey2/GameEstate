@@ -8,7 +8,7 @@ namespace GameEstate.Estates
     /// ArkanePakFile
     /// </summary>
     /// <seealso cref="GameEstate.Core.BinaryPakFile" />
-    public class ArkanePakFile : BinaryPakFile
+    public class ArkanePakFile : BinaryPakMultiFile
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="ArkanePakFile" /> class.

@@ -5,7 +5,7 @@
   "id": "Red",
   "name": "REDengine",
   "description": "REDengine file formats including the Witcher Series",
-  "pakFileType": "GameEstate.Estates.RedPakFile",
+  "pakFileType": "GameEstate.Estates.RedPakFile, GameEstate",
   "games": {
     "Witcher": {
       "name": "The Witcher Enhanced Edition",

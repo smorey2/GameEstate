@@ -27,7 +27,7 @@ namespace GameEstate.Explorer.View
 
         public AbstractPakFile PakFile { get; private set; }
 
-        public AbstractDatFile DatFile { get; private set; }
+        public AbstractPakFile Pak2File { get; private set; }
 
         void OpenFile_Click(object sender, RoutedEventArgs e)
         {
@@ -36,8 +36,8 @@ namespace GameEstate.Explorer.View
             {
                 PakFile?.Dispose();
                 PakFile = null;
-                DatFile?.Dispose();
-                DatFile = null;
+                Pak2File?.Dispose();
+                Pak2File = null;
                 //
                 var estate = (Estate)openDialog.Estate.SelectedItem;
                 if (estate == null) return;
@@ -46,10 +46,10 @@ namespace GameEstate.Explorer.View
                     MainWindow.Status.WriteLine($"Opening {openDialog.PakUri}");
                     PakFile = estate.OpenPakFile(openDialog.PakUri);
                 }
-                if (openDialog.DatUri != null)
+                if (openDialog.Pak2Uri != null)
                 {
-                    MainWindow.Status.WriteLine($"Opening {openDialog.DatUri}");
-                    DatFile = estate.OpenDatFile(openDialog.DatUri);
+                    MainWindow.Status.WriteLine($"Opening {openDialog.Pak2Uri}");
+                    Pak2File = estate.OpenPakFile(openDialog.Pak2Uri);
                 }
                 MainWindow.Status.WriteLine("Done");
                 MainWindow.OnOpenedAsync().Wait();

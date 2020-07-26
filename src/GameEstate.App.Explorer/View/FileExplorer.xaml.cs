@@ -62,15 +62,15 @@ namespace GameEstate.Explorer.View
         {
             if (e.NewValue is TreeViewItem item && item.Items.Count > 0)
                 (item.Items[0] as TreeViewItem).IsSelected = true;
-            if (e.NewValue is ExplorerItemNode itemNode && (itemNode.PakFile != null || itemNode.DatFile != null) && SelectedItem != itemNode)
+            if (e.NewValue is ExplorerItemNode itemNode && (itemNode.PakFile != null || itemNode.Pak2File != null) && SelectedItem != itemNode)
                 SelectedItem = itemNode;
             if (SelectedItem == null)
                 return;
 
             FileInfo.Info = SelectedItem.PakFile != null
                 ? SelectedItem.PakFile.GetExplorerInfoNodesAsync(MainWindow.Resource, SelectedItem).Result
-                : SelectedItem.DatFile != null
-                ? SelectedItem.DatFile.GetExplorerInfoNodesAsync(null, SelectedItem).Result
+                : SelectedItem.Pak2File != null
+                ? SelectedItem.Pak2File.GetExplorerInfoNodesAsync(MainWindow.Resource, SelectedItem).Result
                 : null;
         }
     }

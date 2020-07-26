@@ -14,7 +14,7 @@ namespace GameEstate.Estates
     /// TesPakFile
     /// </summary>
     /// <seealso cref="GameEstate.Core.BinaryPakFile" />
-    public class TesPakFile : BinaryPakFile, IGraphicLoader
+    public class TesPakFile : BinaryPakMultiFile, IGraphicLoader
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="TesPakFile" /> class.
@@ -22,7 +22,7 @@ namespace GameEstate.Estates
         /// <param name="filePath">The file path.</param>
         /// <param name="game">The game.</param>
         /// <param name="tag">The tag.</param>
-        public TesPakFile(string filePath, string game, object tag = null) : base(filePath, game, PakBinaryTes.Instance, tag)
+        public TesPakFile(string filePath, string game, object tag = null) : base(filePath, game, Path.GetExtension(filePath) != ".esm" ? PakBinaryTes.Instance : PakBinaryTesEsm.Instance, tag)
         {
             ExplorerItem = StandardExplorerItem.GetPakFilesAsync;
             ExplorerInfos.Add("_default", StandardExplorerInfo.GetDefaultAsync);

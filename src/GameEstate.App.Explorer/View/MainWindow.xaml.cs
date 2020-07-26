@@ -35,7 +35,7 @@ namespace GameEstate.Explorer.View
         public async Task OnOpenedAsync()
         {
             PakFileExplorer.Nodes = MainMenu.PakFile != null ? await MainMenu.PakFile.GetExplorerItemNodesAsync(Resource) : null;
-            DatFileExplorer.Nodes = MainMenu.DatFile != null ? await MainMenu.DatFile.GetExplorerItemNodesAsync(Resource) : null;
+            DatFileExplorer.Nodes = MainMenu.Pak2File != null ? await MainMenu.Pak2File.GetExplorerItemNodesAsync(Resource) : null;
         }
     }
 }

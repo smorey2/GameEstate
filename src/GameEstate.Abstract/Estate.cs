@@ -32,12 +32,6 @@ namespace GameEstate
             Full,
         }
 
-        public enum DatMultiType
-        {
-            SingleBinary,
-            Full,
-        }
-
         /// <summary>
         /// Resource
         /// </summary>
@@ -86,9 +80,9 @@ namespace GameEstate
             /// </summary>
             public Uri DefaultPak;
             /// <summary>
-            /// The dat
+            /// The pak
             /// </summary>
-            public Uri DefaultDat;
+            public Uri DefaultPak2;
             /// <summary>
             /// The has location
             /// </summary>
@@ -147,17 +141,17 @@ namespace GameEstate
         /// Gets the type of the dat file.
         /// </summary>
         /// <value>
-        /// The type of the dat file.
+        /// The type of the pak file.
         /// </value>
-        public Type DatFileType { get; set; }
+        public Type Pak2FileType { get; set; }
 
         /// <summary>
-        /// Gets or sets the dat multi.
+        /// Gets or sets the pak multi.
         /// </summary>
         /// <value>
         /// The dat multi.
         /// </value>
-        public DatMultiType DatMulti { get; set; }
+        public PakMultiType Pak2Multi { get; set; }
 
         /// <summary>
         /// Gets the game.
@@ -240,52 +234,6 @@ namespace GameEstate
         /// <param name="many">if set to <c>true</c> [many].</param>
         /// <returns></returns>
         public AbstractPakFile OpenPakFile(Uri uri) => OpenPakFile(FileManager.ParseResource(this, uri));
-
-        #endregion
-
-        #region Dat
-
-        /// <summary>
-        /// Opens the dat file.
-        /// </summary>
-        /// <param name="filePaths">The file paths.</param>
-        /// <returns></returns>
-        public AbstractDatFile OpenDatFile(string[] filePaths, string game)
-        {
-            if (game == null)
-                throw new ArgumentNullException(nameof(game));
-            if (DatFileType == null || filePaths.Length == 0)
-                return null;
-            switch (DatMulti)
-            {
-                case DatMultiType.SingleBinary:
-                    return filePaths.Length == 1
-                        ? (AbstractDatFile)Activator.CreateInstance(PakFileType, filePaths[0], game)
-                        : new MultiDatFile(game, "Many", filePaths.Select(x => (AbstractDatFile)Activator.CreateInstance(DatFileType, x, game)).ToArray());
-                case DatMultiType.Full: return (AbstractDatFile)Activator.CreateInstance(DatFileType, filePaths, game);
-                default: throw new ArgumentOutOfRangeException(nameof(PakMulti), PakMulti.ToString());
-            }
-        }
-
-        /// <summary>
-        /// Opens the dat file.
-        /// </summary>
-        /// <param name="resource">The resource.</param>
-        /// <returns></returns>
-        public AbstractDatFile OpenDatFile(Resource resource)
-        {
-            if (!resource.StreamPak)
-                return OpenDatFile(resource.Paths, resource.Game);
-            return new MultiDatFile(resource.Game, "Many", resource.Paths.Select(x => new StreamDatFile(FileManager.HostFactory, x, resource.Game, resource.Host)).ToArray());
-        }
-
-        /// <summary>
-        /// Opens the dat file.
-        /// </summary>
-        /// <param name="uri">The URI.</param>
-        /// <param name="many">if set to <c>true</c> [many].</param>
-        /// <returns></returns>
-        public AbstractDatFile OpenDatFile(Uri uri) => OpenDatFile(FileManager.ParseResource(this, uri));
 
         #endregion
     }

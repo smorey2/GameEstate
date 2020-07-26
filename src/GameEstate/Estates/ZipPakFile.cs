@@ -8,7 +8,7 @@ namespace GameEstate.Estates
     /// ZipPakFile
     /// </summary>
     /// <seealso cref="GameEstate.Core.BinaryPakFile" />
-    public class ZipPakFile : BinaryPakFile
+    public class ZipPakFile : BinaryPakMultiFile
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="ZipPakFile" /> class.

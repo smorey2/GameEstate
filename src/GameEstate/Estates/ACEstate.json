@@ -2,7 +2,7 @@
   "id": "AC",
   "name": "Asheron's Call",
   "description": "The file formats used in Asheron's Call",
-  "pakFileType": "GameEstate.Estates.ACPakFile",
+  "pakFileType": "GameEstate.Estates.ACPakFile, GameEstate",
   "games": {
     "AC": {
       "name": "Asheron's Call",

@@ -2,12 +2,11 @@
   "id": "UO",
   "name": "Ultima Online",
   "description": "UO formats used in Ultima Online",
-  "pakFileType": "GameEstate.Estates.UOPakFile",
+  "pakFileType": "GameEstate.Estates.UOPakFile, GameEstate",
   "games": {
     "UltimaOnline": {
       "name": "Ultima Online",
-      "pak": "game:/*.idx#UltimaOnline",
-      "dat": "game:/*.idx#UltimaOnline"
+      "pak": "game:/*.idx#UltimaOnline"
     }
   },
   "fileManager": {

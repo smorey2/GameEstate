@@ -8,7 +8,7 @@ namespace GameEstate.Estates
     /// UOPakFile
     /// </summary>
     /// <seealso cref="GameEstate.Core.BinaryPakFile" />
-    public class ValvePakFile : BinaryPakFile
+    public class ValvePakFile : BinaryPakMultiFile
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="ValvePakFile" /> class.

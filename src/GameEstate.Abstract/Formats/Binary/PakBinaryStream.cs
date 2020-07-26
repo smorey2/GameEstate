@@ -12,12 +12,15 @@ namespace GameEstate.Formats.Binary
     {
         public override Task ReadAsync(BinaryPakFile source, BinaryReader r, ReadStage stage)
         {
+            if (!(source is BinaryPakMultiFile multiSource))
+                throw new NotSupportedException();
+
             switch (stage)
             {
                 case ReadStage.File: return Task.CompletedTask;
                 case ReadStage._Set:
                     {
-                        var files = source.Files = new List<FileMetadata>();
+                        var files = multiSource.Files = new List<FileMetadata>();
                         var data = r.ReadToEnd();
                         // dir /s/b/a-d > .set
                         var lines = Encoding.ASCII.GetString(data)?.Split('\n');
@@ -43,7 +46,7 @@ namespace GameEstate.Formats.Binary
                             return Task.CompletedTask;
                         var state = -1;
                         var @params = source.Params;
-                        var filesByPath = source.FilesByPath;
+                        var filesByPath = multiSource.FilesByPath;
                         foreach (var line in lines)
                         {
                             var path = line.TrimEnd().Replace('\\', '/');
@@ -52,7 +55,7 @@ namespace GameEstate.Formats.Binary
                                 if (path == "Params:")
                                     state = 0;
                                 else if (path == "AllCompressed")
-                                    foreach (var file in source.Files)
+                                    foreach (var file in multiSource.Files)
                                         file.Compressed = 1;
                                 else if (path == "Compressed:")
                                     state = 1;
@@ -88,7 +91,7 @@ namespace GameEstate.Formats.Binary
                     }
                 case ReadStage._Raw:
                     {
-                        var filesRawSet = source.FilesRawSet = new HashSet<string>();
+                        var filesRawSet = multiSource.FilesRawSet = new HashSet<string>();
                         var data = r.ReadToEnd();
                         var lines = Encoding.ASCII.GetString(data)?.Split('\n');
                         if (lines?.Length == 0)
@@ -103,6 +106,9 @@ namespace GameEstate.Formats.Binary
 
         public override Task WriteAsync(BinaryPakFile source, BinaryWriter w, WriteStage stage)
         {
+            if (!(source is BinaryPakMultiFile multiSource))
+                throw new NotSupportedException();
+
             switch (stage)
             {
                 case WriteStage.File: return Task.CompletedTask;
@@ -114,7 +120,7 @@ namespace GameEstate.Formats.Binary
                         w.Write((byte)'\n');
                         w.Flush();
                         // files
-                        var files = source.Files;
+                        var files = multiSource.Files;
                         foreach (var file in files) //.OrderBy(x => x.Path))
                         {
                             w.Write(pathAsBytes);
@@ -141,7 +147,7 @@ namespace GameEstate.Formats.Binary
                             w.Flush();
                         }
                         // compressed
-                        var files = source.Files;
+                        var files = multiSource.Files;
                         var numCompressed = files.Count(x => x.Compressed != 0);
                         if (files.Count == numCompressed)
                             w.Write(Encoding.ASCII.GetBytes("AllCompressed\n"));
@@ -175,9 +181,9 @@ namespace GameEstate.Formats.Binary
                     }
                 case WriteStage._Raw:
                     {
-                        if (source.FilesRawSet == null)
-                            throw new ArgumentNullException(nameof(source.FilesRawSet));
-                        foreach (var file in source.FilesRawSet)
+                        if (multiSource.FilesRawSet == null)
+                            throw new ArgumentNullException(nameof(multiSource.FilesRawSet));
+                        foreach (var file in multiSource.FilesRawSet)
                         {
                             w.Write(Encoding.ASCII.GetBytes(file));
                             w.Write((byte)'\n');

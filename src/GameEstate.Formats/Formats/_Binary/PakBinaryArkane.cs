@@ -14,6 +14,11 @@ namespace GameEstate.Formats.Binary
 
         public unsafe override Task ReadAsync(BinaryPakFile source, BinaryReader r, ReadStage stage)
         {
+            if (!(source is BinaryPakMultiFile multiSource))
+                throw new NotSupportedException();
+            if (stage != ReadStage.File)
+                throw new ArgumentOutOfRangeException(nameof(stage), stage.ToString());
+
             if (Path.GetExtension(source.FilePath) != ".index")
                 throw new ArgumentOutOfRangeException();
             var resourcePath = $"{source.FilePath.Substring(0, source.FilePath.Length - 6)}.resources";
@@ -22,12 +27,12 @@ namespace GameEstate.Formats.Binary
             var sharedResourcePath = Path.Combine(Path.GetDirectoryName(resourcePath), "shared_2_3.sharedrsc");
             if (!File.Exists(sharedResourcePath))
                 throw new ArgumentOutOfRangeException();
-            //
+
             r.Position(4);
             var mainFileSize = Utility.Reverse(r.ReadUInt32()); // mainFileSize
             r.Skip(24);
             var numFiles = Utility.Reverse(r.ReadUInt32());
-            var files = source.Files = new FileMetadata[numFiles];
+            var files = multiSource.Files = new FileMetadata[numFiles];
             for (var i = 0; i < numFiles; i++)
             {
                 var id = Utility.Reverse(r.ReadUInt32());

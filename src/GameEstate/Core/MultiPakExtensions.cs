@@ -11,14 +11,17 @@ namespace GameEstate.Core
 
         public static async Task ExportAsync(this BinaryPakFile source, string filePath, int from = 0, Action<FileMetadata, int> advance = null, Action<FileMetadata, string> exception = null)
         {
+            if (!(source is BinaryPakMultiFile multiSource))
+                throw new NotSupportedException();
+
             // write pak
             if (!string.IsNullOrEmpty(filePath) && !Directory.Exists(filePath))
                 Directory.CreateDirectory(filePath);
 
             // write files
-            Parallel.For(from, source.Files.Count, new ParallelOptions { /*MaxDegreeOfParallelism = 1*/ }, async index =>
+            Parallel.For(from, multiSource.Files.Count, new ParallelOptions { /*MaxDegreeOfParallelism = 1*/ }, async index =>
             {
-                var file = source.Files[index];
+                var file = multiSource.Files[index];
                 var newPath = Path.Combine(filePath, file.Path);
 
                 // create directory
@@ -40,7 +43,7 @@ namespace GameEstate.Core
                 // extract file
                 try
                 {
-                    var b = await source.LoadFileDataAsync(file, exception);
+                    var b = await multiSource.LoadFileDataAsync(file, exception);
                     using (var s = new FileStream(newPath, FileMode.Create, FileAccess.Write))
                         s.Write(b, 0, b.Length);
                     advance?.Invoke(file, index);
@@ -49,7 +52,7 @@ namespace GameEstate.Core
             });
 
             // write pak-raw
-            await new StreamPakFile(source, source.Game, filePath).WriteAsync(null, PakBinary.WriteStage.File);
+            await new StreamPakFile(multiSource, source.Game, filePath).WriteAsync(null, PakBinary.WriteStage.File);
 
             //// write pak-raw
             //if (source.FilesRawSet != null && source.FilesRawSet.Count > 0)
@@ -59,6 +62,9 @@ namespace GameEstate.Core
 
         public static async Task ImportAsync(this BinaryPakFile source, BinaryWriter w, string filePath, int from = 0, Action<FileMetadata, int> advance = null, Action<FileMetadata, string> exception = null)
         {
+            if (!(source is BinaryPakMultiFile multiSource))
+                throw new NotSupportedException();
+
             // read pak
             if (string.IsNullOrEmpty(filePath) || !Directory.Exists(filePath))
             {
@@ -81,9 +87,9 @@ namespace GameEstate.Core
                 await source.PakBinary.WriteAsync(source, w, PakBinary.WriteStage.Header);
 
             // write files
-            Parallel.For(0, source.Files.Count, new ParallelOptions { MaxDegreeOfParallelism = 1 }, async index =>
+            Parallel.For(0, multiSource.Files.Count, new ParallelOptions { MaxDegreeOfParallelism = 1 }, async index =>
             {
-                var file = source.Files[index];
+                var file = multiSource.Files[index];
                 var newPath = Path.Combine(filePath, file.Path);
 
                 // check directory

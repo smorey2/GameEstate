@@ -2,12 +2,11 @@
   "id": "Ukn",
   "name": "Unknown",
   "description": "Unknown formats",
-  "pakFileType": "GameEstate.Estates.UknPakFile",
+  "pakFileType": "GameEstate.Estates.UknPakFile, GameEstate",
   "games": {
     "TheCouncil": {
       "name": "The Council",
-      "pak": "game:/Morrowind.bsa#TheCouncil",
-      "dat": "game:/Morrowind.esm#TheCouncil"
+      "pak": "game:/*.bsa#TheCouncil"
     }
   },
   "fileManager": {

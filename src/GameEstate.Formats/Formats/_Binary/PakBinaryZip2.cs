@@ -18,11 +18,13 @@ namespace GameEstate.Formats.Binary
 
         public override Task ReadAsync(BinaryPakFile source, BinaryReader r, ReadStage stage)
         {
+            if (!(source is BinaryPakMultiFile multiSource))
+                throw new NotSupportedException();
             if (stage != ReadStage.File)
                 throw new ArgumentOutOfRangeException(nameof(stage), stage.ToString());
 
             source.UseBinaryReader = false;
-            var files = source.Files = new List<FileMetadata>();
+            var files = multiSource.Files = new List<FileMetadata>();
             var pak = (ZipArchive)(source.Tag = new ZipArchive(r.BaseStream, ZipArchiveMode.Read));
             foreach (ZipArchiveEntry entry in pak.Entries)
                 files.Add(new FileMetadata

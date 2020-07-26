@@ -2,7 +2,7 @@
   "id": "Cry",
   "name": "Cry/Lumberyard",
   "description": "The file formats used in Cry and Lumberyard",
-  "pakFileType": "GameEstate.Estates.CryPakFile",
+  "pakFileType": "GameEstate.Estates.CryPakFile, GameEstate",
   "games": {
     "MechWarriorOnline": {
       "name": "MechWarrior Online",

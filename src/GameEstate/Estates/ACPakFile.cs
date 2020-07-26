@@ -8,7 +8,7 @@ namespace GameEstate.Estates
     /// ACPakFile
     /// </summary>
     /// <seealso cref="GameEstate.Core.BinaryPakFile" />
-    public class ACPakFile : BinaryPakFile
+    public class ACPakFile : BinaryPakMultiFile
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="ACPakFile" /> class.

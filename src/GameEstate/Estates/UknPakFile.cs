@@ -7,7 +7,7 @@ namespace GameEstate.Estates
     /// UknPakFile
     /// </summary>
     /// <seealso cref="GameEstate.Core.BinaryPakFile" />
-    public class UknPakFile : BinaryPakFile
+    public class UknPakFile : BinaryPakMultiFile
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="UknPakFile" /> class.

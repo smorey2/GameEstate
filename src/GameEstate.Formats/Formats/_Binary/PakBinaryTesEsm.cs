@@ -28,8 +28,11 @@ namespace GameEstate.Formats.Binary
     /// PakBinaryTesEsm
     /// </summary>
     /// <seealso cref="GameEstate.Formats.Binary.PakBinaryTesEsm" />
-    public class PakBinaryTesEsm : DatBinary
+    public class PakBinaryTesEsm : PakBinary
     {
+        public static readonly PakBinary Instance = new PakBinaryTesEsm();
+        PakBinaryTesEsm() { }
+
         const int RecordHeaderSizeInBytes = 16;
         public TesFormat Format;
         public Dictionary<string, RecordGroup> Groups;
@@ -61,27 +64,15 @@ namespace GameEstate.Formats.Binary
         /// <param name="stage">The stage.</param>
         /// <returns></returns>
         /// <exception cref="ArgumentOutOfRangeException">stage</exception>
-        public override Task ReadAsync(BinaryDatFile source, BinaryReader r, ReadStage stage)
+        public override Task ReadAsync(BinaryPakFile source, BinaryReader r, ReadStage stage)
         {
             if (stage != ReadStage.File)
                 throw new ArgumentOutOfRangeException(nameof(stage), stage.ToString());
-            Format = GetFormat(source.Game);
-            Read(source, r, 1);
-            return Task.CompletedTask;
-        }
 
-        /// <summary>
-        /// Reads the specified source.
-        /// </summary>
-        /// <param name="source">The source.</param>
-        /// <param name="r">The r.</param>
-        /// <param name="recordLevel">The record level.</param>
-        /// <exception cref="FormatException"></exception>
-        /// <exception cref="InvalidOperationException"></exception>
-        void Read(BinaryDatFile source, BinaryReader r, int recordLevel)
-        {
+            Format = GetFormat(source.Game);
+            var recordLevel = 1;
             var filePath = source.FilePath;
-            var poolAction = (GenericPoolAction<BinaryReader>)source.Pool.Action;
+            var poolAction = (GenericPoolAction<BinaryReader>)source.GetBinaryReader().Action; //: Leak
             var rootHeader = new Header(r, Format, null);
             if ((Format == TesFormat.TES3 && rootHeader.Type != "TES3") || (Format != TesFormat.TES3 && rootHeader.Type != "TES4"))
                 throw new FormatException($"{filePath} record header {rootHeader.Type} is not valid for this {Format}");
@@ -105,7 +96,7 @@ namespace GameEstate.Formats.Binary
                         s.AddHeader(new Header { Label = Encoding.ASCII.GetBytes(x.Key) }, load: false);
                         return s;
                     });
-                return;
+                return Task.CompletedTask;
             }
             // read groups
             Groups = new Dictionary<string, RecordGroup>();
@@ -125,8 +116,9 @@ namespace GameEstate.Formats.Binary
                 group.AddHeader(header);
                 r.Position(nextPosition);
             }
+            return Task.CompletedTask;
         }
-
+        
         /// <summary>
         /// Writes the asynchronous.
         /// </summary>
@@ -135,7 +127,7 @@ namespace GameEstate.Formats.Binary
         /// <param name="stage">The stage.</param>
         /// <returns></returns>
         /// <exception cref="NotImplementedException"></exception>
-        public override Task WriteAsync(BinaryDatFile source, BinaryWriter w, WriteStage stage) => throw new NotImplementedException();
+        public override Task WriteAsync(BinaryPakFile source, BinaryWriter w, WriteStage stage) => throw new NotImplementedException();
 
         // TES3
         Dictionary<string, IRecord> MANYsById;
@@ -148,7 +140,7 @@ namespace GameEstate.Formats.Binary
         Dictionary<uint, Tuple<WRLDRecord, RecordGroup[]>> WRLDsById;
         Dictionary<string, LTEXRecord> LTEXsByEid;
 
-        public override void Process(BinaryDatFile source)
+        public override void Process(BinaryPakFile source)
         {
             if (Format == TesFormat.TES3)
             {

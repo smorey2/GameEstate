@@ -35,12 +35,17 @@ namespace GameEstate.Formats.Binary
 
         public unsafe override Task ReadAsync(BinaryPakFile source, BinaryReader r, ReadStage stage)
         {
+            if (!(source is BinaryPakMultiFile multiSource))
+                throw new NotSupportedException();
+            if (stage != ReadStage.File)
+                throw new ArgumentOutOfRangeException(nameof(stage), stage.ToString());
+
             var magic = r.ReadUInt32();
             if (magic != CPK_MAGIC)
                 throw new FileFormatException($"Unknown File Type {magic}");
             var header = r.ReadT<CPK_Header>(sizeof(CPK_Header));
             var headerFiles = r.ReadTArray<CPK_HeaderFile>(sizeof(CPK_HeaderFile), (int)header.NumFiles);
-            var files = source.Files = new FileMetadata[header.NumFiles];
+            var files = multiSource.Files = new FileMetadata[header.NumFiles];
             var root = UnsafeUtils.ReadZASCII(header.Root, 512);
             for (var i = 0; i < files.Count; i++)
             {

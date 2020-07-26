@@ -52,11 +52,11 @@ namespace GameEstate.Explorer.View
             set { _pakUri = value; NotifyPropertyChanged(nameof(PakUri)); }
         }
 
-        Uri _datUri;
-        public Uri DatUri
+        Uri _pak2Uri;
+        public Uri Pak2Uri
         {
-            get => _datUri;
-            set { _datUri = value; NotifyPropertyChanged(nameof(DatUri)); }
+            get => _pak2Uri;
+            set { _pak2Uri = value; NotifyPropertyChanged(nameof(Pak2Uri)); }
         }
 
         void Estate_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -70,7 +70,7 @@ namespace GameEstate.Explorer.View
         {
             var selected = (Estate.EstateGame)EstateGame.SelectedItem;
             PakUri = selected?.DefaultPak;
-            DatUri = selected?.DefaultDat;
+            Pak2Uri = selected?.DefaultPak2;
         }
 
         void PakUriFile_Click(object sender, RoutedEventArgs e)
@@ -92,11 +92,11 @@ namespace GameEstate.Explorer.View
             }
         }
 
-        void DatUriFile_Click(object sender, RoutedEventArgs e)
+        void Pak2UriFile_Click(object sender, RoutedEventArgs e)
         {
             var openDialog = new OpenFileDialog
             {
-                Filter = "DAT files|*.*"
+                Filter = "PAK files|*.*"
             };
             if (openDialog.ShowDialog() == true)
             {
@@ -104,7 +104,7 @@ namespace GameEstate.Explorer.View
                 if (files.Length < 1) return;
                 var file = files[0];
                 var selected = (Estate.EstateGame)EstateGame.SelectedItem;
-                PakUri = new UriBuilder(file)
+                Pak2Uri = new UriBuilder(file)
                 {
                     Fragment = selected?.Game ?? "Unknown"
                 }.Uri;

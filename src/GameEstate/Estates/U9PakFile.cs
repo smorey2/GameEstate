@@ -8,7 +8,7 @@ namespace GameEstate.Estates
     /// U9PakFile
     /// </summary>
     /// <seealso cref="GameEstate.Core.BinaryPakFile" />
-    public class U9PakFile : BinaryPakFile
+    public class U9PakFile : BinaryPakMultiFile
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="U9PakFile" /> class.

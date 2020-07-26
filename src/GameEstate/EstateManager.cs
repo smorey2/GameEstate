@@ -42,7 +42,7 @@ namespace GameEstate
         /// <exception cref="ArgumentNullException">games</exception>
         public static Estate ParseEstate(string json)
         {
-            var assembly = Assembly.GetExecutingAssembly();
+            //var assembly = Assembly.GetExecutingAssembly();
             var options = new JsonDocumentOptions
             {
                 CommentHandling = JsonCommentHandling.Skip
@@ -57,10 +57,10 @@ namespace GameEstate
                     Id = (elem.TryGetProperty("id", out z) ? z.GetString() : null) ?? throw new ArgumentNullException("id"),
                     Name = (elem.TryGetProperty("name", out z) ? z.GetString() : null) ?? throw new ArgumentNullException("name"),
                     Description = elem.TryGetProperty("description", out z) ? z.GetString() : null,
-                    PakFileType = elem.TryGetProperty("pakFileType", out z) ? assembly.GetType(z.GetString(), false) ?? throw new ArgumentOutOfRangeException("pakFileType", z.GetString()) : null,
+                    PakFileType = elem.TryGetProperty("pakFileType", out z) ? Type.GetType(z.GetString(), false) ?? throw new ArgumentOutOfRangeException("pakFileType", z.GetString()) : null,
                     PakMulti = elem.TryGetProperty("pakMulti", out z) ? Enum.TryParse<PakMultiType>(z.GetString(), true, out var z1) ? z1 : throw new ArgumentOutOfRangeException("pakMulti", z.GetString()) : PakMultiType.SingleBinary,
-                    DatFileType = elem.TryGetProperty("datFileType", out z) ? assembly.GetType(z.GetString(), false) ?? throw new ArgumentOutOfRangeException("datFileType", z.GetString()) : null,
-                    DatMulti = elem.TryGetProperty("datMulti", out z) ? Enum.TryParse<DatMultiType>(z.GetString(), true, out var z2) ? z2 : throw new ArgumentOutOfRangeException("datMulti", z.GetString()) : DatMultiType.SingleBinary,
+                    Pak2FileType = elem.TryGetProperty("pak2FileType", out z) ? Type.GetType(z.GetString(), false) ?? throw new ArgumentOutOfRangeException("pak2FileType", z.GetString()) : null,
+                    Pak2Multi = elem.TryGetProperty("pak2Multi", out z) ? Enum.TryParse<PakMultiType>(z.GetString(), true, out var z2) ? z2 : throw new ArgumentOutOfRangeException("pak2Multi", z.GetString()) : PakMultiType.SingleBinary,
                     Games = elem.TryGetProperty("games", out z) ? z.EnumerateObject().ToDictionary(x => x.Name, x => ParseGame(locations, x.Name, x.Value), StringComparer.OrdinalIgnoreCase) : throw new ArgumentNullException("games"),
                     Xforms = elem.TryGetProperty("xforms", out z) ? z.EnumerateObject().ToDictionary(x => x.Name, x => (object)x.Value.GetString(), StringComparer.OrdinalIgnoreCase) : new Dictionary<string, object>(),
                     FileManager = fileManager,
@@ -74,7 +74,7 @@ namespace GameEstate
                 Game = game,
                 Name = (elem.TryGetProperty("name", out var z) ? z.GetString() : null) ?? throw new ArgumentNullException("name"),
                 DefaultPak = elem.TryGetProperty("pak", out z) ? new Uri(z.GetString()) : null,
-                DefaultDat = elem.TryGetProperty("dat", out z) ? new Uri(z.GetString()) : null,
+                DefaultPak2 = elem.TryGetProperty("pak2", out z) ? new Uri(z.GetString()) : null,
                 Found = locations.ContainsKey(game),
             };
 

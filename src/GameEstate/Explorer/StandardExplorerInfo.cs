@@ -18,7 +18,8 @@ namespace GameEstate.Explorer
 
         public static async Task<List<ExplorerInfoNode>> GetDdsAsync(ExplorerManager resource, BinaryPakFile pakFile, FileMetadata file)
         {
-            var data = await pakFile.LoadFileDataAsync(file);
+            var pakMultiFile = pakFile as BinaryPakMultiFile;
+            var data = await pakMultiFile.LoadFileDataAsync(file);
             var texture = new TextureInfo().LoadDdsTexture(new MemoryStream(data));
             var textureInfo = new List<ExplorerInfoNode> {
                 new ExplorerInfoNode($"Width: {texture.Width}"),
@@ -35,7 +36,8 @@ namespace GameEstate.Explorer
 
         public static async Task<List<ExplorerInfoNode>> GetDefaultAsync(ExplorerManager resource, BinaryPakFile pakFile, FileMetadata file)
         {
-            var data = await pakFile.LoadFileDataAsync(file);
+            var pakMultiFile = pakFile as BinaryPakMultiFile;
+            var data = await pakMultiFile.LoadFileDataAsync(file);
             return new List<ExplorerInfoNode> {
                 new ExplorerInfoNode(".generic", tag: data),
                 new ExplorerInfoNode("File", items: await GetFileInfoAsync(resource, file)),
@@ -44,7 +46,8 @@ namespace GameEstate.Explorer
 
         public static async Task<List<ExplorerInfoNode>> GetNifAsync(ExplorerManager resource, BinaryPakFile pakFile, FileMetadata file)
         {
-            var data = await pakFile.LoadFileDataAsync(file);
+            var pakMultiFile = pakFile as BinaryPakMultiFile;
+            var data = await pakMultiFile.LoadFileDataAsync(file);
             var nif = new NiFile(Path.GetFileNameWithoutExtension(file.Path));
             nif.Deserialize(new BinaryReader(new MemoryStream(data)));
             var nifInfo = new List<ExplorerInfoNode> {

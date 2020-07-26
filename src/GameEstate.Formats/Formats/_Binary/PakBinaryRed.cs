@@ -67,7 +67,7 @@ namespace GameEstate.Formats.Binary
             public uint Id => (Flags & 0xFFF00000) >> 20; // BIF index
         }
 
-        class SubPakFile : BinaryPakFile
+        class SubPakFile : BinaryPakMultiFile
         {
             public SubPakFile(string filePath, string game, object tag = null) : base(filePath, game, Instance, tag)
             {
@@ -345,6 +345,8 @@ namespace GameEstate.Formats.Binary
 
         public unsafe override Task ReadAsync(BinaryPakFile source, BinaryReader r, ReadStage stage)
         {
+            if (!(source is BinaryPakMultiFile multiSource))
+                throw new NotSupportedException();
             if (stage != ReadStage.File)
                 throw new ArgumentOutOfRangeException(nameof(stage), stage.ToString());
 
@@ -358,7 +360,7 @@ namespace GameEstate.Formats.Binary
                 if (header.Version != KEY_VERSION)
                     throw new InvalidOperationException("BAD MAGIC");
                 source.Version = header.Version;
-                source.Files = files = new FileMetadata[header.NumFiles];
+                multiSource.Files = files = new FileMetadata[header.NumFiles];
 
                 // keys
                 var keys = new Dictionary<(uint, uint), string>();
@@ -400,7 +402,7 @@ namespace GameEstate.Formats.Binary
                 if (header.Version != BIFF_VERSION)
                     throw new InvalidOperationException("BAD MAGIC");
                 source.Version = header.Version;
-                source.Files = files = new FileMetadata[header.NumFiles];
+                multiSource.Files = files = new FileMetadata[header.NumFiles];
 
                 // files
                 var fileTypes = BIFF_FileTypes;
@@ -428,7 +430,7 @@ namespace GameEstate.Formats.Binary
                 if (header.Version < 2)
                     throw new FormatException("unsupported version");
                 source.Version = DZIP_VERSION;
-                source.Files = files = new FileMetadata[header.NumFiles];
+                multiSource.Files = files = new FileMetadata[header.NumFiles];
                 var decryptKey = source.DecryptKey as ulong?;
                 r.Position((long)header.FilesPosition);
                 var hash = 0x00000000FFFFFFFFUL;
@@ -487,7 +489,7 @@ namespace GameEstate.Formats.Binary
                     throw new InvalidOperationException("BAD MAGIC");
                 var header = r.ReadT<BUNDLE_Header>(sizeof(BUNDLE_Header));
                 source.Version = BUNDLE_MAGIC;
-                source.Files = files = new FileMetadata[header.NumFiles];
+                multiSource.Files = files = new FileMetadata[header.NumFiles];
 
                 // files
                 r.Position(0x20);
