@@ -6,10 +6,10 @@ using System.Threading.Tasks;
 
 namespace GameEstate.Formats.Binary
 {
-    public class PakBinaryU9 : PakBinary
+    public class PakBinaryOriginU9 : PakBinary
     {
-        public static readonly PakBinary Instance = new PakBinaryU9();
-        PakBinaryU9() { }
+        public static readonly PakBinary Instance = new PakBinaryOriginU9();
+        PakBinaryOriginU9() { }
 
         // Headers
         #region Headers

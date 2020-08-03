@@ -15,6 +15,11 @@
         "key": "GOG.com/Games/1431426311",
         "assets": "base"
       }
+    },
+    "ignore": {
+      "Dishonored2": {
+        "path": "master.index"
+      }
     }
   }
 }

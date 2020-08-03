@@ -100,10 +100,10 @@ namespace GameEstate.Core
             if (string.IsNullOrEmpty(searchPattern))
                 throw new ArgumentOutOfRangeException(nameof(pathOrPattern), pathOrPattern);
             // file
-            return Locations.TryGetValue(game, out var path) ? ExpandAndSearchPaths(path, pathOrPattern).ToArray() : null;
+            return Locations.TryGetValue(game, out var path) ? ExpandAndSearchPaths(Ignore, path, pathOrPattern).ToArray() : null;
         }
 
-        static IEnumerable<string> ExpandAndSearchPaths(string path, string pathOrPattern)
+        static IEnumerable<string> ExpandAndSearchPaths(HashSet<string> ignore, string path, string pathOrPattern)
         {
             // expand
             int expandStartIdx, expandMidIdx, expandEndIdx;
@@ -113,7 +113,7 @@ namespace GameEstate.Core
                 expandStartIdx < expandEndIdx)
             {
                 foreach (var expand in pathOrPattern.Substring(expandStartIdx + 1, expandEndIdx - expandStartIdx - 1).Split(':'))
-                    foreach (var found in ExpandAndSearchPaths(path, pathOrPattern.Remove(expandStartIdx, expandEndIdx - expandStartIdx + 1).Insert(expandStartIdx, expand)))
+                    foreach (var found in ExpandAndSearchPaths(ignore, path, pathOrPattern.Remove(expandStartIdx, expandEndIdx - expandStartIdx + 1).Insert(expandStartIdx, expand)))
                         yield return found;
                 yield break;
             }
@@ -122,7 +122,7 @@ namespace GameEstate.Core
             if (directoryPattern.IndexOf('*') != -1)
             {
                 foreach (var directory in Directory.GetDirectories(path, directoryPattern))
-                    foreach (var found in ExpandAndSearchPaths(directory, Path.GetFileName(pathOrPattern)))
+                    foreach (var found in ExpandAndSearchPaths(ignore, directory, Path.GetFileName(pathOrPattern)))
                         yield return found;
                 yield break;
             }
@@ -130,8 +130,10 @@ namespace GameEstate.Core
             var searchIdx = pathOrPattern.IndexOf('*');
             if (searchIdx == -1)
                 yield return Path.Combine(path, pathOrPattern);
-            else foreach (var file in Directory.GetFiles(path, pathOrPattern))
-                    yield return file;
+            else
+                foreach (var file in Directory.GetFiles(path, pathOrPattern))
+                    if (!ignore.Contains(Path.GetFileName(file)))
+                        yield return file;
         }
 
         /// <summary>
@@ -293,6 +295,23 @@ namespace GameEstate.Core
                             if (TryAddPath(path, prop))
                                 break;
                     }
+
+            // ignore
+            if (elem.TryGetProperty("ignore", out z))
+                foreach (var prop in z.EnumerateObject())
+                    if (prop.Value.TryGetProperty("path", out z))
+                    {
+                        IEnumerable<string> paths;
+                        switch (z.ValueKind)
+                        {
+                            case JsonValueKind.String: paths = new[] { z.GetString() }; break;
+                            case JsonValueKind.Array: paths = z.EnumerateArray().Select(y => y.GetString()); break;
+                            default: throw new ArgumentOutOfRangeException();
+                        }
+                        foreach (var path in paths)
+                            r.Ignore.Add(path);
+                    }
+
             return r;
         }
 

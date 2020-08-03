@@ -1,12 +1,16 @@
 ﻿{
-  "id": "UO",
-  "name": "Ultima Online",
-  "description": "UO formats used in Ultima Online",
-  "pakFileType": "GameEstate.Estates.UOPakFile, GameEstate",
+  "id": "Origin",
+  "name": "Origin",
+  "description": "Origin file formats",
+  "pakFileType": "GameEstate.Estates.OriginPakFile, GameEstate",
   "games": {
     "UltimaOnline": {
       "name": "Ultima Online",
       "pak": "game:/*.idx#UltimaOnline"
+    },
+    "UltimaIX": {
+      "name": "Ultima IX",
+      "pak": "game:/static/*.flx#UltimaIX"
     }
   },
   "fileManager": {
@@ -31,6 +35,12 @@
           "Origin Worlds Online/Ultima Online Samurai Empire/3d/1.0",
           "Electronic Arts/EA Games/Ultima Online Stygian Abyss Classic",
           "Electronic Arts/EA Games/Ultima Online Classic"
+        ]
+      },
+      "UltimaIX": {
+        "key": [
+          "GOG.com/GOGULTIMA9",
+          "GOG.com/Games/1207659093"
         ]
       }
     }

@@ -2,6 +2,7 @@
 using Compression.Doboz;
 using Dolkens.Framework.Extensions;
 using GameEstate.Core;
+using GameEstate.Graphics.DirectX;
 using ICSharpCode.SharpZipLib.Zip.Compression.Streams;
 using K4os.Compression.LZ4;
 using System;
@@ -11,6 +12,7 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
+using static GameEstate.EstateDebug;
 
 namespace GameEstate.Formats.Binary
 {
@@ -288,8 +290,49 @@ namespace GameEstate.Formats.Binary
 
         #endregion
 
-        // Headers : CACHE (Witcher 3)
-        #region Headers : CACHE
+        // Headers : CACHE:Texture (Witcher 3)
+        #region Headers : CACHE:Texture
+        // https://github.com/hhrhhr/Lua-utils-for-Witcher-3
+
+        [StructLayout(LayoutKind.Sequential, Pack = 0x1)]
+        struct CACHE_TEX_Header
+        {
+            public uint NumFiles;           // number of textures
+            public uint NamesSize;          // names
+            public uint ChunksSize;         // relative offsets of packed chunks (* 4 bytes)
+            public uint Unk1;               // const 1415070536
+            public uint Unk2;               // const 6
+        }
+
+        [StructLayout(LayoutKind.Sequential, Pack = 0x1)]
+        struct CACHE_TEX_HeaderFile
+        {
+            public uint Id;                 // 01:crc or id??
+            public uint FileNameOffset;     // 02:filename, start offset in block2
+            public uint StartOffset;        // 03:* 4096 = start offset, first chunk
+            public uint PackedSize;         // 04:packed size (all cunks)
+            public uint FileSize;           // 05:unpacked size
+            public uint Bpp;                // 06:Bpp // bpp? always 16
+            public ushort Width;            // 07:width
+            public ushort Height;           // 08:height
+            public ushort NumMips;          // 09:mips
+            public uint Caps;               // 10:1/6/N, single, cubemaps, arrays
+            public uint T11;                // 11:offset in block1, second packed chunk
+            public uint T12;                // 12:the number of remaining packed chunks
+            public uint T13;                // 13:????
+            public uint T14;                // 14:????
+            public byte Format;             // 15:0-????, 7-DXT1, 8-DXT5, 10-????, 13-DXT3, 14-ATI1, 15-????, 253-RGBA
+            public byte T16;                // 16:3-cubemaps, 4-texture, 0-???
+            public ushort T17;              // 17:0/1 ???
+
+            public bool HasSkip => Caps == 6 && (Format == 253 || Format == 0);
+            public bool HasCubemap => (T16 == 3 || T16 == 0) && Caps == 6;
+        }
+
+        #endregion
+
+        // Headers : CACHE:CS3W (Witcher 3)
+        #region Headers : CACHE:CS3W
 
         const uint CS3W_MAGIC = 0x57335343;
 
@@ -340,9 +383,6 @@ namespace GameEstate.Formats.Binary
 
         #endregion
 
-        //readonly object Tag;
-        //public PakBinaryRed(object tag = null) => Tag = tag;
-
         public unsafe override Task ReadAsync(BinaryPakFile source, BinaryReader r, ReadStage stage)
         {
             if (!(source is BinaryPakMultiFile multiSource))
@@ -351,14 +391,15 @@ namespace GameEstate.Formats.Binary
                 throw new ArgumentOutOfRangeException(nameof(stage), stage.ToString());
 
             FileMetadata[] files;
-            var ext = Path.GetExtension(source.FilePath);
-            var magic = r.ReadUInt32();
+            var fileNameWithoutExtension = Path.GetFileNameWithoutExtension(source.FilePath);
+            var extension = Path.GetExtension(source.FilePath);
+            var magic = source.Magic = r.ReadUInt32();
             // KEY
             if (magic == KEY_MAGIC) // Signature("KEY ")
             {
                 var header = r.ReadT<KEY_Header>(sizeof(KEY_Header));
                 if (header.Version != KEY_VERSION)
-                    throw new InvalidOperationException("BAD MAGIC");
+                    throw new FileFormatException("BAD MAGIC");
                 source.Version = header.Version;
                 multiSource.Files = files = new FileMetadata[header.NumFiles];
 
@@ -396,11 +437,11 @@ namespace GameEstate.Formats.Binary
             else if (magic == BIFF_MAGIC) // Signature("BIFF")
             {
                 if (source.Tag == null)
-                    throw new InvalidOperationException("BIFF files can only be processed through KEY files");
+                    throw new FileFormatException("BIFF files can only be processed through KEY files");
                 var (keys, bifId) = ((Dictionary<(uint, uint), string> keys, uint bifId))source.Tag;
                 var header = r.ReadT<BIFF_Header>(sizeof(BIFF_Header));
                 if (header.Version != BIFF_VERSION)
-                    throw new InvalidOperationException("BAD MAGIC");
+                    throw new FileFormatException("BAD MAGIC");
                 source.Version = header.Version;
                 multiSource.Files = files = new FileMetadata[header.NumFiles];
 
@@ -414,7 +455,7 @@ namespace GameEstate.Formats.Binary
                     // Curiously the last resource entry of djinni.bif seem to be missing
                     if (headerFile.FileId > i)
                         continue;
-                    var path = $"{(keys.TryGetValue((bifId, headerFile.FileId), out var key) ? key : $"{i}")}{(fileTypes.TryGetValue(headerFile.FileType, out var extension) ? extension : string.Empty)}";
+                    var path = $"{(keys.TryGetValue((bifId, headerFile.FileId), out var key) ? key : $"{i}")}{(fileTypes.TryGetValue(headerFile.FileType, out var z) ? z : string.Empty)}";
                     files[i] = new FileMetadata
                     {
                         Path = path.Replace('\\', '/'),
@@ -428,7 +469,7 @@ namespace GameEstate.Formats.Binary
             {
                 var header = r.ReadT<DZIP_Header>(sizeof(DZIP_Header));
                 if (header.Version < 2)
-                    throw new FormatException("unsupported version");
+                    throw new FileFormatException("unsupported version");
                 source.Version = DZIP_VERSION;
                 multiSource.Files = files = new FileMetadata[header.NumFiles];
                 var decryptKey = source.DecryptKey as ulong?;
@@ -486,7 +527,7 @@ namespace GameEstate.Formats.Binary
             else if (magic == BUNDLE_MAGIC) // Signature("POTATO70")
             {
                 if (r.ReadUInt32() != BUNDLE_MAGIC2)
-                    throw new InvalidOperationException("BAD MAGIC");
+                    throw new FileFormatException("BAD MAGIC");
                 var header = r.ReadT<BUNDLE_Header>(sizeof(BUNDLE_Header));
                 source.Version = BUNDLE_MAGIC;
                 multiSource.Files = files = new FileMetadata[header.NumFiles];
@@ -509,9 +550,43 @@ namespace GameEstate.Formats.Binary
                 }
             }
             // CACHE
-            else if (ext == ".cache")
+            else if (extension == ".cache")
             {
-                if (magic == CS3W_MAGIC)
+                if (fileNameWithoutExtension == "texture")
+                {
+                    source.Version = 'T';
+                    r.Position(r.BaseStream.Length - 20);
+                    var header = r.ReadT<CACHE_TEX_Header>(sizeof(CACHE_TEX_Header));
+                    Assert(header.Unk1 == 1415070536);
+                    Assert(header.Unk2 == 6);
+                    multiSource.Files = files = new FileMetadata[header.NumFiles];
+                    var offset = 20 + 12 + (header.NumFiles * 52) + header.NamesSize + (header.ChunksSize * 4);
+                    r.Position(r.BaseStream.Length - offset);
+
+                    // check block
+                    var headerChunks = r.ReadTArray<uint>(sizeof(uint), (int)header.ChunksSize);
+                    source.Tag = headerChunks;
+
+                    // name block
+                    var buf = new MemoryStream();
+                    for (var i = 0; i < header.NumFiles; i++)
+                        files[i] = new FileMetadata
+                        {
+                            Path = r.ReadZASCII(1000, buf),
+                        };
+
+                    // file block
+                    var headerFiles = r.ReadTArray<CACHE_TEX_HeaderFile>(sizeof(CACHE_TEX_HeaderFile), (int)header.NumFiles);
+                    for (var i = 0; i < header.NumFiles; i++)
+                        files[i] = new FileMetadata
+                        {
+                            Position = headerFiles[i].StartOffset,
+                            PackedSize = headerFiles[i].PackedSize,
+                            FileSize = headerFiles[i].FileSize,
+                            Tag = headerFiles[i],
+                        };
+                }
+                else if (magic == CS3W_MAGIC)
                 {
                     var version = r.ReadUInt32();
                     var header = version >= 2
@@ -522,15 +597,38 @@ namespace GameEstate.Formats.Binary
                 }
                 else
                 {
-                    var size = r.ReadUInt32();
-                    if (size == 0)
-                    {
-
-                    }
+                    r.Position(0);
+                    var packedSize = r.ReadUInt32();
+                    if (packedSize == 0)
+                        packedSize = r.ReadUInt32() << 4;
+                    var fileSize = r.ReadUInt32();
+                    var type = r.ReadByte();
                 }
             }
             else throw new FileFormatException($"Unknown File Type {magic}");
             return Task.CompletedTask;
+        }
+
+        public enum FORMAT : uint
+        {
+            RGB = 0,
+            RGBA = RGB,
+
+            // DX9 formats
+            DXT1 = 1,
+            DXT1a = 2,  // DXT1 with binary alpha.
+            DXT3 = 3,
+            DXT5 = 4,
+            DXT5n = 5,  // Compressed HILO: R = 1, G = y, B = 0, A = x
+
+            // DX10 formats
+            BC1 = DXT1,
+            BC1a = DXT1a,
+            BC2 = DXT3,
+            BC3 = DXT5,
+            BC3n = DXT5n,
+            BC4 = 6,    // ATI1
+            BC5 = 7,    // 3DC, ATI2
         }
 
         public override Task<byte[]> ReadFileAsync(BinaryPakFile source, BinaryReader r, FileMetadata file, Action<FileMetadata, string> exception = null)
@@ -546,18 +644,17 @@ namespace GameEstate.Formats.Binary
                 for (var i = 0; i < positions.Length; i++)
                     positions[i] = file.Position + r.ReadUInt32();
                 positions[blocks] = file.Position + file.PackedSize;
-                var uncompressed = new byte[0x10000];
+                var buffer = new byte[0x10000];
                 var bytesLeft = file.PackedSize;
                 using (var s = new MemoryStream())
                 {
                     for (var i = 0; i < blocks; i++)
                     {
                         r.Position(positions[i]);
-                        var compressed = r.ReadBytes((int)(positions[i + 1] - positions[i + 0]));
-                        var bytesRead = Lzf.Decompress(compressed, uncompressed);
-                        if (i + 1 < blocks && bytesRead != uncompressed.Length)
+                        var bytesRead = r.DecompressLzfChunk((int)(positions[i + 1] - positions[i + 0]), buffer);
+                        if (i + 1 < blocks && bytesRead != buffer.Length)
                             throw new FileFormatException();
-                        s.Write(uncompressed, 0, bytesRead);
+                        s.Write(buffer, 0, bytesRead);
                         bytesLeft -= bytesRead;
                     }
                     s.Position = 0;
@@ -573,29 +670,189 @@ namespace GameEstate.Formats.Binary
                 switch (file.Compressed)
                 {
                     case 0: break; // no compression
-                    case 1: // zlib
-                        {
-                            var newFileData = new byte[newFileSize];
-                            using (var s = new MemoryStream(fileData))
-                            using (var gs = new InflaterInputStream(s))
-                                gs.Read(newFileData, 0, newFileData.Length);
-                            fileData = newFileData;
-                        }
-                        break;
-                    case 2: // snappy
-                        throw new NotImplementedException();
-                    case 3: // doboz
-                        fileData = DobozDecoder.Decode(fileData, 0, fileData.Length);
-                        break;
-                    case 4:
-                    case 5: // lz4
-                        {
-                            var newFileData = new byte[newFileSize];
-                            LZ4Codec.Decode(fileData, newFileData);
-                            fileData = newFileData;
-                        }
-                        break;
+                    case 1: fileData = r.DecompressZlib_old((int)file.PackedSize, (int)newFileSize); break;
+                    case 2: fileData = r.DecompressSnappy((int)file.PackedSize, (int)newFileSize); break;
+                    case 3: fileData = r.DecompressDoboz((int)file.PackedSize, (int)newFileSize); break;
+                    case 4: case 5: fileData = r.DecompressLz4((int)file.PackedSize, (int)newFileSize); break;
                     default: throw new ArgumentOutOfRangeException(nameof(file.Compressed), file.Compressed.ToString());
+                }
+            }
+            else if (source.Version == 'T')
+            {
+                var headerChunks = (uint[])source.Tag;
+                var tex = (CACHE_TEX_HeaderFile)file.Tag;
+
+                var fmt = FORMAT.RGB;
+                switch (tex.Format)
+                {
+                    case 7: fmt = FORMAT.DXT1; break; // DXT1
+                    case 8: fmt = FORMAT.DXT5; break; // DXT5
+                    case 10: fmt = FORMAT.DXT5; break; // ??????
+                    case 13: fmt = FORMAT.DXT3; break; // DXT3
+                    case 14: fmt = FORMAT.BC4; break; // ATI1
+                    case 15: fmt = FORMAT.DXT5; break; // ??????
+                    case 253: fmt = FORMAT.RGB; break; // RGBA?
+                    case 0: fmt = FORMAT.RGB; break; // R4G4B4A4?
+                    default: throw new ArgumentOutOfRangeException(nameof(tex.Format), tex.Format.ToString());
+                }
+
+                // skip tons of env probes??
+                if (tex.HasSkip)
+                    throw new InvalidOperationException("SKIP");
+
+                var cubemap = tex.HasCubemap;
+
+                // mark as texture arrays
+                var depth = tex.Caps > 1 && tex.T16 == 4 ? tex.Caps : 0U;
+
+                // TODO: check this
+                if (tex.T16 == 3 && tex.Format == 253) tex.Bpp = 32; // 32 bit
+                //if (tex.T16 == 0 && tex.Format == 0) tex.Bpp = 16; // 16 bit
+
+                fileData = null;
+                using (var s = new MemoryStream())
+                {
+                    // write header
+                    var w = new BinaryWriter(s);
+                    var ddsHeader = new DDS_HEADER
+                    {
+                        dwSize = DDS_HEADER.SizeOf,
+                        dwFlags = DDSD.HEADER_FLAGS_TEXTURE | (tex.NumMips > 1 ? DDSD.MIPMAPCOUNT : 0),
+                        dwHeight = tex.Height,
+                        dwWidth = tex.Width,
+                        dwMipMapCount = tex.NumMips,
+                        dwCaps = DDSCAPS.TEXTURE,
+                    };
+                    ddsHeader.ddspf.dwSize = DDS_PIXELFORMAT.SizeOf;
+                    var dxt10 = new DDS_HEADER_DXT10
+                    {
+                        dxgiFormat = DXGI_FORMAT.UNKNOWN,
+                        resourceDimension = D3D10_RESOURCE_DIMENSION.UNKNOWN,
+                        miscFlag = 0,
+                        arraySize = 0,
+                        miscFlags2 = 0,
+                    };
+
+                    // depth
+                    if (depth > 0)
+                    {
+                        ddsHeader.dwFlags |= DDSD.DEPTH;
+                        ddsHeader.dwDepth = depth;
+                        ddsHeader.dwCaps2 = DDSCAPS2.VOLUME;
+                        dxt10.resourceDimension = D3D10_RESOURCE_DIMENSION.TEXTURE3D;
+                    }
+                    else
+                        dxt10.resourceDimension = D3D10_RESOURCE_DIMENSION.TEXTURE2D;
+
+                    // cubemap
+                    if (cubemap)
+                    {
+                        ddsHeader.dwCaps |= DDSCAPS.COMPLEX;
+                        ddsHeader.dwCaps2 |= DDSCAPS2.CUBEMAP | DDSCAPS2.CUBEMAP_ALLFACES;
+                        dxt10.resourceDimension = D3D10_RESOURCE_DIMENSION.TEXTURE2D;
+                        dxt10.arraySize = 6;
+                    }
+
+                    /*
+
+
+                    switch ((DXGI_FORMAT)tex.Format)
+                    {
+                        case DXGI_FORMAT.BC1_UNORM:
+                            ddsHeader.ddspf.dwFlags = DDPF.FOURCC;
+                            ddsHeader.ddspf.dwFourCC = DDS_HEADER.Literal.DXT1;
+                            ddsHeader.dwPitchOrLinearSize = (uint)(tex.Width * tex.Height / 2U); // 4bpp
+                            break;
+                        case DXGI_FORMAT.BC2_UNORM:
+                            ddsHeader.ddspf.dwFlags = DDPF.FOURCC;
+                            ddsHeader.ddspf.dwFourCC = DDS_HEADER.Literal.DXT3;
+                            ddsHeader.dwPitchOrLinearSize = (uint)(tex.Width * tex.Height); // 8bpp
+                            break;
+                        case DXGI_FORMAT.BC3_UNORM:
+                            ddsHeader.ddspf.dwFlags = DDPF.FOURCC;
+                            ddsHeader.ddspf.dwFourCC = DDS_HEADER.Literal.DXT5;
+                            ddsHeader.dwPitchOrLinearSize = (uint)(tex.Width * tex.Height); // 8bpp
+                            break;
+                        case DXGI_FORMAT.BC5_UNORM:
+                            ddsHeader.ddspf.dwFlags = DDPF.FOURCC;
+                            ddsHeader.ddspf.dwFourCC = DDS_HEADER.Literal.ATI2;
+                            ddsHeader.dwPitchOrLinearSize = (uint)(tex.Width * tex.Height); // 8bpp
+                            break;
+                        case DXGI_FORMAT.BC1_UNORM_SRGB:
+                            ddsHeader.ddspf.dwFlags = DDPF.FOURCC;
+                            ddsHeader.ddspf.dwFourCC = DDS_HEADER.Literal.DX10;
+                            ddsHeader.dwPitchOrLinearSize = (uint)(tex.Width * tex.Height / 2); // 4bpp
+                            break;
+                        case DXGI_FORMAT.BC3_UNORM_SRGB:
+                        case DXGI_FORMAT.BC4_UNORM:
+                        case DXGI_FORMAT.BC5_SNORM:
+                        case DXGI_FORMAT.BC7_UNORM:
+                        case DXGI_FORMAT.BC7_UNORM_SRGB:
+                            ddsHeader.ddspf.dwFlags = DDPF.FOURCC;
+                            ddsHeader.ddspf.dwFourCC = DDS_HEADER.Literal.DX10;
+                            ddsHeader.dwPitchOrLinearSize = (uint)(tex.Width * tex.Height); // 8bpp
+                            break;
+                        case DXGI_FORMAT.R8G8B8A8_UNORM:
+                        case DXGI_FORMAT.R8G8B8A8_UNORM_SRGB:
+                            ddsHeader.ddspf.dwFlags = DDPF.RGB | DDPF.ALPHA;
+                            ddsHeader.ddspf.dwRGBBitCount = 32;
+                            ddsHeader.ddspf.dwRBitMask = 0x000000FF;
+                            ddsHeader.ddspf.dwGBitMask = 0x0000FF00;
+                            ddsHeader.ddspf.dwBBitMask = 0x00FF0000;
+                            ddsHeader.ddspf.dwABitMask = 0xFF000000;
+                            ddsHeader.dwPitchOrLinearSize = (uint)(tex.Width * tex.Height * 4); // 32bpp
+                            break;
+                        case DXGI_FORMAT.B8G8R8A8_UNORM:
+                        case DXGI_FORMAT.B8G8R8X8_UNORM:
+                            ddsHeader.ddspf.dwFlags = DDPF.RGB | DDPF.ALPHA;
+                            ddsHeader.ddspf.dwRGBBitCount = 32;
+                            ddsHeader.ddspf.dwRBitMask = 0x00FF0000;
+                            ddsHeader.ddspf.dwGBitMask = 0x0000FF00;
+                            ddsHeader.ddspf.dwBBitMask = 0x000000FF;
+                            ddsHeader.ddspf.dwABitMask = 0xFF000000;
+                            ddsHeader.dwPitchOrLinearSize = (uint)(tex.Width * tex.Height * 4); // 32bpp
+                            break;
+                        case DXGI_FORMAT.R8_UNORM:
+                            ddsHeader.ddspf.dwFlags = DDPF.RGB | DDPF.ALPHA;
+                            ddsHeader.ddspf.dwRGBBitCount = 8;
+                            ddsHeader.ddspf.dwRBitMask = 0xFF;
+                            ddsHeader.dwPitchOrLinearSize = (uint)(tex.Width * tex.Height); // 8bpp
+                            break;
+                        default: throw new ArgumentOutOfRangeException(nameof(tex.Format), $"Unsupported DDS header format. File: {file.Path}");
+                    }
+                    w.Write((uint)DDS_HEADER.MAGIC);
+                    w.WriteT(ddsHeader, sizeof(DDS_HEADER));
+                    switch ((DXGI_FORMAT)tex.Format)
+                    {
+                        case DXGI_FORMAT.BC1_UNORM_SRGB:
+                        case DXGI_FORMAT.BC3_UNORM_SRGB:
+                        case DXGI_FORMAT.BC4_UNORM:
+                        case DXGI_FORMAT.BC5_SNORM:
+                        case DXGI_FORMAT.BC7_UNORM:
+                        case DXGI_FORMAT.BC7_UNORM_SRGB:
+                            var dxt10 = new DDS_HEADER_DXT10
+                            {
+                                dxgiFormat = DXGI_FORMAT.UNKNOWN,
+                                resourceDimension = D3D10_RESOURCE_DIMENSION.UNKNOWN,
+                                miscFlag = 0,
+                                arraySize = 0,
+                                miscFlags2 = 0,
+                            };
+                            w.WriteT(dxt10, sizeof(DDS_HEADER_DXT10));
+                            break;
+                    }
+
+                    // write chunks
+                    var chunks = (F4_HeaderTextureChunk[])file.Tag;
+                    for (var i = 0; i < tex.NumChunks; i++)
+                    {
+                        var chunk = chunks[i];
+                        r.Position((long)chunk.Offset);
+                        if (chunk.PackedSize != 0) s.WriteBytes(r.DecompressZlib((int)file.PackedSize, (int)file.FileSize));
+                        else s.WriteBytes(r, (int)file.FileSize);
+                    }
+                    return Task.FromResult(s.ToArray());
+                    */
                 }
             }
             else throw new ArgumentOutOfRangeException(nameof(source.Version), $"{source.Version}");

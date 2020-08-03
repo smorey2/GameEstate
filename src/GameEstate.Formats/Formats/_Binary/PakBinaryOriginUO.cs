@@ -5,10 +5,10 @@ using System.Threading.Tasks;
 
 namespace GameEstate.Formats.Binary
 {
-    public class PakBinaryUO : PakBinary
+    public class PakBinaryOriginUO : PakBinary
     {
-        public static readonly PakBinary Instance = new PakBinaryUO();
-        PakBinaryUO() { }
+        public static readonly PakBinary Instance = new PakBinaryOriginUO();
+        PakBinaryOriginUO() { }
 
         public unsafe override Task ReadAsync(BinaryPakFile source, BinaryReader r, ReadStage stage)
         {

@@ -3,6 +3,15 @@
 // https://docs.microsoft.com/en-us/windows/win32/direct3ddds/dds-header-dxt10
 namespace GameEstate.Graphics.DirectX
 {
+    public enum DDS_ALPHA_MODE : uint
+    {
+        ALPHA_MODE_UNKNOWN = 0,
+        ALPHA_MODE_STRAIGHT = 1,
+        ALPHA_MODE_PREMULTIPLIED = 2,
+        ALPHA_MODE_OPAQUE = 3,
+        ALPHA_MODE_CUSTOM = 4,
+    }
+
     /// <summary>
     /// DDS header extension to handle resource arrays, DXGI pixel formats that don't map to the legacy Microsoft DirectDraw pixel format structures, and additional metadata.
     /// </summary>

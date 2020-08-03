@@ -1,6 +1,6 @@
 ﻿using GameEstate.Core;
-using ICSharpCode.SharpZipLib.Zip.Compression.Streams;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -12,6 +12,16 @@ namespace GameEstate.Formats.Binary
         public static readonly PakBinary Instance = new PakBinaryArkane();
         PakBinaryArkane() { }
 
+        const uint RES_MAGIC = 0x04534552;
+
+        class SubPakFile : BinaryPakMultiFile
+        {
+            public SubPakFile(string filePath, string game, object tag = null) : base(filePath, game, Instance, tag)
+            {
+                Open();
+            }
+        }
+
         public unsafe override Task ReadAsync(BinaryPakFile source, BinaryReader r, ReadStage stage)
         {
             if (!(source is BinaryPakMultiFile multiSource))
@@ -20,13 +30,48 @@ namespace GameEstate.Formats.Binary
                 throw new ArgumentOutOfRangeException(nameof(stage), stage.ToString());
 
             if (Path.GetExtension(source.FilePath) != ".index")
-                throw new ArgumentOutOfRangeException();
-            var resourcePath = $"{source.FilePath.Substring(0, source.FilePath.Length - 6)}.resources";
+                throw new ArgumentOutOfRangeException("must be index");
+            if (Path.GetFileName(source.FilePath) == "master.index")
+            {
+                const uint SubMarker = 0x18000000;
+                const uint EndMarker = 0x01000000;
+
+                var magic = Utility.Reverse(r.ReadUInt32());
+                if (magic != RES_MAGIC)
+                    throw new FileFormatException("BAD MAGIC");
+                r.Skip(4);
+                var files2 = multiSource.Files = new List<FileMetadata>();
+                var state = 0;
+                do
+                {
+                    var nameSize = r.ReadUInt32();
+                    if (nameSize == SubMarker) { state++; nameSize = r.ReadUInt32(); }
+                    else if (nameSize == EndMarker) break;
+                    var newPath = r.ReadASCII((int)nameSize);
+                    var packId = state > 0 ? r.ReadUInt16() : 0;
+                    files2.Add(new FileMetadata
+                    {
+                        Path = newPath,
+                        Pak = new SubPakFile(newPath, source.Game),
+                    });
+                }
+                while (true);
+                return Task.CompletedTask;
+            }
+
+            var pathFile = Path.GetFileName(source.FilePath);
+            var pathDir = Path.GetDirectoryName(source.FilePath);
+            var resourcePath = Path.Combine(pathDir, $"{pathFile.Substring(0, pathFile.Length - 6)}.resources");
             if (!File.Exists(resourcePath))
-                throw new ArgumentOutOfRangeException();
-            var sharedResourcePath = Path.Combine(Path.GetDirectoryName(resourcePath), "shared_2_3.sharedrsc");
-            if (!File.Exists(sharedResourcePath))
-                throw new ArgumentOutOfRangeException();
+                throw new ArgumentOutOfRangeException("Unable to find resources extension");
+            var sharedResourcePath = new[] {
+                "shared_2_3.sharedrsc",
+                "shared_2_3_4.sharedrsc",
+                "shared_1_2_3.sharedrsc",
+                "shared_1_2_3_4.sharedrsc" }
+                .Select(x => Path.Combine(pathDir, x)).FirstOrDefault(File.Exists);
+            if (sharedResourcePath == null)
+                throw new ArgumentOutOfRangeException("Unable to find Sharedrsc");
 
             r.Position(4);
             var mainFileSize = Utility.Reverse(r.ReadUInt32()); // mainFileSize
@@ -68,17 +113,10 @@ namespace GameEstate.Formats.Binary
             var (path, tag1, tag2) = ((string, string, string))file.Tag;
             return Task.FromResult(source.GetBinaryReader(path).Func(r2 =>
             {
-                r.Position(file.Position);
-                var fileData = r2.ReadBytes((int)file.PackedSize);
-                if (file.Compressed != 0)
-                {
-                    var newFileData = new byte[file.FileSize];
-                    using (var s = new MemoryStream(fileData))
-                    using (var gs = new InflaterInputStream(s))
-                        gs.Read(newFileData, 0, newFileData.Length);
-                    fileData = newFileData;
-                }
-                return fileData;
+                r2.Position(file.Position);
+                return file.Compressed != 0
+                    ? r2.DecompressZlib((int)file.PackedSize, (int)file.FileSize)
+                    : r2.ReadBytes((int)file.PackedSize);
             }));
         }
     }

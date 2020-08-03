@@ -13,17 +13,26 @@ namespace GameEstate.Core
         [DllImport("msvcrt.dll", EntryPoint = "memcpy", CallingConvention = CallingConvention.Cdecl, SetLastError = false)] extern static unsafe IntPtr memcpy(IntPtr dest, IntPtr src, uint count);
         public static Func<IntPtr, IntPtr, uint, IntPtr> Memcpy = memcpy;
 
-        public static unsafe string ReadZASCII(byte* name, int length)
+        public static unsafe string ReadZASCII(byte* data, int length)
         {
             var i = 0;
-            while (name[i] != 0 && length-- > 0) i++;
+            while (data[i] != 0 && length-- > 0) i++;
             if (i == 0)
                 return null;
-            var name2 = new byte[i];
-            fixed (byte* pB = name2)
+            var value = new byte[i];
+            fixed (byte* p = value)
                 while (--i >= 0)
-                    pB[i] = name[i];
-            return Encoding.ASCII.GetString(name2);
+                    p[i] = data[i];
+            return Encoding.ASCII.GetString(value);
+        }
+
+        public static unsafe byte[] ReadBytes(byte* data, int length)
+        {
+            var value = new byte[length];
+            fixed (byte* p = value)
+                for (var i = 0; i < length; i++)
+                    p[i] = data[i];
+            return value;
         }
 
         [DllImport("Kernel32")] extern static unsafe int _lread(SafeFileHandle hFile, void* lpBuffer, int wBytes);
@@ -42,7 +51,8 @@ namespace GameEstate.Core
             if (length > 0 && size > length)
                 Array.Resize(ref bytes, size);
             fixed (byte* src = bytes)
-                return (T)Marshal.PtrToStructure(new IntPtr(src), typeof(T));
+                return Marshal.PtrToStructure<T>(new IntPtr(src));
+                //return (T)Marshal.PtrToStructure(new IntPtr(src), typeof(T));
             //fixed (byte* src = bytes)
             //{
             //    var r = default(T);
@@ -51,6 +61,15 @@ namespace GameEstate.Core
             //    hr.Free();
             //    return r;
             //}
+        }
+
+        public static unsafe byte[] MarshalF<T>(T value, int length = -1)
+        {
+            var size = Marshal.SizeOf(typeof(T));
+            var bytes = new byte[size];
+            fixed (byte* src = bytes)
+                Marshal.StructureToPtr(value, new IntPtr(src), false);
+            return bytes;
         }
 
         public static void MarshalTArray<T>(FileStream stream, T[] dest, int offset, int length)

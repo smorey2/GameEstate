@@ -22,6 +22,10 @@ namespace GameEstate.Explorer
             List<ExplorerItemNode> currentFolder = null;
             foreach (var file in pakMultiFile.Files)
             {
+                // skip empty
+                if (string.IsNullOrEmpty(file.Path))
+                    continue;
+
                 // folder
                 var fileFolder = Path.GetDirectoryName(file.Path);
                 if (currentPath != fileFolder)

@@ -20,6 +20,7 @@ namespace GameEstate.Core
 
         // state
         public readonly Dictionary<string, string> Params = new Dictionary<string, string>();
+        public uint Magic;
         public uint Version;
         public object DecryptKey;
         public object Tag;
@@ -60,7 +61,7 @@ namespace GameEstate.Core
         {
             var watch = new Stopwatch();
             watch.Start();
-            if (UseBinaryReader) GetBinaryReader().Action(async r => await ReadAsync(r, PakBinary.ReadStage.File));
+            if (UseBinaryReader) GetBinaryReader()?.Action(async r => await ReadAsync(r, PakBinary.ReadStage.File));
             else ReadAsync(null, PakBinary.ReadStage.File).GetAwaiter().GetResult();
             Process();
             EstateDebug.Log($"Opening: {Name} @ {watch.ElapsedMilliseconds}ms");

@@ -57,13 +57,13 @@ namespace GameEstate.Graphics
             using (var r = new BinaryReader(stream))
             {
                 // Check the magic string.
-                var magicString = r.ReadBytes(4);
-                if (!DDS_HEADER.Literal.DDS_.SequenceEqual(magicString))
-                    throw new FileFormatException($"Invalid DDS file magic string: \"{Encoding.ASCII.GetString(magicString)}\".");
+                var magic = r.ReadUInt32();
+                if (magic != DDS_HEADER.Literal.DDS_)
+                    throw new FileFormatException($"Invalid DDS file magic: \"{magic}\".");
                 // Deserialize the DDS file header.
                 var header = r.ReadT<DDS_HEADER>(DDS_HEADER.SizeOf);
                 header.Verify();
-                if (DDS_HEADER.Literal.DX10.SequenceEqual(header.ddspf.dwFourCC))
+                if (header.ddspf.dwFourCC == DDS_HEADER.Literal.DX10)
                     r.ReadT<DDS_HEADER_DXT10>(DDS_HEADER_DXT10.SizeOf);
                 // Figure out the texture format and load the texture data.
                 header.DecodeAndRead(source, r);
@@ -265,7 +265,7 @@ namespace GameEstate.Graphics
         /// </summary>
         static byte[] DecodeDXTToARGB(int DXTVersion, byte[] compressedData, uint width, uint height, DDS_PIXELFORMAT pixelFormat, uint mipmapCount)
         {
-            var alphaFlag = pixelFormat.dwFlags.HasFlag(DDPF.AlphaPixels);
+            var alphaFlag = pixelFormat.dwFlags.HasFlag(DDPF.ALPHAPIXELS);
             var containsAlpha = alphaFlag || (pixelFormat.dwRGBBitCount == 32 && pixelFormat.dwABitMask != 0);
             using (var r = new BinaryReader(new MemoryStream(compressedData)))
             {

@@ -12,116 +12,116 @@ namespace GameEstate.Graphics.DirectX
     /// Flags to indicate which members contain valid data.
     /// </summary>
     [Flags]
-    public enum DDSFlags : uint
+    public enum DDSD : uint
     {
         /// <summary>
         /// Required in every .dds file.
         /// </summary>
-        Caps = 0x1,
+        CAPS = 0x00000001,
         /// <summary>
         /// Required in every .dds file.
         /// </summary>
-        Height = 0x2,
+        HEIGHT = 0x00000002,
         /// <summary>
         /// Required in every .dds file.
         /// </summary>
-        Width = 0x4,
+        WIDTH = 0x00000004,
         /// <summary>
         /// Required when pitch is provided for an uncompressed texture.
         /// </summary>
-        Pitch = 0x8,
+        PITCH = 0x00000008,
         /// <summary>
         /// Required in every .dds file.
         /// </summary>
-        PixelFormat = 0x1000,
+        PIXELFORMAT = 0x00001000,
         /// <summary>
         /// Required in a mipmapped texture.
         /// </summary>
-        MipmapCount = 0x20000,
+        MIPMAPCOUNT = 0x00020000,
         /// <summary>
         /// Required when pitch is provided for a compressed texture.
         /// </summary>
-        LinearSize = 0x80000,
+        LINEARSIZE = 0x00080000,
         /// <summary>
         /// Required in a depth texture.
         /// </summary>
-        Depth = 0x800000,
-        HEADER_FLAGS_TEXTURE = Caps | Height | Width | PixelFormat,
-        HEADER_FLAGS_MIPMAP = MipmapCount,
-        HEADER_FLAGS_VOLUME = Depth,
-        HEADER_FLAGS_PITCH = Pitch,
-        HEADER_FLAGS_LINEARSIZE = LinearSize,
+        DEPTH = 0x00800000,
+        HEADER_FLAGS_TEXTURE = CAPS | HEIGHT | WIDTH | PIXELFORMAT,
+        HEADER_FLAGS_MIPMAP = MIPMAPCOUNT,
+        HEADER_FLAGS_VOLUME = DEPTH,
+        HEADER_FLAGS_PITCH = PITCH,
+        HEADER_FLAGS_LINEARSIZE = LINEARSIZE,
     }
 
     /// <summary>
     /// Specifies the complexity of the surfaces stored.
     /// </summary>
     [Flags]
-    public enum DDSCaps : uint //: dwSurfaceFlags
+    public enum DDSCAPS : uint //: dwSurfaceFlags
     {
         /// <summary>
         /// Optional; must be used on any file that contains more than one surface (a mipmap, a cubic environment map, or mipmapped volume texture).
         /// </summary>
-        Complex = 0x8,
-        /// <summary>
-        /// Optional; should be used for a mipmap.
-        /// </summary>
-        Mipmap = 0x400000,
+        COMPLEX = 0x00000008,
         /// <summary>
         /// Required
         /// </summary>
-        Texture = 0x1000,
-        SURFACE_FLAGS_MIPMAP = Complex | Mipmap,
-        SURFACE_FLAGS_TEXTURE = Texture,
-        SURFACE_FLAGS_CUBEMAP = Complex,
+        TEXTURE = 0x00001000,
+        /// <summary>
+        /// Optional; should be used for a mipmap.
+        /// </summary>
+        MIPMAP = 0x00400000,
+        SURFACE_FLAGS_MIPMAP = COMPLEX | MIPMAP,
+        SURFACE_FLAGS_TEXTURE = TEXTURE,
+        SURFACE_FLAGS_CUBEMAP = COMPLEX,
     }
 
     /// <summary>
     /// Additional detail about the surfaces stored.
     /// </summary>
     [Flags]
-    public enum DDSCaps2 : uint //: dwCubemapFlags
+    public enum DDSCAPS2 : uint //: dwCubemapFlags
     {
         /// <summary>
         /// Required for a cube map.
         /// </summary>
-        Cubemap = 0x200,
+        CUBEMAP = 0x00000200,
         /// <summary>
         /// Required when these surfaces are stored in a cube map.	
         /// </summary>
-        CubemapPositiveX = 0x400,
+        CUBEMAPPOSITIVEX = 0x00000400,
         /// <summary>
         /// Required when these surfaces are stored in a cube map.
         /// </summary>
-        CubemapNegativeX = 0x800,
+        CUBEMAPNEGATIVEX = 0x00000800,
         /// <summary>
         /// Required when these surfaces are stored in a cube map.
         /// </summary>
-        CubemapPositiveY = 0x1000,
+        CUBEMAPPOSITIVEY = 0x00001000,
         /// <summary>
         /// Required when these surfaces are stored in a cube map.
         /// </summary>
-        CubemapNegativeY = 0x2000,
+        CUBEMAPNEGATIVEY = 0x00002000,
         /// <summary>
         /// Required when these surfaces are stored in a cube map.
         /// </summary>
-        CubemapPositiveZ = 0x4000,
+        CUBEMAPPOSITIVEZ = 0x00004000,
         /// <summary>
         /// Required when these surfaces are stored in a cube map.
         /// </summary>
-        CubemapNegativeZ = 0x8000,
+        CUBEMAPNEGATIVEZ = 0x00008000,
         /// <summary>
         /// Required for a volume texture.
         /// </summary>
-        Volume = 0x200000,
-        CUBEMAP_POSITIVEX = Cubemap | CubemapPositiveX,
-        CUBEMAP_NEGATIVEX = Cubemap | CubemapNegativeX,
-        CUBEMAP_POSITIVEY = Cubemap | CubemapPositiveY,
-        CUBEMAP_NEGATIVEY = Cubemap | CubemapNegativeY,
-        CUBEMAP_POSITIVEZ = Cubemap | CubemapPositiveZ,
-        CUBEMAP_NEGATIVEZ = Cubemap | CubemapNegativeZ,
-        CUBEMAP_ALLFACES = CubemapPositiveX | CubemapNegativeX | CubemapPositiveY | CubemapNegativeY | CubemapPositiveZ | CubemapNegativeZ,
-        FLAGS_VOLUME = Volume,
+        VOLUME = 0x00200000,
+        CUBEMAP_POSITIVEX = CUBEMAP | CUBEMAPPOSITIVEX,
+        CUBEMAP_NEGATIVEX = CUBEMAP | CUBEMAPNEGATIVEX,
+        CUBEMAP_POSITIVEY = CUBEMAP | CUBEMAPPOSITIVEY,
+        CUBEMAP_NEGATIVEY = CUBEMAP | CUBEMAPNEGATIVEY,
+        CUBEMAP_POSITIVEZ = CUBEMAP | CUBEMAPPOSITIVEZ,
+        CUBEMAP_NEGATIVEZ = CUBEMAP | CUBEMAPNEGATIVEZ,
+        CUBEMAP_ALLFACES = CUBEMAPPOSITIVEX | CUBEMAPNEGATIVEX | CUBEMAPPOSITIVEY | CUBEMAPNEGATIVEY | CUBEMAPPOSITIVEZ | CUBEMAPNEGATIVEZ,
+        FLAGS_VOLUME = VOLUME,
     }
 
     /// <summary>
@@ -130,17 +130,26 @@ namespace GameEstate.Graphics.DirectX
     [StructLayout(LayoutKind.Sequential, Pack = 0x1)]
     public unsafe struct DDS_HEADER
     {
+        //public const uint MAGIC = 0x20534444; // "DDS "
+
+        public static uint MAKEFOURCC(string text) => ((uint)(byte)(text[0]) | ((uint)(byte)(text[1]) << 8) | ((uint)(byte)(text[2]) << 16 | ((uint)(byte)(text[3]) << 24)));
+
         /// <summary>
         /// Literal
         /// </summary>
         public static class Literal
         {
-            public static readonly byte[] DDS_ = Encoding.ASCII.GetBytes("DDS ");
-            public static readonly byte[] DX10 = Encoding.ASCII.GetBytes("DX10");
-            public static readonly byte[] DXT1 = Encoding.ASCII.GetBytes("DXT1");
-            public static readonly byte[] DXT3 = Encoding.ASCII.GetBytes("DXT3");
-            public static readonly byte[] DXT5 = Encoding.ASCII.GetBytes("DXT5");
-            public static readonly byte[] ATI2 = Encoding.ASCII.GetBytes("ATI2");
+            public static readonly uint DDS_ = MAKEFOURCC("DDS "); //?
+            public static readonly uint DXT1 = MAKEFOURCC("DXT1"); // DXT1
+            public static readonly uint DXT2 = MAKEFOURCC("DXT2");
+            public static readonly uint DXT3 = MAKEFOURCC("DXT3"); // DXT3
+            public static readonly uint DXT4 = MAKEFOURCC("DXT4");
+            public static readonly uint DXT5 = MAKEFOURCC("DXT5"); // DXT5
+            public static readonly uint RXGB = MAKEFOURCC("RXGB");
+            public static readonly uint ATI1 = MAKEFOURCC("ATI1");
+            public static readonly uint ATI2 = MAKEFOURCC("ATI2"); // ATI2
+            public static readonly uint A2XY = MAKEFOURCC("A2XY");
+            public static readonly uint DX10 = MAKEFOURCC("DX10"); // DX10
         }
 
         /// <summary>
@@ -158,7 +167,7 @@ namespace GameEstate.Graphics.DirectX
         /// <summary>
         /// Flags to indicate which members contain valid data.
         /// </summary>
-        [MarshalAs(UnmanagedType.U4)] public DDSFlags dwFlags;
+        [MarshalAs(UnmanagedType.U4)] public DDSD dwFlags;
         /// <summary>
         /// Surface height (in pixels).
         /// </summary>
@@ -190,11 +199,11 @@ namespace GameEstate.Graphics.DirectX
         /// <summary>
         /// Specifies the complexity of the surfaces stored.
         /// </summary>
-        [MarshalAs(UnmanagedType.U4)] public DDSCaps dwCaps;
+        [MarshalAs(UnmanagedType.U4)] public DDSCAPS dwCaps;
         /// <summary>
         /// Additional detail about the surfaces stored.
         /// </summary>
-        [MarshalAs(UnmanagedType.U4)] public DDSCaps2 dwCaps2;
+        [MarshalAs(UnmanagedType.U4)] public DDSCAPS2 dwCaps2;
         /// <summary>
         /// The dw caps3
         /// </summary>
@@ -215,11 +224,11 @@ namespace GameEstate.Graphics.DirectX
         {
             if (dwSize != 124)
                 throw new FileFormatException($"Invalid DDS file header size: {dwSize}.");
-            if (!dwFlags.HasFlag(DDSFlags.Height | DDSFlags.Width))
+            if (!dwFlags.HasFlag(DDSD.HEIGHT | DDSD.WIDTH))
                 throw new FileFormatException($"Invalid DDS file flags: {dwFlags}.");
-            if (!dwCaps.HasFlag(DDSCaps.Texture))
+            if (!dwCaps.HasFlag(DDSCAPS.TEXTURE))
                 throw new FileFormatException($"Invalid DDS file caps: {dwCaps}.");
-            if (!dwCaps.HasFlag(DDSCaps.Texture))
+            if (!dwCaps.HasFlag(DDSCAPS.TEXTURE))
                 throw new FileFormatException($"Invalid DDS file caps: {dwCaps}.");
             if (ddspf.dwSize != 32)
                 throw new FileFormatException($"Invalid DDS file pixel format size: {ddspf.dwSize}.");
@@ -230,7 +239,7 @@ namespace GameEstate.Graphics.DirectX
         /// </summary>
         public void DecodeAndRead(TextureInfo source, BinaryReader reader)
         {
-            var hasMipmaps = dwCaps.HasFlag(DDSCaps.Mipmap);
+            var hasMipmaps = dwCaps.HasFlag(DDSCAPS.MIPMAP);
             source.Mipmaps = hasMipmaps ? (ushort)dwMipMapCount : (ushort)1U; // Non-mipmapped textures still have one mipmap level: the texture itself.
             source.Width = (int)dwWidth;
             source.Height = (int)dwHeight;
@@ -238,7 +247,7 @@ namespace GameEstate.Graphics.DirectX
             // If the DDS file contains uncompressed data.
             if (ddspf.dwFlags.HasFlag(DDPF.RGB))
             {
-                if (!ddspf.dwFlags.HasFlag(DDPF.AlphaPixels)) throw new NotImplementedException("Unsupported DDS file pixel format.");
+                if (!ddspf.dwFlags.HasFlag(DDPF.ALPHAPIXELS)) throw new NotImplementedException("Unsupported DDS file pixel format.");
                 else
                 {
                     if (ddspf.dwRGBBitCount != 32) throw new FileFormatException("Invalid DDS file pixel format.");
@@ -250,19 +259,19 @@ namespace GameEstate.Graphics.DirectX
                     reader.ReadToEnd(source.Data = new byte[!hasMipmaps ? (int)(dwPitchOrLinearSize * dwHeight) : source.GetMipmapDataSize()]);
                 }
             }
-            else if (Literal.DXT1.SequenceEqual(ddspf.dwFourCC))
+            else if (ddspf.dwFourCC == Literal.DXT1)
             {
                 source.UnityFormat = TextureUnityFormat.ARGB32;
                 source.Data = reader.ReadToEnd();
                 //source.Data = DecodeDXT1ToARGB(compressedTextureData, dwWidth, dwHeight, ddspf, source.Mipmaps);
             }
-            else if (Literal.DXT3.SequenceEqual(ddspf.dwFourCC))
+            else if (ddspf.dwFourCC == Literal.DXT3)
             {
                 source.UnityFormat = TextureUnityFormat.ARGB32;
                 source.Data = reader.ReadToEnd();
                 //source.Data = DecodeDXT3ToARGB(compressedTextureData, dwWidth, dwHeight, ddspf, source.Mipmaps);
             }
-            else if (Literal.DXT5.SequenceEqual(ddspf.dwFourCC))
+            else if (ddspf.dwFourCC == Literal.DXT5)
             {
                 source.UnityFormat = TextureUnityFormat.ARGB32;
                 source.Data = reader.ReadToEnd();

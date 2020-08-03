@@ -17,12 +17,11 @@
     <None Remove="Estates\ArkaneEstate.json" />
     <None Remove="Estates\CryEstate.json" />
     <None Remove="Estates\CyanideEstate.json" />
+    <None Remove="Estates\OriginEstate.json" />
     <None Remove="Estates\RedEstate.json" />
     <None Remove="Estates\RsiEstate.json" />
     <None Remove="Estates\TesEstate.json" />
-    <None Remove="Estates\U9Estate.json" />
     <None Remove="Estates\UknEstate.json" />
-    <None Remove="Estates\UOEstate.json" />
     <None Remove="Estates\ValveEstate.json" />
   </ItemGroup>
 
@@ -33,8 +32,7 @@
     <EmbeddedResource Include="Estates\CyanideEstate.json" />
     <EmbeddedResource Include="Estates\UknEstate.json" />
     <EmbeddedResource Include="Estates\ValveEstate.json" />
-    <EmbeddedResource Include="Estates\UOEstate.json" />
-    <EmbeddedResource Include="Estates\U9Estate.json" />
+    <EmbeddedResource Include="Estates\OriginEstate.json" />
     <EmbeddedResource Include="Estates\TesEstate.json" />
     <EmbeddedResource Include="Estates\RsiEstate.json" />
     <EmbeddedResource Include="Estates\RedEstate.json" />

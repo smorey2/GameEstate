@@ -40,7 +40,7 @@ namespace GameEstate.Formats.Binary
             if (stage != ReadStage.File)
                 throw new ArgumentOutOfRangeException(nameof(stage), stage.ToString());
 
-            var magic = r.ReadUInt32();
+            var magic = source.Magic = r.ReadUInt32();
             if (magic != CPK_MAGIC)
                 throw new FileFormatException($"Unknown File Type {magic}");
             var header = r.ReadT<CPK_Header>(sizeof(CPK_Header));

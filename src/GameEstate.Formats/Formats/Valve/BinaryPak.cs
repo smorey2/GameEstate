@@ -57,7 +57,7 @@ namespace GameEstate.Formats.Valve
                 Block block = null;
                 // Peek data to detect VKV3
                 if (size >= 4 && blockType == "DATA" && !DATA.IsHandledType(DataType))
-                    r.Peek(0, () =>
+                    r.Peek(() =>
                     {
                         var magic = r.ReadUInt32();
                         if (magic == DATABinaryKV3.MAGIC || magic == DATABinaryKV3.MAGIC2)

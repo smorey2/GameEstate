@@ -14,27 +14,31 @@ namespace GameEstate.Graphics.DirectX
         /// <summary>
         /// Texture contains alpha data; dwRGBAlphaBitMask contains valid data.
         /// </summary>
-        AlphaPixels = 0x1,
+        ALPHAPIXELS = 0x00000001,
         /// <summary>
         /// Used in some older DDS files for alpha channel only uncompressed data (dwRGBBitCount contains the alpha channel bitcount; dwABitMask contains valid data)
         /// </summary>
-        Alpha = 0x2,
+        ALPHA = 0x00000002,
         /// <summary>
         /// Texture contains compressed RGB data; dwFourCC contains valid data.
         /// </summary>
-        FourCC = 0x4,
+        FOURCC = 0x00000004,
         /// <summary>
         /// Texture contains uncompressed RGB data; dwRGBBitCount and the RGB masks (dwRBitMask, dwGBitMask, dwBBitMask) contain valid data.
         /// </summary>
-        RGB = 0x40,
+        RGB = 0x00000040,
         /// <summary>
         /// Used in some older DDS files for YUV uncompressed data (dwRGBBitCount contains the YUV bit count; dwRBitMask contains the Y mask, dwGBitMask contains the U mask, dwBBitMask contains the V mask)
         /// </summary>
-        YUV = 0x200,
+        YUV = 0x00000200,
         /// <summary>
         /// Used in some older DDS files for single channel color uncompressed data (dwRGBBitCount contains the luminance channel bit count; dwRBitMask contains the channel mask). Can be combined with DDPF_ALPHAPIXELS for a two channel DDS file.
         /// </summary>
-        Luminance = 0x20000,
+        LUMINANCE = 0x00020000,
+        /// <summary>
+        /// The normal
+        /// </summary>
+        NORMAL = 0x80000000, // Custom nv flag
     }
 
     /// <summary>
@@ -43,6 +47,8 @@ namespace GameEstate.Graphics.DirectX
     [StructLayout(LayoutKind.Sequential, Pack = 0x1)]
     public struct DDS_PIXELFORMAT
     {
+        public const int SizeOf = 32;
+
         /// <summary>
         /// Structure size; set to 32 (bytes).
         /// </summary>
@@ -54,7 +60,8 @@ namespace GameEstate.Graphics.DirectX
         /// <summary>
         /// Four-character codes for specifying compressed or custom formats. Possible values include: DXT1, DXT2, DXT3, DXT4, or DXT5. A FourCC of DX10 indicates the prescense of the DDS_HEADER_DXT10 extended header, and the dxgiFormat member of that structure indicates the true format. When using a four-character code, dwFlags must include DDPF_FOURCC.
         /// </summary>
-        [MarshalAs(UnmanagedType.ByValArray, SizeConst = 4)] public byte[] dwFourCC;
+        //[MarshalAs(UnmanagedType.ByValArray, SizeConst = 4)] public byte[] dwFourCC;
+        public uint dwFourCC;
         /// <summary>
         /// Number of bits in an RGB (possibly including alpha) format. Valid when dwFlags includes DDPF_RGB, DDPF_LUMINANCE, or DDPF_YUV.
         /// </summary>

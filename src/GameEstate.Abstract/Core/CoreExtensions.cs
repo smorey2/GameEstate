@@ -143,6 +143,34 @@ namespace GameEstate.Core
 
         #endregion
 
+        #region Stream
+        
+        public static byte[] ReadBytes(this Stream stream, int count)
+        {
+            var data = new byte[count];
+            stream.Read(data, 0, count);
+            return data;
+        }
+
+        public static void WriteBytes(this Stream stream, byte[] data) => stream.Write(data, 0, data.Length);
+        public static void WriteBytes(this Stream stream, BinaryReader r, int count)
+        {
+            var data = r.ReadBytes(count);
+            stream.Write(data, 0, data.Length);
+        }
+
+        #endregion
+
+        #region BinaryWriter
+
+        public static long Position(this BinaryWriter source) => source.BaseStream.Position;
+
+        public static void WriteBytes(this BinaryWriter source, byte[] data) => source.Write(data, 0, data.Length);
+        public static void WriteT<T>(this BinaryWriter source, T value, int length) => source.WriteBytes(UnsafeUtils.MarshalF(value, length));
+        //public static void WriteTArray<T>(this BinaryWriter source, int sizeOf, int count) => UnsafeUtils.MarshalFArray<T>(source.ReadBytes(count * sizeOf), 0, count);
+
+        #endregion
+
         #region BinaryReader
 
         public static long Position(this BinaryReader source) => source.BaseStream.Position;
@@ -157,12 +185,20 @@ namespace GameEstate.Core
         public static void Seek(this BinaryReader source, long offset, SeekOrigin origin) => source.BaseStream.Seek(offset, origin);
         public static void Skip(this BinaryReader source, long count) => source.BaseStream.Seek(count, SeekOrigin.Current); // source.BaseStream.Position += count;
 
-        public static void Peek(this BinaryReader source, int offset, Action action)
+        public static void Peek(this BinaryReader source, Action action, int offset = 0)
         {
             var position = source.BaseStream.Position;
             if (offset != 0) source.BaseStream.Position += offset;
             action();
             source.BaseStream.Position = position;
+        }
+        public static T Peek<T>(this BinaryReader source, Func<T> action, int offset = 0)
+        {
+            var position = source.BaseStream.Position;
+            if (offset != 0) source.BaseStream.Position += offset;
+            var value = action();
+            source.BaseStream.Position = position;
+            return value;
         }
 
         public static void CopyTo(this BinaryReader source, Stream destination, bool resetPosition = true)
@@ -193,6 +229,19 @@ namespace GameEstate.Core
         }
 
         public static Guid ReadGuid(this BinaryReader source) => new Guid(source.ReadBytes(16));
+
+        public static string ReadString(this BinaryReader source, int length) => new string(source.ReadChars(length));
+        public static string ReadZString(this BinaryReader source, char endChar = '\0', StringBuilder builder = null)
+        {
+            var b = builder ?? new StringBuilder();
+            char c;
+            while ((c = source.ReadChar()) != endChar)
+                b.Append(c);
+            var value = b.ToString();
+            if (builder != null)
+                builder.Length = 0;
+            return value;
+        }
 
         public static byte[] ReadL32Bytes(this BinaryReader source) => source.ReadBytes((int)source.ReadUInt32());
         public static string ReadL32ASCII(this BinaryReader source) => Encoding.ASCII.GetString(source.ReadBytes((int)source.ReadUInt32()));
@@ -260,37 +309,37 @@ namespace GameEstate.Core
             return str;
         }
 
-        public static string ReadZUTF8(this BinaryReader source, int length = int.MaxValue, List<byte> buf = null)
+        public static string ReadZUTF8(this BinaryReader source, int length = int.MaxValue, MemoryStream buf = null)
         {
             if (buf == null)
-                buf = new List<byte>(64);
-            buf.Clear();
+                buf = new MemoryStream();
+            buf.SetLength(0);
             byte c;
             while (length-- > 0 && (c = source.ReadByte()) != 0)
-                buf.Add(c);
+                buf.WriteByte(c);
             return Encoding.UTF8.GetString(buf.ToArray());
         }
-        public static string ReadZASCII(this BinaryReader source, int length = int.MaxValue, List<byte> buf = null)
+        public static string ReadZASCII(this BinaryReader source, int length = int.MaxValue, MemoryStream buf = null)
         {
             if (buf == null)
-                buf = new List<byte>(64);
-            buf.Clear();
+                buf = new MemoryStream();
+            buf.SetLength(0);
             byte c;
             while (length-- > 0 && (c = source.ReadByte()) != 0)
-                buf.Add(c);
+                buf.WriteByte(c);
             return Encoding.ASCII.GetString(buf.ToArray());
         }
-        public static string[] ReadZASCIIArray(this BinaryReader source, int length = int.MaxValue, List<byte> buf = null)
+        public static string[] ReadZASCIIArray(this BinaryReader source, int length = int.MaxValue, MemoryStream buf = null)
         {
             if (buf == null)
-                buf = new List<byte>(64);
+                buf = new MemoryStream();
             var list = new List<string>();
             while (length > 0)
             {
-                buf.Clear();
+                buf.SetLength(0);
                 byte c;
                 while (length-- > 0 && (c = source.ReadByte()) != 0)
-                    buf.Add(c);
+                    buf.WriteByte(c);
                 list.Add(Encoding.ASCII.GetString(buf.ToArray()));
             }
             return list.ToArray();

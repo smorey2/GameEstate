@@ -1,4 +1,6 @@
-﻿using System;
+﻿using GameEstate.Core;
+using System;
+using System.Threading.Tasks;
 using Xunit;
 
 namespace GameEstate.Tests.PakFiles
@@ -6,16 +8,29 @@ namespace GameEstate.Tests.PakFiles
     public class PakFileLoadAllTest
     {
         [Theory]
-        [InlineData("game:/client_highres.dat#AC")]
-        public void ACEstate(string uri) => EstateLoadAll("AC", uri);
+        [InlineData("game:/*.dat#AC")]
+        public void ACEstate(string uri) => EstateLoadAll("AC", uri).Wait();
 
         [Theory]
-        [InlineData("game:/GameData.pak#MechWarriorOnline")]
-        public void CryEstate(string uri) => EstateLoadAll("Cry", uri);
+        [InlineData("game:/*.index#Dishonored2")]
+        public void ArkaneEstate(string uri) => EstateLoadAll("Arkane", uri).Wait();
+
+        [Theory]
+        [InlineData("game:/*.pak#MechWarriorOnline")]
+        public void CryEstate(string uri) => EstateLoadAll("Cry", uri).Wait();
+
+        [Theory]
+        [InlineData("game:/*.cpk#TheCouncil")]
+        public void CyanideEstate(string uri) => EstateLoadAll("Cyanide", uri).Wait();
+
+        [Theory]
+        [InlineData("game:/anim.idx#UltimaOnline")]
+        [InlineData("game:/static/activity.flx#UltimaIX")]
+        public void OriginEstate(string uri) => EstateLoadAll("Origin", uri).Wait();
 
         [Theory]
         [InlineData("game:/Data.p4k#StarCitizen")]
-        public void RsiEstate(string uri) => EstateLoadAll("Rsi", uri);
+        public void RsiEstate(string uri) => EstateLoadAll("Rsi", uri).Wait();
 
         [Theory]
         [InlineData("game:/main.key#Witcher")]
@@ -23,33 +38,65 @@ namespace GameEstate.Tests.PakFiles
         [InlineData("game:/content0/bundles/xml.bundle#Witcher3")]
         [InlineData("game:/content0/collision.cache#Witcher3")]
         [InlineData("game:/content0/dep.cache#Witcher3")]
-        public void RedEstate(string uri) => EstateLoadAll("Red", uri);
+        public void RedEstate(string uri) => EstateLoadAll("Red", uri).Wait();
 
         [Theory]
-        [InlineData("Morrowind.bsa#Morrowind")]
-        [InlineData("Oblivion - Meshes.bsa#Oblivion")]
-        [InlineData("Oblivion - Textures - Compressed.bsa#Oblivion")]
-        [InlineData("Skyrim - Meshes0.bsa#SkyrimSE")]
-        [InlineData("Skyrim - Textures0.bsa#SkyrimSE")]
-        [InlineData("Fallout4 - Startup.ba2#Fallout4VR")]
-        [InlineData("Fallout4 - Textures8.ba2#Fallout4VR")]
-        public void TesEstate(string uri) => EstateLoadAll("Tes", uri);
+        [InlineData("game:/Morrowind.bsa#Morrowind")]
+        [InlineData("game:/Oblivion*.bsa#Oblivion")]
+        [InlineData("game:/Skyrim*.bsa#Skyrim")]
+        [InlineData("game:/Skyrim*.bsa#SkyrimSE")]
+        [InlineData("game:/*.dat#Fallout2")]
+        [InlineData("game:/Fallout*.bsa#Fallout3")]
+        [InlineData("game:/Fallout*.bsa#FalloutNV")]
+        [InlineData("game:/Fallout4*.ba2#Fallout4")]
+        [InlineData("game:/Fallout4*.ba2#Fallout4VR")]
+        [InlineData("game:/SeventySix*.ba2#Fallout76")]
+        public void TesEstate(string uri) => EstateLoadAll("Tes", uri).Wait();
 
         [Theory]
-        [InlineData("game:/static/activity.flx#UltimaIX")]
-        public void U9Estate(string uri) => EstateLoadAll("U9", uri);
+        [InlineData("game:/core/*_dir.vpk#Dota2")]
+        public void ValveEstate(string uri) => EstateLoadAll("Valve", uri).Wait();
 
-        [Theory]
-        [InlineData("game:/anim.idx#UltimaOnline")]
-        public void UOEstate(string uri) => EstateLoadAll("UO", uri);
-
-        [Theory]
-        [InlineData("game:/core/pak01_dir.vpk#Dota2")]
-        public void ValveEstate(string uri) => EstateLoadAll("Valve", uri);
-
-        static void EstateLoadAll(string estate, string uri)
+        static async Task EstateLoadAll(string estate, string uri)
         {
             var pakFile = EstateManager.GetEstate(estate).OpenPakFile(new Uri(uri));
+            if (pakFile is MultiPakFile multiPak)
+                foreach (var p in multiPak.PakFiles)
+                {
+                    if (!(p is BinaryPakFile pak))
+                        throw new InvalidOperationException("multiPak not a BinaryPakFile");
+                    await ExportAsync(pak);
+                }
+            else await ExportAsync(pakFile);
+        }
+
+        static Task ExportAsync(AbstractPakFile source)
+        {
+            if (!(source is BinaryPakMultiFile multiSource))
+                throw new NotSupportedException();
+
+            // write files
+            Parallel.For(0, multiSource.Files.Count, new ParallelOptions { /*MaxDegreeOfParallelism = 1*/ }, async index =>
+            {
+                var file = multiSource.Files[index];
+
+                // extract pak
+                if (file.Pak != null)
+                    await ExportAsync(file.Pak);
+
+                // skip empty file
+                if (file.FileSize == 0 && file.PackedSize == 0)
+                    return;
+
+                //// skip large files
+                //if (file.FileSize > 50000000)
+                //    return;
+
+                // extract file
+                await multiSource.LoadFileDataAsync(file);
+            });
+
+            return Task.CompletedTask;
         }
     }
 }
