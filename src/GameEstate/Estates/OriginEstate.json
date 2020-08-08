@@ -43,6 +43,20 @@
           "GOG.com/Games/1207659093"
         ]
       }
+    },
+    "filters": {
+      "UltimaOnline": {
+        "Animation": "",
+        "Artwork": "",
+        "Fonts": "",
+        "Gumps": "",
+        "Hues": "",
+        "Map": "",
+        "Multi": "",
+        "Skills": "",
+        "Sound": "",
+        "Texure Maps": ""
+      }
     }
   }
 }

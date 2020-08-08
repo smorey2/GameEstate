@@ -178,6 +178,16 @@ namespace GameEstate.Formats.Binary
             if (sourceFileDirVpk)
                 sourceFilePath = sourceFilePath.Substring(0, sourceFilePath.Length - 8);
 
+            source.FileMask = fileName =>
+            {
+                var extension = Path.GetExtension(fileName);
+                if (extension.EndsWith("_c", StringComparison.Ordinal))
+                    extension = extension.Substring(0, extension.Length - 2);
+                if (extension.StartsWith(".v"))
+                    extension = extension.Remove(1, 1);
+                return $"{Path.GetFileNameWithoutExtension(fileName)}{extension}";
+            };
+
             // types
             while (true)
             {

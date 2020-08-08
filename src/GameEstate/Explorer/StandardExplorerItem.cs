@@ -35,7 +35,7 @@ namespace GameEstate.Explorer
                     if (!string.IsNullOrEmpty(fileFolder))
                         foreach (var folder in fileFolder.Split('\\'))
                         {
-                            var found = currentFolder.Find(x => x.Name == folder && x.PakFile == null && x.Pak2File == null);
+                            var found = currentFolder.Find(x => x.Name == folder && x.PakFile == null);
                             if (found != null) currentFolder = found.Items;
                             else
                             {
@@ -47,10 +47,11 @@ namespace GameEstate.Explorer
                 }
                 // file
                 var fileName = Path.GetFileName(file.Path);
-                var extention = Path.GetExtension(fileName);
-                if (extention.Length > 0)
-                    extention = extention.Substring(1);
-                currentFolder.Add(new ExplorerItemNode(fileName, manager.GetIcon(extention), file) { PakFile = pakFile });
+                var fileNameForIcon = pakFile.FileMask?.Invoke(fileName) ?? fileName;
+                var extentionForIcon = Path.GetExtension(fileNameForIcon);
+                if (extentionForIcon.Length > 0)
+                    extentionForIcon = extentionForIcon.Substring(1);
+                currentFolder.Add(new ExplorerItemNode(fileName, manager.GetIcon(extentionForIcon), file) { PakFile = pakFile });
             }
             return Task.FromResult(root);
         }

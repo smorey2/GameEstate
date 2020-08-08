@@ -25,7 +25,7 @@ namespace GameEstate.Explorer
         void LoadIcons()
         {
             var assembly = typeof(ResourceManagerProvider).Assembly;
-            var names = assembly.GetManifestResourceNames().Where(n => n.StartsWith("GameEstate.Explorer.Icons.", StringComparison.Ordinal));
+            var names = assembly.GetManifestResourceNames().Where(n => n.StartsWith("GameEstate.App.Explorer.Icons.", StringComparison.Ordinal));
             foreach (var name in names)
             {
                 var res = name.Split('.');
@@ -37,7 +37,7 @@ namespace GameEstate.Explorer
                     image.CacheOption = BitmapCacheOption.OnLoad;
                     image.EndInit();
                     image.Freeze();
-                    Icons.Add(res[3], image);
+                    Icons.Add(res[4], image);
                 }
             }
         }

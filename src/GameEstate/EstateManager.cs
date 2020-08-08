@@ -11,9 +11,8 @@ namespace GameEstate
 {
     public class EstateManager
     {
-        public static string DefaultEstateKey = "Arkane";
+        public static string DefaultEstateKey = "Valve";
         static string[] AllEstateKeys = new[] { "AC", "Arkane", "Cry", "Cyanide", "Origin", "Red", "Rsi", "Tes", "Valve" };
-        //static string[] AllEstateKeys = new[] { "Tes" };
 
         static EstateManager()
         {
@@ -68,15 +67,23 @@ namespace GameEstate
             }
         }
 
-        static EstateGame ParseGame(IDictionary<string, string> locations, string game, JsonElement elem) =>
-            new EstateGame
+        static EstateGame ParseGame(IDictionary<string, string> locations, string game, JsonElement elem)
+        {
+            var estate = new EstateGame
             {
                 Game = game,
                 Name = (elem.TryGetProperty("name", out var z) ? z.GetString() : null) ?? throw new ArgumentNullException("name"),
-                DefaultPak = elem.TryGetProperty("pak", out z) ? new Uri(z.GetString()) : null,
-                DefaultPak2 = elem.TryGetProperty("pak2", out z) ? new Uri(z.GetString()) : null,
                 Found = locations.ContainsKey(game),
             };
+            if (elem.TryGetProperty("pak", out z))
+                switch (z.ValueKind)
+                {
+                    case JsonValueKind.String: estate.DefaultPaks = new[] { new Uri(z.GetString()) }; break;
+                    case JsonValueKind.Array: estate.DefaultPaks = z.EnumerateArray().Select(y => new Uri(z.GetString())).ToArray(); break;
+                    default: throw new ArgumentOutOfRangeException();
+                }
+            return estate;
+        }
 
         /// <summary>
         /// Gets the specified estate.

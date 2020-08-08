@@ -76,13 +76,9 @@ namespace GameEstate
             /// </summary>
             public string Name;
             /// <summary>
-            /// The pak
+            /// The default paks
             /// </summary>
-            public Uri DefaultPak;
-            /// <summary>
-            /// The pak
-            /// </summary>
-            public Uri DefaultPak2;
+            public IList<Uri> DefaultPaks;
             /// <summary>
             /// The has location
             /// </summary>

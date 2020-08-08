@@ -36,7 +36,8 @@ namespace GameEstate.Tests.PakFiles
         [InlineData("game:/content0/bundles/xml.bundle#Witcher3", "engine/physics/apexclothmaterialpresets.xml", 2512)]
         [InlineData("game:/content0/collision.cache#Witcher3", "engine/physics/apexclothmaterialpresets.xml", 2512)]
         [InlineData("game:/content0/dep.cache#Witcher3", "engine/physics/apexclothmaterialpresets.xml", 2512)]
-        [InlineData("game:/content0/texture.cache#Witcher3", "1", 2512)]
+        [InlineData("game:/content0/texture.cache#Witcher3", "environment/debug/debug-delete.xbm", 2512)]
+        //[InlineData("game:/content0/texture.cache#Witcher3", "environment/skyboxes/textures/clouds_noise_m.xbm", 2512)]
         public void RedEstate(string uri, string sampleFile, int sampleFileSize) => EstateLoadFileData("Red", uri, sampleFile, sampleFileSize);
 
         [Theory]

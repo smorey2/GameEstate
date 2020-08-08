@@ -1,4 +1,6 @@
-﻿using System.Diagnostics;
+﻿using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -25,31 +27,23 @@ namespace GameEstate.Explorer.View
 
         public void OnFirstLoad() => OpenFile_Click(null, null);
 
-        public AbstractPakFile PakFile { get; private set; }
-
-        public AbstractPakFile Pak2File { get; private set; }
+        public IList<AbstractPakFile> PakFiles { get; private set; } = new List<AbstractPakFile>();
 
         void OpenFile_Click(object sender, RoutedEventArgs e)
         {
             var openDialog = new OpenDialog();
             if (openDialog.ShowDialog() == true)
             {
-                PakFile?.Dispose();
-                PakFile = null;
-                Pak2File?.Dispose();
-                Pak2File = null;
+                foreach (var pakFile in PakFiles)
+                    pakFile?.Dispose();
+                PakFiles.Clear();
                 //
                 var estate = (Estate)openDialog.Estate.SelectedItem;
                 if (estate == null) return;
-                if (openDialog.PakUri != null)
+                foreach (var pakUri in openDialog.PakUris)
                 {
-                    MainWindow.Status.WriteLine($"Opening {openDialog.PakUri}");
-                    PakFile = estate.OpenPakFile(openDialog.PakUri);
-                }
-                if (openDialog.Pak2Uri != null)
-                {
-                    MainWindow.Status.WriteLine($"Opening {openDialog.Pak2Uri}");
-                    Pak2File = estate.OpenPakFile(openDialog.Pak2Uri);
+                    MainWindow.Status.WriteLine($"Opening {pakUri}");
+                    PakFiles.Add(estate.OpenPakFile(pakUri));
                 }
                 MainWindow.Status.WriteLine("Done");
                 MainWindow.OnOpenedAsync().Wait();

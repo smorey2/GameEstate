@@ -6,6 +6,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 
+// https://www.wpf-tutorial.com/data-binding/debugging/
 namespace GameEstate.Explorer.View
 {
     /// <summary>

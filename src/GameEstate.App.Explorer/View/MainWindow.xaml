@@ -4,11 +4,9 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:GameEstate.Explorer.View"
-        xmlns:scenes="clr-namespace:GameEstate.Explorer.View"
         mc:Ignorable="d"
         Title="GameEstate Explorer" Width="1342" Height="798">
     <Grid>
-
         <Grid.RowDefinitions>
             <RowDefinition Height="20" />
             <RowDefinition Height=".1*" />
@@ -20,29 +18,47 @@
             <ColumnDefinition Width=".1*" />
         </Grid.ColumnDefinitions>
 
+        <Grid.Resources>
+            <DataTemplate x:Key="FileExplorer" DataType="{x:Type local:ExplorerMainTab}">
+                <local:FileExplorer x:Name="PakFileExplorer" PakFile="{Binding Path=Content.PakFile, RelativeSource={x:Static RelativeSource.TemplatedParent}}" Margin="0,0,10,10" />
+            </DataTemplate>
+            <DataTemplate x:Key="TextBlock" DataType="{x:Type local:ExplorerMainTab}">
+                <ScrollViewer>
+                    <TextBlock TextWrapping="Wrap" Text="{Binding Path=Text}" Margin="5,5,5,5" />
+                </ScrollViewer>
+            </DataTemplate>
+        </Grid.Resources>
+
         <local:MainMenu x:Name="MainMenu" Grid.Row="0" Grid.ColumnSpan="3"/>
 
-        <TabControl x:Name="TabControl" Grid.Row="1" Margin="0,0,0,10" >
-            <TabItem Header="Resources">
-                <local:FileExplorer x:Name="PakFileExplorer" Margin="0,0,10,10" />
-            </TabItem>
-            <TabItem Header="Data">
-                <local:FileExplorer x:Name="DatFileExplorer" Margin="0,0,0,10" />
-            </TabItem>
-            <TabItem Header="Engine">
-                <ScrollViewer>
-                    <TextBlock TextWrapping="Wrap">
-                    Leverage agile frameworks to provide a robust synopsis for high level overviews. Iterative approaches to corporate strategy foster collaborative thinking to further the overall value proposition. Organically grow the holistic world view of disruptive innovation via workplace diversity and empowerment.
-                    <LineBreak /><LineBreak />
-                    Bring to the table win-win survival strategies to ensure proactive domination. At the end of the day, going forward, a new normal that has evolved from generation X is on the runway heading towards a streamlined cloud solution. User generated content in real-time will have multiple touchpoints for offshoring.
-                    </TextBlock>
-                </ScrollViewer>
-            </TabItem>
+        <TabControl x:Name="MainTabControl" Grid.Row="1" Margin="0,0,0,10" ItemsSource="{Binding Path=MainTabs}">
+            <TabControl.ItemTemplate>
+                <DataTemplate DataType="{x:Type local:ExplorerMainTab}" >
+                    <TextBlock Text="{Binding Path=Name}" />
+                </DataTemplate>
+            </TabControl.ItemTemplate>
+            <TabControl.ContentTemplate>
+                <DataTemplate DataType="{x:Type local:ExplorerMainTab}">
+                    <ContentControl Content="{Binding}">
+                        <ContentControl.Style>
+                            <Style TargetType="ContentControl">
+                                <Setter Property="ContentTemplate" Value="{StaticResource FileExplorer}" />
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding Path=PakFile}" Value="{x:Null}">
+                                        <Setter Property="ContentTemplate" Value="{StaticResource TextBlock}" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </ContentControl.Style>
+                    </ContentControl>
+                </DataTemplate>
+            </TabControl.ContentTemplate>
         </TabControl>
 
         <GridSplitter Grid.Row="1" Grid.Column="1" Width="5" HorizontalAlignment="Center" />
 
-        <scenes:EngineView Grid.Row="1" Grid.Column="2" Margin="0,22,10,10" />
+        <local:FileContent x:Name="FileContent" Grid.Row="1" Grid.Column="2" Margin="0,0,10,10" />
+        <!--<local:FileContent x:Name="FileContent" Grid.Row="1" Grid.Column="2" Margin="0,22,10,10" />-->
 
         <TextBox Name="Status" Grid.Row="2" Grid.ColumnSpan="3" Margin="7.5,0,7.5,7.5" Padding="3"
                  TextWrapping="Wrap" 

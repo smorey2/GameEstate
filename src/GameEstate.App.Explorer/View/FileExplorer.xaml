@@ -17,9 +17,8 @@
         <Label Content="File Filter" Grid.Row="0"/>
         <ComboBox Name="TreeFilter" Grid.Row="1" Margin="7.5,0,0,0"
                   IsEditable="True"
-                  ItemsSource="{Binding TreeFilters}"
+                  ItemsSource="{Binding Path=TreeFilters}"
                   SelectionChanged="TreeFilter_SelectionChanged"/>
-        <ListBox Name="FilteredNode" Margin="7.5,7.5,0,0" ItemsSource="{Binding FilteredNodes}" Grid.Row="2" SelectionChanged="FilteredNode_SelectionChanged" Visibility="Hidden"/>
         <TreeView Name="Node" Grid.Row="2" Margin="7.5,7.5,0,0"
                   ScrollViewer.VerticalScrollBarVisibility="Auto"
                   VirtualizingStackPanel.IsVirtualizing="True"

@@ -23,8 +23,9 @@
     },
     "Witcher3": {
       "name": "The Witcher 3: Wild Hunt",
-      "pak": "game:/content0/bundles/xml.bundle#Witcher3",
-      "pak_": "game:/content0/ar.w3strings#Witcher3"
+      "pak": "game:/content0/texture.cache#Witcher3",
+      "pak0": "game:/content0/bundles/xml.bundle#Witcher3",
+      "pak1": "game:/content0/ar.w3strings#Witcher3"
     },
     "Cyberpunk2077": {
       "name": "Cyberpunk 2077"

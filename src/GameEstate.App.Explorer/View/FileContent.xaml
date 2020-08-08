@@ -1,0 +1,46 @@
+﻿<UserControl x:Class="GameEstate.Explorer.View.FileContent"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:GameEstate.Explorer.View"
+             xmlns:model="clr-namespace:GameEstate.Explorer.ViewModel;assembly=GameEstate.Abstract"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800">
+    <Grid>
+        <Grid.Resources>
+            <DataTemplate x:Key="EngineContent" DataType="{x:Type model:ExplorerContentTab}">
+                <local:EngineView Margin="3,3,3,3" />
+            </DataTemplate>
+            <DataTemplate x:Key="TextContent" DataType="{x:Type model:ExplorerContentTab}">
+                <ScrollViewer>
+                    <TextBlock TextWrapping="Wrap" Text="{Binding Path=Text}" Margin="5,5,5,5" />
+                </ScrollViewer>
+            </DataTemplate>
+        </Grid.Resources>
+
+        <TabControl x:Name="ContentTabControl" Grid.Row="1" Margin="0,0,0,0" ItemsSource="{Binding Path=ContentTabs}">
+            <TabControl.ItemTemplate>
+                <DataTemplate DataType="{x:Type model:ExplorerContentTab}" >
+                    <TextBlock Text="{Binding Path=Name}" />
+                </DataTemplate>
+            </TabControl.ItemTemplate>
+            <TabControl.ContentTemplate>
+                <DataTemplate DataType="{x:Type model:ExplorerContentTab}">
+                    <ContentControl Content="{Binding}">
+                        <ContentControl.Style>
+                            <Style TargetType="ContentControl">
+                                <Setter Property="ContentTemplate" Value="{StaticResource EngineContent}" />
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding Path=EngineType}" Value="{x:Null}">
+                                        <Setter Property="ContentTemplate" Value="{StaticResource TextContent}" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </ContentControl.Style>
+                    </ContentControl>
+                </DataTemplate>
+            </TabControl.ContentTemplate>
+        </TabControl>
+    </Grid>
+</UserControl>

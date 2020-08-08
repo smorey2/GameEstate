@@ -316,15 +316,14 @@ namespace GameEstate.Formats.Binary
             public ushort Width;            // 07:width
             public ushort Height;           // 08:height
             public ushort NumMips;          // 09:mips
-            public uint Caps;               // 10:1/6/N, single, cubemaps, arrays
-            public uint T11;                // 11:offset in block1, second packed chunk
+            public ushort Caps;               // 10:1/6/N, single, cubemaps, arrays
+            public uint ChunkStartIndex;    // 11:offset in block1, second packed chunk
             public uint T12;                // 12:the number of remaining packed chunks
             public uint T13;                // 13:????
             public uint T14;                // 14:????
             public byte Format;             // 15:0-????, 7-DXT1, 8-DXT5, 10-????, 13-DXT3, 14-ATI1, 15-????, 253-RGBA
             public byte T16;                // 16:3-cubemaps, 4-texture, 0-???
             public ushort T17;              // 17:0/1 ???
-
             public bool HasSkip => Caps == 6 && (Format == 253 || Format == 0);
             public bool HasCubemap => (T16 == 3 || T16 == 0) && Caps == 6;
         }
@@ -382,6 +381,9 @@ namespace GameEstate.Formats.Binary
         }
 
         #endregion
+
+        // https://zenhax.com/viewtopic.php?t=3954
+        // https://forums.cdprojektred.com/index.php?threads/modding-the-witcher-3-a-collection-of-tools-you-need.64557/
 
         public unsafe override Task ReadAsync(BinaryPakFile source, BinaryReader r, ReadStage stage)
         {
@@ -568,18 +570,17 @@ namespace GameEstate.Formats.Binary
                     source.Tag = headerChunks;
 
                     // name block
+                    var filePaths = new string[header.NumFiles];
                     var buf = new MemoryStream();
                     for (var i = 0; i < header.NumFiles; i++)
-                        files[i] = new FileMetadata
-                        {
-                            Path = r.ReadZASCII(1000, buf),
-                        };
+                        filePaths[i] = r.ReadZASCII(1000, buf);
 
                     // file block
                     var headerFiles = r.ReadTArray<CACHE_TEX_HeaderFile>(sizeof(CACHE_TEX_HeaderFile), (int)header.NumFiles);
                     for (var i = 0; i < header.NumFiles; i++)
                         files[i] = new FileMetadata
                         {
+                            Path = filePaths[i].Replace('\\', '/'),
                             Position = headerFiles[i].StartOffset,
                             PackedSize = headerFiles[i].PackedSize,
                             FileSize = headerFiles[i].FileSize,
@@ -616,10 +617,10 @@ namespace GameEstate.Formats.Binary
 
             // DX9 formats
             DXT1 = 1,
-            DXT1a = 2,  // DXT1 with binary alpha.
+            DXT1a = 2,      // DXT1 with binary alpha.
             DXT3 = 3,
             DXT5 = 4,
-            DXT5n = 5,  // Compressed HILO: R = 1, G = y, B = 0, A = x
+            DXT5n = 5,      // Compressed HILO: R = 1, G = y, B = 0, A = x
 
             // DX10 formats
             BC1 = DXT1,
@@ -627,11 +628,11 @@ namespace GameEstate.Formats.Binary
             BC2 = DXT3,
             BC3 = DXT5,
             BC3n = DXT5n,
-            BC4 = 6,    // ATI1
-            BC5 = 7,    // 3DC, ATI2
+            BC4 = 6,        // ATI1
+            BC5 = 7,        // 3DC, ATI2
         }
 
-        public override Task<byte[]> ReadFileAsync(BinaryPakFile source, BinaryReader r, FileMetadata file, Action<FileMetadata, string> exception = null)
+        public unsafe override Task<byte[]> ReadFileAsync(BinaryPakFile source, BinaryReader r, FileMetadata file, Action<FileMetadata, string> exception = null)
         {
             byte[] fileData;
             r.Position(file.Position);
@@ -682,7 +683,7 @@ namespace GameEstate.Formats.Binary
                 var headerChunks = (uint[])source.Tag;
                 var tex = (CACHE_TEX_HeaderFile)file.Tag;
 
-                var fmt = FORMAT.RGB;
+                FORMAT fmt;
                 switch (tex.Format)
                 {
                     case 7: fmt = FORMAT.DXT1; break; // DXT1
@@ -709,7 +710,6 @@ namespace GameEstate.Formats.Binary
                 if (tex.T16 == 3 && tex.Format == 253) tex.Bpp = 32; // 32 bit
                 //if (tex.T16 == 0 && tex.Format == 0) tex.Bpp = 16; // 16 bit
 
-                fileData = null;
                 using (var s = new MemoryStream())
                 {
                     // write header
@@ -753,106 +753,73 @@ namespace GameEstate.Formats.Binary
                         dxt10.arraySize = 6;
                     }
 
-                    /*
-
-
-                    switch ((DXGI_FORMAT)tex.Format)
+                    // ddspf
+                    if (fmt == FORMAT.RGBA)
                     {
-                        case DXGI_FORMAT.BC1_UNORM:
-                            ddsHeader.ddspf.dwFlags = DDPF.FOURCC;
-                            ddsHeader.ddspf.dwFourCC = DDS_HEADER.Literal.DXT1;
-                            ddsHeader.dwPitchOrLinearSize = (uint)(tex.Width * tex.Height / 2U); // 4bpp
-                            break;
-                        case DXGI_FORMAT.BC2_UNORM:
-                            ddsHeader.ddspf.dwFlags = DDPF.FOURCC;
-                            ddsHeader.ddspf.dwFourCC = DDS_HEADER.Literal.DXT3;
-                            ddsHeader.dwPitchOrLinearSize = (uint)(tex.Width * tex.Height); // 8bpp
-                            break;
-                        case DXGI_FORMAT.BC3_UNORM:
-                            ddsHeader.ddspf.dwFlags = DDPF.FOURCC;
-                            ddsHeader.ddspf.dwFourCC = DDS_HEADER.Literal.DXT5;
-                            ddsHeader.dwPitchOrLinearSize = (uint)(tex.Width * tex.Height); // 8bpp
-                            break;
-                        case DXGI_FORMAT.BC5_UNORM:
-                            ddsHeader.ddspf.dwFlags = DDPF.FOURCC;
-                            ddsHeader.ddspf.dwFourCC = DDS_HEADER.Literal.ATI2;
-                            ddsHeader.dwPitchOrLinearSize = (uint)(tex.Width * tex.Height); // 8bpp
-                            break;
-                        case DXGI_FORMAT.BC1_UNORM_SRGB:
-                            ddsHeader.ddspf.dwFlags = DDPF.FOURCC;
-                            ddsHeader.ddspf.dwFourCC = DDS_HEADER.Literal.DX10;
-                            ddsHeader.dwPitchOrLinearSize = (uint)(tex.Width * tex.Height / 2); // 4bpp
-                            break;
-                        case DXGI_FORMAT.BC3_UNORM_SRGB:
-                        case DXGI_FORMAT.BC4_UNORM:
-                        case DXGI_FORMAT.BC5_SNORM:
-                        case DXGI_FORMAT.BC7_UNORM:
-                        case DXGI_FORMAT.BC7_UNORM_SRGB:
-                            ddsHeader.ddspf.dwFlags = DDPF.FOURCC;
-                            ddsHeader.ddspf.dwFourCC = DDS_HEADER.Literal.DX10;
-                            ddsHeader.dwPitchOrLinearSize = (uint)(tex.Width * tex.Height); // 8bpp
-                            break;
-                        case DXGI_FORMAT.R8G8B8A8_UNORM:
-                        case DXGI_FORMAT.R8G8B8A8_UNORM_SRGB:
-                            ddsHeader.ddspf.dwFlags = DDPF.RGB | DDPF.ALPHA;
-                            ddsHeader.ddspf.dwRGBBitCount = 32;
-                            ddsHeader.ddspf.dwRBitMask = 0x000000FF;
-                            ddsHeader.ddspf.dwGBitMask = 0x0000FF00;
-                            ddsHeader.ddspf.dwBBitMask = 0x00FF0000;
-                            ddsHeader.ddspf.dwABitMask = 0xFF000000;
-                            ddsHeader.dwPitchOrLinearSize = (uint)(tex.Width * tex.Height * 4); // 32bpp
-                            break;
-                        case DXGI_FORMAT.B8G8R8A8_UNORM:
-                        case DXGI_FORMAT.B8G8R8X8_UNORM:
-                            ddsHeader.ddspf.dwFlags = DDPF.RGB | DDPF.ALPHA;
-                            ddsHeader.ddspf.dwRGBBitCount = 32;
-                            ddsHeader.ddspf.dwRBitMask = 0x00FF0000;
-                            ddsHeader.ddspf.dwGBitMask = 0x0000FF00;
-                            ddsHeader.ddspf.dwBBitMask = 0x000000FF;
-                            ddsHeader.ddspf.dwABitMask = 0xFF000000;
-                            ddsHeader.dwPitchOrLinearSize = (uint)(tex.Width * tex.Height * 4); // 32bpp
-                            break;
-                        case DXGI_FORMAT.R8_UNORM:
-                            ddsHeader.ddspf.dwFlags = DDPF.RGB | DDPF.ALPHA;
+                        ddsHeader.dwFlags |= DDSD.PITCH;
+                        var pitch = (tex.Bpp + 7) / 8 * tex.Width;
+                        ddsHeader.dwPitchOrLinearSize = (pitch + 3) / 4 * 4;
+                        if (tex.Bpp == 8)
+                        {
+                            ddsHeader.ddspf.dwFlags = DDPF.RGB | DDPF.ALPHAPIXELS;
                             ddsHeader.ddspf.dwRGBBitCount = 8;
-                            ddsHeader.ddspf.dwRBitMask = 0xFF;
-                            ddsHeader.dwPitchOrLinearSize = (uint)(tex.Width * tex.Height); // 8bpp
-                            break;
-                        default: throw new ArgumentOutOfRangeException(nameof(tex.Format), $"Unsupported DDS header format. File: {file.Path}");
+                            ddsHeader.ddspf.dwRBitMask = 0x0f00;
+                            ddsHeader.ddspf.dwGBitMask = 0x00f0;
+                            ddsHeader.ddspf.dwBBitMask = 0x000f;
+                            ddsHeader.ddspf.dwABitMask = 0xf000;
+                        }
+                        else if (tex.Bpp == 16)
+                        {
+                            ddsHeader.ddspf.dwFlags = DDPF.RGB | DDPF.ALPHAPIXELS;
+                            ddsHeader.ddspf.dwRGBBitCount = 16;
+                            ddsHeader.ddspf.dwRBitMask = 0x03f000;
+                            ddsHeader.ddspf.dwGBitMask = 0x000fc0;
+                            ddsHeader.ddspf.dwBBitMask = 0x00003f;
+                            ddsHeader.ddspf.dwABitMask = 0xfc0000;
+                        }
+                        else if (tex.Bpp == 32)
+                        {
+                            ddsHeader.ddspf.dwFlags = DDPF.RGB | DDPF.ALPHAPIXELS;
+                            ddsHeader.ddspf.dwRGBBitCount = 32;
+                            ddsHeader.ddspf.dwRBitMask = 0x00ff0000;
+                            ddsHeader.ddspf.dwGBitMask = 0x0000ff00;
+                            ddsHeader.ddspf.dwBBitMask = 0x000000ff;
+                            ddsHeader.ddspf.dwABitMask = 0xff000000;
+                        }
                     }
-                    w.Write((uint)DDS_HEADER.MAGIC);
-                    w.WriteT(ddsHeader, sizeof(DDS_HEADER));
-                    switch ((DXGI_FORMAT)tex.Format)
+                    else
                     {
-                        case DXGI_FORMAT.BC1_UNORM_SRGB:
-                        case DXGI_FORMAT.BC3_UNORM_SRGB:
-                        case DXGI_FORMAT.BC4_UNORM:
-                        case DXGI_FORMAT.BC5_SNORM:
-                        case DXGI_FORMAT.BC7_UNORM:
-                        case DXGI_FORMAT.BC7_UNORM_SRGB:
-                            var dxt10 = new DDS_HEADER_DXT10
-                            {
-                                dxgiFormat = DXGI_FORMAT.UNKNOWN,
-                                resourceDimension = D3D10_RESOURCE_DIMENSION.UNKNOWN,
-                                miscFlag = 0,
-                                arraySize = 0,
-                                miscFlags2 = 0,
-                            };
-                            w.WriteT(dxt10, sizeof(DDS_HEADER_DXT10));
-                            break;
+                        var bs = new[] { 8U, 8U, 16U, 16U, 16U, 8U, 16U };
+                        ddsHeader.dwPitchOrLinearSize = (uint)(bs[(int)fmt] * ((tex.Width + 3) / 4) * ((tex.Height + 3) / 4));
+                        ddsHeader.dwFlags = DDSD.LINEARSIZE;
+                        ddsHeader.ddspf.dwFlags = DDPF.FOURCC;
+                        if (fmt == FORMAT.DXT1 || fmt == FORMAT.DXT1a) ddsHeader.ddspf.dwFourCC = DDS_HEADER.Literal.DXT1;
+                        else if (fmt == FORMAT.DXT3) ddsHeader.ddspf.dwFourCC = DDS_HEADER.Literal.DXT3;
+                        else if (fmt == FORMAT.DXT5) ddsHeader.ddspf.dwFourCC = DDS_HEADER.Literal.DXT5;
+                        else if (fmt == FORMAT.DXT5n) ddsHeader.ddspf.dwFourCC = DDS_HEADER.Literal.DXT5;
+                        else if (fmt == FORMAT.BC4) ddsHeader.ddspf.dwFourCC = DDS_HEADER.Literal.ATI1;
+                        else if (fmt == FORMAT.DXT3) ddsHeader.ddspf.dwFourCC = DDS_HEADER.Literal.ATI2;
+                    }
+                    w.Write(DDS_HEADER.Literal.DDS_);
+                    w.WriteT(ddsHeader, sizeof(DDS_HEADER));
+
+                    void Read(long position)
+                    {
+                        r.Position(position);
+                        var packedSize = r.ReadUInt32();
+                        var fileSize = r.ReadUInt32();
+                        var part = r.ReadByte();
+                        w.WriteBytes(r.DecompressZlib((int)packedSize, -1));
                     }
 
-                    // write chunks
-                    var chunks = (F4_HeaderTextureChunk[])file.Tag;
-                    for (var i = 0; i < tex.NumChunks; i++)
-                    {
-                        var chunk = chunks[i];
-                        r.Position((long)chunk.Offset);
-                        if (chunk.PackedSize != 0) s.WriteBytes(r.DecompressZlib((int)file.PackedSize, (int)file.FileSize));
-                        else s.WriteBytes(r, (int)file.FileSize);
-                    }
+                    // write primary
+                    var offset = tex.StartOffset * 4096;
+                    Read(offset);
+
+                    // write mips
+                    for (var i = 0; i < tex.NumMips; i++)
+                        Read(offset + headerChunks[tex.ChunkStartIndex + i]);
                     return Task.FromResult(s.ToArray());
-                    */
                 }
             }
             else throw new ArgumentOutOfRangeException(nameof(source.Version), $"{source.Version}");

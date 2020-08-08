@@ -13,17 +13,18 @@ namespace GameEstate.Core
     [DebuggerDisplay("{Name}")]
     public abstract class BinaryPakFile : AbstractPakFile
     {
+        readonly ConcurrentDictionary<string, GenericPool<BinaryReader>> BinaryReaders = new ConcurrentDictionary<string, GenericPool<BinaryReader>>();
         public readonly string FilePath;
         public readonly PakBinary PakBinary;
-        ConcurrentDictionary<string, GenericPool<BinaryReader>> BinaryReaders = new ConcurrentDictionary<string, GenericPool<BinaryReader>>();
-        public bool UseBinaryReader = true;
+        public object Tag;
 
         // state
+        public bool UseBinaryReader = true;
+        public Func<string, string> FileMask;
         public readonly Dictionary<string, string> Params = new Dictionary<string, string>();
         public uint Magic;
         public uint Version;
         public object DecryptKey;
-        public object Tag;
 
         // explorer
         protected Func<ExplorerManager, BinaryPakFile, Task<List<ExplorerItemNode>>> ExplorerItem;
