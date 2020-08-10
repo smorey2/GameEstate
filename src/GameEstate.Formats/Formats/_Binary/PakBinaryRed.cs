@@ -71,7 +71,7 @@ namespace GameEstate.Formats.Binary
 
         class SubPakFile : BinaryPakMultiFile
         {
-            public SubPakFile(string filePath, string game, object tag = null) : base(filePath, game, Instance, tag)
+            public SubPakFile(Estate estate, string game, string filePath, object tag = null) : base(estate, game, filePath, Instance, tag)
             {
                 Open();
             }
@@ -431,7 +431,7 @@ namespace GameEstate.Formats.Binary
                     {
                         Path = fileName,
                         FileSize = headerFile.FileSize,
-                        Pak = new SubPakFile(newPath, source.Game, (keys, (uint)i)),
+                        Pak = new SubPakFile(source.Estate, source.Game, newPath, (keys, (uint)i)),
                     };
                 }
             }
@@ -632,12 +632,12 @@ namespace GameEstate.Formats.Binary
             BC5 = 7,        // 3DC, ATI2
         }
 
-        public unsafe override Task<byte[]> ReadFileAsync(BinaryPakFile source, BinaryReader r, FileMetadata file, Action<FileMetadata, string> exception = null)
+        public unsafe override Task<Stream> ReadFileAsync(BinaryPakFile source, BinaryReader r, FileMetadata file, Action<FileMetadata, string> exception = null)
         {
-            byte[] fileData;
+            Stream fileData = null;
             r.Position(file.Position);
             if (source.Version == BIFF_VERSION)
-                fileData = r.ReadBytes((int)file.FileSize);
+                fileData = new MemoryStream(r.ReadBytes((int)file.FileSize));
             else if (source.Version == DZIP_VERSION)
             {
                 var blocks = (int)((file.FileSize + 0xFFFF) >> 16);
@@ -647,7 +647,7 @@ namespace GameEstate.Formats.Binary
                 positions[blocks] = file.Position + file.PackedSize;
                 var buffer = new byte[0x10000];
                 var bytesLeft = file.PackedSize;
-                using (var s = new MemoryStream())
+                var s = new MemoryStream();
                 {
                     for (var i = 0; i < blocks; i++)
                     {
@@ -658,23 +658,22 @@ namespace GameEstate.Formats.Binary
                         s.Write(buffer, 0, bytesRead);
                         bytesLeft -= bytesRead;
                     }
-                    s.Position = 0;
                     if (s.Length != file.FileSize)
                         throw new InvalidOperationException();
-                    fileData = s.ToArray();
+                    s.Position = 0;
+                    fileData = s;
                 }
             }
             else if (source.Version == BUNDLE_MAGIC)
             {
-                fileData = r.ReadBytes((int)file.PackedSize);
                 var newFileSize = file.FileSize;
                 switch (file.Compressed)
                 {
                     case 0: break; // no compression
-                    case 1: fileData = r.DecompressZlib_old((int)file.PackedSize, (int)newFileSize); break;
-                    case 2: fileData = r.DecompressSnappy((int)file.PackedSize, (int)newFileSize); break;
-                    case 3: fileData = r.DecompressDoboz((int)file.PackedSize, (int)newFileSize); break;
-                    case 4: case 5: fileData = r.DecompressLz4((int)file.PackedSize, (int)newFileSize); break;
+                    case 1: fileData = new MemoryStream(r.DecompressZlib_old((int)file.PackedSize, (int)newFileSize)); break;
+                    case 2: fileData = new MemoryStream(r.DecompressSnappy((int)file.PackedSize, (int)newFileSize)); break;
+                    case 3: fileData = new MemoryStream(r.DecompressDoboz((int)file.PackedSize, (int)newFileSize)); break;
+                    case 4: case 5: fileData = new MemoryStream(r.DecompressLz4((int)file.PackedSize, (int)newFileSize)); break;
                     default: throw new ArgumentOutOfRangeException(nameof(file.Compressed), file.Compressed.ToString());
                 }
             }
@@ -710,7 +709,7 @@ namespace GameEstate.Formats.Binary
                 if (tex.T16 == 3 && tex.Format == 253) tex.Bpp = 32; // 32 bit
                 //if (tex.T16 == 0 && tex.Format == 0) tex.Bpp = 16; // 16 bit
 
-                using (var s = new MemoryStream())
+                var s = new MemoryStream();
                 {
                     // write header
                     var w = new BinaryWriter(s);
@@ -819,7 +818,8 @@ namespace GameEstate.Formats.Binary
                     // write mips
                     for (var i = 0; i < tex.NumMips; i++)
                         Read(offset + headerChunks[tex.ChunkStartIndex + i]);
-                    return Task.FromResult(s.ToArray());
+                    s.Position = 0;
+                    fileData = s;
                 }
             }
             else throw new ArgumentOutOfRangeException(nameof(source.Version), $"{source.Version}");

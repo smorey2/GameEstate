@@ -491,10 +491,10 @@ namespace GameEstate.Formats.Binary
             return Task.CompletedTask;
         }
 
-        public override Task<byte[]> ReadFileAsync(BinaryPakFile source, BinaryReader r, FileMetadata file, Action<FileMetadata, string> exception = null)
+        public override Task<Stream> ReadFileAsync(BinaryPakFile source, BinaryReader r, FileMetadata file, Action<FileMetadata, string> exception = null)
         {
             r.Position(file.Position);
-            return Task.FromResult(r.ReadBytes((int)file.FileSize));
+            return Task.FromResult((Stream)new MemoryStream(r.ReadBytes((int)file.FileSize)));
         }
     }
 }

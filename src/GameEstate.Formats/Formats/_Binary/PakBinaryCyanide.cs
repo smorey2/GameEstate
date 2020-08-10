@@ -46,7 +46,7 @@ namespace GameEstate.Formats.Binary
             var header = r.ReadT<CPK_Header>(sizeof(CPK_Header));
             var headerFiles = r.ReadTArray<CPK_HeaderFile>(sizeof(CPK_HeaderFile), (int)header.NumFiles);
             var files = multiSource.Files = new FileMetadata[header.NumFiles];
-            var root = UnsafeUtils.ReadZASCII(header.Root, 512);
+            UnsafeUtils.ReadZASCII(header.Root, 512);
             for (var i = 0; i < files.Count; i++)
             {
                 var headerFile = headerFiles[i];
@@ -60,10 +60,10 @@ namespace GameEstate.Formats.Binary
             return Task.CompletedTask;
         }
 
-        public override Task<byte[]> ReadFileAsync(BinaryPakFile source, BinaryReader r, FileMetadata file, Action<FileMetadata, string> exception = null)
+        public override Task<Stream> ReadFileAsync(BinaryPakFile source, BinaryReader r, FileMetadata file, Action<FileMetadata, string> exception = null)
         {
             r.Position(file.Position);
-            return Task.FromResult(r.ReadBytes((int)file.FileSize));
+            return Task.FromResult((Stream)new MemoryStream(r.ReadBytes((int)file.FileSize)));
         }
     }
 }

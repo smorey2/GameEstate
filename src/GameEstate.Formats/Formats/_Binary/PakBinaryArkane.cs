@@ -16,7 +16,7 @@ namespace GameEstate.Formats.Binary
 
         class SubPakFile : BinaryPakMultiFile
         {
-            public SubPakFile(string filePath, string game, object tag = null) : base(filePath, game, Instance, tag)
+            public SubPakFile(Estate estate, string game, string filePath, object tag = null) : base(estate, game, filePath, Instance, tag)
             {
                 Open();
             }
@@ -52,7 +52,7 @@ namespace GameEstate.Formats.Binary
                     files2.Add(new FileMetadata
                     {
                         Path = newPath,
-                        Pak = new SubPakFile(newPath, source.Game),
+                        Pak = new SubPakFile(source.Estate, source.Game, newPath),
                     });
                 }
                 while (true);
@@ -106,18 +106,18 @@ namespace GameEstate.Formats.Binary
             return Task.CompletedTask;
         }
 
-        public override Task<byte[]> ReadFileAsync(BinaryPakFile source, BinaryReader r, FileMetadata file, Action<FileMetadata, string> exception = null)
+        public override Task<Stream> ReadFileAsync(BinaryPakFile source, BinaryReader r, FileMetadata file, Action<FileMetadata, string> exception = null)
         {
             if (file.FileSize == 0)
-                return Task.FromResult(new byte[0]);
+                return Task.FromResult(System.IO.Stream.Null);
             var (path, tag1, tag2) = ((string, string, string))file.Tag;
-            return Task.FromResult(source.GetBinaryReader(path).Func(r2 =>
+            return Task.FromResult((Stream)new MemoryStream(source.GetBinaryReader(path).Func(r2 =>
             {
                 r2.Position(file.Position);
                 return file.Compressed != 0
                     ? r2.DecompressZlib((int)file.PackedSize, (int)file.FileSize)
                     : r2.ReadBytes((int)file.PackedSize);
-            }));
+            })));
         }
     }
 }

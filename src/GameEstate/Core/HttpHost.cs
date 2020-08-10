@@ -38,8 +38,8 @@ namespace GameEstate.Core
         public override async Task<HashSet<string>> GetSetAsync(bool shouldThrow = false) =>
             await _cache.GetOrCreate(".set", async x => await CallAsync<HashSet<string>>((string)x.Key));
 
-        public override async Task<byte[]> GetFileAsync(string filePath, bool shouldThrow = false) =>
-            await _cache.GetOrCreateAsync(filePath.Replace('\\', '/'), async x => await CallAsync<byte[]>((string)x.Key));
+        public override async Task<Stream> GetFileAsync(string filePath, bool shouldThrow = false) =>
+            await _cache.GetOrCreateAsync(filePath.Replace('\\', '/'), async x => await CallAsync<Stream>((string)x.Key));
 
         static string ToPathAndQueryString(string path, NameValueCollection nvc)
         {
@@ -55,7 +55,7 @@ namespace GameEstate.Core
 
         static T FromBytes<T>(byte[] data)
         {
-            if (typeof(T) == typeof(byte[])) return (T)(object)data;
+            if (typeof(T) == typeof(Stream)) return (T)(object)new MemoryStream(data);
             else if (typeof(T) == typeof(HashSet<string>))
             {
                 var d = new HashSet<string>(StringComparer.OrdinalIgnoreCase);

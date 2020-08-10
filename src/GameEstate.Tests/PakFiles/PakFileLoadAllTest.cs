@@ -93,7 +93,8 @@ namespace GameEstate.Tests.PakFiles
                 //    return;
 
                 // extract file
-                await multiSource.LoadFileDataAsync(file);
+                using (var s = await multiSource.LoadFileDataAsync(file))
+                    s.ReadAllBytes();
             });
 
             return Task.CompletedTask;

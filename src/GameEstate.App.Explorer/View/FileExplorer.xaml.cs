@@ -11,6 +11,7 @@ using System.Windows.Input;
 using GameEstate.Explorer.ViewModel;
 using GameEstate.Core;
 using System.Threading.Tasks;
+using System.Windows.Data;
 
 namespace GameEstate.Explorer.View
 {
@@ -39,10 +40,14 @@ namespace GameEstate.Explorer.View
         public event PropertyChangedEventHandler PropertyChanged;
         void NotifyPropertyChanged([CallerMemberName] string propertyName = "") => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
 
-        #region PakFile
-
         public static readonly DependencyProperty PakFileProperty = DependencyProperty.Register(nameof(PakFile), typeof(AbstractPakFile), typeof(FileExplorer),
-            new PropertyMetadata((d, e) => (d as FileExplorer).Nodes = e.NewValue != null ? (e.NewValue as AbstractPakFile).GetExplorerItemNodesAsync(Resource).Result : null));
+            new PropertyMetadata((d, e) =>
+            {
+                if (!(d is FileExplorer fileExplorer) || !(e.NewValue is AbstractPakFile pakFile))
+                    return;
+                fileExplorer.NodeFilters = pakFile.GetExplorerItemFiltersAsync(Resource).Result;
+                fileExplorer.Nodes = fileExplorer.PakNodes = pakFile.GetExplorerItemNodesAsync(Resource).Result;
+            }));
 
         public AbstractPakFile PakFile
         {
@@ -50,24 +55,42 @@ namespace GameEstate.Explorer.View
             set => SetValue(PakFileProperty, value);
         }
 
-        #endregion
-
-        List<ExplorerItemNode.Filter> _treeFilters;
-        public List<ExplorerItemNode.Filter> TreeFilters
+        List<ExplorerItemNode.Filter> _nodeFilters;
+        public List<ExplorerItemNode.Filter> NodeFilters
         {
-            get => _treeFilters;
-            set { _treeFilters = value; NotifyPropertyChanged(); }
+            get => _nodeFilters;
+            set { _nodeFilters = value; NotifyPropertyChanged(); }
         }
+
+        void NodeFilter_KeyUp(object sender, KeyEventArgs e)
+        {
+            if (string.IsNullOrEmpty(NodeFilter.Text)) Nodes = PakNodes;
+            else Nodes = PakNodes.Select(x => x.Search(y => y.Name.Contains(NodeFilter.Text))).ToList();
+            //var view = (CollectionView)CollectionViewSource.GetDefaultView(Node.ItemsSource);
+            //view.Filter = o =>
+            //{
+            //    if (string.IsNullOrEmpty(NodeFilter.Text)) return true;
+            //    else return (o as ExplorerItemNode).Name.Contains(NodeFilter.Text);
+            //};
+            //view.Refresh();
+        }
+
+        void NodeFilter_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (e.AddedItems.Count <= 0)
+                return;
+            var filter = e.AddedItems[0] as ExplorerItemNode.Filter;
+            if (string.IsNullOrEmpty(NodeFilter.Text)) Nodes = PakNodes;
+            else Nodes = PakNodes.Select(x => x.Search(y => y.Name.Contains(filter.Description))).ToList();
+        }
+
+        public List<ExplorerItemNode> PakNodes;
 
         List<ExplorerItemNode> _nodes;
         public List<ExplorerItemNode> Nodes
         {
             get => _nodes;
             set { _nodes = value; NotifyPropertyChanged(); }
-        }
-
-        void TreeFilter_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
         }
 
         ExplorerItemNode SelectedItem;

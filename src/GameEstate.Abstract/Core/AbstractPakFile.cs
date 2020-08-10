@@ -1,9 +1,10 @@
 ﻿using GameEstate.Explorer;
 using GameEstate.Explorer.ViewModel;
 using GameEstate.Formats.Binary;
-using GameEstate.Graphics;
 using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace GameEstate.Core
@@ -14,6 +15,7 @@ namespace GameEstate.Core
     /// <seealso cref="System.IDisposable" />
     public abstract class AbstractPakFile : IDisposable
     {
+        public readonly Estate Estate;
         public readonly string Game;
         public readonly string Name;
 
@@ -24,8 +26,9 @@ namespace GameEstate.Core
         /// <exception cref="ArgumentNullException">filePaths
         /// or
         /// game</exception>
-        public AbstractPakFile(string game, string name)
+        public AbstractPakFile(Estate estate, string game, string name)
         {
+            Estate = estate ?? throw new ArgumentNullException(nameof(estate));
             Game = game ?? throw new ArgumentNullException(nameof(game));
             Name = name;
         }
@@ -55,7 +58,7 @@ namespace GameEstate.Core
         /// <param name="filePath">The file path.</param>
         /// <param name="exception">The exception.</param>
         /// <returns></returns>
-        public abstract Task<byte[]> LoadFileDataAsync(string filePath, Action<FileMetadata, string> exception = null);
+        public abstract Task<Stream> LoadFileDataAsync(string filePath, Action<FileMetadata, string> exception = null);
 
         #region Explorer
 
@@ -65,6 +68,14 @@ namespace GameEstate.Core
         /// <param name="manager">The resource.</param>
         /// <returns></returns>
         public abstract Task<List<ExplorerItemNode>> GetExplorerItemNodesAsync(ExplorerManager manager);
+
+        /// <summary>
+        /// Gets the explorer item filters.
+        /// </summary>
+        /// <param name="manager">The resource.</param>
+        /// <returns></returns>
+        public virtual Task<List<ExplorerItemNode.Filter>> GetExplorerItemFiltersAsync(ExplorerManager manager) =>
+            Task.FromResult(Estate.FileManager.Filters.TryGetValue(Game, out var z) ? z.Select(x => new ExplorerItemNode.Filter(x.Key, x.Value)).ToList() : null);
 
         /// <summary>
         /// Gets the explorer information nodes.

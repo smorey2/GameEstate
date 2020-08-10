@@ -11,12 +11,12 @@ namespace GameEstate.Core
     {
         readonly ConcurrentBag<T> _items = new ConcurrentBag<T>();
         public readonly Func<T> Factory;
-        public readonly int Retain;
+        public readonly int RetainInPool;
 
-        public GenericPool(Func<T> factory, int retain = 10)
+        public GenericPool(Func<T> factory, int retainInPool = 10)
         {
             Factory = factory;
-            Retain = retain;
+            RetainInPool = retainInPool;
         }
 
         public void Dispose()
@@ -27,7 +27,7 @@ namespace GameEstate.Core
 
         public void Release(T item)
         {
-            if (_items.Count < Retain) _items.Add(item);
+            if (_items.Count < RetainInPool) _items.Add(item);
             else item.Dispose();
         }
 

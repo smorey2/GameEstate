@@ -59,39 +59,39 @@ namespace GameEstate.Formats.Binary
             return Task.CompletedTask;
         }
 
-        public override Task<byte[]> ReadFileAsync(BinaryPakFile source, BinaryReader r, FileMetadata file, Action<FileMetadata, string> exception = null)
+        public override Task<Stream> ReadFileAsync(BinaryPakFile source, BinaryReader r, FileMetadata file, Action<FileMetadata, string> exception = null)
         {
             var pak = (ZipFile)source.Tag;
             var entry = (ZipEntry)file.Tag;
             try
             {
-                using (var s = pak.GetInputStream(entry))
-                using (var ms = new MemoryStream())
+                using (var input = pak.GetInputStream(entry))
                 {
-                    if (!s.CanRead)
+                    if (!input.CanRead)
                     {
                         exception?.Invoke(file, $"Unable to read stream.");
-                        return Task.FromResult<byte[]>(null);
+                        return Task.FromResult(System.IO.Stream.Null);
                     }
-                    s.CopyTo(ms);
-                    return Task.FromResult(ms.ToArray());
+                    var s = new MemoryStream();
+                    input.CopyTo(s);
+                    return Task.FromResult((Stream)s);
                 }
             }
             catch (Exception e)
             {
                 exception?.Invoke(file, $"Exception: {e.Message}");
-                return Task.FromResult<byte[]>(null);
+                return Task.FromResult(System.IO.Stream.Null);
             }
         }
 
-        public override Task WriteFileAsync(BinaryPakFile source, BinaryWriter w, FileMetadata file, byte[] data, Action<FileMetadata, string> exception = null)
+        public override Task WriteFileAsync(BinaryPakFile source, BinaryWriter w, FileMetadata file, Stream data, Action<FileMetadata, string> exception = null)
         {
             var pak = (ZipFile)source.Tag;
             var entry = (ZipEntry)file.Tag;
             try
             {
                 using (var s = pak.GetInputStream(entry))
-                    s.Write(data, 0, data.Length);
+                    data.CopyTo(s);
             }
             catch (Exception e)
             {

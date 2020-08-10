@@ -204,9 +204,9 @@ namespace GameEstate
             {
                 case PakMultiType.SingleBinary:
                     return filePaths.Length == 1
-                        ? (AbstractPakFile)Activator.CreateInstance(PakFileType, filePaths[0], game, null)
-                        : new MultiPakFile(game, "Many", filePaths.Select(x => (AbstractPakFile)Activator.CreateInstance(PakFileType, x, game, null)).ToArray());
-                case PakMultiType.Full: return (AbstractPakFile)Activator.CreateInstance(PakFileType, filePaths, game);
+                        ? (AbstractPakFile)Activator.CreateInstance(PakFileType, this, game, filePaths[0], null)
+                        : new MultiPakFile(this, game, "Many", filePaths.Select(x => (AbstractPakFile)Activator.CreateInstance(PakFileType, this, game, x, null)).ToArray());
+                case PakMultiType.Full: return (AbstractPakFile)Activator.CreateInstance(PakFileType, this, game, filePaths);
                 default: throw new ArgumentOutOfRangeException(nameof(PakMulti), PakMulti.ToString());
             }
         }
@@ -220,7 +220,7 @@ namespace GameEstate
         {
             if (!resource.StreamPak)
                 return OpenPakFile(resource.Paths, resource.Game);
-            return new MultiPakFile(resource.Game, "Many", resource.Paths.Select(x => new StreamPakFile(FileManager.HostFactory, x, resource.Game, resource.Host)).ToArray());
+            return new MultiPakFile(this, resource.Game, "Many", resource.Paths.Select(x => new StreamPakFile(FileManager.HostFactory, this, resource.Game, x, resource.Host)).ToArray());
         }
 
         /// <summary>

@@ -13,12 +13,13 @@ namespace GameEstate.Estates
         /// <summary>
         /// Initializes a new instance of the <see cref="ZipPakFile" /> class.
         /// </summary>
-        /// <param name="filePath">The file path.</param>
+        /// <param name="estate">The estate.</param>
         /// <param name="game">The game.</param>
+        /// <param name="filePath">The file path.</param>
         /// <param name="tag">The tag.</param>
-        public ZipPakFile(string filePath, string game, object tag = null) : base(filePath, game, PakBinaryZip.Instance, tag)
+        public ZipPakFile(Estate estate, string game, string filePath, object tag = null) : base(estate, game, filePath, PakBinaryZip.Instance, tag)
         {
-            ExplorerItem = StandardExplorerItem.GetPakFilesAsync;
+            ExplorerItems = StandardExplorerItem.GetPakFilesAsync;
             ExplorerInfos.Add("_default", StandardExplorerInfo.GetDefaultAsync);
             ExplorerInfos.Add(".dds", StandardExplorerInfo.GetDdsAsync);
             Open();

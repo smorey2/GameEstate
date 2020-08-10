@@ -16,7 +16,7 @@
         "assets": "base"
       }
     },
-    "ignore": {
+    "ignores": {
       "Dishonored2": {
         "path": "master.index"
       }

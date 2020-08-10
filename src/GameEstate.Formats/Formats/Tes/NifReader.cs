@@ -126,7 +126,7 @@ namespace GameEstate.Formats.Tes
         public NiObject[] Blocks;
         public NiFooter Footer;
 
-        public void Deserialize(BinaryReader r)
+        public void Read(BinaryReader r)
         {
             Header = new NiHeader();
             Header.Deserialize(r);

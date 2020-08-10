@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.IO;
 using System.Threading.Tasks;
 
 namespace GameEstate.Core
@@ -20,6 +21,6 @@ namespace GameEstate.Core
         /// <param name="filePath">The file path.</param>
         /// <param name="shouldThrow">if set to <c>true</c> [should throw].</param>
         /// <returns></returns>
-        public abstract Task<byte[]> GetFileAsync(string filePath, bool shouldThrow = false);
+        public abstract Task<Stream> GetFileAsync(string filePath, bool shouldThrow = false);
     }
 }

@@ -20,10 +20,11 @@ namespace GameEstate.Core
         /// Initializes a new instance of the <see cref="StreamPakFile" /> class.
         /// </summary>
         /// <param name="factory">The factory.</param>
-        /// <param name="filePath">The file path.</param>
+        /// <param name="estate">The estate.</param>
         /// <param name="game">The game.</param>
+        /// <param name="filePath">The file path.</param>
         /// <param name="address">The host.</param>
-        public StreamPakFile(Func<Uri, string, AbstractHost> factory, string filePath, string game, Uri address = null) : base(filePath, game, new PakBinaryStream())
+        public StreamPakFile(Func<Uri, string, AbstractHost> factory, Estate estate, string game, string filePath, Uri address = null) : base(estate, game, filePath, new PakBinaryStream())
         {
             UseBinaryReader = false;
             if (address != null)
@@ -34,9 +35,10 @@ namespace GameEstate.Core
         /// Initializes a new instance of the <see cref="StreamPakFile" /> class.
         /// </summary>
         /// <param name="parent">The parent.</param>
+        /// <param name="estate">The estate.</param>
         /// <param name="game">The game.</param>
         /// <param name="filePath">The file path.</param>
-        public StreamPakFile(BinaryPakMultiFile parent, string game, string filePath) : base(filePath, game, new PakBinaryStream())
+        public StreamPakFile(BinaryPakMultiFile parent, Estate estate, string game, string filePath) : base(estate, game, filePath, new PakBinaryStream())
         {
             UseBinaryReader = false;
             Files = parent.Files;
@@ -118,7 +120,7 @@ namespace GameEstate.Core
         /// <param name="file">The file.</param>
         /// <param name="exception">The exception.</param>
         /// <returns></returns>
-        public override async Task<byte[]> ReadFileDataAsync(BinaryReader r, FileMetadata file, Action<FileMetadata, string> exception)
+        public override async Task<Stream> ReadFileDataAsync(BinaryReader r, FileMetadata file, Action<FileMetadata, string> exception)
         {
             var path = file.Path;
             // http pak
@@ -127,10 +129,9 @@ namespace GameEstate.Core
 
             // read pak
             path = Path.Combine(FilePath, path);
-            if (!File.Exists(path))
-                return null;
-            using (var s = File.Open(path, FileMode.Open, FileAccess.Read, FileShare.Read))
-                return s.ReadAllBytes();
+            return File.Exists(path)
+                ? File.Open(path, FileMode.Open, FileAccess.Read, FileShare.Read)
+                : null;
         }
 
         /// <summary>
@@ -142,7 +143,7 @@ namespace GameEstate.Core
         /// <param name="exception">The exception.</param>
         /// <returns></returns>
         /// <exception cref="NotSupportedException"></exception>
-        public override Task WriteFileDataAsync(BinaryWriter w, FileMetadata file, byte[] data, Action<FileMetadata, string> exception) => throw new NotSupportedException();
+        public override Task WriteFileDataAsync(BinaryWriter w, FileMetadata file, Stream data, Action<FileMetadata, string> exception) => throw new NotSupportedException();
 
         #region Explorer
 
@@ -153,6 +154,15 @@ namespace GameEstate.Core
         /// <returns></returns>
         /// <exception cref="NotSupportedException"></exception>
         public override Task<List<ExplorerItemNode>> GetExplorerItemNodesAsync(ExplorerManager manager) => throw new NotSupportedException();
+
+        /// <summary>
+        /// Gets the explorer item filters.
+        /// </summary>
+        /// <param name="manager">The resource.</param>
+        /// <returns></returns>
+        /// <exception cref="NotSupportedException"></exception>
+        public override Task<List<ExplorerItemNode.Filter>> GetExplorerItemFiltersAsync(ExplorerManager manager) => throw new NotSupportedException();
+
 
         /// <summary>
         /// Gets the explorer information nodes.

@@ -17,7 +17,15 @@ namespace GameEstate.Core
         public HashSet<string> FilesRawSet;
         public ILookup<string, FileMetadata> FilesByPath { get; private set; }
 
-        public BinaryPakMultiFile(string filePath, string game, PakBinary pakBinary, object tag = null) : base(filePath, game, pakBinary, tag) { }
+        /// <summary>
+        /// Initializes a new instance of the <see cref="BinaryPakMultiFile"/> class.
+        /// </summary>
+        /// <param name="estate">The estate.</param>
+        /// <param name="game">The game.</param>
+        /// <param name="filePath">The file path.</param>
+        /// <param name="pakBinary">The pak binary.</param>
+        /// <param name="tag">The tag.</param>
+        public BinaryPakMultiFile(Estate estate, string game, string filePath, PakBinary pakBinary, object tag = null) : base(estate, game, filePath, pakBinary, tag) { }
 
         /// <summary>
         /// Closes this instance.
@@ -47,7 +55,7 @@ namespace GameEstate.Core
         /// <returns></returns>
         /// <exception cref="FileNotFoundException"></exception>
         /// <exception cref="InvalidOperationException"></exception>
-        public override Task<byte[]> LoadFileDataAsync(string filePath, Action<FileMetadata, string> exception = null)
+        public override Task<Stream> LoadFileDataAsync(string filePath, Action<FileMetadata, string> exception = null)
         {
             var files = FilesByPath[filePath.Replace('\\', '/')].ToArray();
             if (files.Length == 1)
@@ -64,11 +72,10 @@ namespace GameEstate.Core
         /// <param name="file">The file.</param>
         /// <param name="exception">The exception.</param>
         /// <returns></returns>
-        public Task<byte[]> LoadFileDataAsync(FileMetadata file, Action<FileMetadata, string> exception = null)
-        {
-            if (UseBinaryReader) return GetBinaryReader().Func(r => ReadFileDataAsync(r, file, exception));
-            else return ReadFileDataAsync(null, file, exception);
-        }
+        public Task<Stream> LoadFileDataAsync(FileMetadata file, Action<FileMetadata, string> exception = null) =>
+            UseBinaryReader
+                ? GetBinaryReader().Func(r => ReadFileDataAsync(r, file, exception))
+                : ReadFileDataAsync(null, file, exception);
 
         /// <summary>
         /// Processes this instance.
@@ -98,7 +105,15 @@ namespace GameEstate.Core
         /// <param name="manager">The resource.</param>
         /// <returns></returns>
         /// <exception cref="NotImplementedException"></exception>
-        public override async Task<List<ExplorerItemNode>> GetExplorerItemNodesAsync(ExplorerManager manager) => ExplorerItem != null ? await ExplorerItem(manager, this) : null;
+        public override async Task<List<ExplorerItemNode>> GetExplorerItemNodesAsync(ExplorerManager manager) => ExplorerItems != null ? await ExplorerItems(manager, this) : null;
+
+        ///// <summary>
+        ///// Gets the explorer item filters.
+        ///// </summary>
+        ///// <param name="manager">The resource.</param>
+        ///// <returns></returns>
+        ///// <exception cref="NotImplementedException"></exception>
+        //public override Task<List<ExplorerItemNode.Filter>> GetExplorerItemFiltersAsync(ExplorerManager manager) => null;
 
         /// <summary>
         /// Gets the explorer information nodes.

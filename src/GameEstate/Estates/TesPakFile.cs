@@ -19,12 +19,13 @@ namespace GameEstate.Estates
         /// <summary>
         /// Initializes a new instance of the <see cref="TesPakFile" /> class.
         /// </summary>
-        /// <param name="filePath">The file path.</param>
+        /// <param name="estate">The estate.</param>
         /// <param name="game">The game.</param>
+        /// <param name="filePath">The file path.</param>
         /// <param name="tag">The tag.</param>
-        public TesPakFile(string filePath, string game, object tag = null) : base(filePath, game, Path.GetExtension(filePath) != ".esm" ? PakBinaryTes.Instance : PakBinaryTesEsm.Instance, tag)
+        public TesPakFile(Estate estate, string game, string filePath, object tag = null) : base(estate, game, filePath, Path.GetExtension(filePath) != ".esm" ? PakBinaryTes.Instance : PakBinaryTesEsm.Instance, tag)
         {
-            ExplorerItem = StandardExplorerItem.GetPakFilesAsync;
+            ExplorerItems = StandardExplorerItem.GetPakFilesAsync;
             ExplorerInfos.Add("_default", StandardExplorerInfo.GetDefaultAsync);
             ExplorerInfos.Add(".nif", StandardExplorerInfo.GetNifAsync);
             ExplorerInfos.Add(".dds", StandardExplorerInfo.GetDdsAsync);
@@ -49,10 +50,12 @@ namespace GameEstate.Estates
 
         public Task<object> LoadObjectInfoAsync(string filePath) => Task.Run(async () =>
        {
-           var fileData = await LoadFileDataAsync(filePath);
-           var file = new NiFile(Path.GetFileNameWithoutExtension(filePath));
-           file.Deserialize(new BinaryReader(new MemoryStream(fileData)));
-           return (object)file;
+           using (var fileData = await LoadFileDataAsync(filePath))
+           {
+               var file = new NiFile(Path.GetFileNameWithoutExtension(filePath));
+               file.Read(new BinaryReader(fileData));
+               return (object)file;
+           }
        });
 
         /// <summary>

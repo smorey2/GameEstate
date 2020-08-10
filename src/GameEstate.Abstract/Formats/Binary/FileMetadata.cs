@@ -1,5 +1,7 @@
 ﻿using GameEstate.Core;
+using System;
 using System.Diagnostics;
+using System.IO;
 
 namespace GameEstate.Formats.Binary
 {
@@ -19,5 +21,7 @@ namespace GameEstate.Formats.Binary
         public object FileInfo;
         public BinaryPakFile Pak;
         public object Tag;
+        // object
+        public Func<FileMetadata, BinaryReader, object> ObjectFactory;
     }
 }

@@ -1,11 +1,14 @@
 ﻿using GameEstate.Core;
 using GameEstate.Core.Algorithms;
+using GameEstate.Formats.Valve;
+using GameEstate.Formats.Valve.Blocks;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Security.Cryptography;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace GameEstate.Formats.Binary
@@ -215,6 +218,27 @@ namespace GameEstate.Formats.Binary
                             Id = r.ReadUInt16(),
                             Position = r.ReadUInt32(),
                             FileSize = r.ReadUInt32(),
+                            ObjectFactory = (f, r2) =>
+                            {
+                                if (r2.BaseStream.Length < 6)
+                                    return null;
+                                var input = r2.Peek(() => r2.ReadBytes(6));
+                                var magic = BitConverter.ToUInt32(input, 0);
+                                var magicResourceVersion = BitConverter.ToUInt16(input, 4);
+                                if (magic == MAGIC) return null;
+                                else if (magic == CompiledShader.MAGIC) return new CompiledShader(r2, f.Path);
+                                else if (magic == ClosedCaptions.MAGIC) return new ClosedCaptions(r2);
+                                else if (magic == ToolsAssetInfo.MAGIC) return new ToolsAssetInfo(r2);
+                                else if (magic == DATABinaryKV3.MAGIC || magic == DATABinaryKV3.MAGIC2) { var kv3 = new DATABinaryKV3 { Size = (uint)r2.BaseStream.Length }; kv3.Read(r2, null); return kv3; }
+                                else if (magicResourceVersion == BinaryPak.KnownHeaderVersion) return new BinaryPak(r2);
+                                else
+                                {
+                                    var bytes = r2.BaseStream.ReadAllBytes();
+                                    return !bytes.Contains<byte>(0x00)
+                                        ? (object)Encoding.UTF8.GetString(bytes)
+                                        : bytes;
+                                }
+                            },
                         };
                         if (file.Id != 0x7FFF)
                         {
@@ -269,7 +293,7 @@ namespace GameEstate.Formats.Binary
             return Task.CompletedTask;
         }
 
-        public override Task<byte[]> ReadFileAsync(BinaryPakFile source, BinaryReader r, FileMetadata file, Action<FileMetadata, string> exception = null)
+        public override Task<Stream> ReadFileAsync(BinaryPakFile source, BinaryReader r, FileMetadata file, Action<FileMetadata, string> exception = null)
         {
             var data = new byte[file.Extra.Length + file.FileSize];
             if (file.Extra.Length > 0)
@@ -290,7 +314,7 @@ namespace GameEstate.Formats.Binary
             }
             if (file.Digest != Crc32Digest.Compute(data))
                 throw new InvalidDataException("CRC32 mismatch for read data.");
-            return Task.FromResult(data);
+            return Task.FromResult((Stream)new MemoryStream(data));
         }
     }
 }

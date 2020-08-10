@@ -1,4 +1,5 @@
 ﻿using GameEstate.Core;
+using GameEstate.Formats.Tes;
 using GameEstate.Graphics.DirectX;
 using ICSharpCode.SharpZipLib.Lzw;
 using ICSharpCode.SharpZipLib.Zip.Compression.Streams;
@@ -218,6 +219,22 @@ namespace GameEstate.Formats.Binary
                 throw new ArgumentOutOfRangeException(nameof(stage), stage.ToString());
             FileMetadata[] files;
 
+            // object factory
+            Func<FileMetadata, BinaryReader, object> ObjectFactory(string path)
+            {
+                object NiFactory(FileMetadata f, BinaryReader r2)
+                {
+                    var file = new NiFile(Path.GetFileNameWithoutExtension(f.Path));
+                    file.Read(r2);
+                    return file;
+                }
+                switch (Path.GetExtension(path).ToLowerInvariant())
+                {
+                    case ".nif": return NiFactory;
+                    default: return null;
+                }
+            }
+
             // Fallout 4
             var magic = source.Magic = r.ReadUInt32();
             if (magic == F4_BSAHEADER_FILEID)
@@ -280,8 +297,11 @@ namespace GameEstate.Formats.Binary
                 if (header.NameTableOffset > 0)
                 {
                     r.Position((long)header.NameTableOffset);
-                    for (var i = 0; i < header.NumFiles; i++)
-                        files[i].Path = r.ReadL16ASCII().Replace('\\', '/');
+                    foreach (var file in files)
+                    {
+                        file.Path = r.ReadL16ASCII().Replace('\\', '/');
+                        file.ObjectFactory = ObjectFactory(file.Path);
+                    }
                 }
             }
 
@@ -328,7 +348,10 @@ namespace GameEstate.Formats.Binary
                 // read-all names
                 var b = new StringBuilder();
                 foreach (var file in files)
+                {
                     file.Path = $"{file.Path}/{r.ReadZString(builder: b)}";
+                    file.ObjectFactory = ObjectFactory(file.Path);
+                }
             }
 
             // Morrowind
@@ -360,6 +383,7 @@ namespace GameEstate.Formats.Binary
                 {
                     r.Position(filenamesPosition + filenameOffsets[i]);
                     files[i].Path = r.ReadZASCII(1000, buf).Replace('\\', '/');
+                    files[i].ObjectFactory = ObjectFactory(files[i].Path);
                 }
             }
 
@@ -376,6 +400,7 @@ namespace GameEstate.Formats.Binary
                 // Create file metadatas
                 multiSource.Files = files = new FileMetadata[r.ReadInt32()];
                 for (var i = 0; i < files.Length; i++)
+                {
                     files[i] = new FileMetadata
                     {
                         Path = r.ReadL32ASCII().TrimStart('\\'),
@@ -384,6 +409,8 @@ namespace GameEstate.Formats.Binary
                         PackedSize = r.ReadUInt32(),
                         Position = r.ReadUInt32(),
                     };
+                    files[i].ObjectFactory = ObjectFactory(files[i].Path);
+                }
             }
             else throw new InvalidOperationException("BAD MAGIC");
             return Task.CompletedTask;
@@ -391,10 +418,11 @@ namespace GameEstate.Formats.Binary
 
         public unsafe override Task WriteAsync(BinaryPakFile source, BinaryWriter w, WriteStage stage) => throw new NotImplementedException();
 
-        public unsafe override Task<byte[]> ReadFileAsync(BinaryPakFile source, BinaryReader r, FileMetadata file, Action<FileMetadata, string> exception = null)
+        public unsafe override Task<Stream> ReadFileAsync(BinaryPakFile source, BinaryReader r, FileMetadata file, Action<FileMetadata, string> exception = null)
         {
             const int GNF_HEADER_MAGIC = 0x20464E47;
             const int GNF_HEADER_CONTENT_SIZE = 248;
+            Stream fileData = null;
             var magic = source.Magic;
             // BSA2
             if (magic == F4_BSAHEADER_FILEID)
@@ -404,12 +432,13 @@ namespace GameEstate.Formats.Binary
 
                 // General BA2 Format
                 if (file.FileInfo == null)
-                    return Task.FromResult(file.Compressed != 0
-                        ? r.DecompressZlib_old((int)file.PackedSize, (int)file.FileSize)
-                        : r.ReadBytes((int)file.FileSize));
+                    fileData = file.Compressed != 0
+                        ? new MemoryStream(r.DecompressZlib_old((int)file.PackedSize, (int)file.FileSize))
+                        : new MemoryStream(r.ReadBytes((int)file.FileSize));
                 // Texture BA2 Format
                 else if (file.FileInfo is F4_HeaderTexture tex)
-                    using (var s = new MemoryStream())
+                {
+                    var s = new MemoryStream();
                     {
                         // write header
                         var w = new BinaryWriter(s);
@@ -519,11 +548,14 @@ namespace GameEstate.Formats.Binary
                             if (chunk.PackedSize != 0) s.WriteBytes(r.DecompressZlib((int)file.PackedSize, (int)file.FileSize));
                             else s.WriteBytes(r, (int)file.FileSize);
                         }
-                        return Task.FromResult(s.ToArray());
+                        s.Position = 0;
+                        fileData = s;
                     }
+                }
                 // GNMF BA2 Format
                 else if (file.FileInfo is F4_HeaderGNMF gnmf)
-                    using (var s = new MemoryStream())
+                {
+                    var s = new MemoryStream();
                     {
                         // write header
                         var w = new BinaryWriter(s);
@@ -547,8 +579,10 @@ namespace GameEstate.Formats.Binary
                             if (chunk.PackedSize != 0) s.WriteBytes(r.DecompressZlib_old((int)file.PackedSize, (int)file.FileSize));
                             else s.WriteBytes(r, (int)file.FileSize);
                         }
-                        return Task.FromResult(s.ToArray());
+                        s.Position = 0;
+                        fileData = s;
                     }
+                }
                 else throw new ArgumentOutOfRangeException(nameof(file.FileInfo), file.FileInfo.ToString());
             }
             // BSA
@@ -569,23 +603,23 @@ namespace GameEstate.Formats.Binary
 
                 // fallout2
                 if (source.Magic == F2_BSAHEADER_FILEID)
-                    return Task.FromResult(r.Peek(() => r.ReadUInt16()) == 0xda78
-                        ? r.DecompressZlib(fileSize, -1)
-                        : r.ReadBytes(fileSize));
-
+                    fileData = r.Peek(() => r.ReadUInt16()) == 0xda78
+                        ? new MemoryStream(r.DecompressZlib(fileSize, -1))
+                        : new MemoryStream(r.ReadBytes(fileSize));
                 // not compressed
-                if (fileSize <= 0 || file.Compressed == 0)
-                    return Task.FromResult(r.ReadBytes(fileSize));
-
+                else if (fileSize <= 0 || file.Compressed == 0)
+                    fileData = new MemoryStream(r.ReadBytes(fileSize));
                 // compressed
-                var newFileSize = (int)r.ReadUInt32(); fileSize -= 4;
-                return Task.FromResult(source.Version == SSE_BSAHEADER_VERSION
-                    ? r.DecompressLz4(fileSize, newFileSize)
-                    : r.DecompressZlib_old(fileSize, newFileSize));
+                else
+                {
+                    var newFileSize = (int)r.ReadUInt32(); fileSize -= 4;
+                    fileData = source.Version == SSE_BSAHEADER_VERSION
+                        ? new MemoryStream(r.DecompressLz4(fileSize, newFileSize))
+                        : new MemoryStream(r.DecompressZlib_old(fileSize, newFileSize));
+                }
             }
             else throw new InvalidOperationException("BAD MAGIC");
+            return Task.FromResult(fileData);
         }
-
-        public override Task WriteFileAsync(BinaryPakFile source, BinaryWriter w, FileMetadata file, byte[] data, Action<FileMetadata, string> exception = null) => throw new NotImplementedException();
     }
 }

@@ -21,10 +21,11 @@ namespace GameEstate.Core
         /// <summary>
         /// Initializes a new instance of the <see cref="MultiPakFile" /> class.
         /// </summary>
+        /// <param name="estate">The estate.</param>
         /// <param name="game">The game.</param>
         /// <param name="name">The name.</param>
         /// <param name="pakFiles">The packs.</param>
-        public MultiPakFile(string game, string name, IList<AbstractPakFile> pakFiles) : base(game, name) => PakFiles = pakFiles;
+        public MultiPakFile(Estate estate, string game, string name, IList<AbstractPakFile> pakFiles) : base(estate, game, name) => PakFiles = pakFiles;
 
         /// <summary>
         /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
@@ -57,7 +58,7 @@ namespace GameEstate.Core
         /// <param name="exception">The exception.</param>
         /// <returns></returns>
         /// <exception cref="System.IO.FileNotFoundException">Could not find file \"{filePath}\".</exception>
-        public override Task<byte[]> LoadFileDataAsync(string filePath, Action<FileMetadata, string> exception) =>
+        public override Task<Stream> LoadFileDataAsync(string filePath, Action<FileMetadata, string> exception) =>
             (PakFiles.FirstOrDefault(x => x.Contains(filePath)) ?? throw new FileNotFoundException($"Could not find file \"{filePath}\"."))
             .LoadFileDataAsync(filePath, exception);
 
@@ -73,7 +74,7 @@ namespace GameEstate.Core
         {
             var root = new List<ExplorerItemNode>();
             foreach (var pakFile in PakFiles)
-                root.Add(new ExplorerItemNode(pakFile.Name, manager.PackageIcon, items: await pakFile.GetExplorerItemNodesAsync(manager)) { PakFile = pakFile });
+                root.Add(new ExplorerItemNode(pakFile.Name, manager.PackageIcon, children: await pakFile.GetExplorerItemNodesAsync(manager)) { PakFile = pakFile });
             return root;
         }
 
@@ -84,10 +85,7 @@ namespace GameEstate.Core
         /// <param name="item">The item.</param>
         /// <returns></returns>
         /// <exception cref="NotImplementedException"></exception>
-        public override Task<List<ExplorerInfoNode>> GetExplorerInfoNodesAsync(ExplorerManager manager, ExplorerItemNode item)
-        {
-            throw new NotImplementedException();
-        }
+        public override Task<List<ExplorerInfoNode>> GetExplorerInfoNodesAsync(ExplorerManager manager, ExplorerItemNode item) => throw new NotImplementedException();
 
         #endregion
     }

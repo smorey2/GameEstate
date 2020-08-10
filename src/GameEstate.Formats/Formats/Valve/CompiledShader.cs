@@ -4,7 +4,7 @@ using System.IO;
 using System.Text;
 using Decoder = SevenZip.Compression.LZMA.Decoder;
 
-namespace GameEstate.Formats.Valve.Shaders
+namespace GameEstate.Formats.Valve
 {
     public class CompiledShader
     {
@@ -12,6 +12,9 @@ namespace GameEstate.Formats.Valve.Shaders
 
         string ShaderType;
         string ShaderPlatform;
+
+        public CompiledShader() { }
+        public CompiledShader(BinaryReader r, string filename) => Read(r, filename);
 
         public void Read(BinaryReader r, string filename)
         {

@@ -139,7 +139,7 @@
         "assets": "Data Files"
       }
     },
-    "ignore": {
+    "ignores": {
       "Fallout2": {
         "path": "unins000.dat"
       }

@@ -1,6 +1,5 @@
 using GameEstate.Core;
 using GameEstate.Formats.Valve.Blocks;
-using GameEstate.Formats.Valve.Shaders;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
@@ -9,7 +8,10 @@ namespace GameEstate.Formats.Valve
 {
     public class BinaryPak
     {
-        const ushort KnownHeaderVersion = 12;
+        public const ushort KnownHeaderVersion = 12;
+
+        public BinaryPak() { }
+        public BinaryPak(BinaryReader r) => Read(r);
 
         public uint FileSize { get; private set; }
 

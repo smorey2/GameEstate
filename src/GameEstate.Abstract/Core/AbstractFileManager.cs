@@ -38,9 +38,14 @@ namespace GameEstate.Core
         public IDictionary<string, string> Locations = new Dictionary<string, string>();
 
         /// <summary>
-        /// The ignored
+        /// The ignores
         /// </summary>
-        public HashSet<string> Ignore = new HashSet<string>();
+        public IDictionary<string, HashSet<string>> Ignores = new Dictionary<string, HashSet<string>>();
+
+        /// <summary>
+        /// The filters
+        /// </summary>
+        public IDictionary<string, Dictionary<string, string>> Filters = new Dictionary<string, Dictionary<string, string>>();
 
         /// <summary>
         /// Gets the game file paths.

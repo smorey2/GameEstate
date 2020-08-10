@@ -37,28 +37,28 @@ namespace GameEstate.Formats.Binary
             return Task.CompletedTask;
         }
 
-        public override Task<byte[]> ReadFileAsync(BinaryPakFile source, BinaryReader r, FileMetadata file, Action<FileMetadata, string> exception = null)
+        public override Task<Stream> ReadFileAsync(BinaryPakFile source, BinaryReader r, FileMetadata file, Action<FileMetadata, string> exception = null)
         {
             var pak = (ZipArchive)source.Tag;
             var entry = (ZipArchiveEntry)file.Tag;
             try
             {
-                using (var s = entry.Open())
-                using (var ms = new MemoryStream())
+                using (var input = entry.Open())
                 {
-                    if (!s.CanRead)
+                    if (!input.CanRead)
                     {
                         exception?.Invoke(file, $"Unable to read stream.");
-                        return Task.FromResult<byte[]>(null);
+                        return Task.FromResult(System.IO.Stream.Null);
                     }
-                    s.CopyTo(ms);
-                    return Task.FromResult(ms.ToArray());
+                    var s = new MemoryStream();
+                    input.CopyTo(s);
+                    return Task.FromResult((Stream)s);
                 }
             }
             catch (Exception e)
             {
                 exception?.Invoke(file, $"Exception: {e.Message}");
-                return Task.FromResult<byte[]>(null);
+                return Task.FromResult(System.IO.Stream.Null);
             }
         }
     }

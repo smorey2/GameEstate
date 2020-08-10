@@ -43,16 +43,16 @@ namespace GameEstate.Core
                 // extract file
                 try
                 {
-                    var b = await multiSource.LoadFileDataAsync(file, exception);
+                    using (var b = await multiSource.LoadFileDataAsync(file, exception))
                     using (var s = new FileStream(newPath, FileMode.Create, FileAccess.Write))
-                        s.Write(b, 0, b.Length);
+                        b.CopyTo(s);
                     advance?.Invoke(file, index);
                 }
                 catch (Exception e) { exception?.Invoke(file, $"Exception: {e.Message}"); }
             });
 
             // write pak-raw
-            await new StreamPakFile(multiSource, source.Game, filePath).WriteAsync(null, PakBinary.WriteStage.File);
+            await new StreamPakFile(multiSource, null, source.Game, filePath).WriteAsync(null, PakBinary.WriteStage.File);
 
             //// write pak-raw
             //if (source.FilesRawSet != null && source.FilesRawSet.Count > 0)
@@ -105,8 +105,8 @@ namespace GameEstate.Core
                 {
                     await source.PakBinary.WriteAsync(source, w, PakBinary.WriteStage.File);
                     using (var r = File.Open(newPath, FileMode.Open, FileAccess.Read, FileShare.Read))
-                        await source.WriteFileDataAsync(w, file, r.ReadAllBytes(), exception);
- 
+                        await source.WriteFileDataAsync(w, file, new MemoryStream(r.ReadAllBytes()), exception);
+
                     advance?.Invoke(file, index);
                 }
                 catch (Exception e) { exception?.Invoke(file, $"Exception: {e.Message}"); }

@@ -100,7 +100,9 @@ namespace GameEstate.Core
             if (string.IsNullOrEmpty(searchPattern))
                 throw new ArgumentOutOfRangeException(nameof(pathOrPattern), pathOrPattern);
             // file
-            return Locations.TryGetValue(game, out var path) ? ExpandAndSearchPaths(Ignore, path, pathOrPattern).ToArray() : null;
+            return Locations.TryGetValue(game, out var path)
+                ? ExpandAndSearchPaths(Ignores.TryGetValue(game, out var ignores) ? ignores : null, path, pathOrPattern).ToArray()
+                : null;
         }
 
         static IEnumerable<string> ExpandAndSearchPaths(HashSet<string> ignore, string path, string pathOrPattern)
@@ -132,7 +134,7 @@ namespace GameEstate.Core
                 yield return Path.Combine(path, pathOrPattern);
             else
                 foreach (var file in Directory.GetFiles(path, pathOrPattern))
-                    if (!ignore.Contains(Path.GetFileName(file)))
+                    if (ignore == null || !ignore.Contains(Path.GetFileName(file)))
                         yield return file;
         }
 
@@ -246,7 +248,7 @@ namespace GameEstate.Core
 
             // parse
             var r = new FileManager { };
-            bool TryAddPath(string path, JsonProperty prop)
+            bool TryAddPath(JsonProperty prop, string path)
             {
                 if (path == null || !Directory.Exists(path = PathWithSpecialFolders(path)))
                     return false;
@@ -256,6 +258,24 @@ namespace GameEstate.Core
                 {
                     r.Locations.Add(prop.Name, path.Replace('/', '\\'));
                     return true;
+                }
+                return false;
+            }
+            bool TryAddIgnore(JsonProperty prop, string path)
+            {
+                if (!r.Ignores.TryGetValue(prop.Name, out var z2))
+                    r.Ignores.Add(prop.Name, (z2 = new HashSet<string>()));
+                z2.Add(path);
+                return false;
+            }
+            bool TryAddFilter(JsonProperty prop, string name, JsonElement element)
+            {
+                if (!r.Filters.TryGetValue(prop.Name, out var z2))
+                    r.Filters.Add(prop.Name, (z2 = new Dictionary<string, string>()));
+                switch (element.ValueKind)
+                {
+                    case JsonValueKind.String: z2.Add(name, element.GetString()); break;
+                    default: throw new ArgumentOutOfRangeException();
                 }
                 return false;
             }
@@ -274,9 +294,8 @@ namespace GameEstate.Core
                         }
                         foreach (var key in keys)
                             if (TryGetRegistryByKey(key, prop, prop.Value.TryGetProperty(key, out z) ? (JsonElement?)z : null, out var path)
-                                && TryAddPath(path, prop))
+                                && TryAddPath(prop, path))
                                 break;
-
                     }
 
             // direct
@@ -292,12 +311,12 @@ namespace GameEstate.Core
                             default: throw new ArgumentOutOfRangeException();
                         }
                         foreach (var path in paths)
-                            if (TryAddPath(path, prop))
+                            if (TryAddPath(prop, path))
                                 break;
                     }
 
-            // ignore
-            if (elem.TryGetProperty("ignore", out z))
+            // ignores
+            if (elem.TryGetProperty("ignores", out z))
                 foreach (var prop in z.EnumerateObject())
                     if (prop.Value.TryGetProperty("path", out z))
                     {
@@ -309,8 +328,16 @@ namespace GameEstate.Core
                             default: throw new ArgumentOutOfRangeException();
                         }
                         foreach (var path in paths)
-                            r.Ignore.Add(path);
+                            if (TryAddIgnore(prop, path))
+                                break;
                     }
+
+            // filters
+            if (elem.TryGetProperty("filters", out z))
+                foreach (var prop in z.EnumerateObject())
+                    foreach (var filter in prop.Value.EnumerateObject())
+                        if (TryAddFilter(prop, filter.Name, filter.Value))
+                            break;
 
             return r;
         }
