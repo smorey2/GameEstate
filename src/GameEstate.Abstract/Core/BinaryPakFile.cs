@@ -14,7 +14,7 @@ using System.Threading.Tasks;
 namespace GameEstate.Core
 {
     [DebuggerDisplay("{Name}")]
-    public abstract class BinaryPakFile : AbstractPakFile
+    public abstract class BinaryPakFile : EstatePakFile
     {
         readonly ConcurrentDictionary<string, GenericPool<BinaryReader>> BinaryReaders = new ConcurrentDictionary<string, GenericPool<BinaryReader>>();
         public readonly string FilePath;

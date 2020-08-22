@@ -16,6 +16,7 @@ namespace GameEstate
                 if (startup())
                     return;
             EstatePlatform.Platform = EstatePlatform.PlatformUnknown;
+            EstatePlatform.GraphicFactory = source => throw new Exception("No GraphicFactory");
             EstateDebug.AssertFunc = x => System.Diagnostics.Debug.Assert(x);
             EstateDebug.LogFunc = a => System.Diagnostics.Debug.Print(a);
             EstateDebug.LogFormatFunc = (a, b) => System.Diagnostics.Debug.Print(a, b);
@@ -187,6 +188,12 @@ namespace GameEstate
         public Resource ParseResource(Uri uri) => FileManager.ParseResource(this, uri);
 
         #region Pak
+        
+        static EstatePakFile WithPlatformGraphic(EstatePakFile pakFile)
+        {
+            pakFile.Graphic = EstatePlatform.GraphicFactory(pakFile);
+            return pakFile;
+        }
 
         /// <summary>
         /// Opens the pak file.
@@ -194,7 +201,7 @@ namespace GameEstate
         /// <param name="filePaths">The file paths.</param>
         /// <param name="game">The game.</param>
         /// <returns></returns>
-        public AbstractPakFile OpenPakFile(string[] filePaths, string game)
+        public EstatePakFile OpenPakFile(string[] filePaths, string game)
         {
             if (game == null)
                 throw new ArgumentNullException(nameof(game));
@@ -204,9 +211,9 @@ namespace GameEstate
             {
                 case PakMultiType.SingleBinary:
                     return filePaths.Length == 1
-                        ? (AbstractPakFile)Activator.CreateInstance(PakFileType, this, game, filePaths[0], null)
-                        : new MultiPakFile(this, game, "Many", filePaths.Select(x => (AbstractPakFile)Activator.CreateInstance(PakFileType, this, game, x, null)).ToArray());
-                case PakMultiType.Full: return (AbstractPakFile)Activator.CreateInstance(PakFileType, this, game, filePaths);
+                        ? WithPlatformGraphic((EstatePakFile)Activator.CreateInstance(PakFileType, this, game, filePaths[0], null))
+                        : WithPlatformGraphic(new MultiPakFile(this, game, "Many", filePaths.Select(x => (EstatePakFile)Activator.CreateInstance(PakFileType, this, game, x, null)).ToArray()));
+                case PakMultiType.Full: return WithPlatformGraphic((EstatePakFile)Activator.CreateInstance(PakFileType, this, game, filePaths));
                 default: throw new ArgumentOutOfRangeException(nameof(PakMulti), PakMulti.ToString());
             }
         }
@@ -216,12 +223,9 @@ namespace GameEstate
         /// </summary>
         /// <param name="resource">The resource.</param>
         /// <returns></returns>
-        public AbstractPakFile OpenPakFile(Resource resource)
-        {
-            if (!resource.StreamPak)
-                return OpenPakFile(resource.Paths, resource.Game);
-            return new MultiPakFile(this, resource.Game, "Many", resource.Paths.Select(x => new StreamPakFile(FileManager.HostFactory, this, resource.Game, x, resource.Host)).ToArray());
-        }
+        public EstatePakFile OpenPakFile(Resource resource) => !resource.StreamPak
+            ? OpenPakFile(resource.Paths, resource.Game)
+            : WithPlatformGraphic(new MultiPakFile(this, resource.Game, "Many", resource.Paths.Select(x => new StreamPakFile(FileManager.HostFactory, this, resource.Game, x, resource.Host)).ToArray()));
 
         /// <summary>
         /// Opens the pak file.
@@ -229,7 +233,7 @@ namespace GameEstate
         /// <param name="uri">The URI.</param>
         /// <param name="many">if set to <c>true</c> [many].</param>
         /// <returns></returns>
-        public AbstractPakFile OpenPakFile(Uri uri) => OpenPakFile(FileManager.ParseResource(this, uri));
+        public EstatePakFile OpenPakFile(Uri uri) => OpenPakFile(FileManager.ParseResource(this, uri));
 
         #endregion
     }

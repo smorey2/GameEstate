@@ -11,7 +11,7 @@ namespace GameEstate.Estates
     /// TesPakFile
     /// </summary>
     /// <seealso cref="GameEstate.Core.BinaryPakFile" />
-    public class TesPakFile : BinaryPakManyFile, IGraphicLoader
+    public class TesPakFile : BinaryPakManyFile
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="TesPakFile" /> class.

@@ -7,26 +7,26 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace GameEstate.Core
+namespace GameEstate
 {
     /// <summary>
     /// AbstractPakFile
     /// </summary>
     /// <seealso cref="System.IDisposable" />
-    public abstract class AbstractPakFile : IDisposable
+    public abstract class EstatePakFile : IDisposable
     {
         public readonly Estate Estate;
         public readonly string Game;
         public readonly string Name;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="AbstractPakFile" /> class.
+        /// Initializes a new instance of the <see cref="EstatePakFile" /> class.
         /// </summary>
         /// <param name="game">The game.</param>
         /// <exception cref="ArgumentNullException">filePaths
         /// or
         /// game</exception>
-        public AbstractPakFile(Estate estate, string game, string name)
+        public EstatePakFile(Estate estate, string game, string name)
         {
             Estate = estate ?? throw new ArgumentNullException(nameof(estate));
             Game = game ?? throw new ArgumentNullException(nameof(game));
@@ -75,6 +75,14 @@ namespace GameEstate.Core
         /// <param name="exception">The exception.</param>
         /// <returns></returns>
         public abstract Task<T> LoadFileObjectAsync<T>(string filePath, Action<FileMetadata, string> exception = null);
+
+        /// <summary>
+        /// Gets the graphic.
+        /// </summary>
+        /// <value>
+        /// The graphic.
+        /// </value>
+        public IEstateGraphic Graphic { get; internal set; }
 
         #region Explorer
 

@@ -9,6 +9,7 @@ namespace GameEstate
         public const string PlatformUnknown = "";
 
         public static string Platform;
+        public static Func<EstatePakFile, IEstateGraphic> GraphicFactory;
 
         public static readonly List<Func<bool>> Startups = new List<Func<bool>>();
     }

@@ -35,19 +35,19 @@ namespace GameEstate.Explorer.View
         public event PropertyChangedEventHandler PropertyChanged;
         void NotifyPropertyChanged([CallerMemberName] string propertyName = "") => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
 
-        public static readonly DependencyProperty PakFileProperty = DependencyProperty.Register(nameof(PakFile), typeof(AbstractPakFile), typeof(FileExplorer),
+        public static readonly DependencyProperty PakFileProperty = DependencyProperty.Register(nameof(PakFile), typeof(EstatePakFile), typeof(FileExplorer),
             new PropertyMetadata((d, e) =>
             {
-                if (!(d is FileExplorer fileExplorer) || !(e.NewValue is AbstractPakFile pakFile))
+                if (!(d is FileExplorer fileExplorer) || !(e.NewValue is EstatePakFile pakFile))
                     return;
                 fileExplorer.NodeFilters = pakFile.GetExplorerItemFiltersAsync(Resource).Result;
                 fileExplorer.Nodes = fileExplorer.PakNodes = pakFile.GetExplorerItemNodesAsync(Resource).Result;
                 fileExplorer.OnFileInfo(null);
             }));
 
-        public AbstractPakFile PakFile
+        public EstatePakFile PakFile
         {
-            get => GetValue(PakFileProperty) as AbstractPakFile;
+            get => GetValue(PakFileProperty) as EstatePakFile;
             set => SetValue(PakFileProperty, value);
         }
 

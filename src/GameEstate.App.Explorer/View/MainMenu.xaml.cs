@@ -23,7 +23,7 @@ namespace GameEstate.Explorer.View
 
         public void OnFirstLoad() => OpenFile_Click(null, null);
 
-        public IList<AbstractPakFile> PakFiles { get; private set; } = new List<AbstractPakFile>();
+        public IList<EstatePakFile> PakFiles { get; private set; } = new List<EstatePakFile>();
 
         void OpenFile_Click(object sender, RoutedEventArgs e)
         {

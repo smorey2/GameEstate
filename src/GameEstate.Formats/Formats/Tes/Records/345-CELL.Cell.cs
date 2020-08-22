@@ -1,10 +1,9 @@
 ﻿using GameEstate.Core;
-using System.IO;
+using GameEstate.Graphics;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Runtime.InteropServices;
-using GameEstate.Data;
-using GameEstate.Graphics;
 
 namespace GameEstate.Formats.Tes.Records
 {

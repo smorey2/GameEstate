@@ -1,5 +1,4 @@
-﻿using GameEstate.Core;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using UnityEngine;
 using static GameEstate.EstateDebug;
@@ -8,11 +7,11 @@ namespace GameEstate.Graphics
 {
     public class TextureManager
     {
-        readonly AbstractPakFile _pakFile;
+        readonly EstatePakFile _pakFile;
         readonly Dictionary<string, Task<TextureInfo>> _textureFilePreloadTasks = new Dictionary<string, Task<TextureInfo>>();
         readonly Dictionary<string, Texture2D> _cachedTextures = new Dictionary<string, Texture2D>();
 
-        public TextureManager(AbstractPakFile pakFile) => _pakFile = pakFile;
+        public TextureManager(EstatePakFile pakFile) => _pakFile = pakFile;
 
         public Texture2D LoadTexture(string texturePath)
         {

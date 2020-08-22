@@ -10,6 +10,6 @@
                 MakeObject(Test.Param1);
         }
 
-        void MakeObject(string path) => PakFile.CreateObject(path);
+        void MakeObject(string path) => Graphic.CreateObject(path);
     }
 }

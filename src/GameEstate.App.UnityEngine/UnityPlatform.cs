@@ -14,6 +14,7 @@ namespace GameEstate
             try
             {
                 EstatePlatform.Platform = task.Result;
+                EstatePlatform.GraphicFactory = source => new UnityGraphic(source);
                 //Debug.Log(Platform);
                 UnsafeUtils.Memcpy = (dest, src, count) => { UnsafeUtility.MemCpy((void*)dest, (void*)src, count); return IntPtr.Zero; };
                 EstateDebug.AssertFunc = x => Debug.Assert(x);

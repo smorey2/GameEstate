@@ -70,7 +70,7 @@ namespace GameEstate.Tests.PakFiles
             else await ExportAsync(pakFile);
         }
 
-        static Task ExportAsync(AbstractPakFile source)
+        static Task ExportAsync(EstatePakFile source)
         {
             if (!(source is BinaryPakManyFile multiSource))
                 throw new NotSupportedException();

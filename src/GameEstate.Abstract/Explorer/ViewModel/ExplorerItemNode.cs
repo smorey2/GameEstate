@@ -28,7 +28,7 @@ namespace GameEstate.Explorer.ViewModel
         public object Icon { get; }
         public object Tag { get; }
         public List<ExplorerItemNode> Items { get; private set; }
-        public AbstractPakFile PakFile { get; set; }
+        public EstatePakFile PakFile { get; set; }
 
         public ExplorerItemNode(string name, object icon, object tag = null, List<ExplorerItemNode> children = null)
         {

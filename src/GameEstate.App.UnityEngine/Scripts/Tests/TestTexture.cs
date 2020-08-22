@@ -1,9 +1,12 @@
 ﻿using GameEstate.Graphics;
-using System;
 using UnityEngine;
 
 namespace Tests
 {
+    // game:/Morrowind.bsa#Morrowind
+    // http://192.168.1.3/ASSETS/Morrowind/Morrowind.bsa#Morrowind
+    // game:/Skyrim*#SkyrimVR
+    // game:/Fallout4*#Fallout4VR
     public class TestTexture : AbstractTest
     {
         public TestTexture(UnityTest test) : base(test) { }
@@ -18,17 +21,14 @@ namespace Tests
 
         GameObject MakeTexture(string path)
         {
-            var materialManager = PakFile.MaterialManager;
-            var obj = GameObject.CreatePrimitive(PrimitiveType.Cube); // GameObject.Find("Cube"); // CreatePrimitive(PrimitiveType.Cube);
+            var materialManager = Graphic.MaterialManager;
+            var obj = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            var materialProps = new MaterialProps { Textures = new MaterialTextures { MainFilePath = path } };
             var meshRenderer = obj.GetComponent<MeshRenderer>();
-            var materialProps = new MaterialProps
-            {
-                Textures = new MaterialTextures { MainFilePath = path },
-            };
-            meshRenderer.material = materialManager.BuildMaterialFromProperties(materialProps);
+            meshRenderer.material = Graphic.MaterialManager.BuildMaterialFromProperties(materialProps);
             return obj;
         }
 
-        void MakeCursor(string path) => Cursor.SetCursor(PakFile.LoadTexture(path), Vector2.zero, CursorMode.Auto);
+        void MakeCursor(string path) => Cursor.SetCursor(Graphic.LoadTexture(path), Vector2.zero, CursorMode.Auto);
     }
 }

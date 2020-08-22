@@ -1,5 +1,4 @@
 ﻿using GameEstate;
-using GameEstate.Core;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,8 +9,8 @@ namespace Tests
     {
         protected readonly UnityTest Test;
         protected readonly Estate Estate;
-        protected readonly List<AbstractPakFile> PakFiles = new List<AbstractPakFile>();
-        protected readonly UnityPakFile PakFile;
+        protected readonly List<EstatePakFile> PakFiles = new List<EstatePakFile>();
+        protected readonly IUnityGraphic Graphic;
 
         public AbstractTest(UnityTest test)
         {
@@ -23,12 +22,11 @@ namespace Tests
             if (!string.IsNullOrEmpty(test.Pak2Uri)) PakFiles.Add(Estate.OpenPakFile(new Uri(test.Pak2Uri)));
             if (!string.IsNullOrEmpty(test.Pak3Uri)) PakFiles.Add(Estate.OpenPakFile(new Uri(test.Pak3Uri)));
             var first = PakFiles.FirstOrDefault();
-            PakFile = first != null ? new UnityPakFile(first) : null;
+            Graphic = (IUnityGraphic)first?.Graphic;
         }
 
         public virtual void Dispose()
         {
-            PakFile.Dispose();
             foreach (var pakFile in PakFiles)
                 pakFile.Dispose();
             PakFiles.Clear();

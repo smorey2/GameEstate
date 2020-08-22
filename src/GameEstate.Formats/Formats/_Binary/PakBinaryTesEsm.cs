@@ -1,5 +1,4 @@
 ﻿using GameEstate.Core;
-using GameEstate.Data;
 using GameEstate.Formats.Tes;
 using GameEstate.Formats.Tes.Records;
 using System;

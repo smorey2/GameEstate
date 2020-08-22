@@ -2,10 +2,6 @@
 using Tests;
 using UnityEngine;
 
-// game:/Morrowind.bsa#Morrowind
-// http://192.168.1.3/ASSETS/Morrowind/Morrowind.bsa#Morrowind
-// game:/Skyrim*#SkyrimVR
-// game:/Fallout4*#Fallout4VR
 public class UnityTest : UnityEngine.MonoBehaviour
 {
     AbstractTest Test;

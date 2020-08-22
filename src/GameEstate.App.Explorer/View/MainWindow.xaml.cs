@@ -25,7 +25,7 @@ namespace GameEstate.Explorer.View
     public class ExplorerMainTab
     {
         public string Name { get; set; }
-        public AbstractPakFile PakFile { get; set; }
+        public EstatePakFile PakFile { get; set; }
         public string Text { get; set; }
     }
 

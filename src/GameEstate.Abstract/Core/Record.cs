@@ -1,4 +1,4 @@
-﻿namespace GameEstate.Data
+﻿namespace GameEstate.Core
 {
     public interface IRecord { }
 

@@ -12,14 +12,14 @@ namespace GameEstate.Formats.Tes
     /// </summary>
     public class NifManager
     {
-        readonly AbstractPakFile _pakFile;
+        readonly EstatePakFile _pakFile;
         readonly MaterialManager _materialManager;
         GameObject _prefabContainerObj;
         readonly Dictionary<string, Task<object>> _preloadTasks = new Dictionary<string, Task<object>>();
         readonly Dictionary<string, GameObject> _prefabs = new Dictionary<string, GameObject>();
         readonly int _markerLayer;
 
-        public NifManager(AbstractPakFile pakFile, MaterialManager materialManager, int markerLayer)
+        public NifManager(EstatePakFile pakFile, MaterialManager materialManager, int markerLayer)
         {
             _pakFile = pakFile;
             _materialManager = materialManager;

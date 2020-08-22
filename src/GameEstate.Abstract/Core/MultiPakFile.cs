@@ -11,12 +11,12 @@ using System.Threading.Tasks;
 namespace GameEstate.Core
 {
     [DebuggerDisplay("Paks: {Paks.Count}")]
-    public class MultiPakFile : AbstractPakFile
+    public class MultiPakFile : EstatePakFile
     {
         /// <summary>
         /// The paks
         /// </summary>
-        public readonly IList<AbstractPakFile> PakFiles;
+        public readonly IList<EstatePakFile> PakFiles;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="MultiPakFile" /> class.
@@ -25,7 +25,7 @@ namespace GameEstate.Core
         /// <param name="game">The game.</param>
         /// <param name="name">The name.</param>
         /// <param name="pakFiles">The packs.</param>
-        public MultiPakFile(Estate estate, string game, string name, IList<AbstractPakFile> pakFiles) : base(estate, game, name) => PakFiles = pakFiles;
+        public MultiPakFile(Estate estate, string game, string name, IList<EstatePakFile> pakFiles) : base(estate, game, name) => PakFiles = pakFiles;
 
         /// <summary>
         /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
