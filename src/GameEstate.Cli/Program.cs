@@ -201,7 +201,7 @@ namespace GameEstate
                 Console.WriteLine("Paks found:");
                 foreach (var p in multiPak.PakFiles)
                 {
-                    if (!(p is BinaryPakMultiFile pak))
+                    if (!(p is BinaryPakManyFile pak))
                         throw new InvalidOperationException("multiPak not a BinaryPakFile");
                     Console.WriteLine($"\n{pak.Name}");
                     foreach (var exts in pak.Files.Select(x => Path.GetExtension(x.Path)).GroupBy(x => x))

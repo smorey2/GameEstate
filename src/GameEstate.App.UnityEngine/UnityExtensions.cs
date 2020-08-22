@@ -43,7 +43,6 @@ namespace GameEstate
             return xRot * zRot * yRot;
         }
 
-
         /// <summary>
         /// Creates a Unity Texture2D from this Texture2DInfo.
         /// </summary>

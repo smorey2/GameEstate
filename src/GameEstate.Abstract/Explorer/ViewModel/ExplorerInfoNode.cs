@@ -1,7 +1,9 @@
 ﻿using System.Collections.Generic;
+using System.Diagnostics;
 
 namespace GameEstate.Explorer.ViewModel
 {
+    [DebuggerDisplay("{Name}, items: {Items.Count} [{Tag}]")]
     public class ExplorerInfoNode
     {
         public string Name { get; set; }

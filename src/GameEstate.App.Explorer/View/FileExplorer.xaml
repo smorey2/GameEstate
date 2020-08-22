@@ -23,6 +23,7 @@
         <TreeView Name="Node" Grid.Row="2" Margin="7.5,7.5,0,0"
                   ScrollViewer.VerticalScrollBarVisibility="Auto"
                   VirtualizingStackPanel.IsVirtualizing="True"
+                  VirtualizingStackPanel.VirtualizationMode="Recycling"
                   ItemsSource="{Binding Path=Nodes}"
                   SelectedItemChanged="Node_SelectedItemChanged">
             <TreeView.ItemTemplate>

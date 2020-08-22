@@ -8,7 +8,7 @@ namespace GameEstate.Estates
     /// OriginPakFile
     /// </summary>
     /// <seealso cref="GameEstate.Core.BinaryPakFile" />
-    public class OriginPakFile : BinaryPakMultiFile
+    public class OriginPakFile : BinaryPakManyFile
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="OriginPakFile" /> class.
@@ -20,8 +20,6 @@ namespace GameEstate.Estates
         public OriginPakFile(Estate estate, string game, string filePath, object tag = null) : base(estate, game, filePath, game == "UltimaOnline" ? PakBinaryOriginUO.Instance : PakBinaryOriginU9.Instance, tag)
         {
             ExplorerItems = StandardExplorerItem.GetPakFilesAsync;
-            ExplorerInfos.Add("_default", StandardExplorerInfo.GetDefaultAsync);
-            ExplorerInfos.Add(".dds", StandardExplorerInfo.GetDdsAsync);
             Open();
         }
     }

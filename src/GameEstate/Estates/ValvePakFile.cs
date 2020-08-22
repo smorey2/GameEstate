@@ -8,7 +8,7 @@ namespace GameEstate.Estates
     /// UOPakFile
     /// </summary>
     /// <seealso cref="GameEstate.Core.BinaryPakFile" />
-    public class ValvePakFile : BinaryPakMultiFile
+    public class ValvePakFile : BinaryPakManyFile
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="ValvePakFile" /> class.
@@ -20,8 +20,6 @@ namespace GameEstate.Estates
         public ValvePakFile(Estate estate, string game, string filePath, object tag = null) : base(estate, game, filePath, PakBinaryValve.Instance, tag)
         {
             ExplorerItems = StandardExplorerItem.GetPakFilesAsync;
-            ExplorerInfos.Add("_default", StandardExplorerInfo.GetDefaultAsync);
-            ExplorerInfos.Add(".dds", StandardExplorerInfo.GetDdsAsync);
             Open();
         }
     }

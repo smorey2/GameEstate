@@ -23,9 +23,9 @@ namespace GameEstate.Formats.Valve.Blocks
 
         public List<ReferenceInfo> List { get; } = new List<ReferenceInfo>();
 
-        public override void Read(BinaryReader r, BinaryPak resource)
+        public override void Read(BinaryPak parent, BinaryReader r)
         {
-            r.BaseStream.Position = Offset;
+            r.Position(Offset);
             for (var i = 0; i < Size; i++)
                 List.Add(new ReferenceInfo
                 {

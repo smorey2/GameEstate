@@ -8,7 +8,7 @@ namespace GameEstate.Estates
     /// CyanidePakFile
     /// </summary>
     /// <seealso cref="GameEstate.Core.BinaryPakFile" />
-    public class CyanidePakFile : BinaryPakMultiFile
+    public class CyanidePakFile : BinaryPakManyFile
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="UknPakFile" /> class.
@@ -20,8 +20,6 @@ namespace GameEstate.Estates
         public CyanidePakFile(Estate estate, string game, string filePath, object tag = null) : base(estate, game, filePath, PakBinaryCyanide.Instance, tag)
         {
             ExplorerItems = StandardExplorerItem.GetPakFilesAsync;
-            ExplorerInfos.Add("_default", StandardExplorerInfo.GetDefaultAsync);
-            ExplorerInfos.Add(".dds", StandardExplorerInfo.GetDdsAsync);
             Open();
         }
     }

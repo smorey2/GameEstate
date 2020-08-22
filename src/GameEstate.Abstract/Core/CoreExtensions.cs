@@ -185,18 +185,18 @@ namespace GameEstate.Core
         public static void Seek(this BinaryReader source, long offset, SeekOrigin origin) => source.BaseStream.Seek(offset, origin);
         public static void Skip(this BinaryReader source, long count) => source.BaseStream.Seek(count, SeekOrigin.Current); // source.BaseStream.Position += count;
 
-        public static void Peek(this BinaryReader source, Action action, int offset = 0)
+        public static void Peek(this BinaryReader source, Action<BinaryReader> action, int offset = 0)
         {
             var position = source.BaseStream.Position;
             if (offset != 0) source.BaseStream.Position += offset;
-            action();
+            action(source);
             source.BaseStream.Position = position;
         }
-        public static T Peek<T>(this BinaryReader source, Func<T> action, int offset = 0)
+        public static T Peek<T>(this BinaryReader source, Func<BinaryReader, T> action, int offset = 0)
         {
             var position = source.BaseStream.Position;
             if (offset != 0) source.BaseStream.Position += offset;
-            var value = action();
+            var value = action(source);
             source.BaseStream.Position = position;
             return value;
         }

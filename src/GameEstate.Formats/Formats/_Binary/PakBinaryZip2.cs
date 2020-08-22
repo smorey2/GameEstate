@@ -18,7 +18,7 @@ namespace GameEstate.Formats.Binary
 
         public override Task ReadAsync(BinaryPakFile source, BinaryReader r, ReadStage stage)
         {
-            if (!(source is BinaryPakMultiFile multiSource))
+            if (!(source is BinaryPakManyFile multiSource))
                 throw new NotSupportedException();
             if (stage != ReadStage.File)
                 throw new ArgumentOutOfRangeException(nameof(stage), stage.ToString());
@@ -37,7 +37,7 @@ namespace GameEstate.Formats.Binary
             return Task.CompletedTask;
         }
 
-        public override Task<Stream> ReadFileAsync(BinaryPakFile source, BinaryReader r, FileMetadata file, Action<FileMetadata, string> exception = null)
+        public override Task<Stream> ReadDataAsync(BinaryPakFile source, BinaryReader r, FileMetadata file, Action<FileMetadata, string> exception = null)
         {
             var pak = (ZipArchive)source.Tag;
             var entry = (ZipArchiveEntry)file.Tag;

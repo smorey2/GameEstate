@@ -6,9 +6,9 @@ namespace GameEstate.Formats.Valve.Blocks
 {
     public class REDICustomDependencies : REDIAbstract
     {
-        public override void Read(BinaryReader r, BinaryPak resource)
+        public override void Read(BinaryPak parent, BinaryReader r)
         {
-            r.BaseStream.Position = Offset;
+            r.Position(Offset);
             if (Size > 0)
                 throw new NotImplementedException("CustomDependencies block is not handled.");
         }

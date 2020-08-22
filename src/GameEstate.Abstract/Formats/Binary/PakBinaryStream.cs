@@ -12,7 +12,7 @@ namespace GameEstate.Formats.Binary
     {
         public override Task ReadAsync(BinaryPakFile source, BinaryReader r, ReadStage stage)
         {
-            if (!(source is BinaryPakMultiFile multiSource))
+            if (!(source is BinaryPakManyFile multiSource))
                 throw new NotSupportedException();
 
             switch (stage)
@@ -106,7 +106,7 @@ namespace GameEstate.Formats.Binary
 
         public override Task WriteAsync(BinaryPakFile source, BinaryWriter w, WriteStage stage)
         {
-            if (!(source is BinaryPakMultiFile multiSource))
+            if (!(source is BinaryPakManyFile multiSource))
                 throw new NotSupportedException();
 
             switch (stage)

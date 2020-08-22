@@ -8,10 +8,10 @@
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
     <Grid>
-        <!-- <VirtualizingStackPanel.VirtualizationMode="Recycling" -->
-        <TreeView ScrollViewer.VerticalScrollBarVisibility="Auto"
+        <TreeView Name="Node" ScrollViewer.VerticalScrollBarVisibility="Auto"
                   VirtualizingStackPanel.IsVirtualizing="True"
-                  ItemsSource="{Binding Path=Info}">
+                  VirtualizingStackPanel.VirtualizationMode="Recycling"
+                  ItemsSource="{Binding Path=Infos}">
             <TreeView.ItemTemplate>
                 <HierarchicalDataTemplate DataType="{x:Type model:ExplorerInfoNode}" ItemsSource="{Binding Path=Items}">
                     <TextBlock Text="{Binding Path=Name}"/>

@@ -8,7 +8,7 @@ namespace GameEstate.Estates
     /// CryPakFile
     /// </summary>
     /// <seealso cref="GameEstate.Core.BinaryPakFile" />
-    public class CryPakFile : BinaryPakMultiFile
+    public class CryPakFile : BinaryPakManyFile
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="CryPakFile" /> class.
@@ -20,8 +20,6 @@ namespace GameEstate.Estates
         public CryPakFile(Estate estate, string game, string filePath, object tag = null) : base(estate, game, filePath, PakBinaryZip2.Instance, tag)
         {
             ExplorerItems = StandardExplorerItem.GetPakFilesAsync;
-            ExplorerInfos.Add("_default", StandardExplorerInfo.GetDefaultAsync);
-            ExplorerInfos.Add(".dds", StandardExplorerInfo.GetDdsAsync);
             Open();
         }
     }

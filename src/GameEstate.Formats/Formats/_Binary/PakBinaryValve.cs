@@ -141,18 +141,41 @@ namespace GameEstate.Formats.Binary
 
         #endregion
 
+        // object factory
+        static Func<BinaryReader, FileMetadata, Task<object>> ObjectFactory(string path)
+        {
+            Task<object> BinaryPakFactory(BinaryReader r, FileMetadata f)
+            {
+                if (r.BaseStream.Length < 6)
+                    return null;
+                var input = r.Peek(z => z.ReadBytes(6));
+                var magic = BitConverter.ToUInt32(input, 0);
+                var magicResourceVersion = BitConverter.ToUInt16(input, 4);
+                if (magic == MAGIC) throw new InvalidOperationException("Pak File");
+                else if (magic == CompiledShader.MAGIC) return Task.FromResult((object)new CompiledShader(r, f.Path));
+                else if (magic == ClosedCaptions.MAGIC) return Task.FromResult((object)new ClosedCaptions(r));
+                else if (magic == ToolsAssetInfo.MAGIC) return Task.FromResult((object)new ToolsAssetInfo(r));
+                else if (magic == DATABinaryKV3.MAGIC || magic == DATABinaryKV3.MAGIC2) { var kv3 = new DATABinaryKV3 { Size = (uint)r.BaseStream.Length }; kv3.Read(null, r); return Task.FromResult((object)kv3); }
+                else if (magicResourceVersion == BinaryPak.KnownHeaderVersion) return Task.FromResult((object)new BinaryPak(r));
+                else return null;
+            }
+            switch (Path.GetExtension(path).ToLowerInvariant())
+            {
+                default: return BinaryPakFactory;
+            }
+        }
+
         public unsafe override Task ReadAsync(BinaryPakFile source, BinaryReader r, ReadStage stage)
         {
-            if (!(source is BinaryPakMultiFile multiSource))
+            if (!(source is BinaryPakManyFile multiSource))
                 throw new NotSupportedException();
             if (stage != ReadStage.File)
                 throw new ArgumentOutOfRangeException(nameof(stage), stage.ToString());
 
-            if (r.ReadUInt32() != MAGIC)
-                throw new InvalidDataException("Given file is not a VPK.");
-
             // header
             Header header;
+            if (r.ReadUInt32() != MAGIC)
+                throw new InvalidDataException("Given file is not a VPK.");
             var version = r.ReadUInt32();
             if (version == 1)
                 header = new Header
@@ -210,35 +233,16 @@ namespace GameEstate.Formats.Binary
                         if (fileName?.Length == 0)
                             break;
 
+                        var path = $"{(directoryName[0] != ' ' ? $"{directoryName}/" : null)}{fileName}.{typeName}";
                         var file = new FileMetadata
                         {
-                            Path = $"{(directoryName[0] != ' ' ? $"{directoryName}/" : null)}{fileName}.{typeName}",
+                            Path = path,
                             Digest = r.ReadUInt32(),
                             Extra = new byte[r.ReadUInt16()],
                             Id = r.ReadUInt16(),
                             Position = r.ReadUInt32(),
                             FileSize = r.ReadUInt32(),
-                            ObjectFactory = (f, r2) =>
-                            {
-                                if (r2.BaseStream.Length < 6)
-                                    return null;
-                                var input = r2.Peek(() => r2.ReadBytes(6));
-                                var magic = BitConverter.ToUInt32(input, 0);
-                                var magicResourceVersion = BitConverter.ToUInt16(input, 4);
-                                if (magic == MAGIC) return null;
-                                else if (magic == CompiledShader.MAGIC) return new CompiledShader(r2, f.Path);
-                                else if (magic == ClosedCaptions.MAGIC) return new ClosedCaptions(r2);
-                                else if (magic == ToolsAssetInfo.MAGIC) return new ToolsAssetInfo(r2);
-                                else if (magic == DATABinaryKV3.MAGIC || magic == DATABinaryKV3.MAGIC2) { var kv3 = new DATABinaryKV3 { Size = (uint)r2.BaseStream.Length }; kv3.Read(r2, null); return kv3; }
-                                else if (magicResourceVersion == BinaryPak.KnownHeaderVersion) return new BinaryPak(r2);
-                                else
-                                {
-                                    var bytes = r2.BaseStream.ReadAllBytes();
-                                    return !bytes.Contains<byte>(0x00)
-                                        ? (object)Encoding.UTF8.GetString(bytes)
-                                        : bytes;
-                                }
-                            },
+                            ObjectFactory = ObjectFactory(path),
                         };
                         if (file.Id != 0x7FFF)
                         {
@@ -293,7 +297,7 @@ namespace GameEstate.Formats.Binary
             return Task.CompletedTask;
         }
 
-        public override Task<Stream> ReadFileAsync(BinaryPakFile source, BinaryReader r, FileMetadata file, Action<FileMetadata, string> exception = null)
+        public override Task<Stream> ReadDataAsync(BinaryPakFile source, BinaryReader r, FileMetadata file, Action<FileMetadata, string> exception = null)
         {
             var data = new byte[file.Extra.Length + file.FileSize];
             if (file.Extra.Length > 0)

@@ -1,3 +1,4 @@
+using GameEstate.Core;
 using System;
 using System.IO;
 using System.Text;
@@ -53,15 +54,15 @@ namespace GameEstate.Formats.Valve.Blocks
 
         public uint StreamingDataSize { get; private set; }
 
-        //BinaryReader Reader;
+        protected BinaryPak Parent { get; private set; }
 
-        public override void Read(BinaryReader r, BinaryPak resource)
+        public override void Read(BinaryPak parent, BinaryReader r)
         {
-            //Reader = r;
-            r.BaseStream.Position = Offset;
-            if (resource.Version > 4)
-                throw new InvalidDataException($"Invalid vsnd version '{resource.Version}'");
-            if (resource.Version >= 4)
+            Parent = parent;
+            r.Position(Offset);
+            if (parent.Version > 4)
+                throw new InvalidDataException($"Invalid vsnd version '{parent.Version}'");
+            if (parent.Version >= 4)
             {
                 SampleRate = r.ReadUInt16();
                 SetVersion4(r);
@@ -85,7 +86,7 @@ namespace GameEstate.Formats.Valve.Blocks
             LoopStart = r.ReadInt32();
             SampleCount = r.ReadUInt32();
             Duration = r.ReadSingle();
-            r.BaseStream.Position += 12;
+            r.Skip(12);
             StreamingDataSize = r.ReadUInt32();
         }
 
@@ -101,9 +102,9 @@ namespace GameEstate.Formats.Valve.Blocks
         /// In case of WAV files, header is automatically generated as Valve removes it when compiling.
         /// </summary>
         /// <returns>Byte array containing sound data.</returns>
-        public byte[] GetSound(BinaryReader r)
+        public byte[] GetSound()
         {
-            using (var sound = GetSoundStream(r))
+            using (var sound = GetSoundStream())
                 return sound.ToArray();
         }
 
@@ -112,10 +113,11 @@ namespace GameEstate.Formats.Valve.Blocks
         /// In case of WAV files, header is automatically generated as Valve removes it when compiling.
         /// </summary>
         /// <returns>Memory stream containing sound data.</returns>
-        public MemoryStream GetSoundStream(BinaryReader r)
+        public MemoryStream GetSoundStream()
         {
-            r.BaseStream.Position = Offset + Size;
-            var stream = new MemoryStream();
+            var r = Parent.Reader;
+            r.Position(Offset + Size);
+            var s = new MemoryStream();
             if (SoundType == AudioFileType.WAV)
             {
                 // http://soundfile.sapp.org/doc/WaveFormat/
@@ -128,28 +130,27 @@ namespace GameEstate.Formats.Valve.Blocks
                 var byteRate = SampleRate * Channels * (Bits / 8);
                 var blockAlign = Channels * (Bits / 8);
 
-                stream.Write(headerRiff, 0, headerRiff.Length);
-                stream.Write(PackageInt(StreamingDataSize + 42, 4), 0, 4);
+                s.Write(headerRiff, 0, headerRiff.Length);
+                s.Write(PackageInt(StreamingDataSize + 42, 4), 0, 4);
 
-                stream.Write(formatWave, 0, formatWave.Length);
-                stream.Write(formatTag, 0, formatTag.Length);
-                stream.Write(PackageInt(16, 4), 0, 4); // Subchunk1Size
+                s.Write(formatWave, 0, formatWave.Length);
+                s.Write(formatTag, 0, formatTag.Length);
+                s.Write(PackageInt(16, 4), 0, 4); // Subchunk1Size
 
-                stream.Write(PackageInt(AudioFormat, 2), 0, 2);
-                stream.Write(PackageInt(Channels, 2), 0, 2);
-                stream.Write(PackageInt(SampleRate, 4), 0, 4);
-                stream.Write(PackageInt(byteRate, 4), 0, 4);
-                stream.Write(PackageInt(blockAlign, 2), 0, 2);
-                stream.Write(PackageInt(Bits, 2), 0, 2);
-                //stream.Write(PackageInt(0,2), 0, 2); // Extra param size
-                stream.Write(subChunkId, 0, subChunkId.Length);
-                stream.Write(PackageInt(StreamingDataSize, 4), 0, 4);
+                s.Write(PackageInt(AudioFormat, 2), 0, 2);
+                s.Write(PackageInt(Channels, 2), 0, 2);
+                s.Write(PackageInt(SampleRate, 4), 0, 4);
+                s.Write(PackageInt(byteRate, 4), 0, 4);
+                s.Write(PackageInt(blockAlign, 2), 0, 2);
+                s.Write(PackageInt(Bits, 2), 0, 2);
+                //s.Write(PackageInt(0,2), 0, 2); // Extra param size
+                s.Write(subChunkId, 0, subChunkId.Length);
+                s.Write(PackageInt(StreamingDataSize, 4), 0, 4);
             }
-            r.BaseStream.CopyTo(stream, (int)StreamingDataSize);
+            r.BaseStream.CopyTo(s, (int)StreamingDataSize);
             // Flush and reset position so that consumers can read it
-            stream.Flush();
-            stream.Seek(0, SeekOrigin.Begin);
-            return stream;
+            s.Flush(); s.Seek(0, SeekOrigin.Begin);
+            return s;
         }
 
         void SetVersion4(BinaryReader r)

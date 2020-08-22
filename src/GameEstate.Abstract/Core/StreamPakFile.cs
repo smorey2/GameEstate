@@ -11,8 +11,8 @@ namespace GameEstate.Core
     /// <summary>
     /// StreamPakFile
     /// </summary>
-    /// <seealso cref="GameEstate.Core.BinaryPakMultiFile" />
-    public class StreamPakFile : BinaryPakMultiFile
+    /// <seealso cref="GameEstate.Core.BinaryPakManyFile" />
+    public class StreamPakFile : BinaryPakManyFile
     {
         readonly AbstractHost Host;
 
@@ -38,7 +38,7 @@ namespace GameEstate.Core
         /// <param name="estate">The estate.</param>
         /// <param name="game">The game.</param>
         /// <param name="filePath">The file path.</param>
-        public StreamPakFile(BinaryPakMultiFile parent, Estate estate, string game, string filePath) : base(estate, game, filePath, new PakBinaryStream())
+        public StreamPakFile(BinaryPakManyFile parent, Estate estate, string game, string filePath) : base(estate, game, filePath, new PakBinaryStream())
         {
             UseBinaryReader = false;
             Files = parent.Files;
@@ -144,35 +144,5 @@ namespace GameEstate.Core
         /// <returns></returns>
         /// <exception cref="NotSupportedException"></exception>
         public override Task WriteFileDataAsync(BinaryWriter w, FileMetadata file, Stream data, Action<FileMetadata, string> exception) => throw new NotSupportedException();
-
-        #region Explorer
-
-        /// <summary>
-        /// Gets the explorer item nodes.
-        /// </summary>
-        /// <param name="manager">The resource.</param>
-        /// <returns></returns>
-        /// <exception cref="NotSupportedException"></exception>
-        public override Task<List<ExplorerItemNode>> GetExplorerItemNodesAsync(ExplorerManager manager) => throw new NotSupportedException();
-
-        /// <summary>
-        /// Gets the explorer item filters.
-        /// </summary>
-        /// <param name="manager">The resource.</param>
-        /// <returns></returns>
-        /// <exception cref="NotSupportedException"></exception>
-        public override Task<List<ExplorerItemNode.Filter>> GetExplorerItemFiltersAsync(ExplorerManager manager) => throw new NotSupportedException();
-
-
-        /// <summary>
-        /// Gets the explorer information nodes.
-        /// </summary>
-        /// <param name="manager">The resource.</param>
-        /// <param name="item">The item.</param>
-        /// <returns></returns>
-        /// <exception cref="NotSupportedException"></exception>
-        public override Task<List<ExplorerInfoNode>> GetExplorerInfoNodesAsync(ExplorerManager manager, ExplorerItemNode item) => throw new NotSupportedException();
-
-        #endregion
     }
 }

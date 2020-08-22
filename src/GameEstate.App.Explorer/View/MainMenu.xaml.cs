@@ -16,10 +16,6 @@ namespace GameEstate.Explorer.View
     {
         public static MainWindow MainWindow => MainWindow.Instance;
 
-        //public static ParticleExplorer Particle => ParticleExplorer.Instance;
-
-        //public static GameView GameView { get => GameView.Instance; }
-
         public MainMenu()
         {
             InitializeComponent();

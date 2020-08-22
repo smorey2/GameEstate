@@ -7,7 +7,7 @@ namespace GameEstate.Formats.Valve.Blocks
     {
         readonly string IntrospectionStructName;
 
-        protected BinaryPak Resource { get; private set; }
+        protected BinaryPak Parent { get; private set; }
 
         public IDictionary<string, object> Data { get; private set; }
 
@@ -16,17 +16,17 @@ namespace GameEstate.Formats.Valve.Blocks
         public DATABinaryKV3OrNTRO() { }
         public DATABinaryKV3OrNTRO(string introspectionStructName) => IntrospectionStructName = introspectionStructName;
 
-        public override void Read(BinaryReader reader, BinaryPak resource)
+        public override void Read(BinaryPak parent, BinaryReader r)
         {
-            Resource = resource;
-            if (!resource.ContainsBlockType<NTRO>())
+            Parent = parent;
+            if (!parent.ContainsBlockType<NTRO>())
             {
                 var kv3 = new DATABinaryKV3
                 {
                     Offset = Offset,
                     Size = Size,
                 };
-                kv3.Read(reader, resource);
+                kv3.Read(parent, r);
                 Data = kv3.Data;
                 BackingData = kv3;
             }
@@ -38,7 +38,7 @@ namespace GameEstate.Formats.Valve.Blocks
                     Offset = Offset,
                     Size = Size,
                 };
-                ntro.Read(reader, resource);
+                ntro.Read(parent, r);
                 Data = ntro.Data;
                 BackingData = ntro;
             }

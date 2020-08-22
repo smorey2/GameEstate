@@ -8,7 +8,7 @@ namespace GameEstate.Estates
     /// RsiPakFile
     /// </summary>
     /// <seealso cref="GameEstate.Core.BinaryPakFile" />
-    public class RsiPakFile : BinaryPakMultiFile
+    public class RsiPakFile : BinaryPakManyFile
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="RsiPakFile" /> class.
@@ -17,11 +17,9 @@ namespace GameEstate.Estates
         /// <param name="game">The game.</param>
         /// <param name="filePath">The file path.</param>
         /// <param name="tag">The tag.</param>
-        public RsiPakFile(Estate estate, string game, string filePath, object tag = null) : base(estate, game, filePath, PakBinaryP4k.Instance, tag)
+        public RsiPakFile(Estate estate, string game, string filePath, object tag = null) : base(estate, game, filePath, PakBinaryRsi.Instance, tag)
         {
             ExplorerItems = StandardExplorerItem.GetPakFilesAsync;
-            ExplorerInfos.Add("_default", StandardExplorerInfo.GetDefaultAsync);
-            ExplorerInfos.Add(".dds", StandardExplorerInfo.GetDdsAsync);
             Open();
         }
     }

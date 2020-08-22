@@ -1,8 +1,12 @@
 ﻿using GameEstate.Core;
+using GameEstate.Explorer;
+using GameEstate.Explorer.ViewModel;
+using GameEstate.Formats.Binary;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Numerics;
+using System.Text;
 using static GameEstate.EstateDebug;
 
 namespace GameEstate.Formats.Tes
@@ -62,64 +66,74 @@ namespace GameEstate.Formats.Tes
 
         public static NiObject ReadNiObject(BinaryReader r)
         {
-            var nodeTypeBytes = r.ReadL32Bytes();
-            if ("NiNode".Equals(nodeTypeBytes)) { var node = new NiNode(); node.Deserialize(r); return node; }
-            else if ("NiTriShape".Equals(nodeTypeBytes)) { var triShape = new NiTriShape(); triShape.Deserialize(r); return triShape; }
-            else if ("NiTexturingProperty".Equals(nodeTypeBytes)) { var prop = new NiTexturingProperty(); prop.Deserialize(r); return prop; }
-            else if ("NiSourceTexture".Equals(nodeTypeBytes)) { var srcTexture = new NiSourceTexture(); srcTexture.Deserialize(r); return srcTexture; }
-            else if ("NiMaterialProperty".Equals(nodeTypeBytes)) { var prop = new NiMaterialProperty(); prop.Deserialize(r); return prop; }
-            else if ("NiMaterialColorController".Equals(nodeTypeBytes)) { var controller = new NiMaterialColorController(); controller.Deserialize(r); return controller; }
-            else if ("NiTriShapeData".Equals(nodeTypeBytes)) { var data = new NiTriShapeData(); data.Deserialize(r); return data; }
-            else if ("RootCollisionNode".Equals(nodeTypeBytes)) { var node = new RootCollisionNode(); node.Deserialize(r); return node; }
-            else if ("NiStringExtraData".Equals(nodeTypeBytes)) { var data = new NiStringExtraData(); data.Deserialize(r); return data; }
-            else if ("NiSkinInstance".Equals(nodeTypeBytes)) { var instance = new NiSkinInstance(); instance.Deserialize(r); return instance; }
-            else if ("NiSkinData".Equals(nodeTypeBytes)) { var data = new NiSkinData(); data.Deserialize(r); return data; }
-            else if ("NiAlphaProperty".Equals(nodeTypeBytes)) { var prop = new NiAlphaProperty(); prop.Deserialize(r); return prop; }
-            else if ("NiZBufferProperty".Equals(nodeTypeBytes)) { var prop = new NiZBufferProperty(); prop.Deserialize(r); return prop; }
-            else if ("NiVertexColorProperty".Equals(nodeTypeBytes)) { var prop = new NiVertexColorProperty(); prop.Deserialize(r); return prop; }
-            else if ("NiBSAnimationNode".Equals(nodeTypeBytes)) { var node = new NiBSAnimationNode(); node.Deserialize(r); return node; }
-            else if ("NiBSParticleNode".Equals(nodeTypeBytes)) { var node = new NiBSParticleNode(); node.Deserialize(r); return node; }
-            else if ("NiParticles".Equals(nodeTypeBytes)) { var node = new NiParticles(); node.Deserialize(r); return node; }
-            else if ("NiParticlesData".Equals(nodeTypeBytes)) { var data = new NiParticlesData(); data.Deserialize(r); return data; }
-            else if ("NiRotatingParticles".Equals(nodeTypeBytes)) { var node = new NiRotatingParticles(); node.Deserialize(r); return node; }
-            else if ("NiRotatingParticlesData".Equals(nodeTypeBytes)) { var data = new NiRotatingParticlesData(); data.Deserialize(r); return data; }
-            else if ("NiAutoNormalParticles".Equals(nodeTypeBytes)) { var node = new NiAutoNormalParticles(); node.Deserialize(r); return node; }
-            else if ("NiAutoNormalParticlesData".Equals(nodeTypeBytes)) { var data = new NiAutoNormalParticlesData(); data.Deserialize(r); return data; }
-            else if ("NiUVController".Equals(nodeTypeBytes)) { var controller = new NiUVController(); controller.Deserialize(r); return controller; }
-            else if ("NiUVData".Equals(nodeTypeBytes)) { var data = new NiUVData(); data.Deserialize(r); return data; }
-            else if ("NiTextureEffect".Equals(nodeTypeBytes)) { var effect = new NiTextureEffect(); effect.Deserialize(r); return effect; }
-            else if ("NiTextKeyExtraData".Equals(nodeTypeBytes)) { var data = new NiTextKeyExtraData(); data.Deserialize(r); return data; }
-            else if ("NiVertWeightsExtraData".Equals(nodeTypeBytes)) { var data = new NiVertWeightsExtraData(); data.Deserialize(r); return data; }
-            else if ("NiParticleSystemController".Equals(nodeTypeBytes)) { var controller = new NiParticleSystemController(); controller.Deserialize(r); return controller; }
-            else if ("NiBSPArrayController".Equals(nodeTypeBytes)) { var controller = new NiBSPArrayController(); controller.Deserialize(r); return controller; }
-            else if ("NiGravity".Equals(nodeTypeBytes)) { var obj = new NiGravity(); obj.Deserialize(r); return obj; }
-            else if ("NiParticleBomb".Equals(nodeTypeBytes)) { var modifier = new NiParticleBomb(); modifier.Deserialize(r); return modifier; }
-            else if ("NiParticleColorModifier".Equals(nodeTypeBytes)) { var modifier = new NiParticleColorModifier(); modifier.Deserialize(r); return modifier; }
-            else if ("NiParticleGrowFade".Equals(nodeTypeBytes)) { var modifier = new NiParticleGrowFade(); modifier.Deserialize(r); return modifier; }
-            else if ("NiParticleMeshModifier".Equals(nodeTypeBytes)) { var modifier = new NiParticleMeshModifier(); modifier.Deserialize(r); return modifier; }
-            else if ("NiParticleRotation".Equals(nodeTypeBytes)) { var modifier = new NiParticleRotation(); modifier.Deserialize(r); return modifier; }
-            else if ("NiKeyframeController".Equals(nodeTypeBytes)) { var controller = new NiKeyframeController(); controller.Deserialize(r); return controller; }
-            else if ("NiKeyframeData".Equals(nodeTypeBytes)) { var data = new NiKeyframeData(); data.Deserialize(r); return data; }
-            else if ("NiColorData".Equals(nodeTypeBytes)) { var data = new NiColorData(); data.Deserialize(r); return data; }
-            else if ("NiGeomMorpherController".Equals(nodeTypeBytes)) { var controller = new NiGeomMorpherController(); controller.Deserialize(r); return controller; }
-            else if ("NiMorphData".Equals(nodeTypeBytes)) { var data = new NiMorphData(); data.Deserialize(r); return data; }
-            else if ("AvoidNode".Equals(nodeTypeBytes)) { var node = new AvoidNode(); node.Deserialize(r); return node; }
-            else if ("NiVisController".Equals(nodeTypeBytes)) { var controller = new NiVisController(); controller.Deserialize(r); return controller; }
-            else if ("NiVisData".Equals(nodeTypeBytes)) { var data = new NiVisData(); data.Deserialize(r); return data; }
-            else if ("NiAlphaController".Equals(nodeTypeBytes)) { var controller = new NiAlphaController(); controller.Deserialize(r); return controller; }
-            else if ("NiFloatData".Equals(nodeTypeBytes)) { var data = new NiFloatData(); data.Deserialize(r); return data; }
-            else if ("NiPosData".Equals(nodeTypeBytes)) { var data = new NiPosData(); data.Deserialize(r); return data; }
-            else if ("NiBillboardNode".Equals(nodeTypeBytes)) { var data = new NiBillboardNode(); data.Deserialize(r); return data; }
-            else if ("NiShadeProperty".Equals(nodeTypeBytes)) { var property = new NiShadeProperty(); property.Deserialize(r); return property; }
-            else { Log("Tried to read an unsupported NiObject type (" + System.Text.Encoding.ASCII.GetString(nodeTypeBytes) + ")."); return null; }
+            var nodeType = Encoding.ASCII.GetString(r.ReadL32Bytes());
+            switch (nodeType)
+            {
+                case "NiNode": { var node = new NiNode(); node.Deserialize(r); return node; }
+                case "NiTriShape": { var triShape = new NiTriShape(); triShape.Deserialize(r); return triShape; }
+                case "NiTexturingProperty": { var prop = new NiTexturingProperty(); prop.Deserialize(r); return prop; }
+                case "NiSourceTexture": { var srcTexture = new NiSourceTexture(); srcTexture.Deserialize(r); return srcTexture; }
+                case "NiMaterialProperty": { var prop = new NiMaterialProperty(); prop.Deserialize(r); return prop; }
+                case "NiMaterialColorController": { var controller = new NiMaterialColorController(); controller.Deserialize(r); return controller; }
+                case "NiTriShapeData": { var data = new NiTriShapeData(); data.Deserialize(r); return data; }
+                case "RootCollisionNode": { var node = new RootCollisionNode(); node.Deserialize(r); return node; }
+                case "NiStringExtraData": { var data = new NiStringExtraData(); data.Deserialize(r); return data; }
+                case "NiSkinInstance": { var instance = new NiSkinInstance(); instance.Deserialize(r); return instance; }
+                case "NiSkinData": { var data = new NiSkinData(); data.Deserialize(r); return data; }
+                case "NiAlphaProperty": { var prop = new NiAlphaProperty(); prop.Deserialize(r); return prop; }
+                case "NiZBufferProperty": { var prop = new NiZBufferProperty(); prop.Deserialize(r); return prop; }
+                case "NiVertexColorProperty": { var prop = new NiVertexColorProperty(); prop.Deserialize(r); return prop; }
+                case "NiBSAnimationNode": { var node = new NiBSAnimationNode(); node.Deserialize(r); return node; }
+                case "NiBSParticleNode": { var node = new NiBSParticleNode(); node.Deserialize(r); return node; }
+                case "NiParticles": { var node = new NiParticles(); node.Deserialize(r); return node; }
+                case "NiParticlesData": { var data = new NiParticlesData(); data.Deserialize(r); return data; }
+                case "NiRotatingParticles": { var node = new NiRotatingParticles(); node.Deserialize(r); return node; }
+                case "NiRotatingParticlesData": { var data = new NiRotatingParticlesData(); data.Deserialize(r); return data; }
+                case "NiAutoNormalParticles": { var node = new NiAutoNormalParticles(); node.Deserialize(r); return node; }
+                case "NiAutoNormalParticlesData": { var data = new NiAutoNormalParticlesData(); data.Deserialize(r); return data; }
+                case "NiUVController": { var controller = new NiUVController(); controller.Deserialize(r); return controller; }
+                case "NiUVData": { var data = new NiUVData(); data.Deserialize(r); return data; }
+                case "NiTextureEffect": { var effect = new NiTextureEffect(); effect.Deserialize(r); return effect; }
+                case "NiTextKeyExtraData": { var data = new NiTextKeyExtraData(); data.Deserialize(r); return data; }
+                case "NiVertWeightsExtraData": { var data = new NiVertWeightsExtraData(); data.Deserialize(r); return data; }
+                case "NiParticleSystemController": { var controller = new NiParticleSystemController(); controller.Deserialize(r); return controller; }
+                case "NiBSPArrayController": { var controller = new NiBSPArrayController(); controller.Deserialize(r); return controller; }
+                case "NiGravity": { var obj = new NiGravity(); obj.Deserialize(r); return obj; }
+                case "NiParticleBomb": { var modifier = new NiParticleBomb(); modifier.Deserialize(r); return modifier; }
+                case "NiParticleColorModifier": { var modifier = new NiParticleColorModifier(); modifier.Deserialize(r); return modifier; }
+                case "NiParticleGrowFade": { var modifier = new NiParticleGrowFade(); modifier.Deserialize(r); return modifier; }
+                case "NiParticleMeshModifier": { var modifier = new NiParticleMeshModifier(); modifier.Deserialize(r); return modifier; }
+                case "NiParticleRotation": { var modifier = new NiParticleRotation(); modifier.Deserialize(r); return modifier; }
+                case "NiKeyframeController": { var controller = new NiKeyframeController(); controller.Deserialize(r); return controller; }
+                case "NiKeyframeData": { var data = new NiKeyframeData(); data.Deserialize(r); return data; }
+                case "NiColorData": { var data = new NiColorData(); data.Deserialize(r); return data; }
+                case "NiGeomMorpherController": { var controller = new NiGeomMorpherController(); controller.Deserialize(r); return controller; }
+                case "NiMorphData": { var data = new NiMorphData(); data.Deserialize(r); return data; }
+                case "AvoidNode": { var node = new AvoidNode(); node.Deserialize(r); return node; }
+                case "NiVisController": { var controller = new NiVisController(); controller.Deserialize(r); return controller; }
+                case "NiVisData": { var data = new NiVisData(); data.Deserialize(r); return data; }
+                case "NiAlphaController": { var controller = new NiAlphaController(); controller.Deserialize(r); return controller; }
+                case "NiFloatData": { var data = new NiFloatData(); data.Deserialize(r); return data; }
+                case "NiPosData": { var data = new NiPosData(); data.Deserialize(r); return data; }
+                case "NiBillboardNode": { var data = new NiBillboardNode(); data.Deserialize(r); return data; }
+                case "NiShadeProperty": { var property = new NiShadeProperty(); property.Deserialize(r); return property; }
+                default: { Log($"Tried to read an unsupported NiObject type ({nodeType})."); return null; }
+            }
         }
 
         public static Matrix4x4 Read3x3RotationMatrix(BinaryReader r) => r.ReadRowMajorMatrix3x3();
     }
 
-    public class NiFile
+    public class NiFile : IGetExplorerInfo
     {
         public NiFile(string name) => Name = name;
+
+        List<ExplorerInfoNode> IGetExplorerInfo.GetInfoNodes(ExplorerManager resource, FileMetadata file) => new List<ExplorerInfoNode> {
+            new ExplorerInfoNode(null, new ExplorerContentTab { Type = "Engine", Name = Name, Value = this }),
+            new ExplorerInfoNode("Nif", items: new List<ExplorerInfoNode> {
+                new ExplorerInfoNode($"NumBlocks: {Header.NumBlocks}"),
+            }),
+        };
 
         public string Name;
         public NiHeader Header;

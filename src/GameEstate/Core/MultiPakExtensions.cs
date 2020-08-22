@@ -11,7 +11,7 @@ namespace GameEstate.Core
 
         public static async Task ExportAsync(this BinaryPakFile source, string filePath, int from = 0, Action<FileMetadata, int> advance = null, Action<FileMetadata, string> exception = null)
         {
-            if (!(source is BinaryPakMultiFile multiSource))
+            if (!(source is BinaryPakManyFile multiSource))
                 throw new NotSupportedException();
 
             // write pak
@@ -62,7 +62,7 @@ namespace GameEstate.Core
 
         public static async Task ImportAsync(this BinaryPakFile source, BinaryWriter w, string filePath, int from = 0, Action<FileMetadata, int> advance = null, Action<FileMetadata, string> exception = null)
         {
-            if (!(source is BinaryPakMultiFile multiSource))
+            if (!(source is BinaryPakManyFile multiSource))
                 throw new NotSupportedException();
 
             // read pak

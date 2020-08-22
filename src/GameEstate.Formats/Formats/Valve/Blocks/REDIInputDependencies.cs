@@ -27,9 +27,9 @@ namespace GameEstate.Formats.Valve.Blocks
 
         public List<InputDependency> List { get; } = new List<InputDependency>();
 
-        public override void Read(BinaryReader r, BinaryPak resource)
+        public override void Read(BinaryPak parent, BinaryReader r)
         {
-            r.BaseStream.Position = Offset;
+            r.Position(Offset);
             for (var i = 0; i < Size; i++)
                 List.Add(new InputDependency
                 {

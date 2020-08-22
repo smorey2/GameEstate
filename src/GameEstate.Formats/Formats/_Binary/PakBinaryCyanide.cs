@@ -1,4 +1,5 @@
 ﻿using GameEstate.Core;
+using GameEstate.Graphics;
 using System;
 using System.IO;
 using System.Runtime.InteropServices;
@@ -33,9 +34,25 @@ namespace GameEstate.Formats.Binary
 
         #endregion
 
+        // object factory
+        static Func<BinaryReader, FileMetadata, Task<object>> ObjectFactory(string path)
+        {
+            Task<object> DdsFactory(BinaryReader r, FileMetadata f)
+            {
+                var tex = new TextureInfo();
+                tex.ReadDds(r);
+                return Task.FromResult((object)tex);
+            }
+            switch (Path.GetExtension(path).ToLowerInvariant())
+            {
+                case ".dds": return DdsFactory;
+                default: return null;
+            }
+        }
+
         public unsafe override Task ReadAsync(BinaryPakFile source, BinaryReader r, ReadStage stage)
         {
-            if (!(source is BinaryPakMultiFile multiSource))
+            if (!(source is BinaryPakManyFile multiSource))
                 throw new NotSupportedException();
             if (stage != ReadStage.File)
                 throw new ArgumentOutOfRangeException(nameof(stage), stage.ToString());
@@ -50,9 +67,11 @@ namespace GameEstate.Formats.Binary
             for (var i = 0; i < files.Count; i++)
             {
                 var headerFile = headerFiles[i];
+                var path = UnsafeUtils.ReadZASCII(headerFile.FileName, 512).Replace('\\', '/');
                 files[i] = new FileMetadata
                 {
-                    Path = UnsafeUtils.ReadZASCII(headerFile.FileName, 512),
+                    Path = path,
+                    ObjectFactory = ObjectFactory(path),
                     FileSize = headerFile.FileSize,
                     Position = (long)headerFile.Offset,
                 };
@@ -60,7 +79,7 @@ namespace GameEstate.Formats.Binary
             return Task.CompletedTask;
         }
 
-        public override Task<Stream> ReadFileAsync(BinaryPakFile source, BinaryReader r, FileMetadata file, Action<FileMetadata, string> exception = null)
+        public override Task<Stream> ReadDataAsync(BinaryPakFile source, BinaryReader r, FileMetadata file, Action<FileMetadata, string> exception = null)
         {
             r.Position(file.Position);
             return Task.FromResult((Stream)new MemoryStream(r.ReadBytes((int)file.FileSize)));

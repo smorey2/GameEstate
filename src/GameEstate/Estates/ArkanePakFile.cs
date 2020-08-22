@@ -8,7 +8,7 @@ namespace GameEstate.Estates
     /// ArkanePakFile
     /// </summary>
     /// <seealso cref="GameEstate.Core.BinaryPakFile" />
-    public class ArkanePakFile : BinaryPakMultiFile
+    public class ArkanePakFile : BinaryPakManyFile
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="ArkanePakFile" /> class.
@@ -20,8 +20,6 @@ namespace GameEstate.Estates
         public ArkanePakFile(Estate estate, string game, string filePath, object tag = null) : base(estate, game, filePath, PakBinaryArkane.Instance, tag)
         {
             ExplorerItems = StandardExplorerItem.GetPakFilesAsync;
-            ExplorerInfos.Add("_default", StandardExplorerInfo.GetDefaultAsync);
-            ExplorerInfos.Add(".dds", StandardExplorerInfo.GetDdsAsync);
             Open();
         }
     }

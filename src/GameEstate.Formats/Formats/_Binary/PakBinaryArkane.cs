@@ -1,4 +1,5 @@
 ﻿using GameEstate.Core;
+using GameEstate.Graphics;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -14,7 +15,7 @@ namespace GameEstate.Formats.Binary
 
         const uint RES_MAGIC = 0x04534552;
 
-        class SubPakFile : BinaryPakMultiFile
+        class SubPakFile : BinaryPakManyFile
         {
             public SubPakFile(Estate estate, string game, string filePath, object tag = null) : base(estate, game, filePath, Instance, tag)
             {
@@ -22,9 +23,25 @@ namespace GameEstate.Formats.Binary
             }
         }
 
+        // object factory
+        static Func<BinaryReader, FileMetadata, Task<object>> ObjectFactory(string path)
+        {
+            Task<object> DdsFactory(BinaryReader r, FileMetadata f)
+            {
+                var tex = new TextureInfo();
+                tex.ReadDds(r);
+                return Task.FromResult((object)tex);
+            }
+            switch (Path.GetExtension(path).ToLowerInvariant())
+            {
+                case ".dds": return DdsFactory;
+                default: return null;
+            }
+        }
+
         public unsafe override Task ReadAsync(BinaryPakFile source, BinaryReader r, ReadStage stage)
         {
-            if (!(source is BinaryPakMultiFile multiSource))
+            if (!(source is BinaryPakManyFile multiSource))
                 throw new NotSupportedException();
             if (stage != ReadStage.File)
                 throw new ArgumentOutOfRangeException(nameof(stage), stage.ToString());
@@ -47,12 +64,12 @@ namespace GameEstate.Formats.Binary
                     var nameSize = r.ReadUInt32();
                     if (nameSize == SubMarker) { state++; nameSize = r.ReadUInt32(); }
                     else if (nameSize == EndMarker) break;
-                    var newPath = r.ReadASCII((int)nameSize);
+                    var path = r.ReadASCII((int)nameSize).Replace('\\', '/');
                     var packId = state > 0 ? r.ReadUInt16() : 0;
                     files2.Add(new FileMetadata
                     {
-                        Path = newPath,
-                        Pak = new SubPakFile(source.Estate, source.Game, newPath),
+                        Path = path,
+                        Pak = new SubPakFile(source.Estate, source.Game, path),
                     });
                 }
                 while (true);
@@ -83,7 +100,7 @@ namespace GameEstate.Formats.Binary
                 var id = Utility.Reverse(r.ReadUInt32());
                 var tag1 = r.ReadL32ASCII();
                 var tag2 = r.ReadL32ASCII();
-                var fileName = r.ReadL32ASCII();
+                var path = r.ReadL32ASCII().Replace('\\', '/');
                 var position = Utility.Reverse(r.ReadUInt64());
                 var fileSize = Utility.Reverse(r.ReadUInt32());
                 var packedSize = Utility.Reverse(r.ReadUInt32());
@@ -95,7 +112,8 @@ namespace GameEstate.Formats.Binary
                 files[i] = new FileMetadata
                 {
                     Id = (int)id,
-                    Path = fileName,
+                    Path = path,
+                    ObjectFactory = ObjectFactory(path),
                     Compressed = fileSize != packedSize ? 1 : 0,
                     FileSize = fileSize,
                     PackedSize = packedSize,
@@ -106,7 +124,7 @@ namespace GameEstate.Formats.Binary
             return Task.CompletedTask;
         }
 
-        public override Task<Stream> ReadFileAsync(BinaryPakFile source, BinaryReader r, FileMetadata file, Action<FileMetadata, string> exception = null)
+        public override Task<Stream> ReadDataAsync(BinaryPakFile source, BinaryReader r, FileMetadata file, Action<FileMetadata, string> exception = null)
         {
             if (file.FileSize == 0)
                 return Task.FromResult(System.IO.Stream.Null);

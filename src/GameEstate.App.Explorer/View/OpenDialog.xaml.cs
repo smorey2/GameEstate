@@ -35,7 +35,7 @@ namespace GameEstate.Explorer.View
         public event PropertyChangedEventHandler PropertyChanged;
         void NotifyPropertyChanged([CallerMemberName] string propertyName = "") => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
 
-        public ICollection<Estate> Estates { get; } = EstateManager.Estates.Values; //.Where(x => x.FileManager.FoundGames).ToList();
+        public ICollection<Estate> Estates { get; } = EstateManager.Estates.Values;
 
         public IList<Uri> PakUris
         {

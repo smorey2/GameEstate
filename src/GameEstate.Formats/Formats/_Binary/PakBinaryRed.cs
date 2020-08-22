@@ -2,6 +2,7 @@
 using Compression.Doboz;
 using Dolkens.Framework.Extensions;
 using GameEstate.Core;
+using GameEstate.Graphics;
 using GameEstate.Graphics.DirectX;
 using ICSharpCode.SharpZipLib.Zip.Compression.Streams;
 using K4os.Compression.LZ4;
@@ -69,7 +70,7 @@ namespace GameEstate.Formats.Binary
             public uint Id => (Flags & 0xFFF00000) >> 20; // BIF index
         }
 
-        class SubPakFile : BinaryPakMultiFile
+        class SubPakFile : BinaryPakManyFile
         {
             public SubPakFile(Estate estate, string game, string filePath, object tag = null) : base(estate, game, filePath, Instance, tag)
             {
@@ -385,9 +386,25 @@ namespace GameEstate.Formats.Binary
         // https://zenhax.com/viewtopic.php?t=3954
         // https://forums.cdprojektred.com/index.php?threads/modding-the-witcher-3-a-collection-of-tools-you-need.64557/
 
+        // object factory
+        static Func<BinaryReader, FileMetadata, Task<object>> ObjectFactory(string path)
+        {
+            Task<object> DdsFactory(BinaryReader r, FileMetadata f)
+            {
+                var tex = new TextureInfo();
+                tex.ReadDds(r);
+                return Task.FromResult((object)tex);
+            }
+            switch (Path.GetExtension(path).ToLowerInvariant())
+            {
+                case ".dds": return DdsFactory;
+                default: return null;
+            }
+        }
+
         public unsafe override Task ReadAsync(BinaryPakFile source, BinaryReader r, ReadStage stage)
         {
-            if (!(source is BinaryPakMultiFile multiSource))
+            if (!(source is BinaryPakManyFile multiSource))
                 throw new NotSupportedException();
             if (stage != ReadStage.File)
                 throw new ArgumentOutOfRangeException(nameof(stage), stage.ToString());
@@ -418,20 +435,20 @@ namespace GameEstate.Formats.Binary
                 // files
                 r.Position(header.FilesPosition);
                 var headerFiles = r.ReadTArray<KEY_HeaderFile>(sizeof(KEY_HeaderFile), (int)header.NumFiles);
-                var newPathPattern = Path.Combine(Path.GetDirectoryName(source.FilePath), "{0}");
+                var subPathFormat = Path.Combine(Path.GetDirectoryName(source.FilePath), "{0}");
                 for (var i = 0; i < header.NumFiles; i++)
                 {
                     var headerFile = headerFiles[i];
                     r.Position(headerFile.FileNameOffset);
-                    var fileName = r.ReadASCII((int)headerFile.FileNameSize);
-                    var newPath = string.Format(newPathPattern, fileName);
-                    if (!File.Exists(newPath))
+                    var path = r.ReadASCII((int)headerFile.FileNameSize);
+                    var subPath = string.Format(subPathFormat, path);
+                    if (!File.Exists(subPath))
                         continue;
                     files[i] = new FileMetadata
                     {
-                        Path = fileName,
+                        Path = path,
                         FileSize = headerFile.FileSize,
-                        Pak = new SubPakFile(source.Estate, source.Game, newPath, (keys, (uint)i)),
+                        Pak = new SubPakFile(source.Estate, source.Game, subPath, (keys, (uint)i)),
                     };
                 }
             }
@@ -457,10 +474,11 @@ namespace GameEstate.Formats.Binary
                     // Curiously the last resource entry of djinni.bif seem to be missing
                     if (headerFile.FileId > i)
                         continue;
-                    var path = $"{(keys.TryGetValue((bifId, headerFile.FileId), out var key) ? key : $"{i}")}{(fileTypes.TryGetValue(headerFile.FileType, out var z) ? z : string.Empty)}";
+                    var path = $"{(keys.TryGetValue((bifId, headerFile.FileId), out var key) ? key : $"{i}")}{(fileTypes.TryGetValue(headerFile.FileType, out var z) ? z : string.Empty)}".Replace('\\', '/');
                     files[i] = new FileMetadata
                     {
-                        Path = path.Replace('\\', '/'),
+                        Path = path,
+                        ObjectFactory = ObjectFactory(path),
                         FileSize = headerFile.FileSize,
                         Position = headerFile.FilePosition,
                     };
@@ -479,38 +497,40 @@ namespace GameEstate.Formats.Binary
                 var hash = 0x00000000FFFFFFFFUL;
                 for (var i = 0; i < header.NumFiles; i++)
                 {
-                    string fileName;
+                    string path;
                     if (decryptKey == null)
-                        fileName = r.ReadL16ASCII(true);
+                        path = r.ReadL16ASCII(true);
                     else
                     {
-                        var nameBytes = r.ReadBytes(r.ReadUInt16());
-                        for (var j = 0; j < nameBytes.Length; j++)
+                        var pathBytes = r.ReadBytes(r.ReadUInt16());
+                        for (var j = 0; j < pathBytes.Length; j++)
                         {
-                            nameBytes[j] ^= (byte)(decryptKey >> j % 8);
+                            pathBytes[j] ^= (byte)(decryptKey >> j % 8);
                             decryptKey *= 0x00000100000001B3UL;
                         }
-                        var nameBytesLength = nameBytes.Length - 1;
-                        fileName = Encoding.ASCII.GetString(nameBytes, 0, nameBytes[nameBytesLength] == 0 ? nameBytesLength : nameBytes.Length);
+                        var nameBytesLength = pathBytes.Length - 1;
+                        path = Encoding.ASCII.GetString(pathBytes, 0, pathBytes[nameBytesLength] == 0 ? nameBytesLength : pathBytes.Length);
                     }
                     var headerFile = r.ReadT<DZIP_HeaderFile>(sizeof(DZIP_HeaderFile));
+                    var newPath = path.Replace('\\', '/');
                     files[i] = new FileMetadata
                     {
-                        Path = fileName.Replace('\\', '/'),
+                        Path = newPath,
+                        ObjectFactory = ObjectFactory(newPath),
                         Compressed = 1,
                         PackedSize = (long)headerFile.PackedSize,
                         FileSize = (long)headerFile.FileSize,
                         Position = (long)headerFile.Position,
                     };
                     // build digest
-                    if (!string.IsNullOrEmpty(fileName))
+                    if (!string.IsNullOrEmpty(path))
                     {
-                        for (var j = 0; j < fileName.Length; j++)
+                        for (var j = 0; j < path.Length; j++)
                         {
-                            hash ^= (byte)fileName[j];
+                            hash ^= (byte)path[j];
                             hash *= 0x00000100000001B3UL;
                         }
-                        hash ^= (ulong)fileName.Length;
+                        hash ^= (ulong)path.Length;
                         hash *= 0x00000100000001B3UL;
                     }
                     hash ^= headerFile.Timestamp;
@@ -540,10 +560,11 @@ namespace GameEstate.Formats.Binary
                 for (var i = 0; i < header.NumFiles; i++)
                 {
                     var headerFile = headerFiles[i];
-                    var path = UnsafeUtils.ReadZASCII(headerFile.Name, 0x100);
+                    var path = UnsafeUtils.ReadZASCII(headerFile.Name, 0x100).Replace('\\', '/');
                     files[i] = new FileMetadata
                     {
-                        Path = path.Replace('\\', '/'),
+                        Path = path,
+                        ObjectFactory = ObjectFactory(path),
                         Compressed = (int)headerFile.Compressed,
                         FileSize = headerFile.FileSize,
                         PackedSize = headerFile.PackedSize,
@@ -632,7 +653,7 @@ namespace GameEstate.Formats.Binary
             BC5 = 7,        // 3DC, ATI2
         }
 
-        public unsafe override Task<Stream> ReadFileAsync(BinaryPakFile source, BinaryReader r, FileMetadata file, Action<FileMetadata, string> exception = null)
+        public unsafe override Task<Stream> ReadDataAsync(BinaryPakFile source, BinaryReader r, FileMetadata file, Action<FileMetadata, string> exception = null)
         {
             Stream fileData = null;
             r.Position(file.Position);

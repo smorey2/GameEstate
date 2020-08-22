@@ -2,6 +2,7 @@
 using System;
 using System.Diagnostics;
 using System.IO;
+using System.Threading.Tasks;
 
 namespace GameEstate.Formats.Binary
 {
@@ -21,7 +22,7 @@ namespace GameEstate.Formats.Binary
         public object FileInfo;
         public BinaryPakFile Pak;
         public object Tag;
-        // object
-        public Func<FileMetadata, BinaryReader, object> ObjectFactory;
+        // factory
+        public Func<BinaryReader, FileMetadata, Task<object>> ObjectFactory;
     }
 }

@@ -16,7 +16,7 @@ namespace GameEstate.Formats.Valve.Blocks
         /// </summary>
         public uint Size { get; set; }
 
-        public abstract void Read(BinaryReader r, BinaryPak resource);
+        public abstract void Read(BinaryPak parent, BinaryReader r);
 
         /// <summary>
         /// Returns a string that represents the current object.

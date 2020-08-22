@@ -1,9 +1,9 @@
-﻿//namespace GameEstate.Estates
-//{
-//    /// <summary>
-//    /// RsiXform
-//    /// </summary>
-//    public class RsiXform
-//    {
-//    }
-//}
+﻿namespace GameEstate.Estates
+{
+    /// <summary>
+    /// RsiXform
+    /// </summary>
+    public class RsiXform
+    {
+    }
+}

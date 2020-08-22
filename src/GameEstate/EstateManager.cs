@@ -11,7 +11,7 @@ namespace GameEstate
 {
     public class EstateManager
     {
-        public static string DefaultEstateKey = "Valve";
+        public static string DefaultEstateKey = "Rsi";
         static string[] AllEstateKeys = new[] { "AC", "Arkane", "Cry", "Cyanide", "Origin", "Red", "Rsi", "Tes", "Valve" };
 
         static EstateManager()

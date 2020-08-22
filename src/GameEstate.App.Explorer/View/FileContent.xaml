@@ -5,23 +5,47 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:GameEstate.Explorer.View"
              xmlns:model="clr-namespace:GameEstate.Explorer.ViewModel;assembly=GameEstate.Abstract"
+             xmlns:control="clr-namespace:WpfHexaEditor;assembly=WPFHexaEditor"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
     <Grid>
         <Grid.Resources>
-            <DataTemplate x:Key="EngineContent" DataType="{x:Type model:ExplorerContentTab}">
-                <local:EngineView Margin="3,3,3,3" />
+            <DataTemplate x:Key="Content_Null" DataType="{x:Type model:ExplorerContentTab}">
+                <TextBlock Text="Null" Margin="5,5,5,5" />
             </DataTemplate>
-            <DataTemplate x:Key="TextContent" DataType="{x:Type model:ExplorerContentTab}">
+            <DataTemplate x:Key="Content_Hex" DataType="{x:Type model:ExplorerContentTab}">
+                <control:HexEditor Margin="5,5,5,5" />
+                <!--<Style.Triggers>
+                    <DataTrigger Binding="{Binding}" Value="{x:Null}">
+                        <Setter Property="Stream" Value="{Binding Path=Value}" />
+                    </DataTrigger>
+                </Style.Triggers>-->
+            </DataTemplate>
+            <DataTemplate x:Key="Content_Text" DataType="{x:Type model:ExplorerContentTab}">
                 <ScrollViewer>
-                    <TextBlock TextWrapping="Wrap" Text="{Binding Path=Text}" Margin="5,5,5,5" />
+                    <TextBlock TextWrapping="Wrap" Text="{Binding Path=Value}" Margin="5,5,5,5" FontFamily="GenericMonospace" />
                 </ScrollViewer>
+            </DataTemplate>
+            <DataTemplate x:Key="Content_DataGrid" DataType="{x:Type model:ExplorerContentTab}">
+                <DataGrid VerticalAlignment="Top" ItemsSource="{Binding Path=Value}" Margin="5,5,5,5" />
+            </DataTemplate>
+            <DataTemplate x:Key="Content_AudioPlayer" DataType="{x:Type model:ExplorerContentTab}">
+                <local:AudioPlayer Stream="{Binding Path=Value}" Format="{Binding Path=Tag}" Margin="5,5,5,5" />
+            </DataTemplate>
+            <DataTemplate x:Key="Content_Texture" DataType="{x:Type model:ExplorerContentTab}">
+                <TextBlock Text="TEXTURE" Margin="5,5,5,5" />
+            </DataTemplate>
+            <DataTemplate x:Key="Content_Image" DataType="{x:Type model:ExplorerContentTab}">
+                <Image MaxWidth="{Binding Path=MaxWidth}" MaxHeight="{Binding Path=MaxHeight}" Margin="5,5,5,5" />
+            </DataTemplate>
+            <DataTemplate x:Key="Content_Engine" DataType="{x:Type model:ExplorerContentTab}">
+                <local:EngineView Margin="3,3,3,3" />
             </DataTemplate>
         </Grid.Resources>
 
-        <TabControl x:Name="ContentTabControl" Grid.Row="1" Margin="0,0,0,0" ItemsSource="{Binding Path=ContentTabs}">
+        <TabControl x:Name="ContentTab" Grid.Row="1" Margin="0,0,0,0" ItemsSource="{Binding Path=ContentTabs}">
             <TabControl.ItemTemplate>
-                <DataTemplate DataType="{x:Type model:ExplorerContentTab}" >
+                <DataTemplate DataType="{x:Type model:ExplorerContentTab}">
                     <TextBlock Text="{Binding Path=Name}" />
                 </DataTemplate>
             </TabControl.ItemTemplate>
@@ -30,10 +54,28 @@
                     <ContentControl Content="{Binding}">
                         <ContentControl.Style>
                             <Style TargetType="ContentControl">
-                                <Setter Property="ContentTemplate" Value="{StaticResource EngineContent}" />
+                                <Setter Property="ContentTemplate" Value="{StaticResource Content_Text}" />
                                 <Style.Triggers>
-                                    <DataTrigger Binding="{Binding Path=EngineType}" Value="{x:Null}">
-                                        <Setter Property="ContentTemplate" Value="{StaticResource TextContent}" />
+                                    <DataTrigger Binding="{Binding Path=Type}" Value="Hex">
+                                        <Setter Property="ContentTemplate" Value="{StaticResource Content_Hex}" />
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding Path=Type}" Value="Text">
+                                        <Setter Property="ContentTemplate" Value="{StaticResource Content_Text}" />
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding Path=Type}" Value="DataGrid">
+                                        <Setter Property="ContentTemplate" Value="{StaticResource Content_DataGrid}" />
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding Path=Type}" Value="AudioPlayer">
+                                        <Setter Property="ContentTemplate" Value="{StaticResource Content_AudioPlayer}" />
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding Path=Type}" Value="Texture">
+                                        <Setter Property="ContentTemplate" Value="{StaticResource Content_Texture}" />
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding Path=Type}" Value="Engine">
+                                        <Setter Property="ContentTemplate" Value="{StaticResource Content_Engine}" />
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding Path=Value}" Value="{x:Null}">
+                                        <Setter Property="ContentTemplate" Value="{StaticResource Content_Null}" />
                                     </DataTrigger>
                                 </Style.Triggers>
                             </Style>

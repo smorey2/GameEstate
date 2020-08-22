@@ -26,13 +26,13 @@ namespace GameEstate.Tests.PakFiles
         public void RedEstate(string uri, string sampleFile) => EstateLoadGraphicTexture("Red", uri, sampleFile);
 
         [Theory]
-        [InlineData("Morrowind.bsa#Morrowind", "textures/vfx_poison03.dds")]
-        [InlineData("Oblivion - Meshes.bsa#Oblivion", "trees/treecottonwoodsu.spt")]
-        [InlineData("Oblivion - Textures - Compressed.bsa#Oblivion", "textures/trees/canopyshadow.dds")]
-        [InlineData("Skyrim - Meshes0.bsa#SkyrimSE", "meshes/scalegizmo.nif")]
-        [InlineData("Skyrim - Textures0.bsa#SkyrimSE", "textures/actors/dog/dog.dds")]
-        [InlineData("Fallout4 - Startup.ba2#Fallout4VR", "Textures/Water/WaterRainRipples.dds")]
-        [InlineData("Fallout4 - Textures8.ba2#Fallout4VR", "Textures/Terrain/DiamondCity/DiamondCity.16.-2.-2.DDS")]
+        [InlineData("game:/Morrowind.bsa#Morrowind", "textures/vfx_poison03.dds")]
+        [InlineData("game:/Oblivion - Meshes.bsa#Oblivion", "trees/treecottonwoodsu.spt")]
+        [InlineData("game:/Oblivion - Textures - Compressed.bsa#Oblivion", "textures/trees/canopyshadow.dds")]
+        [InlineData("game:/Skyrim - Meshes0.bsa#SkyrimSE", "meshes/scalegizmo.nif")]
+        [InlineData("game:/Skyrim - Textures0.bsa#SkyrimSE", "textures/actors/dog/dog.dds")]
+        [InlineData("game:/Fallout4 - Startup.ba2#Fallout4VR", "Textures/Water/WaterRainRipples.dds")]
+        [InlineData("game:/Fallout4 - Textures8.ba2#Fallout4VR", "Textures/Terrain/DiamondCity/DiamondCity.16.-2.-2.DDS")]
         public void TesEstate(string uri, string sampleFile) => EstateLoadGraphicTexture("Tes", uri, sampleFile);
 
         [Theory]

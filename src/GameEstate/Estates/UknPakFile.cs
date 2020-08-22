@@ -7,7 +7,7 @@ namespace GameEstate.Estates
     /// UknPakFile
     /// </summary>
     /// <seealso cref="GameEstate.Core.BinaryPakFile" />
-    public class UknPakFile : BinaryPakMultiFile
+    public class UknPakFile : BinaryPakManyFile
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="UknPakFile" /> class.
@@ -19,9 +19,6 @@ namespace GameEstate.Estates
         public UknPakFile(Estate estate, string game, string filePath, object tag = null) : base(estate, game, filePath, null, tag)
         {
             ExplorerItems = StandardExplorerItem.GetPakFilesAsync;
-            ExplorerInfos.Add("_default", StandardExplorerInfo.GetDefaultAsync);
-            ExplorerInfos.Add(".nif", StandardExplorerInfo.GetNifAsync);
-            ExplorerInfos.Add(".dds", StandardExplorerInfo.GetDdsAsync);
             Open();
         }
     }

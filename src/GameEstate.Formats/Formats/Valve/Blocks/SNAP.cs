@@ -1,3 +1,4 @@
+using GameEstate.Core;
 using System;
 using System.IO;
 
@@ -8,9 +9,9 @@ namespace GameEstate.Formats.Valve.Blocks
     /// </summary>
     public class SNAP : Block
     {
-        public override void Read(BinaryReader r, BinaryPak resource)
+        public override void Read(BinaryPak parent, BinaryReader r)
         {
-            r.BaseStream.Position = Offset;
+            r.Position(Offset);
             throw new NotImplementedException();
         }
     }

@@ -1,4 +1,7 @@
-﻿using System;
+﻿using GameEstate.Explorer;
+using GameEstate.Explorer.ViewModel;
+using GameEstate.Formats.Binary;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using static GameEstate.EstateDebug;
@@ -8,12 +11,13 @@ namespace GameEstate.Graphics
     /// <summary>
     /// Stores information about a texture.
     /// </summary>
-    public class TextureInfo : Dictionary<string, object>
+    public class TextureInfo : Dictionary<string, object>, IGetExplorerInfo
     {
         public int Width, Height, Depth;
         public TextureUnityFormat UnityFormat;
         public TextureGLFormat GLFormat;
         public TextureFlags Flags;
+        public bool HasMipmaps;
         public ushort Mipmaps;
         public byte BytesPerPixel;
         public byte[] Data;
@@ -29,6 +33,16 @@ namespace GameEstate.Graphics
         //    Data = data;
         //}
 
+        List<ExplorerInfoNode> IGetExplorerInfo.GetInfoNodes(ExplorerManager resource, FileMetadata file) => new List<ExplorerInfoNode> {
+            new ExplorerInfoNode(null, new ExplorerContentTab { Type = "Texture", Value = this }),
+            new ExplorerInfoNode("Texture", items: new List<ExplorerInfoNode> {
+                new ExplorerInfoNode($"Width: {Width}"),
+                new ExplorerInfoNode($"Height: {Height}"),
+                new ExplorerInfoNode($"GLFormat: {GLFormat}"),
+                new ExplorerInfoNode($"Mipmaps: {Mipmaps}"),
+            }),
+        };
+
         public BinaryReader GetDecompressedBuffer(int offset)
         {
             throw new NotImplementedException();
@@ -37,36 +51,22 @@ namespace GameEstate.Graphics
         //BinaryReader GetDecompressedBuffer()
         //{
         //    if (!IsActuallyCompressedMips)
-        //    {
         //        return Reader;
-        //    }
-
         //    var outStream = new MemoryStream(GetDecompressedTextureAtMipLevel(MipmapLevelToExtract), false);
-
         //    return new BinaryReader(outStream); // TODO: dispose
         //}
 
         //public byte[] GetDecompressedTextureAtMipLevel(int mipLevel)
         //{
         //    var uncompressedSize = CalculateBufferSizeForMipLevel(mipLevel);
-
         //    if (!IsActuallyCompressedMips)
-        //    {
         //        return Reader.ReadBytes(uncompressedSize);
-        //    }
-
         //    var compressedSize = CompressedMips[mipLevel];
-
         //    if (compressedSize >= uncompressedSize)
-        //    {
         //        return Reader.ReadBytes(uncompressedSize);
-        //    }
-
         //    var input = Reader.ReadBytes(compressedSize);
         //    var output = new Span<byte>(new byte[uncompressedSize]);
-
         //    LZ4Codec.Decode(input, output);
-
         //    return output.ToArray();
         //}
 
@@ -90,23 +90,14 @@ namespace GameEstate.Graphics
             return null;
             //var offset = GetDataOffsetForMip(mipLevel);
             //var dataSize = GetMipmapDataSize(Width, Height, Depth, GLFormat, mipLevel);
-
             //if (CompressedSizeForMipLevel == null)
-            //{
             //    return new Span<byte>(Data, 10, 10);
-            //}
-
             //var compressedSize = CompressedSizeForMipLevel[mipLevel];
             //if (compressedSize >= dataSize)
-            //{
             //    return Reader.ReadBytes(dataSize);
-            //}
-
             //var input = Reader.ReadBytes(compressedSize);
             //var output = new Span<byte>(new byte[dataSize]);
-
             //LZ4Codec.Decode(input, output);
-
             //return output.ToArray();
         }
 
@@ -116,15 +107,9 @@ namespace GameEstate.Graphics
             var longerLength = Math.Max(width, height);
             var mipMapCount = 0;
             var currentLongerLength = longerLength;
-            while (currentLongerLength > 0)
-            {
-                mipMapCount++;
-                currentLongerLength /= 2;
-            }
+            while (currentLongerLength > 0) { mipMapCount++; currentLongerLength /= 2; }
             return mipMapCount;
         }
-
-        public int GetMipmapDataSize() => GetMipmapDataSize(Width, Height, BytesPerPixel);
 
         public static int GetMipmapDataSize(int width, int height, int bytesPerPixel)
         {
@@ -149,43 +134,21 @@ namespace GameEstate.Graphics
             var currentWidth = width >> mipLevel;
             var currentHeight = height >> mipLevel;
             var currentDepth = depth >> mipLevel;
-
-            if (currentDepth < 1)
-                currentDepth = 1;
-
-            if (format == TextureGLFormat.DXT1
-            || format == TextureGLFormat.DXT5
-            || format == TextureGLFormat.BC6H
-            || format == TextureGLFormat.BC7
-            || format == TextureGLFormat.ETC2
-            || format == TextureGLFormat.ETC2_EAC
-            || format == TextureGLFormat.ATI1N)
+            if (currentDepth < 1) currentDepth = 1;
+            if (format == TextureGLFormat.DXT1 || format == TextureGLFormat.DXT5 || format == TextureGLFormat.BC6H || format == TextureGLFormat.BC7 ||
+                format == TextureGLFormat.ETC2 || format == TextureGLFormat.ETC2_EAC || format == TextureGLFormat.ATI1N)
             {
                 var misalign = currentWidth % 4;
-
-                if (misalign > 0)
-                    currentWidth += 4 - misalign;
-
+                if (misalign > 0) currentWidth += 4 - misalign;
                 misalign = currentHeight % 4;
-
-                if (misalign > 0)
-                    currentHeight += 4 - misalign;
-
-                if (currentWidth < 4 && currentWidth > 0)
-                    currentWidth = 4;
-
-                if (currentHeight < 4 && currentHeight > 0)
-                    currentHeight = 4;
-
-                if (currentDepth < 4 && currentDepth > 1)
-                    currentDepth = 4;
-
+                if (misalign > 0) currentHeight += 4 - misalign;
+                if (currentWidth < 4 && currentWidth > 0) currentWidth = 4;
+                if (currentHeight < 4 && currentHeight > 0) currentHeight = 4;
+                if (currentDepth < 4 && currentDepth > 1) currentDepth = 4;
                 var numBlocks = (currentWidth * currentHeight) >> 4;
                 numBlocks *= currentDepth;
-
                 return numBlocks * bytesPerPixel;
             }
-
             return currentWidth * currentHeight * currentDepth * bytesPerPixel;
         }
 

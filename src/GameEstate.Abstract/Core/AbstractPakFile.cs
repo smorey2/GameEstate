@@ -53,12 +53,28 @@ namespace GameEstate.Core
         public abstract bool Contains(string filePath);
 
         /// <summary>
+        /// Finds the texture.
+        /// </summary>
+        /// <param name="texturePath">The texture path.</param>
+        /// <returns></returns>
+        public virtual string FindTexture(string texturePath) => Contains(texturePath) ? texturePath : null;
+
+        /// <summary>
         /// Loads the file data asynchronous.
         /// </summary>
         /// <param name="filePath">The file path.</param>
         /// <param name="exception">The exception.</param>
         /// <returns></returns>
         public abstract Task<Stream> LoadFileDataAsync(string filePath, Action<FileMetadata, string> exception = null);
+
+        /// <summary>
+        /// Loads the object asynchronous.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="filePath">The file path.</param>
+        /// <param name="exception">The exception.</param>
+        /// <returns></returns>
+        public abstract Task<T> LoadFileObjectAsync<T>(string filePath, Action<FileMetadata, string> exception = null);
 
         #region Explorer
 
@@ -67,7 +83,7 @@ namespace GameEstate.Core
         /// </summary>
         /// <param name="manager">The resource.</param>
         /// <returns></returns>
-        public abstract Task<List<ExplorerItemNode>> GetExplorerItemNodesAsync(ExplorerManager manager);
+        public virtual Task<List<ExplorerItemNode>> GetExplorerItemNodesAsync(ExplorerManager manager) => throw new NotImplementedException();
 
         /// <summary>
         /// Gets the explorer item filters.
@@ -83,7 +99,7 @@ namespace GameEstate.Core
         /// <param name="manager">The resource.</param>
         /// <param name="item">The item.</param>
         /// <returns></returns>
-        public abstract Task<List<ExplorerInfoNode>> GetExplorerInfoNodesAsync(ExplorerManager manager, ExplorerItemNode item);
+        public virtual Task<List<ExplorerInfoNode>> GetExplorerInfoNodesAsync(ExplorerManager manager, ExplorerItemNode item) => throw new NotImplementedException();
 
         #endregion
     }

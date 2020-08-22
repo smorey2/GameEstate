@@ -16,7 +16,7 @@ namespace GameEstate.Explorer
         /// <returns></returns>
         public static Task<List<ExplorerItemNode>> GetPakFilesAsync(ExplorerManager manager, BinaryPakFile pakFile)
         {
-            var pakMultiFile = pakFile as BinaryPakMultiFile;
+            var pakMultiFile = pakFile as BinaryPakManyFile;
             var root = new List<ExplorerItemNode>();
             string currentPath = null;
             List<ExplorerItemNode> currentFolder = null;

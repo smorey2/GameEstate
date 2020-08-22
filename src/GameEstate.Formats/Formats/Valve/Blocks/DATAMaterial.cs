@@ -20,9 +20,9 @@ namespace GameEstate.Formats.Valve.Blocks
         public Dictionary<string, Vector4> VectorAttributes { get; } = new Dictionary<string, Vector4>();
         public Dictionary<string, string> StringAttributes { get; } = new Dictionary<string, string>();
 
-        public override void Read(BinaryReader r, BinaryPak resource)
+        public override void Read(BinaryPak parent, BinaryReader r)
         {
-            base.Read(r, resource);
+            base.Read(parent, r);
             Name = Data.Get<string>("m_materialName");
             ShaderName = Data.Get<string>("m_shaderName");
             // TODO: Is this a string array?
@@ -60,7 +60,7 @@ namespace GameEstate.Formats.Valve.Blocks
                 var value = intParam.GetInt("m_nValue");
                 arguments.Add(name, value != 0);
             }
-            var specialDeps = (REDISpecialDependencies)Resource.REDI.Structs[REDI.REDIStruct.SpecialDependencies];
+            var specialDeps = (REDISpecialDependencies)Parent.REDI.Structs[REDI.REDIStruct.SpecialDependencies];
             var hemiOctIsoRoughness_RG_B = specialDeps.List.Any(dependancy => dependancy.CompilerIdentifier == "CompileTexture" && dependancy.String == "Texture Compiler Version Mip HemiOctIsoRoughness_RG_B");
             var invert = specialDeps.List.Any(dependancy => dependancy.CompilerIdentifier == "CompileTexture" && dependancy.String == "Texture Compiler Version LegacySource1InvertNormals");
             if (hemiOctIsoRoughness_RG_B)

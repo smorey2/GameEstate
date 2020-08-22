@@ -8,11 +8,11 @@ namespace GameEstate.Graphics
 {
     public class TextureManager
     {
-        readonly IGraphicLoader _pakFile;
+        readonly AbstractPakFile _pakFile;
         readonly Dictionary<string, Task<TextureInfo>> _textureFilePreloadTasks = new Dictionary<string, Task<TextureInfo>>();
         readonly Dictionary<string, Texture2D> _cachedTextures = new Dictionary<string, Texture2D>();
 
-        public TextureManager(AbstractPakFile pakFile) => _pakFile = pakFile as IGraphicLoader;
+        public TextureManager(AbstractPakFile pakFile) => _pakFile = pakFile;
 
         public Texture2D LoadTexture(string texturePath)
         {
@@ -21,8 +21,6 @@ namespace GameEstate.Graphics
                 // Load & cache the texture.
                 var textureInfo = LoadTextureInfo(texturePath);
                 texture = textureInfo != null ? textureInfo.ToUnity() : new Texture2D(1, 1);
-                //if (method == 1) TextureUtils.FlipTexture2DVertically(texture);
-                //if (method == 2) TextureUtils.RotateTexture2D(texture);
                 _cachedTextures[texturePath] = texture;
             }
             return texture;
@@ -35,7 +33,7 @@ namespace GameEstate.Graphics
                 return;
             // Start loading the texture file asynchronously if we haven't already started.
             if (!_textureFilePreloadTasks.TryGetValue(texturePath, out _))
-                _textureFilePreloadTasks[texturePath] = _pakFile.LoadTextureInfoAsync(texturePath);
+                _textureFilePreloadTasks[texturePath] = _pakFile.LoadFileObjectAsync<TextureInfo>(texturePath);
         }
 
         TextureInfo LoadTextureInfo(string texturePath)

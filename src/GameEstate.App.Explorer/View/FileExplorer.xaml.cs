@@ -22,13 +22,8 @@ namespace GameEstate.Explorer.View
     {
         public static ExplorerManager Resource = new ResourceManagerProvider();
         public static FileExplorer Instance;
-        public static MainWindow MainWindow => MainWindow.Instance;
-        //public static FileInfo FileInfo => FileInfo.Instance;
-        //public static EngineView EngineView => EngineView.Instance;
-
-        //public static WorldViewer WorldViewer => WorldViewer.Instance; 
-        //public static ModelViewer ModelViewer => ModelViewer.Instance;  
-        //public static TextureViewer TextureViewer => TextureViewer.Instance; 
+        //public static MainWindow MainWindow => MainWindow.Instance;
+        public static FileContent FileContent => FileContent.Instance;
 
         public FileExplorer()
         {
@@ -47,6 +42,7 @@ namespace GameEstate.Explorer.View
                     return;
                 fileExplorer.NodeFilters = pakFile.GetExplorerItemFiltersAsync(Resource).Result;
                 fileExplorer.Nodes = fileExplorer.PakNodes = pakFile.GetExplorerItemNodesAsync(Resource).Result;
+                fileExplorer.OnFileInfo(null);
             }));
 
         public AbstractPakFile PakFile
@@ -84,13 +80,19 @@ namespace GameEstate.Explorer.View
             else Nodes = PakNodes.Select(x => x.Search(y => y.Name.Contains(filter.Description))).ToList();
         }
 
-        public List<ExplorerItemNode> PakNodes;
+        List<ExplorerItemNode> PakNodes;
 
         List<ExplorerItemNode> _nodes;
         public List<ExplorerItemNode> Nodes
         {
             get => _nodes;
             set { _nodes = value; NotifyPropertyChanged(); }
+        }
+
+        public void OnFileInfo(List<ExplorerInfoNode> infos)
+        {
+            FileContent.OnFileInfo(infos?.Where(x => x.Name == null).ToList());
+            FileInfo.Infos = infos?.Where(x => x.Name != null).ToList();
         }
 
         ExplorerItemNode SelectedItem;
@@ -101,12 +103,8 @@ namespace GameEstate.Explorer.View
                 (item.Items[0] as TreeViewItem).IsSelected = true;
             if (e.NewValue is ExplorerItemNode itemNode && (itemNode.PakFile != null) && SelectedItem != itemNode)
                 SelectedItem = itemNode;
-            if (SelectedItem == null)
-                return;
-
-            FileInfo.Info = SelectedItem.PakFile != null
-                ? SelectedItem.PakFile.GetExplorerInfoNodesAsync(Resource, SelectedItem).Result
-                : null;
+            if (SelectedItem != null)
+                OnFileInfo(SelectedItem.PakFile?.GetExplorerInfoNodesAsync(Resource, SelectedItem).Result);
         }
     }
 }

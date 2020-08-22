@@ -48,7 +48,7 @@ namespace GameEstate.Formats.Valve.Blocks
 #pragma warning restore 1591
         }
 
-        public override void Read(BinaryReader r, BinaryPak resource) { }
+        public override void Read(BinaryPak parent, BinaryReader r) { }
 
         internal static bool IsHandledType(DataType type) =>
             type == DataType.Model ||

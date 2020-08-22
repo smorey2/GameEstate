@@ -15,9 +15,9 @@ namespace GameEstate.Formats.Valve.Blocks
         public List<VBIB.VertexBuffer> VertexBuffers { get; } = new List<VBIB.VertexBuffer>();
         public List<VBIB.IndexBuffer> IndexBuffers { get; } = new List<VBIB.IndexBuffer>();
 
-        public override void Read(BinaryReader r, BinaryPak resource)
+        public override void Read(BinaryPak parent, BinaryReader r)
         {
-            r.BaseStream.Position = Offset;
+            r.Position(Offset);
             var vertexBufferOffset = r.ReadUInt32();
             var vertexBufferCount = r.ReadUInt32();
             var indexBufferOffset = r.ReadUInt32();

@@ -1,5 +1,6 @@
 ﻿using GameEstate.Core;
 using GameEstate.Formats.Tes;
+using GameEstate.Graphics;
 using GameEstate.Graphics.DirectX;
 using ICSharpCode.SharpZipLib.Lzw;
 using ICSharpCode.SharpZipLib.Zip.Compression.Streams;
@@ -211,29 +212,36 @@ namespace GameEstate.Formats.Binary
 
         #endregion
 
+        // object factory
+        static Func<BinaryReader, FileMetadata, Task<object>> ObjectFactory(string path)
+        {
+            Task<object> DdsFactory(BinaryReader r, FileMetadata f)
+            {
+                var tex = new TextureInfo();
+                tex.ReadDds(r);
+                return Task.FromResult((object)tex);
+            }
+            Task<object> NiFactory(BinaryReader r, FileMetadata f)
+            {
+                var file = new NiFile(Path.GetFileNameWithoutExtension(f.Path));
+                file.Read(r);
+                return Task.FromResult((object)file);
+            }
+            switch (Path.GetExtension(path).ToLowerInvariant())
+            {
+                case ".dds": return DdsFactory;
+                case ".nif": return NiFactory;
+                default: return null;
+            }
+        }
+
         public unsafe override Task ReadAsync(BinaryPakFile source, BinaryReader r, ReadStage stage)
         {
-            if (!(source is BinaryPakMultiFile multiSource))
+            if (!(source is BinaryPakManyFile multiSource))
                 throw new NotSupportedException();
             if (stage != ReadStage.File)
                 throw new ArgumentOutOfRangeException(nameof(stage), stage.ToString());
             FileMetadata[] files;
-
-            // object factory
-            Func<FileMetadata, BinaryReader, object> ObjectFactory(string path)
-            {
-                object NiFactory(FileMetadata f, BinaryReader r2)
-                {
-                    var file = new NiFile(Path.GetFileNameWithoutExtension(f.Path));
-                    file.Read(r2);
-                    return file;
-                }
-                switch (Path.GetExtension(path).ToLowerInvariant())
-                {
-                    case ".nif": return NiFactory;
-                    default: return null;
-                }
-            }
 
             // Fallout 4
             var magic = source.Magic = r.ReadUInt32();
@@ -297,10 +305,11 @@ namespace GameEstate.Formats.Binary
                 if (header.NameTableOffset > 0)
                 {
                     r.Position((long)header.NameTableOffset);
+                    var path = r.ReadL16ASCII().Replace('\\', '/');
                     foreach (var file in files)
                     {
-                        file.Path = r.ReadL16ASCII().Replace('\\', '/');
-                        file.ObjectFactory = ObjectFactory(file.Path);
+                        file.Path = path;
+                        file.ObjectFactory = ObjectFactory(path);
                     }
                 }
             }
@@ -349,8 +358,9 @@ namespace GameEstate.Formats.Binary
                 var b = new StringBuilder();
                 foreach (var file in files)
                 {
-                    file.Path = $"{file.Path}/{r.ReadZString(builder: b)}";
-                    file.ObjectFactory = ObjectFactory(file.Path);
+                    var path = $"{file.Path}/{r.ReadZString(builder: b)}";
+                    file.Path = path;
+                    file.ObjectFactory = ObjectFactory(path);
                 }
             }
 
@@ -382,8 +392,9 @@ namespace GameEstate.Formats.Binary
                 for (var i = 0; i < files.Length; i++)
                 {
                     r.Position(filenamesPosition + filenameOffsets[i]);
-                    files[i].Path = r.ReadZASCII(1000, buf).Replace('\\', '/');
-                    files[i].ObjectFactory = ObjectFactory(files[i].Path);
+                    var path = r.ReadZASCII(1000, buf).Replace('\\', '/');
+                    files[i].Path = path;
+                    files[i].ObjectFactory = ObjectFactory(path);
                 }
             }
 
@@ -401,15 +412,16 @@ namespace GameEstate.Formats.Binary
                 multiSource.Files = files = new FileMetadata[r.ReadInt32()];
                 for (var i = 0; i < files.Length; i++)
                 {
+                    var path = r.ReadL32ASCII().TrimStart('\\');
                     files[i] = new FileMetadata
                     {
-                        Path = r.ReadL32ASCII().TrimStart('\\'),
+                        Path = path,
+                        ObjectFactory = ObjectFactory(path),
                         Compressed = r.ReadByte(),
                         FileSize = r.ReadUInt32(),
                         PackedSize = r.ReadUInt32(),
                         Position = r.ReadUInt32(),
                     };
-                    files[i].ObjectFactory = ObjectFactory(files[i].Path);
                 }
             }
             else throw new InvalidOperationException("BAD MAGIC");
@@ -418,7 +430,7 @@ namespace GameEstate.Formats.Binary
 
         public unsafe override Task WriteAsync(BinaryPakFile source, BinaryWriter w, WriteStage stage) => throw new NotImplementedException();
 
-        public unsafe override Task<Stream> ReadFileAsync(BinaryPakFile source, BinaryReader r, FileMetadata file, Action<FileMetadata, string> exception = null)
+        public unsafe override Task<Stream> ReadDataAsync(BinaryPakFile source, BinaryReader r, FileMetadata file, Action<FileMetadata, string> exception = null)
         {
             const int GNF_HEADER_MAGIC = 0x20464E47;
             const int GNF_HEADER_CONTENT_SIZE = 248;
@@ -603,7 +615,7 @@ namespace GameEstate.Formats.Binary
 
                 // fallout2
                 if (source.Magic == F2_BSAHEADER_FILEID)
-                    fileData = r.Peek(() => r.ReadUInt16()) == 0xda78
+                    fileData = r.Peek(z => z.ReadUInt16()) == 0xda78
                         ? new MemoryStream(r.DecompressZlib(fileSize, -1))
                         : new MemoryStream(r.ReadBytes(fileSize));
                 // not compressed

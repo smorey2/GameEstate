@@ -13,14 +13,19 @@ namespace GameEstate.Formats.Binary
     /// <seealso cref="GameEstate.Formats.Binary.PakBinary" />
     public class PakBinaryZip : PakBinary
     {
-        public static readonly PakBinary Instance = new PakBinaryZip();
-        public PakBinaryZip(byte[] key = null) => Key = key;
+        public static readonly PakBinary Instance = new PakBinaryZip(x => null, null);
+        public PakBinaryZip(Func<string, Func<BinaryReader, FileMetadata, Task<object>>> objectFactory, byte[] key = null)
+        {
+            ObjectFactory = objectFactory;
+            Key = key;
+        }
 
+        readonly Func<string, Func<BinaryReader, FileMetadata, Task<object>>> ObjectFactory;
         readonly byte[] Key;
 
         public override Task ReadAsync(BinaryPakFile source, BinaryReader r, ReadStage stage)
         {
-            if (!(source is BinaryPakMultiFile multiSource))
+            if (!(source is BinaryPakManyFile multiSource))
                 throw new NotSupportedException();
             if (stage != ReadStage.File)
                 throw new ArgumentOutOfRangeException(nameof(stage), stage.ToString());
@@ -29,20 +34,24 @@ namespace GameEstate.Formats.Binary
             var files = multiSource.Files = new List<FileMetadata>();
             var pak = (ZipFile)(source.Tag = new ZipFile(r.BaseStream) { Key = Key });
             foreach (ZipEntry entry in pak)
+            {
+                var path = entry.Name.Replace('\\', '/');
                 files.Add(new FileMetadata
                 {
-                    Path = entry.Name.Replace('\\', '/'),
+                    Path = path,
+                    ObjectFactory = ObjectFactory(path),
                     Crypted = entry.IsAesCrypted,
                     PackedSize = entry.CompressedSize,
                     FileSize = entry.Size,
                     Tag = entry,
                 });
+            }
             return Task.CompletedTask;
         }
 
         public override Task WriteAsync(BinaryPakFile source, BinaryWriter w, WriteStage stage)
         {
-            if (!(source is BinaryPakMultiFile multiSource))
+            if (!(source is BinaryPakManyFile multiSource))
                 throw new NotSupportedException();
 
             source.UseBinaryReader = false;
@@ -53,13 +62,13 @@ namespace GameEstate.Formats.Binary
             {
                 var entry = (ZipEntry)(file.Tag = new ZipEntry(Path.GetFileName(file.Path)));
                 pak.Add(entry);
-                source.PakBinary.WriteFileAsync(source, w, file, null, null);
+                source.PakBinary.WriteDataAsync(source, w, file, null, null);
             }
             pak.CommitUpdate();
             return Task.CompletedTask;
         }
 
-        public override Task<Stream> ReadFileAsync(BinaryPakFile source, BinaryReader r, FileMetadata file, Action<FileMetadata, string> exception = null)
+        public override Task<Stream> ReadDataAsync(BinaryPakFile source, BinaryReader r, FileMetadata file, Action<FileMetadata, string> exception = null)
         {
             var pak = (ZipFile)source.Tag;
             var entry = (ZipEntry)file.Tag;
@@ -84,7 +93,7 @@ namespace GameEstate.Formats.Binary
             }
         }
 
-        public override Task WriteFileAsync(BinaryPakFile source, BinaryWriter w, FileMetadata file, Stream data, Action<FileMetadata, string> exception = null)
+        public override Task WriteDataAsync(BinaryPakFile source, BinaryWriter w, FileMetadata file, Stream data, Action<FileMetadata, string> exception = null)
         {
             var pak = (ZipFile)source.Tag;
             var entry = (ZipEntry)file.Tag;

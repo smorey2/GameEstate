@@ -1,7 +1,11 @@
 using GameEstate.Core;
 using GameEstate.Core.Algorithms;
+using GameEstate.Explorer;
+using GameEstate.Explorer.ViewModel;
+using GameEstate.Formats.Binary;
 using System.Collections;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.IO;
 using System.Text;
 
@@ -17,12 +21,19 @@ namespace GameEstate.Formats.Valve
         public string Text { get; set; }
     }
 
-    public class ClosedCaptions : IEnumerable<ClosedCaption>
+    public class ClosedCaptions : IEnumerable<ClosedCaption>, IGetExplorerInfo
     {
         public const int MAGIC = 0x44434356; // "VCCD"
 
         public ClosedCaptions() { }
         public ClosedCaptions(BinaryReader r) => Read(r);
+
+        List<ExplorerInfoNode> IGetExplorerInfo.GetInfoNodes(ExplorerManager resource, FileMetadata file) => new List<ExplorerInfoNode> {
+            new ExplorerInfoNode(null, new ExplorerContentTab { Type = "DataGrid", Name = "Captions", Value = Captions }),
+            new ExplorerInfoNode("ClosedCaptions", items: new List<ExplorerInfoNode> {
+                new ExplorerInfoNode($"Count: {Captions.Count}"),
+            }),
+        };
 
         public List<ClosedCaption> Captions { get; private set; }
 

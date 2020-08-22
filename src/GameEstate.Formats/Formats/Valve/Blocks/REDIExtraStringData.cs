@@ -33,9 +33,9 @@ namespace GameEstate.Formats.Valve.Blocks
 
         public List<EditStringData> List { get; } = new List<EditStringData>();
 
-        public override void Read(BinaryReader r, BinaryPak resource)
+        public override void Read(BinaryPak parent, BinaryReader r)
         {
-            r.BaseStream.Position = Offset;
+            r.Position(Offset);
             for (var i = 0; i < Size; i++)
                 List.Add(new EditStringData
                 {

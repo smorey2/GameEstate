@@ -1,17 +1,33 @@
 using GameEstate.Core;
+using GameEstate.Explorer;
+using GameEstate.Explorer.ViewModel;
+using GameEstate.Formats.Binary;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
 
 namespace GameEstate.Formats.Valve
 {
-    public class ToolsAssetInfo
+    public class ToolsAssetInfo : IGetExplorerInfo
     {
         public const uint MAGIC = 0xC4CCACE8;
         public const uint GUARD = 0x049A48B2;
 
         public ToolsAssetInfo() { }
         public ToolsAssetInfo(BinaryReader r) => Read(r);
+
+        List<ExplorerInfoNode> IGetExplorerInfo.GetInfoNodes(ExplorerManager resource, FileMetadata file) => new List<ExplorerInfoNode> {
+            new ExplorerInfoNode(null, new ExplorerContentTab { Type = "Text", Name = "Text", Value = ToString() }),
+            new ExplorerInfoNode("ToolsAssetInfo", items: new List<ExplorerInfoNode> {
+                new ExplorerInfoNode($"Mods: {Mods.Count}"),
+                new ExplorerInfoNode($"Directories: {Directories.Count}"),
+                new ExplorerInfoNode($"Filenames: {Filenames.Count}"),
+                new ExplorerInfoNode($"Extensions: {Extensions.Count}"),
+                new ExplorerInfoNode($"EditInfoKeys: {EditInfoKeys.Count}"),
+                new ExplorerInfoNode($"MiscStrings: {MiscStrings.Count}"),
+                new ExplorerInfoNode($"ConstructedFilepaths: {ConstructedFilepaths.Count}"),
+            }),
+        };
 
         public List<string> Mods { get; } = new List<string>();
         public List<string> Directories { get; } = new List<string>();

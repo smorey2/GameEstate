@@ -29,9 +29,9 @@ namespace GameEstate.Formats.Valve.Blocks
 
         public Dictionary<REDIStruct, REDIAbstract> Structs { get; private set; } = new Dictionary<REDIStruct, REDIAbstract>();
 
-        public override void Read(BinaryReader r, BinaryPak resource)
+        public override void Read(BinaryPak parent, BinaryReader r)
         {
-            r.BaseStream.Position = Offset;
+            r.Position(Offset);
             for (var i = REDIStruct.InputDependencies; i < REDIStruct.End; i++)
             {
                 var block = REDIFactory(i);
@@ -40,7 +40,7 @@ namespace GameEstate.Formats.Valve.Blocks
                 Structs.Add(i, block);
             }
             foreach (var block in Structs)
-                block.Value.Read(r, resource);
+                block.Value.Read(parent, r);
         }
 
         public override void WriteText(IndentedTextWriter w)

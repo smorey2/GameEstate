@@ -9,9 +9,9 @@ namespace GameEstate.Formats.Valve.Blocks
     {
         public Dictionary<string, string> SoundEventScriptValue { get; private set; }
 
-        public override void Read(BinaryReader r, BinaryPak resource)
+        public override void Read(BinaryPak parent, BinaryReader r)
         {
-            base.Read(r, resource);
+            base.Read(parent, r);
             //SoundEventScriptValue = new Dictionary<string, string>();
             //// DAT is VSoundEventScript_t we need to iterate m_SoundEvents inside it.
             //var soundEvents = (NTROArray)Data["m_SoundEvents"];

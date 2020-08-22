@@ -20,9 +20,9 @@ namespace GameEstate.Formats.Valve.Blocks
         public byte[] Data { get; private set; }
         public uint Crc32 { get; private set; }
 
-        public override void Read(BinaryReader r, BinaryPak resource)
+        public override void Read(BinaryPak parent, BinaryReader r)
         {
-            r.BaseStream.Position = Offset;
+            r.Position(Offset);
             Crc32 = r.ReadUInt32();
             var size = r.ReadUInt16();
             for (var i = 0; i < size; i++)

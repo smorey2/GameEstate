@@ -9,21 +9,21 @@ namespace GameEstate.Formats.Valve.Blocks
 {
     public class DATABinaryNTRO : DATA
     {
-        protected BinaryPak Resource { get; private set; }
+        protected BinaryPak Parent { get; private set; }
 
         public IDictionary<string, object> Data { get; private set; }
         public string StructName { get; set; }
 
-        public override void Read(BinaryReader r, BinaryPak resource)
+        public override void Read(BinaryPak parent, BinaryReader r)
         {
-            Resource = resource;
+            Parent = parent;
             if (StructName != null)
             {
-                var refStruct = resource.NTRO.ReferencedStructs.Find(s => s.Name == StructName);
+                var refStruct = parent.NTRO.ReferencedStructs.Find(s => s.Name == StructName);
                 Data = ReadStructure(r, refStruct, Offset);
                 return;
             }
-            foreach (var refStruct in resource.NTRO.ReferencedStructs)
+            foreach (var refStruct in parent.NTRO.ReferencedStructs)
             {
                 Data = ReadStructure(r, refStruct, Offset);
                 break;
@@ -35,23 +35,22 @@ namespace GameEstate.Formats.Valve.Blocks
             var data = new Dictionary<string, object> { { "_name", refStruct.Name } };
             foreach (var field in refStruct.FieldIntrospection)
             {
-                r.BaseStream.Position = startingOffset + field.OnDiskOffset;
+                r.Position(startingOffset + field.OnDiskOffset);
                 ReadFieldIntrospection(r, field, ref data);
             }
             // Some structs are padded, so all the field sizes do not add up to the size on disk
             r.BaseStream.Position = startingOffset + refStruct.DiskSize;
             if (refStruct.BaseStructId != 0)
-            {
-                var previousOffset = r.BaseStream.Position;
-                var newStruct = Resource.NTRO.ReferencedStructs.First(x => x.Id == refStruct.BaseStructId);
-                // Valve doesn't print this struct's type, so we can't just call ReadStructure *sigh*
-                foreach (var field in newStruct.FieldIntrospection)
+                r.Peek(z =>
                 {
-                    r.BaseStream.Position = startingOffset + field.OnDiskOffset;
-                    ReadFieldIntrospection(r, field, ref data);
-                }
-                r.BaseStream.Position = previousOffset;
-            }
+                    var newStruct = Parent.NTRO.ReferencedStructs.First(x => x.Id == refStruct.BaseStructId);
+                    // Valve doesn't print this struct's type, so we can't just call ReadStructure *sigh*
+                    foreach (var field in newStruct.FieldIntrospection)
+                    {
+                        z.BaseStream.Position = startingOffset + field.OnDiskOffset;
+                        ReadFieldIntrospection(z, field, ref data);
+                    }
+                });
             return data;
         }
 
@@ -109,7 +108,7 @@ namespace GameEstate.Formats.Valve.Blocks
         {
             switch (field.Type)
             {
-                case NTRO.DataType.Struct: return MakeValue<IDictionary<string, object>>(field.Type, ReadStructure(r, Resource.NTRO.ReferencedStructs.First(x => x.Id == field.TypeData), r.BaseStream.Position), pointer);
+                case NTRO.DataType.Struct: return MakeValue<IDictionary<string, object>>(field.Type, ReadStructure(r, Parent.NTRO.ReferencedStructs.First(x => x.Id == field.TypeData), r.BaseStream.Position), pointer);
                 case NTRO.DataType.Enum: return MakeValue<uint>(field.Type, r.ReadUInt32(), pointer);
                 case NTRO.DataType.SByte: return MakeValue<sbyte>(field.Type, r.ReadSByte(), pointer);
                 case NTRO.DataType.Byte: return MakeValue<byte>(field.Type, r.ReadByte(), pointer);
@@ -120,7 +119,7 @@ namespace GameEstate.Formats.Valve.Blocks
                 case NTRO.DataType.UInt32: return MakeValue<uint>(field.Type, r.ReadUInt32(), pointer);
                 case NTRO.DataType.Float: return MakeValue<float>(field.Type, r.ReadSingle(), pointer);
                 case NTRO.DataType.Int64: return MakeValue<long>(field.Type, r.ReadInt64(), pointer);
-                case NTRO.DataType.ExternalReference: var id = r.ReadUInt64(); return MakeValue<string>(field.Type, id > 0 ? Resource.RERL?.RERLInfos.FirstOrDefault(c => c.Id == id)?.Name : null, pointer);
+                case NTRO.DataType.ExternalReference: var id = r.ReadUInt64(); return MakeValue<string>(field.Type, id > 0 ? Parent.RERL?.RERLInfos.FirstOrDefault(c => c.Id == id)?.Name : null, pointer);
                 case NTRO.DataType.UInt64: return MakeValue<ulong>(field.Type, r.ReadUInt64(), pointer);
                 case NTRO.DataType.Vector: return MakeValue<Vector3>(field.Type, new Vector3(r.ReadSingle(), r.ReadSingle(), r.ReadSingle()), pointer);
                 case NTRO.DataType.Quaternion: return MakeValue<Quaternion>(field.Type, new Quaternion(r.ReadSingle(), r.ReadSingle(), r.ReadSingle(), r.ReadSingle()), pointer);

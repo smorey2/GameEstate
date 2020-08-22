@@ -16,6 +16,7 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using GameEstate.Explorer.ViewModel;
 
+// https://stackoverflow.com/questions/2783378/wpf-byte-array-to-hex-view-similar-to-notepad-hex-editor-plugin
 namespace GameEstate.Explorer.View
 {
     /// <summary>
@@ -24,29 +25,13 @@ namespace GameEstate.Explorer.View
     public partial class FileContent : UserControl, INotifyPropertyChanged
     {
         public static FileContent Instance;
+        public static MainWindow MainWindow => MainWindow.Instance;
 
         public FileContent()
         {
             InitializeComponent();
             Instance = this;
             DataContext = this;
-            ContentTabs = new[] {
-                new ExplorerContentTab
-                {
-                    Name = "Render Information",
-                    EngineType = typeof(string),
-                },
-                new ExplorerContentTab
-                {
-                    Name = "REDI",
-                    Text = @"Leverage agile frameworks to provide a robust synopsis for high level overviews. Iterative approaches to corporate strategy foster collaborative thinking to further the overall value proposition. Organically grow the holistic world view of disruptive innovation via workplace diversity and empowerment.",
-                },
-                new ExplorerContentTab
-                {
-                    Name = "Text #2",
-                    Text = @"Leverage agile frameworks to provide a robust synopsis for high level overviews. Iterative approaches to corporate strategy foster collaborative thinking to further the overall value proposition. Organically grow the holistic world view of disruptive innovation via workplace diversity and empowerment.",
-                }
-            };
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
@@ -57,6 +42,15 @@ namespace GameEstate.Explorer.View
         {
             get => _contentTabs;
             set { _contentTabs = value; NotifyPropertyChanged(); }
+        }
+
+        public void OnFileInfo(List<ExplorerInfoNode> infos)
+        {
+            if (ContentTabs != null)
+                foreach (var dispose in ContentTabs.Where(x => x.Dispose != null).Select(x => x.Dispose))
+                    dispose.Dispose();
+            ContentTabs = infos?.Select(x => x.Tag as ExplorerContentTab).Where(x => x != null).ToList();
+            ContentTab.SelectedIndex = ContentTabs != null ? 0 : -1;
         }
     }
 }

@@ -19,14 +19,14 @@ namespace GameEstate.Formats.Valve.Blocks
         public IEnumerable<DATAMesh> GetEmbeddedMeshes()
         {
             var meshes = new List<DATAMesh>();
-            if (Resource.TryGetBlockType<CTRL>(out var ctrl))
+            if (Parent.TryGetBlockType<CTRL>(out var ctrl))
             {
                 var embeddedMeshes = ctrl.Data.GetArray("embedded_meshes");
                 foreach (var embeddedMesh in embeddedMeshes)
                 {
                     var dataBlockIndex = (int)embeddedMesh.GetInt("data_block");
                     var vbibBlockIndex = (int)embeddedMesh.GetInt("vbib_block");
-                    meshes.Add(new DATAMesh(Resource.GetBlockByIndex<DATA>(dataBlockIndex), Resource.GetBlockByIndex<VBIB_>(vbibBlockIndex)));
+                    meshes.Add(new DATAMesh(Parent.GetBlockByIndex<DATA>(dataBlockIndex), Parent.GetBlockByIndex<VBIB_>(vbibBlockIndex)));
                 }
             }
             return meshes;
@@ -39,16 +39,16 @@ namespace GameEstate.Formats.Valve.Blocks
             if (CachedEmbeddedAnimations != null)
                 return CachedEmbeddedAnimations;
             CachedEmbeddedAnimations = new List<ModelAnimation>();
-            if (Resource.TryGetBlockType<CTRL>(out var ctrl))
+            if (Parent.TryGetBlockType<CTRL>(out var ctrl))
             {
                 var embeddedAnimation = ctrl.Data.GetSub("embedded_animation");
                 if (embeddedAnimation == null)
                     return CachedEmbeddedAnimations;
                 var groupDataBlockIndex = (int)embeddedAnimation.GetInt("group_data_block");
                 var animDataBlockIndex = (int)embeddedAnimation.GetInt("anim_data_block");
-                var animationGroup = Resource.GetBlockByIndex<DATABinaryKV3OrNTRO>(groupDataBlockIndex);
+                var animationGroup = Parent.GetBlockByIndex<DATABinaryKV3OrNTRO>(groupDataBlockIndex);
                 var decodeKey = animationGroup.Data.GetSub("m_decodeKey");
-                var animationDataBlock = Resource.GetBlockByIndex<DATABinaryKV3OrNTRO>(animDataBlockIndex);
+                var animationDataBlock = Parent.GetBlockByIndex<DATABinaryKV3OrNTRO>(animDataBlockIndex);
                 CachedEmbeddedAnimations.AddRange(ModelAnimation.FromData(animationDataBlock.Data, decodeKey));
             }
             return CachedEmbeddedAnimations;

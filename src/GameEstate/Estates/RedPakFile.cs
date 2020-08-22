@@ -8,7 +8,7 @@ namespace GameEstate.Estates
     /// RedPakFile
     /// </summary>
     /// <seealso cref="GameEstate.Core.BinaryPakFile" />
-    public class RedPakFile : BinaryPakMultiFile
+    public class RedPakFile : BinaryPakManyFile
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="RedPakFile" /> class.
@@ -20,8 +20,6 @@ namespace GameEstate.Estates
         public RedPakFile(Estate estate, string game, string filePath, object tag = null) : base(estate, game, filePath, PakBinaryRed.Instance, tag)
         {
             ExplorerItems = StandardExplorerItem.GetPakFilesAsync;
-            ExplorerInfos.Add("_default", StandardExplorerInfo.GetDefaultAsync);
-            ExplorerInfos.Add(".dds", StandardExplorerInfo.GetDdsAsync);
             Open();
         }
     }

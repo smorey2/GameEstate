@@ -143,9 +143,9 @@ namespace GameEstate.Formats.Valve.Blocks
         public List<ResourceDiskStruct> ReferencedStructs { get; } = new List<ResourceDiskStruct>();
         public List<ResourceDiskEnum> ReferencedEnums { get; } = new List<ResourceDiskEnum>();
 
-        public override void Read(BinaryReader r, BinaryPak resource)
+        public override void Read(BinaryPak parent, BinaryReader r)
         {
-            r.BaseStream.Position = Offset;
+            r.Position(Offset);
             IntrospectionVersion = r.ReadUInt32();
             ReadStructs(r);
             r.BaseStream.Position = Offset + 12; // skip 3 ints

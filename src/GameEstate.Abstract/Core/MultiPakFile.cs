@@ -62,6 +62,18 @@ namespace GameEstate.Core
             (PakFiles.FirstOrDefault(x => x.Contains(filePath)) ?? throw new FileNotFoundException($"Could not find file \"{filePath}\"."))
             .LoadFileDataAsync(filePath, exception);
 
+        /// <summary>
+        /// Loads the object asynchronous.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="filePath">The file path.</param>
+        /// <param name="exception">The exception.</param>
+        /// <returns></returns>
+        /// <exception cref="FileNotFoundException">Could not find file \"{filePath}\".</exception>
+        public override Task<T> LoadFileObjectAsync<T>(string filePath, Action<FileMetadata, string> exception) =>
+            (PakFiles.FirstOrDefault(x => x.Contains(filePath)) ?? throw new FileNotFoundException($"Could not find file \"{filePath}\"."))
+            .LoadFileObjectAsync<T>(filePath, exception);
+
         #region Explorer
 
         /// <summary>
@@ -77,15 +89,6 @@ namespace GameEstate.Core
                 root.Add(new ExplorerItemNode(pakFile.Name, manager.PackageIcon, children: await pakFile.GetExplorerItemNodesAsync(manager)) { PakFile = pakFile });
             return root;
         }
-
-        /// <summary>
-        /// Gets the explorer information nodes.
-        /// </summary>
-        /// <param name="manager">The resource.</param>
-        /// <param name="item">The item.</param>
-        /// <returns></returns>
-        /// <exception cref="NotImplementedException"></exception>
-        public override Task<List<ExplorerInfoNode>> GetExplorerInfoNodesAsync(ExplorerManager manager, ExplorerItemNode item) => throw new NotImplementedException();
 
         #endregion
     }

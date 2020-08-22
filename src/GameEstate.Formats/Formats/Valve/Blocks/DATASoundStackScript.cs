@@ -9,9 +9,9 @@ namespace GameEstate.Formats.Valve.Blocks
     {
         public Dictionary<string, string> SoundStackScriptValue { get; private set; }
 
-        public override void Read(BinaryReader r, BinaryPak resource)
+        public override void Read(BinaryPak parent, BinaryReader r)
         {
-            r.BaseStream.Position = Offset;
+            r.Position(Offset);
             var version = r.ReadInt32();
             if (version != 8)
                 throw new NotImplementedException($"Unknown soundstack version: {version}");

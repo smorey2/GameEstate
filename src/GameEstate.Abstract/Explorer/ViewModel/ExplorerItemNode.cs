@@ -6,9 +6,10 @@ using System.Diagnostics;
 
 namespace GameEstate.Explorer.ViewModel
 {
-    [DebuggerDisplay("{Name}, children: {Items.Count}")]
+    [DebuggerDisplay("{Name}, items: {Items.Count}")]
     public class ExplorerItemNode
     {
+        [DebuggerDisplay("{Name}")]
         public class Filter
         {
             public string Name;

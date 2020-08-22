@@ -12,7 +12,7 @@ namespace GameEstate.Formats.Tes
     /// </summary>
     public class NifManager
     {
-        readonly IGraphicLoader _pakFile;
+        readonly AbstractPakFile _pakFile;
         readonly MaterialManager _materialManager;
         GameObject _prefabContainerObj;
         readonly Dictionary<string, Task<object>> _preloadTasks = new Dictionary<string, Task<object>>();
@@ -21,7 +21,7 @@ namespace GameEstate.Formats.Tes
 
         public NifManager(AbstractPakFile pakFile, MaterialManager materialManager, int markerLayer)
         {
-            _pakFile = pakFile as IGraphicLoader;
+            _pakFile = pakFile;
             _materialManager = materialManager;
             _markerLayer = markerLayer;
         }
@@ -43,7 +43,7 @@ namespace GameEstate.Formats.Tes
                 return;
             // Start loading the NIF asynchronously if we haven't already started.
             if (!_preloadTasks.TryGetValue(filePath, out _))
-                _preloadTasks[filePath] = _pakFile.LoadObjectInfoAsync(filePath);
+                _preloadTasks[filePath] = _pakFile.LoadFileObjectAsync<object>(filePath);
         }
 
         void EnsurePrefabContainerObjectExists()

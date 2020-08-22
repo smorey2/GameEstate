@@ -1,11 +1,8 @@
 ﻿using GameEstate.Core;
 using GameEstate.Explorer;
 using GameEstate.Formats.Binary;
-using GameEstate.Formats.Tes;
 using GameEstate.Graphics;
-using System;
 using System.IO;
-using System.Threading.Tasks;
 using static GameEstate.EstateDebug;
 
 namespace GameEstate.Estates
@@ -14,7 +11,7 @@ namespace GameEstate.Estates
     /// TesPakFile
     /// </summary>
     /// <seealso cref="GameEstate.Core.BinaryPakFile" />
-    public class TesPakFile : BinaryPakMultiFile, IGraphicLoader
+    public class TesPakFile : BinaryPakManyFile, IGraphicLoader
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="TesPakFile" /> class.
@@ -26,42 +23,29 @@ namespace GameEstate.Estates
         public TesPakFile(Estate estate, string game, string filePath, object tag = null) : base(estate, game, filePath, Path.GetExtension(filePath) != ".esm" ? PakBinaryTes.Instance : PakBinaryTesEsm.Instance, tag)
         {
             ExplorerItems = StandardExplorerItem.GetPakFilesAsync;
-            ExplorerInfos.Add("_default", StandardExplorerInfo.GetDefaultAsync);
-            ExplorerInfos.Add(".nif", StandardExplorerInfo.GetNifAsync);
-            ExplorerInfos.Add(".dds", StandardExplorerInfo.GetDdsAsync);
             Open();
         }
 
         #region Loader
 
-        public Task<TextureInfo> LoadTextureInfoAsync(string texturePath)
-        {
-            var filePath = FindTexture(texturePath);
-            return filePath != null
-                ? Task.Run(async () =>
-                {
-                    var fileData = await LoadFileDataAsync(filePath);
-                    var fileExtension = Path.GetExtension(filePath);
-                    if (fileExtension.ToLowerInvariant() == ".dds") return new TextureInfo().LoadDdsTexture(fileData);
-                    else throw new NotSupportedException($"Unsupported texture type: {fileExtension}");
-                })
-                : Task.FromResult<TextureInfo>(null);
-        }
-
-        public Task<object> LoadObjectInfoAsync(string filePath) => Task.Run(async () =>
-       {
-           using (var fileData = await LoadFileDataAsync(filePath))
-           {
-               var file = new NiFile(Path.GetFileNameWithoutExtension(filePath));
-               file.Read(new BinaryReader(fileData));
-               return (object)file;
-           }
-       });
+        //public Task<TextureInfo> LoadTextureInfoAsync(string texturePath)
+        //{
+        //    var filePath = FindTexture(texturePath);
+        //    return filePath != null
+        //        ? Task.Run(async () =>
+        //        {
+        //            var fileData = await LoadFileDataAsync(filePath);
+        //            var fileExtension = Path.GetExtension(filePath);
+        //            if (fileExtension.ToLowerInvariant() == ".dds") return new TextureInfo().ReadDds(fileData);
+        //            else throw new NotSupportedException($"Unsupported texture type: {fileExtension}");
+        //        })
+        //        : Task.FromResult<TextureInfo>(null);
+        //}
 
         /// <summary>
         /// Finds the actual path of a texture.
         /// </summary>
-        string FindTexture(string texturePath)
+        public override string FindTexture(string texturePath)
         {
             var textureName = Path.GetFileNameWithoutExtension(texturePath);
             var textureNameInTexturesDir = $"textures/{textureName}";

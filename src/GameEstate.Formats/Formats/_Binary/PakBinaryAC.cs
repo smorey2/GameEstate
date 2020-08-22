@@ -1,4 +1,5 @@
 ﻿using GameEstate.Core;
+using GameEstate.Graphics;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -451,6 +452,43 @@ namespace GameEstate.Formats.Binary
 
         #endregion
 
+        // object factory
+        static Func<BinaryReader, FileMetadata, Task<object>> ObjectFactory(string path)
+        {
+            Task<object> DdsFactory(BinaryReader r, FileMetadata f)
+            {
+                var tex = new TextureInfo();
+                tex.ReadDds(r);
+                return Task.FromResult((object)tex);
+            }
+            switch (Path.GetExtension(path).ToLowerInvariant())
+            {
+                case ".dds": return DdsFactory;
+                default: return null;
+            }
+        }
+
+        public unsafe override Task ReadAsync(BinaryPakFile source, BinaryReader r, ReadStage stage)
+        {
+            if (!(source is BinaryPakManyFile multiSource))
+                throw new NotSupportedException();
+            if (stage != ReadStage.File)
+                throw new ArgumentOutOfRangeException(nameof(stage), stage.ToString());
+
+            var files = multiSource.Files = new List<FileMetadata>();
+            r.Position(DAT_HEADER_OFFSET);
+            var header = r.ReadT<Header>(sizeof(Header));
+            var directory = new Directory(r, header.BTree, (int)header.BlockSize);
+            directory.AddFiles(header.DataSet, files, string.Empty);
+            return Task.CompletedTask;
+        }
+
+        public override Task<Stream> ReadDataAsync(BinaryPakFile source, BinaryReader r, FileMetadata file, Action<FileMetadata, string> exception = null)
+        {
+            r.Position(file.Position);
+            return Task.FromResult((Stream)new MemoryStream(r.ReadBytes((int)file.FileSize)));
+        }
+
         static T ReadT<T>(BinaryReader r, long offset, int size, int blockSize) => UnsafeUtils.MarshalT<T>(ReadBytes(r, offset, size, blockSize));
 
         static byte[] ReadBytes(BinaryReader r, long offset, int size, int blockSize)
@@ -474,27 +512,6 @@ namespace GameEstate.Formats.Binary
                     return buffer;
                 }
             return buffer;
-        }
-
-        public unsafe override Task ReadAsync(BinaryPakFile source, BinaryReader r, ReadStage stage)
-        {
-            if (!(source is BinaryPakMultiFile multiSource))
-                throw new NotSupportedException();
-            if (stage != ReadStage.File)
-                throw new ArgumentOutOfRangeException(nameof(stage), stage.ToString());
-
-            var files = multiSource.Files = new List<FileMetadata>();
-            r.Position(DAT_HEADER_OFFSET);
-            var header = r.ReadT<Header>(sizeof(Header));
-            var directory = new Directory(r, header.BTree, (int)header.BlockSize);
-            directory.AddFiles(header.DataSet, files, string.Empty);
-            return Task.CompletedTask;
-        }
-
-        public override Task<Stream> ReadFileAsync(BinaryPakFile source, BinaryReader r, FileMetadata file, Action<FileMetadata, string> exception = null)
-        {
-            r.Position(file.Position);
-            return Task.FromResult((Stream)new MemoryStream(r.ReadBytes((int)file.FileSize)));
         }
     }
 }
