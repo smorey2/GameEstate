@@ -15,6 +15,8 @@ namespace GameEstate.Tests.PakFiles
 
     public class CompressTest
     {
+        static CompressTest() => EstatePlatform.Startups.Add(TestPlatform.Startup);
+
         [Theory]
         [InlineData("Tes", "game:/SeventySix - 00UpdateMain.ba2#Fallout76", "meshes/actors/moleminer/treasurehunter/treasurehunter.ztl", 17725)]
         public void Error(string estate, string uri, string sampleFile, int sampleFileSize) => EstateLoadFileData(estate, uri, sampleFile, sampleFileSize);

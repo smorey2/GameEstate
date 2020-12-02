@@ -9,16 +9,15 @@
   "games": {
     "Witcher": {
       "name": "The Witcher Enhanced Edition",
+      //"pak": "game:/*.key#Witcher"
       "pak": "game:/main.key#Witcher"
-      //"pak": "game:/main.bif#Witcher",
       //"pakZ": "game:/attackeffects.2da#Witcher",
       //"pak": "game:/dialog_3.tlk#Witcher",
-      //"pak": "game:/lang_3.key#Witcher"
     },
     "Witcher2": {
       "name": "The Witcher 2",
-      "pak_": "game:/*#Witcher2",
-      "pak": "game:/base_scripts.dzip#Witcher2",
+      "pak": "game:/*#Witcher2",
+      "pak_": "game:/base_scripts.dzip#Witcher2",
       "pak2": "game:/br0.w2strings#Witcher2"
     },
     "Witcher3": {

@@ -14,7 +14,7 @@ namespace GameEstate.Explorer
         /// <param name="manager">The manager.</param>
         /// <param name="pakFile">The pak file.</param>
         /// <returns></returns>
-        public static Task<List<ExplorerItemNode>> GetPakFilesAsync(ExplorerManager manager, BinaryPakFile pakFile)
+        public static async Task<List<ExplorerItemNode>> GetPakFilesAsync(ExplorerManager manager, BinaryPakFile pakFile)
         {
             var pakMultiFile = pakFile as BinaryPakManyFile;
             var root = new List<ExplorerItemNode>();
@@ -45,6 +45,15 @@ namespace GameEstate.Explorer
                             }
                         }
                 }
+
+                // extract pak
+                if (file.Pak != null)
+                {
+                    var children = await GetPakFilesAsync(manager, file.Pak);
+                    currentFolder.Add(new ExplorerItemNode(Path.GetFileName(file.Path), manager.PackageIcon, file, children) { PakFile = pakFile });
+                    continue;
+                }
+
                 // file
                 var fileName = Path.GetFileName(file.Path);
                 var fileNameForIcon = pakFile.FileMask?.Invoke(fileName) ?? fileName;
@@ -53,7 +62,7 @@ namespace GameEstate.Explorer
                     extentionForIcon = extentionForIcon.Substring(1);
                 currentFolder.Add(new ExplorerItemNode(fileName, manager.GetIcon(extentionForIcon), file) { PakFile = pakFile });
             }
-            return Task.FromResult(root);
+            return root;
         }
     }
 }

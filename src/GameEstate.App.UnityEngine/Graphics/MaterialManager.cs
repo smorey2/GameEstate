@@ -1,4 +1,5 @@
-using GameEstate.Graphics.Materials;
+using GameEstate.Graphics.MaterialBuilders;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Rendering;
 
@@ -35,19 +36,33 @@ namespace GameEstate.Graphics
         public bool ZWrite;
     }
 
+    public struct MaterialTerrain { }
+
+    public struct MaterialBlended
+    {
+        public BlendMode SrcBlendMode;
+        public BlendMode DstBlendMode;
+    }
+
+    public struct MaterialTested
+    {
+        public float Cutoff;
+    }
+
     /// <summary>
     /// Manages loading and instantiation of materials.
     /// </summary>
     public class MaterialManager
     {
-        AbstractMaterial _material;
+        readonly AbstractMaterialBuilder _material;
+        readonly Dictionary<object, Material> _existingMaterials = new Dictionary<object, Material>();
 
         public TextureManager TextureManager { get; }
 
         public MaterialManager(TextureManager textureManager)
         {
             TextureManager = textureManager;
-            _material = new BumpedDiffuseMaterial(textureManager);
+            _material = new BumpedDiffuseMaterialBuilder(textureManager);
             //switch (MaterialType.Default)
             //{
             //    case MaterialType.None: _material = null; break;
@@ -58,10 +73,8 @@ namespace GameEstate.Graphics
             //}
         }
 
-        public Material BuildMaterialTerrain() => _material.BuildMaterialTerrain();
-        public Material BuildMaterialFromProperties(MaterialProps mp) => _material.BuildMaterialFromProperties(mp);
-        Material BuildMaterial() => _material.BuildMaterial();
-        Material BuildMaterialBlended(BlendMode sourceBlendMode, BlendMode destinationBlendMode) => _material.BuildMaterialBlended(sourceBlendMode, destinationBlendMode);
-        Material BuildMaterialTested(float cutoff = 0.5f) => _material.BuildMaterialTested(cutoff);
+        public Material GetMaterial(object key) => _existingMaterials.TryGetValue(key, out var material)
+            ? material
+            : _existingMaterials[key] = _material.BuildMaterial(key);
     }
 }

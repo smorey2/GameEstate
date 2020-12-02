@@ -15,6 +15,7 @@ namespace GameEstate
     /// <seealso cref="System.IDisposable" />
     public abstract class EstatePakFile : IDisposable
     {
+        public virtual bool Valid => true;
         public readonly Estate Estate;
         public readonly string Game;
         public readonly string Name;

@@ -1,15 +1,10 @@
-﻿using Compression;
-using Compression.Doboz;
-using Dolkens.Framework.Extensions;
-using GameEstate.Core;
+﻿using GameEstate.Core;
+using GameEstate.Formats.Red;
 using GameEstate.Graphics;
 using GameEstate.Graphics.DirectX;
-using ICSharpCode.SharpZipLib.Zip.Compression.Streams;
-using K4os.Compression.LZ4;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
@@ -395,9 +390,15 @@ namespace GameEstate.Formats.Binary
                 tex.ReadDds(r);
                 return Task.FromResult((object)tex);
             }
+            Task<object> BinaryPakFactory(BinaryReader r, FileMetadata f)
+            {
+                return Task.FromResult((object)new BinaryPak(r));   
+            }
             switch (Path.GetExtension(path).ToLowerInvariant())
             {
                 case ".dds": return DdsFactory;
+                // witcher 1
+                case ".dlg": case ".qdb": case ".qst": return BinaryPakFactory;
                 default: return null;
             }
         }
@@ -409,13 +410,16 @@ namespace GameEstate.Formats.Binary
             if (stage != ReadStage.File)
                 throw new ArgumentOutOfRangeException(nameof(stage), stage.ToString());
 
-            FileMetadata[] files;
+            FileMetadata[] files; List<FileMetadata> files2;
             var fileNameWithoutExtension = Path.GetFileNameWithoutExtension(source.FilePath);
             var extension = Path.GetExtension(source.FilePath);
             var magic = source.Magic = r.ReadUInt32();
             // KEY
             if (magic == KEY_MAGIC) // Signature("KEY ")
             {
+                var sourceName = source.Name;
+                var voiceKey = sourceName[0] == 'M' && char.IsNumber(sourceName[1]);
+
                 var header = r.ReadT<KEY_Header>(sizeof(KEY_Header));
                 if (header.Version != KEY_VERSION)
                     throw new FileFormatException("BAD MAGIC");
@@ -435,7 +439,7 @@ namespace GameEstate.Formats.Binary
                 // files
                 r.Position(header.FilesPosition);
                 var headerFiles = r.ReadTArray<KEY_HeaderFile>(sizeof(KEY_HeaderFile), (int)header.NumFiles);
-                var subPathFormat = Path.Combine(Path.GetDirectoryName(source.FilePath), "{0}");
+                var subPathFormat = Path.Combine(Path.GetDirectoryName(source.FilePath), !voiceKey ? "{0}" : "voices\\{0}");
                 for (var i = 0; i < header.NumFiles; i++)
                 {
                     var headerFile = headerFiles[i];
@@ -462,7 +466,7 @@ namespace GameEstate.Formats.Binary
                 if (header.Version != BIFF_VERSION)
                     throw new FileFormatException("BAD MAGIC");
                 source.Version = header.Version;
-                multiSource.Files = files = new FileMetadata[header.NumFiles];
+                multiSource.Files = files2 = new List<FileMetadata>();
 
                 // files
                 var fileTypes = BIFF_FileTypes;
@@ -474,14 +478,14 @@ namespace GameEstate.Formats.Binary
                     // Curiously the last resource entry of djinni.bif seem to be missing
                     if (headerFile.FileId > i)
                         continue;
-                    var path = $"{(keys.TryGetValue((bifId, headerFile.FileId), out var key) ? key : $"{i}")}{(fileTypes.TryGetValue(headerFile.FileType, out var z) ? z : string.Empty)}".Replace('\\', '/');
-                    files[i] = new FileMetadata
+                    var path = $"{(keys.TryGetValue((bifId, headerFile.FileId), out var key) ? key : $"{i}")}{(fileTypes.TryGetValue(headerFile.FileType, out var z) ? $".{z}" : string.Empty)}".Replace('\\', '/');
+                    files2.Add(new FileMetadata
                     {
                         Path = path,
                         ObjectFactory = ObjectFactory(path),
                         FileSize = headerFile.FileSize,
                         Position = headerFile.FilePosition,
-                    };
+                    });
                 }
             }
             // DZIP

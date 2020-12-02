@@ -1,8 +1,6 @@
 ﻿using GameEstate.Core;
 using System;
 using System.IO;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using Xunit;
 
@@ -10,6 +8,8 @@ namespace GameEstate.Tests.PakFiles
 {
     public class PakFileAllLoadObjectTest
     {
+        static PakFileAllLoadObjectTest() => EstatePlatform.Startups.Add(TestPlatform.Startup);
+
         [Theory]
         [InlineData("game:/*.dat#AC")]
         public void ACEstate(string uri) => EstateLoadAll("AC", uri).Wait();

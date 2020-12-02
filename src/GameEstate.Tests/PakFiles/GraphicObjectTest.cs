@@ -1,5 +1,4 @@
-﻿using GameEstate.Graphics;
-using System;
+﻿using System;
 using System.Threading.Tasks;
 using Xunit;
 
@@ -7,6 +6,8 @@ namespace GameEstate.Tests.PakFiles
 {
     public class GraphicObjectTest
     {
+        static GraphicObjectTest() => EstatePlatform.Startups.Add(TestPlatform.Startup);
+
         //[Theory]
         //[InlineData("game:/client_highres.dat#AC", "Texture060043BE")]
         //public void ACEstate(string uri, string sampleFile) => EstateLoadGraphicObject("AC", uri, sampleFile);

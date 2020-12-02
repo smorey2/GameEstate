@@ -32,7 +32,7 @@ namespace GameEstate.Formats.Valve.Blocks
             foreach (var kv in Data.GetArray("m_floatParams"))
                 FloatParams[kv.Get<string>("m_name")] = kv.GetFloat("m_flValue");
             foreach (var kv in Data.GetArray("m_vectorParams"))
-                VectorParams[kv.Get<string>("m_name")] = kv.GetSub("m_value").ToVector4();
+                VectorParams[kv.Get<string>("m_name")] = kv.Get<Vector4>("m_value"); //:GetSub<Vector4>
             foreach (var kv in Data.GetArray("m_textureParams"))
                 TextureParams[kv.Get<string>("m_name")] = kv.Get<string>("m_pValue");
             // TODO: These 3 parameters
@@ -44,7 +44,7 @@ namespace GameEstate.Formats.Valve.Blocks
             foreach (var kv in Data.GetArray("m_floatAttributes"))
                 FloatAttributes[kv.Get<string>("m_name")] = kv.GetFloat("m_flValue");
             foreach (var kv in Data.GetArray("m_vectorAttributes"))
-                VectorAttributes[kv.Get<string>("m_name")] = kv.GetSub("m_value").ToVector4();
+                VectorAttributes[kv.Get<string>("m_name")] = kv.Get<Vector4>("m_value"); //:GetSub<Vector4>
             foreach (var kv in Data.GetArray("m_stringAttributes"))
                 StringAttributes[kv.Get<string>("m_name")] = kv.Get<string>("m_pValue");
         }

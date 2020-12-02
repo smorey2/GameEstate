@@ -25,7 +25,7 @@ namespace Tests
             var obj = GameObject.CreatePrimitive(PrimitiveType.Cube);
             var materialProps = new MaterialProps { Textures = new MaterialTextures { MainFilePath = path } };
             var meshRenderer = obj.GetComponent<MeshRenderer>();
-            meshRenderer.material = Graphic.MaterialManager.BuildMaterialFromProperties(materialProps);
+            meshRenderer.material = Graphic.MaterialManager.GetMaterial(materialProps);
             return obj;
         }
 

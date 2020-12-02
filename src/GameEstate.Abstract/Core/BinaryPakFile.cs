@@ -240,7 +240,7 @@ namespace GameEstate.Core
         /// <param name="manager">The resource.</param>
         /// <returns></returns>
         /// <exception cref="NotImplementedException"></exception>
-        public override async Task<List<ExplorerItemNode>> GetExplorerItemNodesAsync(ExplorerManager manager) => ExplorerItems != null ? await ExplorerItems(manager, this) : null;
+        public override async Task<List<ExplorerItemNode>> GetExplorerItemNodesAsync(ExplorerManager manager) => Valid && ExplorerItems != null ? await ExplorerItems(manager, this) : null;
 
         /// <summary>
         /// Gets the explorer information nodes.

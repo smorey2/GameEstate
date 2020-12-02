@@ -5,6 +5,8 @@ namespace GameEstate.Tests.PakFiles
 {
     public class PakFileTest
     {
+        static PakFileTest() => EstatePlatform.Startups.Add(TestPlatform.Startup);
+
         [Theory]
         [InlineData("game:/client_highres.dat#AC", "Texture060043BE", 32792)]
         public void ACEstate(string uri, string sampleFile, int sampleFileSize) => EstateLoadFileData("AC", uri, sampleFile, sampleFileSize);

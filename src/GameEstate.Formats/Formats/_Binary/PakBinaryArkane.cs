@@ -124,9 +124,20 @@ namespace GameEstate.Formats.Binary
             return Task.CompletedTask;
         }
 
+        // Bad Positions - Dishonored2
+        static HashSet<long> _badPositions = new HashSet<long> {
+            293, //: generated/decls/renderparm/atm/worldfog/artistscatteringcolor.decl
+            917004, //: generated/decls/renderparm/ocean/patchtransform.decl
+            9923823, //: generated/decls/soundevent/sound_events/bsp/bsp_physmat/bsp_foosteps/bsp_fs_player/emily/fs_e_metal_chandelier/fs_e_metal_chandelier_w.decl
+            9924002, //: generated/decls/fx/contactsystem/w.emily_env.metal.chandelier.fx.decl
+            32872162, //: generated/image/models/effects/textures/gameplay/blood/blood_leads_05_fl.bimage7
+            32966564, //: generated/decls/material/models/effects/materials/gameplay/blood/blood_leads_05_bf.material.decl
+            45704814, //: generated/decls/fx/contactsystem/pr.ar.venom_env.tile.fx.decl
+        };
+
         public override Task<Stream> ReadDataAsync(BinaryPakFile source, BinaryReader r, FileMetadata file, Action<FileMetadata, string> exception = null)
         {
-            if (file.FileSize == 0)
+            if (file.FileSize == 0 || _badPositions.Contains(file.Position))
                 return Task.FromResult(System.IO.Stream.Null);
             var (path, tag1, tag2) = ((string, string, string))file.Tag;
             return Task.FromResult((Stream)new MemoryStream(source.GetBinaryReader(path).Func(r2 =>

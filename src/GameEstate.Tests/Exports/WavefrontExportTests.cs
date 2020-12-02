@@ -9,6 +9,8 @@ namespace GameEstate.Tests.Modules
 {
     public class WavefrontExportTests
     {
+        static WavefrontExportTests() => EstatePlatform.Startups.Add(TestPlatform.Startup);
+
         const string AssetRoot = @"D:\StarCitizen\data";
 
         public WavefrontExportTests(ITestOutputHelper helper) => LogFunc = x => helper.WriteLine(x.ToString());

@@ -14,5 +14,6 @@ namespace GameEstate.Explorer.View
     /// </summary>
     public partial class App : Application
     {
+        static App() => EstatePlatform.Startups.Add(OpenGLPlatform.Startup);
     }
 }

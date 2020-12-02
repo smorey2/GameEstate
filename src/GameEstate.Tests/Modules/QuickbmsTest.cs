@@ -7,6 +7,8 @@
 //{
 //    public class QuickbmsTest
 //    {
+//        static QuickbmsTest() => EstatePlatform.Startups.Add(TestPlatform.Startup);
+
 //        [Theory]
 //        [InlineData("Witcher3", @"D:\Program Files (x86)\GOG Galaxy\Games\The Witcher 3 Wild Hunt GOTY\content\*", "witcher3.bms")]
 //        [InlineData("DungeonKeeper2", @"D:\Program Files (x86)\GOG Galaxy\Games\Dungeon Keeper 2\Data\*", "dk2.bms")]

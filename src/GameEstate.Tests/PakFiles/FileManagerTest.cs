@@ -1,4 +1,3 @@
-using GameEstate.Core;
 using System;
 using Xunit;
 
@@ -6,6 +5,8 @@ namespace GameEstate.Tests.PakFiles
 {
     public class FileManagerTest
     {
+        static FileManagerTest() => EstatePlatform.Startups.Add(TestPlatform.Startup);
+
         [Fact]
         public void MissingEstate()
         {

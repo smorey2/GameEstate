@@ -6,6 +6,8 @@ namespace GameEstate.Tests.PakFiles
 {
     public class ResourceTest
     {
+        static ResourceTest() => EstatePlatform.Startups.Add(TestPlatform.Startup);
+
         const string OblivionFile = "file:///D:/Program%20Files%20(x86)/Steam/steamapps/common/Oblivion";
         const string OblivionFolder = "file:////192.168.1.3/User/_SERVE/Assets/Oblivion";
         const string OblivionHttp = "http://192.168.1.3/Estates/Oblivion";

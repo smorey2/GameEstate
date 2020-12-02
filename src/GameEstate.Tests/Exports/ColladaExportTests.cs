@@ -9,6 +9,8 @@ namespace GameEstate.Tests.Exports
 {
     public class ColladaExportTests
     {
+        static ColladaExportTests() => EstatePlatform.Startups.Add(TestPlatform.Startup);
+
         const string AssetRoot = @"D:\StarCitizen\data";
 
         public ColladaExportTests(ITestOutputHelper helper) => LogFunc = x => helper.WriteLine(x.ToString());

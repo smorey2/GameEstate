@@ -49,7 +49,7 @@ namespace GameEstate.Core
         /// <returns>
         ///   <c>true</c> if the specified file path contains file; otherwise, <c>false</c>.
         /// </returns>
-        public override bool Contains(string filePath) => PakFiles.Any(x => x.Contains(filePath));
+        public override bool Contains(string filePath) => PakFiles.Any(x => x.Valid && x.Contains(filePath));
 
         /// <summary>
         /// Loads the file data asynchronous.
@@ -59,7 +59,7 @@ namespace GameEstate.Core
         /// <returns></returns>
         /// <exception cref="System.IO.FileNotFoundException">Could not find file \"{filePath}\".</exception>
         public override Task<Stream> LoadFileDataAsync(string filePath, Action<FileMetadata, string> exception) =>
-            (PakFiles.FirstOrDefault(x => x.Contains(filePath)) ?? throw new FileNotFoundException($"Could not find file \"{filePath}\"."))
+            (PakFiles.FirstOrDefault(x => x.Valid && x.Contains(filePath)) ?? throw new FileNotFoundException($"Could not find file \"{filePath}\"."))
             .LoadFileDataAsync(filePath, exception);
 
         /// <summary>
@@ -71,7 +71,7 @@ namespace GameEstate.Core
         /// <returns></returns>
         /// <exception cref="FileNotFoundException">Could not find file \"{filePath}\".</exception>
         public override Task<T> LoadFileObjectAsync<T>(string filePath, Action<FileMetadata, string> exception) =>
-            (PakFiles.FirstOrDefault(x => x.Contains(filePath)) ?? throw new FileNotFoundException($"Could not find file \"{filePath}\"."))
+            (PakFiles.FirstOrDefault(x => x.Valid && x.Contains(filePath)) ?? throw new FileNotFoundException($"Could not find file \"{filePath}\"."))
             .LoadFileObjectAsync<T>(filePath, exception);
 
         #region Explorer
@@ -85,7 +85,7 @@ namespace GameEstate.Core
         public override async Task<List<ExplorerItemNode>> GetExplorerItemNodesAsync(ExplorerManager manager)
         {
             var root = new List<ExplorerItemNode>();
-            foreach (var pakFile in PakFiles)
+            foreach (var pakFile in PakFiles.Where(x => x.Valid))
                 root.Add(new ExplorerItemNode(pakFile.Name, manager.PackageIcon, children: await pakFile.GetExplorerItemNodesAsync(manager)) { PakFile = pakFile });
             return root;
         }

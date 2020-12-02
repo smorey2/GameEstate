@@ -5,6 +5,8 @@ namespace GameEstate.Tests.PakFiles
 {
     public class GraphicTextureTest
     {
+        static GraphicTextureTest() => EstatePlatform.Startups.Add(TestPlatform.Startup);
+
         [Theory]
         [InlineData("game:/client_highres.dat#AC", "Texture060043BE")]
         public void ACEstate(string uri, string sampleFile) => EstateLoadGraphicTexture("AC", uri, sampleFile);

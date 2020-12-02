@@ -15,6 +15,7 @@
   <ItemGroup>
     <None Remove="Estates\ACEstate.json" />
     <None Remove="Estates\ArkaneEstate.json" />
+    <None Remove="Estates\AuroraEstate.json" />
     <None Remove="Estates\CryEstate.json" />
     <None Remove="Estates\CyanideEstate.json" />
     <None Remove="Estates\OriginEstate.json" />
@@ -30,6 +31,7 @@
     <EmbeddedResource Include="Estates\ACEstate.json" />
     <EmbeddedResource Include="Estates\CryEstate.json" />
     <EmbeddedResource Include="Estates\CyanideEstate.json" />
+    <EmbeddedResource Include="Estates\AuroraEstate.json" />
     <EmbeddedResource Include="Estates\UknEstate.json" />
     <EmbeddedResource Include="Estates\ValveEstate.json" />
     <EmbeddedResource Include="Estates\OriginEstate.json" />

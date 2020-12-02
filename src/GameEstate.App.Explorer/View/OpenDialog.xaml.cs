@@ -16,7 +16,6 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 
-// https://www.wpf-tutorial.com/panels/grid-usage-example-contact-form/
 namespace GameEstate.Explorer.View
 {
     /// <summary>
@@ -43,7 +42,7 @@ namespace GameEstate.Explorer.View
             set
             {
                 var idx = 0;
-                _pakUri = _pak2Uri = _pak3Uri = null;
+                Uri pakUri = null, pak2Uri = null, pak3Uri = null;
                 if (value != null)
                     foreach (var uri in value)
                     {
@@ -51,11 +50,14 @@ namespace GameEstate.Explorer.View
                             continue;
                         switch (++idx)
                         {
-                            case 1: _pakUri = uri; break;
-                            case 2: _pak2Uri = uri; break;
-                            case 3: _pak3Uri = uri; break;
+                            case 1: pakUri = uri; break;
+                            case 2: pak2Uri = uri; break;
+                            case 3: pak3Uri = uri; break;
                         }
                     }
+                PakUri = pakUri;
+                Pak2Uri = pak2Uri;
+                Pak3Uri = pak3Uri;
             }
         }
 

@@ -45,7 +45,7 @@ namespace System.Collections.Generic
             => collection.TryGetValue(name, out var z) && z is Array v ? v.Cast<object>().Select(Convert.ToUInt64).ToArray() : default;
 
         public static IDictionary<string, object>[] GetArray(this IDictionary<string, object> collection, string name)
-            => collection.TryGetValue(name, out var z) && z is IDictionary<string, object>[] v ? v : default;
+            => collection.TryGetValue(name, out var z) && z is Array v ? v.Cast<IDictionary<string, object>>().ToArray() : default;
 
         public static Vector3 ToVector3(this IDictionary<string, object> collection) => new Vector3(
             collection.GetFloat("0"),

@@ -146,7 +146,7 @@ namespace GameEstate.Formats.Tes
                 obj.AddComponent<MeshFilter>().mesh = mesh;
                 var materialProps = NiAVObjectPropertiesToMaterialProperties(triShape);
                 var meshRenderer = obj.AddComponent<MeshRenderer>();
-                meshRenderer.material = _materialManager.BuildMaterialFromProperties(materialProps);
+                meshRenderer.material = _materialManager.GetMaterial(materialProps);
                 if (triShape.Flags.HasFlag(NiAVObject.NiFlags.Hidden))
                     meshRenderer.enabled = false;
                 obj.isStatic = true;

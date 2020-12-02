@@ -6,8 +6,9 @@
   "games": {
     "Dota2": {
       "name": "Dota 2",
-      "pak_": "game:/(core:dota)/*_dir.vpk#Dota2",
-      "pak": "game:/core/pak01_dir.vpk#Dota2",
+      //"pak": "game:/(core:dota)/*_dir.vpk#Dota2",
+      //"pak": "game:/core/pak01_dir.vpk#Dota2",
+      "pak": "game:/dota/pak01_dir.vpk#Dota2",
       "pak0": "game:/dota/shaders_pc_dir.vpk#Dota2"
     },
     "Left4Dead2": {
