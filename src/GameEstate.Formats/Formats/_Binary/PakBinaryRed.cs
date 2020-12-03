@@ -1,5 +1,4 @@
 ﻿using GameEstate.Core;
-using GameEstate.Formats.Red;
 using GameEstate.Graphics;
 using GameEstate.Graphics.DirectX;
 using System;
@@ -9,6 +8,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using static GameEstate.EstateDebug;
+using AuroraBinaryPak = GameEstate.Formats.Aurora.BinaryPak;
 
 namespace GameEstate.Formats.Binary
 {
@@ -392,7 +392,7 @@ namespace GameEstate.Formats.Binary
             }
             Task<object> BinaryPakFactory(BinaryReader r, FileMetadata f)
             {
-                return Task.FromResult((object)new BinaryPak(r));   
+                return Task.FromResult((object)new AuroraBinaryPak(r));   
             }
             switch (Path.GetExtension(path).ToLowerInvariant())
             {

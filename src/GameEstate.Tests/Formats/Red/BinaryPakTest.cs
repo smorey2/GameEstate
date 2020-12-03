@@ -1,6 +1,6 @@
-using GameEstate.Formats.Red;
 using System;
 using Xunit;
+using AuroraBinaryPak = GameEstate.Formats.Aurora.BinaryPak;
 
 namespace GameEstate.Tests.Formats.Red
 {
@@ -10,15 +10,15 @@ namespace GameEstate.Tests.Formats.Red
 
         [Theory]
         [InlineData("game:/main.key#Witcher", "dialogues00.bif:09_ban2ban01.dlg")]
-        public void DLG(string uri, string sampleFile) => EstateLoadFileObject<BinaryPak>("Red", uri, sampleFile);
+        public void DLG(string uri, string sampleFile) => EstateLoadFileObject<AuroraBinaryPak>("Red", uri, sampleFile);
 
         [Theory]
         [InlineData("game:/main.key#Witcher", "quests00.bif:act1.qdb")]
-        public void QDB(string uri, string sampleFile) => EstateLoadFileObject<BinaryPak>("Red", uri, sampleFile);
+        public void QDB(string uri, string sampleFile) => EstateLoadFileObject<AuroraBinaryPak>("Red", uri, sampleFile);
 
         [Theory]
         [InlineData("game:/main.key#Witcher", "quests00.bif:q1000_act1_init.qst")]
-        public void QST(string uri, string sampleFile) => EstateLoadFileObject<BinaryPak>("Red", uri, sampleFile);
+        public void QST(string uri, string sampleFile) => EstateLoadFileObject<AuroraBinaryPak>("Red", uri, sampleFile);
 
         //[Theory]
         //[InlineData("game:/main.key#Witcher", "meshes00.bif/alpha_dummy.mdb")]

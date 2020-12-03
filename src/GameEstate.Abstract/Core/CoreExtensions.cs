@@ -248,6 +248,7 @@ namespace GameEstate.Core
         public static string ReadL32ASCII(this BinaryReader source, bool nullTerminated) { var bytes = source.ReadBytes((int)source.ReadUInt32()); var newLength = bytes.Length - 1; return Encoding.ASCII.GetString(bytes, 0, nullTerminated && bytes[newLength] == 0 ? newLength : bytes.Length); }
         public static string ReadL16ASCII(this BinaryReader source) => Encoding.ASCII.GetString(source.ReadBytes(source.ReadUInt16()));
         public static string ReadL16ASCII(this BinaryReader source, bool nullTerminated) { var bytes = source.ReadBytes(source.ReadUInt16()); var newLength = bytes.Length - 1; return Encoding.ASCII.GetString(bytes, 0, nullTerminated && bytes[newLength] == 0 ? newLength : bytes.Length); }
+        public static string ReadL8ASCII(this BinaryReader source) => Encoding.ASCII.GetString(source.ReadBytes(source.ReadByte()));
         public static string ReadASCII(this BinaryReader source, int length) => Encoding.ASCII.GetString(source.ReadBytes(length));
         public static string ReadASCII(this BinaryReader source, int length, ASCIIFormat format)
         {
