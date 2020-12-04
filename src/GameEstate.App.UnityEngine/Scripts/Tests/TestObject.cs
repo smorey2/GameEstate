@@ -10,6 +10,6 @@
                 MakeObject(Test.Param1);
         }
 
-        void MakeObject(string path) => Graphic.CreateObject(path);
+        void MakeObject(string path) => Graphic.CreateObject(path, out var _);
     }
 }

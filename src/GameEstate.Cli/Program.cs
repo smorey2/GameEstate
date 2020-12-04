@@ -1,6 +1,6 @@
 ﻿using CommandLine;
 using GameEstate.Core;
-using GameEstate.Formats.Binary;
+using GameEstate.Formats._Packages;
 using System;
 using System.IO;
 using System.Linq;

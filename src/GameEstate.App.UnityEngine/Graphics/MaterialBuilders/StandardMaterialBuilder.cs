@@ -7,12 +7,12 @@ namespace GameEstate.Graphics.MaterialBuilders
     /// <summary>
     /// A material that uses the new Standard Shader.
     /// </summary>
-    public class StandardMaterialBuilder : AbstractMaterialBuilder
+    public class StandardMaterialBuilder : AbstractMaterialBuilder<Material, Texture2D>
     {
         Material _standardMaterial;
         Material _standardCutoutMaterial;
 
-        public StandardMaterialBuilder(TextureManager textureManager)
+        public StandardMaterialBuilder(TextureManager<Texture2D> textureManager)
             : base(textureManager)
         {
             _standardMaterial = new Material(Shader.Find("Standard"));
@@ -31,18 +31,18 @@ namespace GameEstate.Graphics.MaterialBuilders
                     else material = BuildMaterial();
                     if (p.Textures.MainFilePath != null)
                     {
-                        material.mainTexture = _textureManager.LoadTexture(p.Textures.MainFilePath);
+                        material.mainTexture = _textureManager.LoadTexture(p.Textures.MainFilePath, out var _);
                         if (NormalGeneratorIntensity != null)
                         {
                             material.EnableKeyword("_NORMALMAP");
-                            material.SetTexture("_BumpMap", GenerateNormalMap((Texture2D)material.mainTexture, NormalGeneratorIntensity.Value));
+                            material.SetTexture("_BumpMap", _textureManager.BuildNormalMap((Texture2D)material.mainTexture, NormalGeneratorIntensity.Value));
                         }
                     }
                     else material.DisableKeyword("_NORMALMAP");
                     if (p.Textures.BumpFilePath != null)
                     {
                         material.EnableKeyword("_NORMALMAP");
-                        material.SetTexture("_NORMALMAP", _textureManager.LoadTexture(p.Textures.BumpFilePath));
+                        material.SetTexture("_NORMALMAP", _textureManager.LoadTexture(p.Textures.BumpFilePath, out var _));
                     }
                     return material;
                 case MaterialTerrain _: return BuildMaterialTerrain();

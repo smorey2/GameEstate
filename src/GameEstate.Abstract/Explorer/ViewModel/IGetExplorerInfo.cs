@@ -1,4 +1,4 @@
-﻿using GameEstate.Formats.Binary;
+﻿using GameEstate.Formats._Packages;
 using System.Collections.Generic;
 
 namespace GameEstate.Explorer.ViewModel

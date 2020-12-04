@@ -7,9 +7,9 @@ namespace GameEstate.Graphics.MaterialBuilders
     /// <summary>
     /// A material that uses the default shader created for TESUnity.
     /// </summary>
-    public class DefaultMaterialBuilder : AbstractMaterialBuilder
+    public class DefaultMaterialBuilder : AbstractMaterialBuilder<Material, Texture2D>
     {
-        public DefaultMaterialBuilder(TextureManager textureManager) : base(textureManager) { }
+        public DefaultMaterialBuilder(TextureManager<Texture2D> textureManager) : base(textureManager) { }
 
         public override Material BuildMaterial(object key)
         {
@@ -21,12 +21,12 @@ namespace GameEstate.Graphics.MaterialBuilders
                     if (p.AlphaBlended) material = BuildMaterialBlended(p.SrcBlendMode, p.DstBlendMode);
                     else if (p.AlphaTest) material = BuildMaterialTested(p.AlphaCutoff);
                     else material = BuildMaterial();
-                    if (p.Textures.MainFilePath != null && material.HasProperty("_MainTex")) material.SetTexture("_MainTex", _textureManager.LoadTexture(p.Textures.MainFilePath));
-                    if (p.Textures.DetailFilePath != null && material.HasProperty("_DetailTex")) material.SetTexture("_DetailTex", _textureManager.LoadTexture(p.Textures.DetailFilePath));
-                    if (p.Textures.DarkFilePath != null && material.HasProperty("_DarkTex")) material.SetTexture("_DarkTex", _textureManager.LoadTexture(p.Textures.DarkFilePath));
-                    if (p.Textures.GlossFilePath != null && material.HasProperty("_GlossTex")) material.SetTexture("_GlossTex", _textureManager.LoadTexture(p.Textures.GlossFilePath));
-                    if (p.Textures.GlowFilePath != null && material.HasProperty("_Glowtex")) material.SetTexture("_Glowtex", _textureManager.LoadTexture(p.Textures.GlowFilePath));
-                    if (p.Textures.BumpFilePath != null && material.HasProperty("_BumpTex")) material.SetTexture("_BumpTex", _textureManager.LoadTexture(p.Textures.BumpFilePath));
+                    if (p.Textures.MainFilePath != null && material.HasProperty("_MainTex")) material.SetTexture("_MainTex", _textureManager.LoadTexture(p.Textures.MainFilePath, out var _));
+                    if (p.Textures.DetailFilePath != null && material.HasProperty("_DetailTex")) material.SetTexture("_DetailTex", _textureManager.LoadTexture(p.Textures.DetailFilePath, out var _));
+                    if (p.Textures.DarkFilePath != null && material.HasProperty("_DarkTex")) material.SetTexture("_DarkTex", _textureManager.LoadTexture(p.Textures.DarkFilePath, out var _));
+                    if (p.Textures.GlossFilePath != null && material.HasProperty("_GlossTex")) material.SetTexture("_GlossTex", _textureManager.LoadTexture(p.Textures.GlossFilePath, out var _));
+                    if (p.Textures.GlowFilePath != null && material.HasProperty("_Glowtex")) material.SetTexture("_Glowtex", _textureManager.LoadTexture(p.Textures.GlowFilePath, out var _));
+                    if (p.Textures.BumpFilePath != null && material.HasProperty("_BumpTex")) material.SetTexture("_BumpTex", _textureManager.LoadTexture(p.Textures.BumpFilePath, out var _));
                     if (material.HasProperty("_Metallic")) material.SetFloat("_Metallic", 0f);
                     if (material.HasProperty("_Glossiness")) material.SetFloat("_Glossiness", 0f);
                     return material;

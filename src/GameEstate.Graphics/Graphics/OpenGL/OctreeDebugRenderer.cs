@@ -1,7 +1,7 @@
+using OpenTK.Graphics.OpenGL;
 using System;
 using System.Collections.Generic;
 using System.Numerics;
-using OpenTK.Graphics.OpenGL;
 
 namespace GameEstate.Graphics.OpenGL
 {

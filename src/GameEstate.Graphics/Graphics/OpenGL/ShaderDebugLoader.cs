@@ -1,5 +1,4 @@
 //#define DEBUG_SHADERS
-using System.Diagnostics;
 using System.IO;
 using System.Reflection;
 

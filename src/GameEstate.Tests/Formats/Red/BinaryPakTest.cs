@@ -1,6 +1,6 @@
 using System;
 using Xunit;
-using AuroraBinaryPak = GameEstate.Formats.Aurora.BinaryPak;
+using AuroraBinaryPak = GameEstate.Formats.Aurora.BinaryGff;
 
 namespace GameEstate.Tests.Formats.Red
 {

@@ -10,12 +10,12 @@ namespace GameEstate.Formats.Valve
     public class WorldNodeLoader
     {
         readonly DATAWorldNode _node;
-        readonly IGLContext _context;
+        readonly IOpenGLGraphic _graphic;
 
-        public WorldNodeLoader(IGLContext context, DATAWorldNode node)
+        public WorldNodeLoader(IOpenGLGraphic graphic, DATAWorldNode node)
         {
             _node = node;
-            _context = context;
+            _graphic = graphic;
         }
 
         public void Load(Scene scene)
@@ -43,7 +43,7 @@ namespace GameEstate.Formats.Valve
 
                 if (renderableModel != null)
                 {
-                    var newResource = _context.LoadFile<BinaryPak>($"{renderableModel}_c");
+                    var newResource = _graphic.Source.LoadFileObjectAsync<BinaryPak>($"{renderableModel}_c").Result;
                     if (newResource == null)
                         continue;
                     var modelNode = new ModelSceneNode(scene, (DATAModel)newResource.DATA, null, false)
@@ -58,7 +58,7 @@ namespace GameEstate.Formats.Valve
                 var renderable = sceneObject.Get<string>("m_renderable");
                 if (renderable != null)
                 {
-                    var newResource = _context.LoadFile<BinaryPak>($"{renderable}_c");
+                    var newResource = _graphic.Source.LoadFileObjectAsync<BinaryPak>($"{renderable}_c").Result;
                     if (newResource == null)
                         continue;
                     var meshNode = new MeshSceneNode(scene, new DATAMesh(newResource))

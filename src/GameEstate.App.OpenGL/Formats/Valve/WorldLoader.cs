@@ -12,7 +12,7 @@ namespace GameEstate.Formats.Valve
     public class WorldLoader
     {
         readonly DATAWorld _data;
-        readonly IGLContext _context;
+        readonly IOpenGLGraphic _graphic;
 
         // Contains metadata that can't be captured by manipulating the scene itself. Returned from Load().
         public class LoadResult
@@ -28,10 +28,10 @@ namespace GameEstate.Formats.Valve
             public Vector3 SkyboxOrigin { get; set; } = Vector3.Zero;
         }
 
-        public WorldLoader(IGLContext context, DATAWorld data)
+        public WorldLoader(IOpenGLGraphic graphic, DATAWorld data)
         {
             _data = data;
-            _context = context;
+            _graphic = graphic;
         }
 
         public LoadResult Load(Scene scene)
@@ -44,10 +44,10 @@ namespace GameEstate.Formats.Valve
             {
                 if (worldNode != null)
                 {
-                    var newResource = _context.LoadFile<BinaryPak>($"{worldNode}.vwnod_c");
+                    var newResource = _graphic.Source.LoadFileObjectAsync<BinaryPak>($"{worldNode}.vwnod_c").Result;
                     if (newResource == null)
                         throw new Exception("WTF");
-                    var subloader = new WorldNodeLoader(_context, (DATAWorldNode)newResource.DATA);
+                    var subloader = new WorldNodeLoader(_graphic, (DATAWorldNode)newResource.DATA);
                     subloader.Load(scene);
                 }
             }
@@ -57,7 +57,7 @@ namespace GameEstate.Formats.Valve
                 if (lumpName == null)
                     return result;
 
-                var newResource = _context.LoadFile<BinaryPak>($"{lumpName}_c");
+                var newResource = _graphic.Source.LoadFileObjectAsync<BinaryPak>($"{lumpName}_c").Result;
                 if (newResource == null)
                     return result;
 
@@ -74,7 +74,7 @@ namespace GameEstate.Formats.Valve
 
             foreach (var childEntityName in childEntities)
             {
-                var newResource = _context.LoadFile<BinaryPak>($"{childEntityName}_c");
+                var newResource = _graphic.Source.LoadFileObjectAsync<BinaryPak>($"{childEntityName}_c").Result;
 
                 if (newResource == null)
                     continue;
@@ -108,7 +108,7 @@ namespace GameEstate.Formats.Valve
                     var targetmapname = entity.Get<string>("targetmapname");
 
                     var skyboxWorldPath = $"maps/{Path.GetFileNameWithoutExtension(targetmapname)}/world.vwrld_c";
-                    var skyboxPackage = _context.LoadFile<BinaryPak>(skyboxWorldPath);
+                    var skyboxPackage = _graphic.Source.LoadFileObjectAsync<BinaryPak>(skyboxWorldPath).Result;
 
                     if (skyboxPackage != null)
                         result.Skybox = (DATAWorld)skyboxPackage.DATA;
@@ -153,7 +153,7 @@ namespace GameEstate.Formats.Valve
 
                 if (particle != null)
                 {
-                    var particleResource = _context.LoadFile<BinaryPak>($"{particle}_c");
+                    var particleResource = _graphic.Source.LoadFileObjectAsync<BinaryPak>($"{particle}_c").Result;
 
                     if (particleResource != null)
                     {
@@ -214,12 +214,10 @@ namespace GameEstate.Formats.Valve
                     objColor.W = colourBytes[3] / 255.0f;
                 }
 
-                var newEntity = _context.LoadFile<BinaryPak>($"{model}_c");
-
+                var newEntity = _graphic.Source.LoadFileObjectAsync<BinaryPak>($"{model}_c").Result;
                 if (newEntity == null)
                 {
-                    var errorModelResource = _context.LoadFile<BinaryPak>("models/dev/error.vmdl_c");
-
+                    var errorModelResource = _graphic.Source.LoadFileObjectAsync<BinaryPak>("models/dev/error.vmdl_c").Result;
                     if (errorModelResource != null)
                     {
                         var errorModel = new ModelSceneNode(scene, (DATAModel)errorModelResource.DATA, skin, false)

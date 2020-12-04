@@ -1,6 +1,6 @@
 ﻿using GameEstate.Core;
 using GameEstate.Explorer;
-using GameEstate.Formats.Binary;
+using GameEstate.Formats._Packages;
 using GameEstate.Graphics;
 using System.IO;
 using static GameEstate.EstateDebug;

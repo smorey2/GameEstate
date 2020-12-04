@@ -117,13 +117,13 @@ namespace GameEstate.Graphics
         {
             // Get embedded meshes
             foreach (var embeddedMesh in Model.GetEmbeddedMeshesAndLoD().Where(m => (m.LoDMask & 1) != 0))
-                meshRenderers.Add(new GLMesh(Scene.Context as IGLContext, embeddedMesh.Mesh, skinMaterials));
+                meshRenderers.Add(new GLMesh(Scene.Graphic as IOpenGLGraphic, embeddedMesh.Mesh, skinMaterials));
 
             // Load referred meshes from file (only load meshes with LoD 1)
             var referredMeshesAndLoDs = Model.GetReferenceMeshNamesAndLoD();
             foreach (var refMesh in referredMeshesAndLoDs.Where(m => (m.LoDMask & 1) != 0))
             {
-                var newResource = Scene.Context.LoadFile<BinaryPak>($"{refMesh.MeshName}_c");
+                var newResource = Scene.Graphic.Source.LoadFileObjectAsync<BinaryPak>($"{refMesh.MeshName}_c").Result;
                 if (newResource == null)
                     continue;
 
@@ -133,7 +133,7 @@ namespace GameEstate.Graphics
                     continue;
                 }
 
-                meshRenderers.Add(new GLMesh(Scene.Context as IGLContext, new DATAMesh(newResource), skinMaterials));
+                meshRenderers.Add(new GLMesh(Scene.Graphic as IOpenGLGraphic, new DATAMesh(newResource), skinMaterials));
             }
 
             // Set active meshes to default
@@ -173,8 +173,8 @@ namespace GameEstate.Graphics
             // Load animations from referenced animation groups
             foreach (var animGroupPath in animGroupPaths)
             {
-                var animGroup = Scene.Context.LoadFile<BinaryPak>($"{animGroupPath}_c");
-                animations.AddRange(AnimationGroupLoader.LoadAnimationGroup(Scene.Context, animGroup));
+                var animGroup = Scene.Graphic.Source.LoadFileObjectAsync<BinaryPak>($"{animGroupPath}_c").Result;
+                animations.AddRange(AnimationGroupLoader.LoadAnimationGroup(Scene.Graphic as IOpenGLGraphic, animGroup));
             }
 
             // Get embedded animations
@@ -206,8 +206,8 @@ namespace GameEstate.Graphics
             // Load animations from referenced animation groups
             foreach (var animGroupPath in animGroupPaths)
             {
-                var animGroup = Scene.Context.LoadFile<BinaryPak>($"{animGroupPath}_c");
-                var foundAnimations = AnimationGroupLoader.TryLoadSingleAnimationFileFromGroup(Scene.Context, animGroup, animationName);
+                var animGroup = Scene.Graphic.Source.LoadFileObjectAsync<BinaryPak>($"{animGroupPath}_c").Result;
+                var foundAnimations = AnimationGroupLoader.TryLoadSingleAnimationFileFromGroup(Scene.Graphic as IOpenGLGraphic, animGroup, animationName);
                 if (foundAnimations != default)
                 {
                     animations.AddRange(foundAnimations);

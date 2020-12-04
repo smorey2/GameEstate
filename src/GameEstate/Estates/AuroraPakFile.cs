@@ -1,6 +1,7 @@
 ﻿using GameEstate.Core;
 using GameEstate.Explorer;
-using GameEstate.Formats.Binary;
+using GameEstate.Formats._Packages;
+using System;
 
 namespace GameEstate.Estates
 {
@@ -17,7 +18,7 @@ namespace GameEstate.Estates
         /// <param name="game">The game.</param>
         /// <param name="filePath">The file path.</param>
         /// <param name="tag">The tag.</param>
-        public AuroraPakFile(Estate estate, string game, string filePath, object tag = null) : base(estate, game, filePath, PakBinaryAurora.Instance, tag)
+        public AuroraPakFile(Estate estate, string game, string filePath, object tag = null) : base(estate, game, filePath, filePath.EndsWith(".zip", StringComparison.OrdinalIgnoreCase) ? PakBinaryZip2.Instance : PakBinaryAurora.Instance, tag)
         {
             ExplorerItems = StandardExplorerItem.GetPakFilesAsync;
             Open();

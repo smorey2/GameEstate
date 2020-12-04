@@ -10,10 +10,10 @@ namespace GameEstate.Formats.Tes
         const bool KinematicRigidbodies = true;
 
         readonly NiFile _obj;
-        readonly MaterialManager _materialManager;
+        readonly MaterialManager<Material, Texture2D> _materialManager;
         readonly int _markerLayer;
 
-        public NifObjectBuilder(NiFile obj, MaterialManager materialManager, int markerLayer)
+        public NifObjectBuilder(NiFile obj, MaterialManager<Material, Texture2D> materialManager, int markerLayer)
         {
             _obj = obj;
             _materialManager = materialManager;
@@ -146,7 +146,7 @@ namespace GameEstate.Formats.Tes
                 obj.AddComponent<MeshFilter>().mesh = mesh;
                 var materialProps = NiAVObjectPropertiesToMaterialProperties(triShape);
                 var meshRenderer = obj.AddComponent<MeshRenderer>();
-                meshRenderer.material = _materialManager.GetMaterial(materialProps);
+                meshRenderer.material = _materialManager.LoadMaterial(materialProps, out var _);
                 if (triShape.Flags.HasFlag(NiAVObject.NiFlags.Hidden))
                     meshRenderer.enabled = false;
                 obj.isStatic = true;

@@ -7,9 +7,9 @@ namespace GameEstate.Graphics.MaterialBuilders
     /// <summary>
     /// A material that uses the legacy Bumped Diffuse Shader.
     /// </summary>
-    public class BumpedDiffuseMaterialBuilder : AbstractMaterialBuilder
+    public class BumpedDiffuseMaterialBuilder : AbstractMaterialBuilder<Material, Texture2D>
     {
-        public BumpedDiffuseMaterialBuilder(TextureManager textureManager) : base(textureManager) { }
+        public BumpedDiffuseMaterialBuilder(TextureManager<Texture2D> textureManager) : base(textureManager) { }
 
         public override Material BuildMaterial(object key)
         {
@@ -23,10 +23,10 @@ namespace GameEstate.Graphics.MaterialBuilders
                     else material = BuildMaterial();
                     if (p.Textures.MainFilePath != null)
                     {
-                        material.mainTexture = _textureManager.LoadTexture(p.Textures.MainFilePath);
-                        if (NormalGeneratorIntensity != null) material.SetTexture("_BumpMap", GenerateNormalMap((Texture2D)material.mainTexture, NormalGeneratorIntensity.Value));
+                        material.mainTexture = _textureManager.LoadTexture(p.Textures.MainFilePath, out var _);
+                        if (NormalGeneratorIntensity != null) material.SetTexture("_BumpMap", _textureManager.BuildNormalMap((Texture2D)material.mainTexture, NormalGeneratorIntensity.Value));
                     }
-                    if (p.Textures.BumpFilePath != null) material.SetTexture("_BumpMap", _textureManager.LoadTexture(p.Textures.BumpFilePath));
+                    if (p.Textures.BumpFilePath != null) material.SetTexture("_BumpMap", _textureManager.LoadTexture(p.Textures.BumpFilePath, out var _));
                     return material;
                 case MaterialTerrain _: return BuildMaterialTerrain();
                 default: throw new ArgumentOutOfRangeException(nameof(key));

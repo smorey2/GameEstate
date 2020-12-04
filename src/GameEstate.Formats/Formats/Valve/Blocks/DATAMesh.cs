@@ -7,40 +7,43 @@ namespace GameEstate.Formats.Valve.Blocks
 {
     public class DATAMesh : IMeshInfo
     {
-        public DATA Data { get; }
-
-        public IVBIB VBIB { get; }
-
-        public Vector3 MinBounds { get; private set; }
-        public Vector3 MaxBounds { get; private set; }
+        readonly DATA _data;
 
         public DATAMesh(BinaryPak resource)
         {
-            Data = resource.DATA;
+            _data = resource.DATA;
             VBIB = resource.VBIB;
             GetBounds();
         }
 
         public DATAMesh(DATA data, IVBIB vbib)
         {
-            Data = data;
+            _data = data;
             VBIB = vbib;
             GetBounds();
         }
 
-        public IDictionary<string, object> GetData()
+        public IVBIB VBIB { get; }
+
+        public Vector3 MinBounds { get; private set; }
+        public Vector3 MaxBounds { get; private set; }
+
+        public IDictionary<string, object> Data
         {
-            switch (Data)
+            get
             {
-                case DATABinaryKV3 kv3: return kv3.Data;
-                case DATABinaryNTRO ntro: return ntro.Data;
-                default: throw new InvalidOperationException($"Unknown model data type {Data.GetType().Name}");
+                switch (_data)
+                {
+                    case DATABinaryKV3 kv3: return kv3.Data;
+                    case DATABinaryNTRO ntro: return ntro.Data;
+                    default: throw new InvalidOperationException($"Unknown model data type {Data.GetType().Name}");
+                }
             }
         }
 
         void GetBounds()
         {
-            var sceneObjects = GetData().GetArray("m_sceneObjects");
+            var sceneObjects = Data.GetArray("m_sceneObjects");
             if (sceneObjects.Length == 0)
             {
                 MinBounds = MaxBounds = new Vector3(0, 0, 0);
@@ -52,12 +55,12 @@ namespace GameEstate.Formats.Valve.Blocks
             {
                 var localMin = sceneObjects[i].GetSub("m_vMinBounds").ToVector3();
                 var localMax = sceneObjects[i].GetSub("m_vMaxBounds").ToVector3();
-                minBounds.X = System.Math.Min(minBounds.X, localMin.X);
-                minBounds.Y = System.Math.Min(minBounds.Y, localMin.Y);
-                minBounds.Z = System.Math.Min(minBounds.Z, localMin.Z);
-                maxBounds.X = System.Math.Max(maxBounds.X, localMax.X);
-                maxBounds.Y = System.Math.Max(maxBounds.Y, localMax.Y);
-                maxBounds.Z = System.Math.Max(maxBounds.Z, localMax.Z);
+                minBounds.X = Math.Min(minBounds.X, localMin.X);
+                minBounds.Y = Math.Min(minBounds.Y, localMin.Y);
+                minBounds.Z = Math.Min(minBounds.Z, localMin.Z);
+                maxBounds.X = Math.Max(maxBounds.X, localMax.X);
+                maxBounds.Y = Math.Max(maxBounds.Y, localMax.Y);
+                maxBounds.Z = Math.Max(maxBounds.Z, localMax.Z);
             }
             MinBounds = minBounds;
             MaxBounds = maxBounds;

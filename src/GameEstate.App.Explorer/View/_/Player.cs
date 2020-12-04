@@ -2,7 +2,7 @@
 {
     public class Player
     {
-        public EngineView EngineView => EngineView.Instance;
+        //public EngineView EngineView => EngineView.Instance;
 
         //public PhysicsObj PhysicsObj;
 

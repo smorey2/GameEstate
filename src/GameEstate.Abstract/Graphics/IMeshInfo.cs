@@ -8,7 +8,7 @@ namespace GameEstate.Graphics
     /// </summary>
     public interface IMeshInfo
     {
-        IDictionary<string, object> GetData();
+        IDictionary<string, object> Data { get; }
 
         IVBIB VBIB { get; }
 

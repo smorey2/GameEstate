@@ -1,7 +1,7 @@
 using GameEstate.Core;
 using GameEstate.Explorer;
 using GameEstate.Explorer.ViewModel;
-using GameEstate.Formats.Binary;
+using GameEstate.Formats._Packages;
 using GameEstate.Formats.Valve.Blocks;
 using System;
 using System.Collections.Generic;

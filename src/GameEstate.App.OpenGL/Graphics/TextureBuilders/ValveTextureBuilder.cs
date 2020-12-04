@@ -5,7 +5,7 @@ using System;
 
 namespace GameEstate.Graphics.TextureBuilders
 {
-    public class ValveTextureBuilder : AbstractTextureBuilder
+    public class ValveTextureBuilder : AbstractTextureBuilder<int>
     {
         public static int MaxTextureMaxAnisotropy { get; set; }
         int _errorTexture;
@@ -118,13 +118,13 @@ namespace GameEstate.Graphics.TextureBuilders
             }
         }
 
-        static int CreateSolidTexture(float r, float g, float b) => GenerateColorTexture(1, 1, new[] { r, g, b, 1f });
+        public override int BuildSolidTexture(float[] rgba) => GenerateColorTexture(1, 1, rgba);
 
-        static int GenerateColorTexture(int width, int height, float[] color)
+        static int GenerateColorTexture(int width, int height, float[] pixels)
         {
             var texture = GL.GenTexture();
             GL.BindTexture(TextureTarget.Texture2D, texture);
-            GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba32f, width, height, 0, PixelFormat.Rgba, PixelType.Float, color);
+            GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba32f, width, height, 0, PixelFormat.Rgba, PixelType.Float, pixels);
             GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMaxLevel, 0);
             GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Nearest);
             GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Nearest);
@@ -133,5 +133,7 @@ namespace GameEstate.Graphics.TextureBuilders
             GL.BindTexture(TextureTarget.Texture2D, 0);
             return texture;
         }
+
+        public override int BuildNormalMap(int source, float strength) => throw new NotImplementedException();
     }
 }

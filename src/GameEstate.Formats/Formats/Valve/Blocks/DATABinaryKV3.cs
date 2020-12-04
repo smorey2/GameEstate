@@ -1,7 +1,7 @@
 using GameEstate.Core;
 using GameEstate.Explorer;
 using GameEstate.Explorer.ViewModel;
-using GameEstate.Formats.Binary;
+using GameEstate.Formats._Packages;
 using K4os.Compression.LZ4;
 using System;
 using System.Collections.Generic;

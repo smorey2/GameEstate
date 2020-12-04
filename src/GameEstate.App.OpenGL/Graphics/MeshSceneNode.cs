@@ -12,7 +12,7 @@ namespace GameEstate.Graphics
         public MeshSceneNode(Scene scene, DATAMesh mesh, Dictionary<string, string> skinMaterials = null)
             : base(scene)
         {
-            _mesh = new GLMesh(Scene.Context as IGLContext, mesh, skinMaterials);
+            _mesh = new GLMesh(Scene.Graphic as IOpenGLGraphic, mesh, skinMaterials);
             LocalBoundingBox = _mesh.BoundingBox;
         }
 

@@ -1,5 +1,6 @@
 using GameEstate.Formats.Valve.Blocks;
 using GameEstate.Graphics.OpenGL;
+using GameEstate.Graphics.OpenGL.Renderers;
 using GameEstate.Graphics.ParticleSystem;
 using System.Collections;
 using System.Collections.Generic;
@@ -20,12 +21,12 @@ namespace GameEstate.Graphics
             IEnumerable<string> IParticleSystem.GetChildParticleNames(bool enabledOnly) => _source.GetChildParticleNames(enabledOnly);
         }
 
-        GLParticleRenderer _particleRenderer;
+        ParticleRenderer _particleRenderer;
 
         public ParticleSceneNode(Scene scene, DATAParticleSystem particleSystem)
             : base(scene)
         {
-            _particleRenderer = new GLParticleRenderer(Scene.Context as IGLContext, new ParticleSystemWrapper(particleSystem));
+            _particleRenderer = new ParticleRenderer(Scene.Graphic as IOpenGLGraphic, new ParticleSystemWrapper(particleSystem));
             LocalBoundingBox = _particleRenderer.BoundingBox;
         }
 

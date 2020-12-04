@@ -8,18 +8,18 @@ namespace GameEstate.Graphics.OpenGL
 {
     public class GLMesh : Mesh
     {
-        readonly IGLContext _context;
+        readonly IOpenGLGraphic _graphic;
         readonly IMeshInfo _mesh;
 
-        public GLMesh(IGLContext context, IMeshInfo mesh, Dictionary<string, string> skinMaterials = null)
+        public GLMesh(IOpenGLGraphic graphic, IMeshInfo mesh, Dictionary<string, string> skinMaterials = null)
         {
-            _context = context;
+            _graphic = graphic;
             _mesh = mesh;
             BoundingBox = new AABB(mesh.MinBounds, mesh.MaxBounds);
 
             SetupDrawCalls(mesh, skinMaterials);
         }
-        
+
         public override void SetRenderMode(string renderMode)
         {
             var drawCalls = DrawCallsOpaque.Union(DrawCallsBlended);
@@ -34,16 +34,16 @@ namespace GameEstate.Graphics.OpenGL
                 if (renderMode != null && call.Shader.RenderModes.Contains(renderMode))
                     parameters.Add($"renderMode_{renderMode}", true);
 
-                call.Shader = _context.LoadShader(call.Shader.Name, parameters);
-                call.VertexArrayObject = _context.MeshBufferCache.GetVertexArrayObject(_mesh.VBIB, call.Shader, call.VertexBuffer.Id, call.IndexBuffer.Id);
+                call.Shader = _graphic.LoadShader(call.Shader.Name, parameters);
+                call.VertexArrayObject = _graphic.MeshBufferCache.GetVertexArrayObject(_mesh.VBIB, call.Shader, call.VertexBuffer.Id, call.IndexBuffer.Id);
             }
         }
 
         void SetupDrawCalls(IMeshInfo mesh, Dictionary<string, string> skinMaterials)
         {
             var vbib = mesh.VBIB;
-            var data = mesh.GetData();
-            var gpuMeshBuffers = _context.MeshBufferCache.GetVertexIndexBuffers(vbib);
+            var data = mesh.Data;
+            var gpuMeshBuffers = _graphic.MeshBufferCache.GetVertexIndexBuffers(vbib);
 
             // Prepare drawcalls
             var sceneObjects = data.GetArray("m_sceneObjects");
@@ -59,7 +59,7 @@ namespace GameEstate.Graphics.OpenGL
                     if (skinMaterials != null && skinMaterials.ContainsKey(materialName))
                         materialName = skinMaterials[materialName];
 
-                    var material = _context.LoadMaterial(materialName);
+                    var material = _graphic.MaterialManager.LoadMaterial(materialName, out var _);
                     var isOverlay = material.Info.IntParams.ContainsKey("F_OVERLAY");
 
                     // Ignore overlays for now
@@ -99,7 +99,7 @@ namespace GameEstate.Graphics.OpenGL
                 .ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
 
             // Load shader
-            drawCall.Shader = _context.LoadShader(drawCall.Material.Info.ShaderName, combinedShaderParameters);
+            drawCall.Shader = _graphic.LoadShader(drawCall.Material.Info.ShaderName, combinedShaderParameters);
 
             //Bind and validate shader
             GL.UseProgram(drawCall.Shader.Program);
@@ -124,10 +124,10 @@ namespace GameEstate.Graphics.OpenGL
             }
 
             if (!drawCall.Material.Textures.ContainsKey("g_tTintMask"))
-                drawCall.Material.Textures.Add("g_tTintMask", _context.CreateSolidTexture(1f, 1f, 1f));
+                drawCall.Material.Textures.Add("g_tTintMask", _graphic.TextureManager.BuildSolidTexture(1f, 1f, 1f, 1f));
 
             if (!drawCall.Material.Textures.ContainsKey("g_tNormal"))
-                drawCall.Material.Textures.Add("g_tNormal", _context.CreateSolidTexture(0.5f, 1f, 0.5f));
+                drawCall.Material.Textures.Add("g_tNormal", _graphic.TextureManager.BuildSolidTexture(0.5f, 1f, 0.5f, 1f));
 
             if (indexElementSize == 2) drawCall.IndexType = (int)DrawElementsType.UnsignedShort; // shopkeeper_vr
             else if (indexElementSize == 4) drawCall.IndexType = (int)DrawElementsType.UnsignedInt; // glados
@@ -141,7 +141,7 @@ namespace GameEstate.Graphics.OpenGL
             vertexBuffer.Offset = Convert.ToUInt32(m_vertexBuffer.Get<object>("m_nBindOffsetBytes"));
             drawCall.VertexBuffer = vertexBuffer;
 
-            drawCall.VertexArrayObject = _context.MeshBufferCache.GetVertexArrayObject(vbib, drawCall.Shader, drawCall.VertexBuffer.Id, drawCall.IndexBuffer.Id);
+            drawCall.VertexArrayObject = _graphic.MeshBufferCache.GetVertexArrayObject(vbib, drawCall.Shader, drawCall.VertexBuffer.Id, drawCall.IndexBuffer.Id);
 
             return drawCall;
         }

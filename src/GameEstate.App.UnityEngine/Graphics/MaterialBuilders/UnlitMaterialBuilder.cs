@@ -7,9 +7,9 @@ namespace GameEstate.Graphics.MaterialBuilders
     /// <summary>
     /// A material that uses the Unlit Shader.
     /// </summary>
-    public class UnliteMaterial : AbstractMaterialBuilder
+    public class UnliteMaterial : AbstractMaterialBuilder<Material, Texture2D>
     {
-        public UnliteMaterial(TextureManager textureManager) : base(textureManager) { }
+        public UnliteMaterial(TextureManager<Texture2D> textureManager) : base(textureManager) { }
 
         public override Material BuildMaterial(object key)
         {
@@ -21,7 +21,7 @@ namespace GameEstate.Graphics.MaterialBuilders
                     if (p.AlphaBlended) material = BuildMaterialBlended(p.SrcBlendMode, p.DstBlendMode);
                     else if (p.AlphaTest) material = BuildMaterialTested(p.AlphaCutoff);
                     else material = BuildMaterial();
-                    if (p.Textures.MainFilePath != null) material.mainTexture = _textureManager.LoadTexture(p.Textures.MainFilePath);
+                    if (p.Textures.MainFilePath != null) material.mainTexture = _textureManager.LoadTexture(p.Textures.MainFilePath, out var _);
                     return material;
                 case MaterialTerrain _: return BuildMaterialTerrain();
                 default: throw new ArgumentOutOfRangeException(nameof(key));

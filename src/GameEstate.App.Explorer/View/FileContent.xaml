@@ -32,14 +32,18 @@
             <DataTemplate x:Key="Content_AudioPlayer" DataType="{x:Type model:ExplorerContentTab}">
                 <local:AudioPlayer Stream="{Binding Path=Value}" Format="{Binding Path=Tag}" Margin="5,5,5,5" />
             </DataTemplate>
-            <DataTemplate x:Key="Content_Texture" DataType="{x:Type model:ExplorerContentTab}">
-                <TextBlock Text="TEXTURE" Margin="5,5,5,5" />
-            </DataTemplate>
             <DataTemplate x:Key="Content_Image" DataType="{x:Type model:ExplorerContentTab}">
                 <Image MaxWidth="{Binding Path=MaxWidth}" MaxHeight="{Binding Path=MaxHeight}" Margin="5,5,5,5" />
             </DataTemplate>
-            <DataTemplate x:Key="Content_Engine" DataType="{x:Type model:ExplorerContentTab}">
-                <local:EngineView Margin="3,3,3,3" />
+            <DataTemplate x:Key="Content_Material" DataType="{x:Type model:ExplorerContentTab}">
+                <local:GLMaterialViewer Source="{Binding Path=Value}" Margin="3,3,3,3" />
+            </DataTemplate>
+            <DataTemplate x:Key="Content_Particle" DataType="{x:Type model:ExplorerContentTab}">
+                <local:GLParticleViewer Source="{Binding Path=Value}" Margin="3,3,3,3" />
+            </DataTemplate>
+            <DataTemplate x:Key="Content_Texture" DataType="{x:Type model:ExplorerContentTab}">
+                <!--<TextBlock Text="TEXTURE" Margin="5,5,5,5" />-->
+                <local:GLTextureViewer Source="{Binding Path=Value}" Margin="3,3,3,3" />
             </DataTemplate>
         </Grid.Resources>
 
@@ -68,11 +72,17 @@
                                     <DataTrigger Binding="{Binding Path=Type}" Value="AudioPlayer">
                                         <Setter Property="ContentTemplate" Value="{StaticResource Content_AudioPlayer}" />
                                     </DataTrigger>
+                                    <DataTrigger Binding="{Binding Path=Type}" Value="Image">
+                                        <Setter Property="ContentTemplate" Value="{StaticResource Content_Image}" />
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding Path=Type}" Value="Material">
+                                        <Setter Property="ContentTemplate" Value="{StaticResource Content_Material}" />
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding Path=Type}" Value="Particle">
+                                        <Setter Property="ContentTemplate" Value="{StaticResource Content_Particle}" />
+                                    </DataTrigger>
                                     <DataTrigger Binding="{Binding Path=Type}" Value="Texture">
                                         <Setter Property="ContentTemplate" Value="{StaticResource Content_Texture}" />
-                                    </DataTrigger>
-                                    <DataTrigger Binding="{Binding Path=Type}" Value="Engine">
-                                        <Setter Property="ContentTemplate" Value="{StaticResource Content_Engine}" />
                                     </DataTrigger>
                                     <DataTrigger Binding="{Binding Path=Value}" Value="{x:Null}">
                                         <Setter Property="ContentTemplate" Value="{StaticResource Content_Null}" />

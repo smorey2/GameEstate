@@ -25,10 +25,10 @@ namespace Tests
             var obj = GameObject.CreatePrimitive(PrimitiveType.Cube);
             var materialProps = new MaterialProps { Textures = new MaterialTextures { MainFilePath = path } };
             var meshRenderer = obj.GetComponent<MeshRenderer>();
-            meshRenderer.material = Graphic.MaterialManager.GetMaterial(materialProps);
+            meshRenderer.material = Graphic.MaterialManager.LoadMaterial(materialProps, out var _);
             return obj;
         }
 
-        void MakeCursor(string path) => Cursor.SetCursor(Graphic.LoadTexture(path), Vector2.zero, CursorMode.Auto);
+        void MakeCursor(string path) => Cursor.SetCursor(Graphic.LoadTexture(path, out var _), Vector2.zero, CursorMode.Auto);
     }
 }

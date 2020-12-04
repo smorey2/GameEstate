@@ -1,10 +1,9 @@
 ﻿using GameEstate.Explorer;
 using GameEstate.Explorer.ViewModel;
-using GameEstate.Formats.Binary;
+using GameEstate.Formats._Packages;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;

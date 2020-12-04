@@ -42,20 +42,5 @@ namespace GameEstate
             var zRot = UnityEngine.Quaternion.AngleAxis(UnityEngine.Mathf.Rad2Deg * newEulerAngles.z, UnityEngine.Vector3.forward);
             return xRot * zRot * yRot;
         }
-
-        /// <summary>
-        /// Creates a Unity Texture2D from this Texture2DInfo.
-        /// </summary>
-        public static UnityEngine.Texture2D ToUnity(this TextureInfo source)
-        {
-            var tex = new UnityEngine.Texture2D(source.Width, source.Height, (UnityEngine.TextureFormat)source.UnityFormat, source.Mipmaps > 0);
-            if (source.Data != null)
-            {
-                tex.LoadRawTextureData(source.Data);
-                tex.Apply();
-                tex.Compress(true);
-            }
-            return tex;
-        }
     }
 }

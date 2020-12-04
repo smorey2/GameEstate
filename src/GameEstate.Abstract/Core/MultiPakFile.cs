@@ -1,6 +1,6 @@
 ﻿using GameEstate.Explorer;
 using GameEstate.Explorer.ViewModel;
-using GameEstate.Formats.Binary;
+using GameEstate.Formats._Packages;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;

@@ -1,8 +1,8 @@
 using GameEstate.Graphics.OpenGL;
+using GameEstate.Graphics.OpenGL.Renderers;
 using GameEstate.Graphics.ParticleSystem.Emitters;
 using GameEstate.Graphics.ParticleSystem.Initializers;
 using GameEstate.Graphics.ParticleSystem.Operators;
-using GameEstate.Graphics.ParticleSystem.Renderers;
 using System;
 using System.Collections.Generic;
 
@@ -54,11 +54,11 @@ namespace GameEstate.Graphics.ParticleSystem
            };
 
         // Register particle renderers
-        static readonly IDictionary<string, Func<IDictionary<string, object>, IGLContext, IParticleRenderer>> RendererDictionary
-           = new Dictionary<string, Func<IDictionary<string, object>, IGLContext, IParticleRenderer>>
+        static readonly IDictionary<string, Func<IDictionary<string, object>, IEstateGraphic, IParticleRenderer>> RendererDictionary
+           = new Dictionary<string, Func<IDictionary<string, object>, IEstateGraphic, IParticleRenderer>>
            {
-               ["C_OP_RenderSprites"] = (rendererInfo, context) => new GLRenderSprites(rendererInfo, context),
-               ["C_OP_RenderTrails"] = (rendererInfo, context) => new GLRenderTrails(rendererInfo, context),
+               ["C_OP_RenderSprites"] = (rendererInfo, graphic) => new SpritesParticleRenderer(rendererInfo, graphic as IOpenGLGraphic),
+               ["C_OP_RenderTrails"] = (rendererInfo, graphic) => new TrailsParticleRenderer(rendererInfo, graphic as IOpenGLGraphic),
            };
 
         public static bool TryCreateEmitter(string name, IDictionary<string, object> baseProperties, IDictionary<string, object> emitterInfo, out IParticleEmitter emitter)
@@ -97,11 +97,11 @@ namespace GameEstate.Graphics.ParticleSystem
             return false;
         }
 
-        public static bool TryCreateRender(string name, IDictionary<string, object> rendererInfo, IGLContext context, out IParticleRenderer renderer)
+        public static bool TryCreateRender(string name, IDictionary<string, object> rendererInfo, IEstateGraphic graphic, out IParticleRenderer renderer)
         {
             if (RendererDictionary.TryGetValue(name, out var factory))
             {
-                renderer = factory(rendererInfo, context);
+                renderer = factory(rendererInfo, graphic);
                 return true;
             }
 

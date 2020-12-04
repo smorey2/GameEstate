@@ -25,7 +25,7 @@ namespace GameEstate.Graphics
         }
 
         public Camera MainCamera { get; set; }
-        public IGraphicContext Context { get; }
+        public IEstateGraphic Graphic { get; }
         public Octree<SceneNode> StaticOctree { get; }
         public Octree<SceneNode> DynamicOctree { get; }
 
@@ -36,9 +36,9 @@ namespace GameEstate.Graphics
 
         readonly Action<List<MeshBatchRequest>, RenderContext> _meshBatchRenderer;
 
-        public Scene(IGraphicContext context, Action<List<MeshBatchRequest>, RenderContext> meshBatchRenderer, float sizeHint = 32768)
+        public Scene(IEstateGraphic graphic, Action<List<MeshBatchRequest>, RenderContext> meshBatchRenderer, float sizeHint = 32768)
         {
-            Context = context;
+            Graphic = graphic;
             _meshBatchRenderer = meshBatchRenderer;
             StaticOctree = new Octree<SceneNode>(sizeHint);
             DynamicOctree = new Octree<SceneNode>(sizeHint);

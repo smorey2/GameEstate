@@ -1,12 +1,11 @@
-using GameEstate.Formats.Valve;
 using GameEstate.Graphics.OpenGL;
 using System;
 
 namespace GameEstate.Graphics.MaterialBuilders
 {
-    public class ValveMaterialBuilder : AbstractMaterialBuilder
+    public class ValveMaterialBuilder : AbstractMaterialBuilder<Material, int>
     {
-        public ValveMaterialBuilder(TextureManager textureManager) : base(textureManager) { }
+        public ValveMaterialBuilder(TextureManager<int> textureManager) : base(textureManager) { }
 
         public override Material BuildMaterial(object key)
         {
