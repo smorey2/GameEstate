@@ -3,6 +3,8 @@ using GameEstate.Core.Algorithms;
 using OpenTK.Graphics.OpenGL;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -16,6 +18,19 @@ namespace GameEstate.Graphics.OpenGL
 #if !DEBUG_SHADERS || !DEBUG
         readonly Dictionary<uint, Shader> CachedShaders = new Dictionary<uint, Shader>();
         readonly Dictionary<string, List<string>> ShaderDefines = new Dictionary<string, List<string>>();
+
+        uint CalculateShaderCacheHash(string shaderFileName, IDictionary<string, bool> arguments)
+        {
+            var b = new StringBuilder();
+            b.AppendLine(shaderFileName);
+            var parameters = ShaderDefines[shaderFileName].Intersect(arguments.Keys);
+            foreach (var key in parameters)
+            {
+                b.AppendLine(key);
+                b.AppendLine(arguments[key] ? "t" : "f");
+            }
+            return MurmurHash2.Hash(b.ToString(), ShaderSeed);
+        }
 #endif
 
         protected abstract string GetShaderFileByName(string shaderName);
@@ -250,31 +265,5 @@ namespace GameEstate.Graphics.OpenGL
             var defines = Regex.Matches(source, @"#define param_(\S+)");
             return defines.Cast<Match>().Select(_ => _.Groups[1].Value).ToList();
         }
-
-#if !DEBUG_SHADERS || !DEBUG
-        uint CalculateShaderCacheHash(string shaderFileName, IDictionary<string, bool> arguments)
-        {
-            var shaderCacheHashString = new StringBuilder();
-            shaderCacheHashString.AppendLine(shaderFileName);
-
-            var parameters = ShaderDefines[shaderFileName].Intersect(arguments.Keys);
-
-            foreach (var key in parameters)
-            {
-                shaderCacheHashString.AppendLine(key);
-                shaderCacheHashString.AppendLine(arguments[key] ? "t" : "f");
-            }
-
-            var test = shaderCacheHashString.ToString();
-
-            return MurmurHash2.Hash(shaderCacheHashString.ToString(), ShaderSeed);
-        }
-#endif
-
-#if DEBUG_SHADERS && DEBUG
-        // Reload shaders at runtime
-         static string GetShaderDiskPath(string name) =>
-            Path.Combine(Path.GetDirectoryName(Process.GetCurrentProcess().MainModule?.FileName), "../../../", ShaderDirectory.Replace('.', '/'), name);
-#endif
     }
 }

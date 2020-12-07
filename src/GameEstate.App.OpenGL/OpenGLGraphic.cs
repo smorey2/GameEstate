@@ -21,10 +21,10 @@ namespace GameEstate
         public OpenGLGraphic(EstatePakFile source)
         {
             _source = source;
-            _textureManager = new TextureManager<int>(source, new ValveTextureBuilder());
-            _materialManager = new MaterialManager<Material, int>(_textureManager, new ValveMaterialBuilder(_textureManager));
-            _objectManager = new ObjectManager<object, Material, int>(source, _materialManager, new ValveObjectBuilder());
-            _shaderManager = new ShaderManager<Shader>(source, new ValveShaderBuilder());
+            _textureManager = new TextureManager<int>(source, new OpenGLTextureBuilder());
+            _materialManager = new MaterialManager<Material, int>(source, _textureManager, new OpenGLMaterialBuilder(_textureManager));
+            _objectManager = new ObjectManager<object, Material, int>(source, _materialManager, new OpenGLObjectBuilder());
+            _shaderManager = new ShaderManager<Shader>(source, new OpenGLShaderBuilder());
             MeshBufferCache = new GpuMeshBufferCache();
         }
 

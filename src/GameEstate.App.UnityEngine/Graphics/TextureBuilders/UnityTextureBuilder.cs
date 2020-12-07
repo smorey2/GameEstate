@@ -5,25 +5,24 @@ namespace GameEstate.Graphics.TextureBuilders
 {
     public class UnityTextureBuilder : AbstractTextureBuilder<Texture2D>
     {
-        static readonly Texture2D _errorTexture = new Texture2D(1, 1);
+        Texture2D _defaultTexture;
+        public override Texture2D DefaultTexture => _defaultTexture != null ? _defaultTexture : _defaultTexture = BuildAutoTexture();
 
-        public UnityTextureBuilder() : base() { }
+        Texture2D BuildAutoTexture() => new Texture2D(4, 4);
 
-        public override Texture2D BuildTexture(TextureInfo info)
+        public override Texture2D BuildTexture(ITextureInfo info)
         {
-            var tex = new Texture2D(info.Width, info.Height, (TextureFormat)info.UnityFormat, info.Mipmaps > 0);
-            if (info.Data != null)
-            {
-                tex.LoadRawTextureData(info.Data);
-                tex.Apply();
-                tex.Compress(true);
-            }
+            var tex = new Texture2D(info.Width, info.Height, (TextureFormat)info.UnityFormat, info.NumMipMaps, false);
+            //if (info.Bytes != null)
+            //{
+            //    tex.LoadRawTextureData(info.Bytes);
+            //    tex.Apply();
+            //    tex.Compress(true);
+            //}
             return tex;
         }
 
-        public override Texture2D ErrorTexture => _errorTexture;
-
-        public override Texture2D BuildSolidTexture(float[] rgba) => throw new NotImplementedException();
+        public override Texture2D BuildSolidTexture(int width, int height, float[] rgba) => throw new NotImplementedException();
 
         public override Texture2D BuildNormalMap(Texture2D source, float strength)
         {

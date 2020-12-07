@@ -11,6 +11,7 @@
 
         public float? NormalGeneratorIntensity = 0.75f;
 
+        public abstract Material DefaultMaterial { get; }
         public abstract Material BuildMaterial(object key);
     }
 }

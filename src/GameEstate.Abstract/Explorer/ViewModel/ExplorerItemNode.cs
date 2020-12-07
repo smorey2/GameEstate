@@ -1,8 +1,7 @@
-﻿using GameEstate.Core;
-using System;
-using System.Linq;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 
 namespace GameEstate.Explorer.ViewModel
 {
@@ -55,6 +54,13 @@ namespace GameEstate.Explorer.ViewModel
                 }
                 return null;
             }
+        }
+
+        public ExplorerItemNode FindByPath(string path)
+        {
+            var paths = path.Split(new[] { '\\', '/', ':' }, 2);
+            var node = Items.FirstOrDefault(x => x.Name == paths[0]);
+            return paths.Length == 1 ? node : node.FindByPath(paths[1]);
         }
     }
 }

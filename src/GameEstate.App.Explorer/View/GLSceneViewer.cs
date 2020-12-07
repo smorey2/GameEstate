@@ -14,7 +14,6 @@
 //    {
 //        public Scene Scene { get; }
 //        public Scene SkyboxScene { get; protected set; }
-//        public GuiContext GuiContext => Scene.GuiContext;
 
 //        public bool ShowBaseGrid { get; set; } = true;
 //        public bool ShowSkybox { get; set; } = true;

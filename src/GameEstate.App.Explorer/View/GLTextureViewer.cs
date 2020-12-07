@@ -1,3 +1,4 @@
+using GameEstate.Core;
 using GameEstate.Graphics;
 using GameEstate.Graphics.Controls;
 using GameEstate.Graphics.OpenGL.Renderers;
@@ -13,46 +14,50 @@ namespace GameEstate.Explorer.View
     {
         public GLTextureViewer()
         {
-            GLLoad += OnLoad;
-            Unloaded += (a, b) =>
+            GLPaint += OnPaint;
+            Unloaded += (s, e) =>
             {
-                GLLoad -= OnLoad;
                 GLPaint -= OnPaint;
             };
         }
 
-        public event EventHandler Load;
+        public event PropertyChangedEventHandler PropertyChanged;
+        void NotifyPropertyChanged([CallerMemberName] string propertyName = "") => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
 
-        void OnLoad(object sender, EventArgs e)
+        public static readonly DependencyProperty GraphicProperty = DependencyProperty.Register(nameof(Graphic), typeof(object), typeof(GLTextureViewer),
+            new PropertyMetadata((d, e) => (d as GLTextureViewer).OnProperty()));
+        public IEstateGraphic Graphic
         {
-            Load?.Invoke(this, e);
-            GLPaint += OnPaint;
+            get => GetValue(GraphicProperty) as IEstateGraphic;
+            set => SetValue(GraphicProperty, value);
+        }
+
+        public static readonly DependencyProperty SourceProperty = DependencyProperty.Register(nameof(Source), typeof(object), typeof(GLTextureViewer),
+            new PropertyMetadata((d, e) => (d as GLTextureViewer).OnProperty()));
+        public object Source
+        {
+            get => GetValue(SourceProperty);
+            set => SetValue(SourceProperty, value);
+        }
+
+        HashSet<TextureRenderer> Renderers { get; } = new HashSet<TextureRenderer>();
+
+        void OnProperty()
+        {
+            if (Graphic == null || Source == null)
+                return;
+            var graphic = Graphic as IOpenGLGraphic;
+            var source = Source is ITextureInfo z ? z
+                : Source is IRedirected<ITextureInfo> y ? y.Value
+                : throw new InvalidCastException();
+            var texture = graphic.TextureManager.LoadTexture(source, out var _);
+            Renderers.Add(new TextureRenderer(graphic, texture));
         }
 
         void OnPaint(object sender, RenderEventArgs e)
         {
             foreach (var renderer in Renderers)
                 renderer.Render(e.Camera, RenderPass.Both);
-        }
-
-        HashSet<TextureRenderer> Renderers { get; } = new HashSet<TextureRenderer>();
-
-        public void AddRenderer(TextureRenderer renderer) => Renderers.Add(renderer);
-
-        public event PropertyChangedEventHandler PropertyChanged;
-        void NotifyPropertyChanged([CallerMemberName] string propertyName = "") => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-
-        public static readonly DependencyProperty SourceProperty = DependencyProperty.Register(nameof(Source), typeof(object), typeof(GLTextureViewer),
-            new PropertyMetadata((d, e) => (d as GLTextureViewer).LoadSource()));
-
-        public object Source
-        {
-            get => GetValue(SourceProperty) as object;
-            set => SetValue(SourceProperty, value);
-        }
-
-        void LoadSource()
-        {
         }
     }
 }

@@ -39,7 +39,7 @@ namespace GameEstate.Graphics.OpenGL.Renderers
                 _texture = texture;
                 _textureSequences = info?.Get<TextureSequences>("sequences");
             }
-            else _texture = graphic.TextureManager.ErrorTexture;
+            else _texture = graphic.TextureManager.DefaultTexture;
 
             _additive = keyValues.Get<bool>("m_bAdditive");
             _overbrightFactor = keyValues.GetFloat("m_flOverbrightFactor", 1f);

@@ -9,24 +9,28 @@ namespace GameEstate.Graphics.MaterialBuilders
     /// </summary>
     public class BumpedDiffuseMaterialBuilder : AbstractMaterialBuilder<Material, Texture2D>
     {
+        static readonly Material _defaultMaterial = BuildMaterial();
+
         public BumpedDiffuseMaterialBuilder(TextureManager<Texture2D> textureManager) : base(textureManager) { }
+
+        public override Material DefaultMaterial => _defaultMaterial;
 
         public override Material BuildMaterial(object key)
         {
             switch (key)
             {
                 case null: return BuildMaterial();
-                case MaterialProps p:
+                case IFixedMaterialInfo p:
                     Material material;
-                    if (p.AlphaBlended) material = BuildMaterialBlended(p.SrcBlendMode, p.DstBlendMode);
+                    if (p.AlphaBlended) material = BuildMaterialBlended((ur.BlendMode)p.SrcBlendMode, (ur.BlendMode)p.DstBlendMode);
                     else if (p.AlphaTest) material = BuildMaterialTested(p.AlphaCutoff);
                     else material = BuildMaterial();
-                    if (p.Textures.MainFilePath != null)
+                    if (p.MainFilePath != null)
                     {
-                        material.mainTexture = _textureManager.LoadTexture(p.Textures.MainFilePath, out var _);
+                        material.mainTexture = _textureManager.LoadTexture(p.MainFilePath, out var _);
                         if (NormalGeneratorIntensity != null) material.SetTexture("_BumpMap", _textureManager.BuildNormalMap((Texture2D)material.mainTexture, NormalGeneratorIntensity.Value));
                     }
-                    if (p.Textures.BumpFilePath != null) material.SetTexture("_BumpMap", _textureManager.LoadTexture(p.Textures.BumpFilePath, out var _));
+                    if (p.BumpFilePath != null) material.SetTexture("_BumpMap", _textureManager.LoadTexture(p.BumpFilePath, out var _));
                     return material;
                 case MaterialTerrain _: return BuildMaterialTerrain();
                 default: throw new ArgumentOutOfRangeException(nameof(key));

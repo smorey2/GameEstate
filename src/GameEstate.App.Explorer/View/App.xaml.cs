@@ -1,4 +1,5 @@
-﻿using System;
+﻿using CommandLine;
+using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Data;
@@ -15,5 +16,72 @@ namespace GameEstate.Explorer.View
     public partial class App : Application
     {
         static App() => EstatePlatform.Startups.Add(OpenGLPlatform.Startup);
+
+        //static string[] default00 = new string[0];
+        //static string[] args = new string[] { "open", "-e", "Valve", "-u", "game:/dota/pak01_dir.vpk#Dota2", "-p", "materials/startup_background.vmat_c" };
+        static string[] args = new string[] { "open", "-e", "Valve", "-u", "game:/dota/pak01_dir.vpk#Dota2", "-p", "materials/startup_background_color_png_65ffcfa7.vtex_c" };
+
+        void Application_Startup(object sender, StartupEventArgs e)
+        {
+            //var args = e.Args;
+            Parser.Default.ParseArguments<DefaultOptions, TestOptions, OpenOptions>(args)
+            .MapResult(
+                (DefaultOptions opts) => RunDefault(opts),
+                (TestOptions opts) => RunTest(opts),
+                (OpenOptions opts) => RunOpen(opts),
+                errs => RunError(errs));
+        }
+
+        #region Options
+
+        [Verb("default", true, HelpText = "Default action.")]
+        class DefaultOptions { }
+
+        [Verb("test", HelpText = "Test fixture.")]
+        class TestOptions { }
+
+        [Verb("open", HelpText = "Extract files contents to folder.")]
+        class OpenOptions
+        {
+            [Option('e', "estate", HelpText = "Estate", Required = true)]
+            public string Estate { get; set; }
+
+            [Option('u', "uri", HelpText = "Pak file to be opened", Required = true)]
+            public Uri Uri { get; set; }
+
+            [Option('p', "path", HelpText = "optional file to be opened")]
+            public string Path { get; set; }
+        }
+
+        #endregion
+
+        static int RunDefault(DefaultOptions opts)
+        {
+            new MainWindow().Show();
+            return 0;
+        }
+
+        static int RunTest(TestOptions opts)
+        {
+            var wnd = new MainWindow();
+            wnd.Show();
+            return 0;
+        }
+
+        static int RunOpen(OpenOptions opts)
+        {
+            var estate = EstateManager.GetEstate(opts.Estate);
+            var wnd = new MainWindow(false);
+            wnd.Open(estate, new[] { opts.Uri }, opts.Path);
+            wnd.Show();
+            return 0;
+        }
+
+        static int RunError(IEnumerable<Error> errs)
+        {
+            MessageBox.Show("Errors: \n\n" + errs.First());
+            Current.Shutdown(1);
+            return 1;
+        }
     }
 }

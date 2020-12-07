@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -13,6 +14,33 @@ namespace GameEstate.Graphics
         static partial class Literal
         {
             public static readonly byte[] IMG_ = Encoding.ASCII.GetBytes("IMG ");
+        }
+
+        #region Size
+
+        public static int GetMipMapTrueDataSize(this ITextureInfo source, int index)
+        {
+            var format = source.GLFormat;
+            var bytesPerPixel = format.GetBlockSize();
+            var currentWidth = source.Width >> index;
+            var currentHeight = source.Height >> index;
+            var currentDepth = source.Depth >> index;
+            if (currentDepth < 1) currentDepth = 1;
+            if (format == TextureGLFormat.DXT1 || format == TextureGLFormat.DXT5 || format == TextureGLFormat.BC6H || format == TextureGLFormat.BC7 ||
+                format == TextureGLFormat.ETC2 || format == TextureGLFormat.ETC2_EAC || format == TextureGLFormat.ATI1N)
+            {
+                var misalign = currentWidth % 4;
+                if (misalign > 0) currentWidth += 4 - misalign;
+                misalign = currentHeight % 4;
+                if (misalign > 0) currentHeight += 4 - misalign;
+                if (currentWidth < 4 && currentWidth > 0) currentWidth = 4;
+                if (currentHeight < 4 && currentHeight > 0) currentHeight = 4;
+                if (currentDepth < 4 && currentDepth > 1) currentDepth = 4;
+                var numBlocks = (currentWidth * currentHeight) >> 4;
+                numBlocks *= currentDepth;
+                return numBlocks * bytesPerPixel;
+            }
+            return currentWidth * currentHeight * currentDepth * bytesPerPixel;
         }
 
         public static int GetBlockSize(this TextureGLFormat source)
@@ -43,39 +71,72 @@ namespace GameEstate.Graphics
             }
         }
 
-        #region CustomImage
+        #endregion
 
-        public static void LoadImage(this TextureInfo source, byte[] data)
+        #region TextureOpaque
+
+        class TextureOpaque : ITextureInfo
         {
-            using (var ms = new MemoryStream(data))
-            using (var r = new BinaryReader(ms))
+            internal byte[][] Bytes;
+            byte[] ITextureInfo.this[int index]
+            {
+                get => Bytes[index];
+                set => Bytes[index] = value;
+            }
+            public IDictionary<string, object> Data { get; set; }
+            public int Width { get; set; }
+            public int Height { get; set; }
+            public int Depth { get; set; }
+            public TextureFlags Flags { get; set; }
+            public TextureUnityFormat UnityFormat { get; set; }
+            public TextureGLFormat GLFormat { get; set; }
+            public int NumMipMaps { get; set; }
+            public void MoveToData() { }
+        }
+
+        public static ITextureInfo DecodeOpaque(byte[] opaque)
+        {
+            using (var s = new MemoryStream(opaque))
+            using (var r = new BinaryReader(s))
             {
                 var magicString = r.ReadBytes(4);
                 if (!Literal.IMG_.SequenceEqual(magicString))
                     throw new FileFormatException($"Invalid IMG file magic string: \"{Encoding.ASCII.GetString(magicString)}\".");
-                source.Mipmaps = r.ReadByte();
-                source.UnityFormat = (TextureUnityFormat)r.ReadInt16();
-                source.GLFormat = (TextureGLFormat)r.ReadInt16();
-                source.Width = r.ReadInt32();
-                source.Height = r.ReadInt32();
-                source.Data = r.ReadBytes(r.ReadInt32());
+                var source = new TextureOpaque
+                {
+                    UnityFormat = (TextureUnityFormat)r.ReadInt16(),
+                    GLFormat = (TextureGLFormat)r.ReadInt16(),
+                    Flags = (TextureFlags)r.ReadInt32(),
+                    Width = r.ReadInt32(),
+                    Height = r.ReadInt32(),
+                    Depth = r.ReadInt32(),
+                    NumMipMaps = r.ReadByte(),
+                };
+                source.Bytes = new byte[source.NumMipMaps][];
+                for (var i = 0; i < source.NumMipMaps; i++)
+                    source.Bytes[i] = r.ReadBytes(r.ReadInt32());
+                return source;
             }
         }
 
-        public static byte[] GetImage(this TextureInfo source)
+        public static byte[] EncodeOpaque(this ITextureInfo source)
         {
-            using (var ms = new MemoryStream())
-            using (var r = new BinaryWriter(ms))
+            using (var s = new MemoryStream())
+            using (var r = new BinaryWriter(s))
             {
                 r.Write(Literal.IMG_);
-                r.Write(source.Mipmaps);
                 r.Write((short)source.UnityFormat);
                 r.Write((short)source.GLFormat);
+                r.Write((int)source.Flags);
                 r.Write(source.Width);
                 r.Write(source.Height);
-                r.Write(source.Data.Length); r.Write(source.Data);
-                ms.Position = 0;
-                return ms.ToArray();
+                r.Write(source.NumMipMaps);
+                for (var i = 0; i < source.NumMipMaps; i++)
+                {
+                    r.Write(source[0].Length); r.Write(source[0]);
+                }
+                s.Position = 0;
+                return s.ToArray();
             }
         }
 
@@ -84,11 +145,11 @@ namespace GameEstate.Graphics
         #region Color Shift
 
         // TODO: Move? Unity?
-        public static unsafe TextureInfo FromABGR555(this TextureInfo source)
+        public static unsafe ITextureInfo FromABGR555(this ITextureInfo source, int index = 0)
         {
             var W = source.Width; var H = source.Height;
             var pixels = new byte[W * H * 4];
-            fixed (byte* pPixels = pixels, pData = source.Data)
+            fixed (byte* pPixels = pixels, pData = source[index])
             {
                 var rPixels = (uint*)pPixels;
                 var rData = (ushort*)pData;
@@ -121,20 +182,20 @@ namespace GameEstate.Graphics
                     *rPixels++ = color;
                 }
             }
-            source.Data = pixels;
+            source[index] = pixels;
             return source;
         }
 
         // TODO: Move? Unity?
-        public static TextureInfo From8BitPallet(this TextureInfo source, byte[][] pallet, TextureUnityFormat palletFormat)
+        public static ITextureInfo From8BitPallet(this ITextureInfo source, byte[][] pallet, TextureUnityFormat palletFormat, int index = 0)
         {
             if (source.UnityFormat != palletFormat)
                 throw new InvalidOperationException();
             var b = new MemoryStream();
-            var data = source.Data;
-            for (var y = 0; y < data.Length; y++)
-                b.Write(pallet[data[y]], 0, 4);
-            source.Data = b.ToArray();
+            var d = source[index];
+            for (var y = 0; y < d.Length; y++)
+                b.Write(pallet[d[y]], 0, 4);
+            source[index] = b.ToArray();
             return source;
         }
 

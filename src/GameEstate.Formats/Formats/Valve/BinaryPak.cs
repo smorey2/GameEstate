@@ -3,6 +3,7 @@ using GameEstate.Explorer;
 using GameEstate.Explorer.ViewModel;
 using GameEstate.Formats._Packages;
 using GameEstate.Formats.Valve.Blocks;
+using GameEstate.Graphics;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -11,7 +12,7 @@ using System.Text;
 
 namespace GameEstate.Formats.Valve
 {
-    public class BinaryPak : IDisposable, IGetExplorerInfo
+    public class BinaryPak : IDisposable, IGetExplorerInfo, IRedirected<IMaterialInfo>, IRedirected<ITextureInfo>
     {
         public const ushort KnownHeaderVersion = 12;
 
@@ -23,6 +24,10 @@ namespace GameEstate.Formats.Valve
             Reader?.Dispose();
             Reader = null;
         }
+
+        IMaterialInfo IRedirected<IMaterialInfo>.Value => DATA as IMaterialInfo;
+
+        ITextureInfo IRedirected<ITextureInfo>.Value => DATA as ITextureInfo;
 
         List<ExplorerInfoNode> IGetExplorerInfo.GetInfoNodes(ExplorerManager resource, FileMetadata file)
         {
@@ -42,10 +47,12 @@ namespace GameEstate.Formats.Valve
                         try
                         {
                             nodes.AddRange(new List<ExplorerInfoNode> {
-                                new ExplorerInfoNode(null, new ExplorerContentTab { Type = "Text", Name = Path.GetFileName(file.Path), Value = "PICTURE" }), //(tex.GenerateBitmap().ToBitmap(), tex.Width, tex.Height)
+                                //new ExplorerInfoNode(null, new ExplorerContentTab { Type = "Text", Name = Path.GetFileName(file.Path), Value = "PICTURE" }), //(tex.GenerateBitmap().ToBitmap(), tex.Width, tex.Height)
+                                new ExplorerInfoNode(null, new ExplorerContentTab { Type = "Texture", Name = "Texture", Value = this, Dispose = this }),
                                 new ExplorerInfoNode("Texture", items: new List<ExplorerInfoNode> {
                                     new ExplorerInfoNode($"Width: {data.Width}"),
                                     new ExplorerInfoNode($"Height: {data.Height}"),
+                                    new ExplorerInfoNode($"NumMipMaps: {data.NumMipMaps}"),
                                 })
                             });
                         }
@@ -95,7 +102,7 @@ namespace GameEstate.Formats.Valve
                     nodes.Add(new ExplorerInfoNode(null, new ExplorerContentTab { Type = "Engine", Name = "Mesh", Value = (DATA, VBIB), Dispose = this }));
                     break;
                 case DATA.DataType.Material:
-                    nodes.Add(new ExplorerInfoNode(null, new ExplorerContentTab { Type = "Engine", Name = "Material", Value = this, Dispose = this }));
+                    nodes.Add(new ExplorerInfoNode(null, new ExplorerContentTab { Type = "Material", Name = "Material", Value = this, Dispose = this }));
                     break;
             }
             foreach (var block in Blocks)

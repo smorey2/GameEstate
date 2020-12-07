@@ -1,5 +1,6 @@
 using OpenTK;
 using OpenTK.Graphics.OpenGL;
+using System;
 using System.Collections.Generic;
 
 namespace GameEstate.Graphics.OpenGL
@@ -19,11 +20,19 @@ namespace GameEstate.Graphics.OpenGL
         public Material(IMaterialInfo info)
         {
             Info = info;
-            if (info.IntParams.ContainsKey("F_ALPHA_TEST") && info.IntParams["F_ALPHA_TEST"] == 1 && info.FloatParams.ContainsKey("g_flAlphaTestReference"))
-                _flAlphaTestReference = info.FloatParams["g_flAlphaTestReference"];
-            _isTranslucent = (info.IntParams.ContainsKey("F_TRANSLUCENT") && info.IntParams["F_TRANSLUCENT"] == 1) || info.IntAttributes.ContainsKey("mapbuilder.water");
-            _isAdditiveBlend = info.IntParams.ContainsKey("F_ADDITIVE_BLEND") && info.IntParams["F_ADDITIVE_BLEND"] == 1;
-            _isRenderBackfaces = info.IntParams.ContainsKey("F_RENDER_BACKFACES") && info.IntParams["F_RENDER_BACKFACES"] == 1;
+            switch (info)
+            {
+                case IFixedMaterialInfo p:
+                    break;
+                case IParamMaterialInfo p:
+                    if (p.IntParams.ContainsKey("F_ALPHA_TEST") && p.IntParams["F_ALPHA_TEST"] == 1 && p.FloatParams.ContainsKey("g_flAlphaTestReference"))
+                        _flAlphaTestReference = p.FloatParams["g_flAlphaTestReference"];
+                    _isTranslucent = (p.IntParams.ContainsKey("F_TRANSLUCENT") && p.IntParams["F_TRANSLUCENT"] == 1) || p.IntAttributes.ContainsKey("mapbuilder.water");
+                    _isAdditiveBlend = p.IntParams.ContainsKey("F_ADDITIVE_BLEND") && p.IntParams["F_ADDITIVE_BLEND"] == 1;
+                    _isRenderBackfaces = p.IntParams.ContainsKey("F_RENDER_BACKFACES") && p.IntParams["F_RENDER_BACKFACES"] == 1;
+                    break;
+                default: throw new ArgumentOutOfRangeException(nameof(info));
+            }
         }
 
         public void Render(Shader shader)
@@ -46,18 +55,24 @@ namespace GameEstate.Graphics.OpenGL
                 }
             }
 
-            foreach (var param in Info.FloatParams)
+            switch (Info)
             {
-                uniformLocation = Shader.GetUniformLocation(param.Key);
-                if (uniformLocation > -1)
-                    GL.Uniform1(uniformLocation, param.Value);
-            }
+                case IParamMaterialInfo p:
 
-            foreach (var param in Info.VectorParams)
-            {
-                uniformLocation = Shader.GetUniformLocation(param.Key);
-                if (uniformLocation > -1)
-                    GL.Uniform4(uniformLocation, new Vector4(param.Value.X, param.Value.Y, param.Value.Z, param.Value.W));
+                    foreach (var param in p.FloatParams)
+                    {
+                        uniformLocation = Shader.GetUniformLocation(param.Key);
+                        if (uniformLocation > -1)
+                            GL.Uniform1(uniformLocation, param.Value);
+                    }
+
+                    foreach (var param in p.VectorParams)
+                    {
+                        uniformLocation = Shader.GetUniformLocation(param.Key);
+                        if (uniformLocation > -1)
+                            GL.Uniform4(uniformLocation, new Vector4(param.Value.X, param.Value.Y, param.Value.Z, param.Value.W));
+                    }
+                    break;
             }
 
             var alphaReference = Shader.GetUniformLocation("g_flAlphaTestReference");

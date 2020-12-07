@@ -1,4 +1,5 @@
 ﻿using GameEstate.Graphics.TextureBuilders;
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using static GameEstate.EstateDebug;
@@ -9,8 +10,8 @@ namespace GameEstate.Graphics
     {
         readonly EstatePakFile _pakFile;
         readonly AbstractTextureBuilder<Texture> _builder;
-        readonly Dictionary<string, Texture> _cachedTextures = new Dictionary<string, Texture>();
-        readonly Dictionary<string, Task<TextureInfo>> _preloadTasks = new Dictionary<string, Task<TextureInfo>>();
+        readonly Dictionary<object, (Texture texture, IDictionary<string, object> data)> _cachedTextures = new Dictionary<object, (Texture texture, IDictionary<string, object> data)>();
+        readonly Dictionary<object, Task<ITextureInfo>> _preloadTasks = new Dictionary<object, Task<ITextureInfo>>();
 
         public TextureManager(EstatePakFile pakFile, AbstractTextureBuilder<Texture> builder)
         {
@@ -18,17 +19,20 @@ namespace GameEstate.Graphics
             _builder = builder;
         }
 
-        public Texture ErrorTexture => _builder.ErrorTexture;
+        public Texture DefaultTexture => _builder.DefaultTexture;
 
-        public Texture LoadTexture(string path, out IDictionary<string, object> data)
+        public Texture LoadTexture(object key, out IDictionary<string, object> data)
         {
-            data = null;
-            if (_cachedTextures.TryGetValue(path, out var texture))
-                return texture;
+            if (_cachedTextures.TryGetValue(key, out var cache))
+            {
+                data = cache.data;
+                return cache.texture;
+            }
             // Load & cache the texture.
-            var textureInfo = LoadTextureInfo(path);
-            texture = textureInfo != null ? _builder.BuildTexture(textureInfo) : _builder.ErrorTexture;
-            _cachedTextures[path] = texture;
+            var info = key is ITextureInfo z ? z : LoadTextureInfo(key);
+            var texture = info != null ? _builder.BuildTexture(info) : _builder.DefaultTexture;
+            data = info?.Data;
+            _cachedTextures[key] = (texture, data);
             return texture;
         }
 
@@ -38,19 +42,24 @@ namespace GameEstate.Graphics
                 return;
             // Start loading the texture file asynchronously if we haven't already started.
             if (!_preloadTasks.ContainsKey(path))
-                _preloadTasks[path] = _pakFile.LoadFileObjectAsync<TextureInfo>(path);
+                _preloadTasks[path] = _pakFile.LoadFileObjectAsync<ITextureInfo>(path);
         }
 
-        TextureInfo LoadTextureInfo(string path)
+        ITextureInfo LoadTextureInfo(object key)
         {
-            Assert(!_cachedTextures.ContainsKey(path));
-            PreloadTexture(path);
-            var textureInfo = _preloadTasks[path].Result;
-            _preloadTasks.Remove(path);
-            return textureInfo;
+            Assert(!_cachedTextures.ContainsKey(key));
+            switch (key)
+            {
+                case string path:
+                    PreloadTexture(path);
+                    var info = _preloadTasks[key].Result;
+                    _preloadTasks.Remove(key);
+                    return info;
+                default: throw new ArgumentOutOfRangeException(nameof(key), $"{key}");
+            }
         }
 
-        public Texture BuildSolidTexture(params float[] rgba) => _builder.BuildSolidTexture(rgba);
+        public Texture BuildSolidTexture(int width, int height, params float[] rgba) => _builder.BuildSolidTexture(width, height, rgba);
 
         public Texture BuildNormalMap(Texture source, float strength) => _builder.BuildNormalMap(source, strength);
     }

@@ -30,7 +30,7 @@ namespace GameEstate
             //    case MaterialType.Unlit: _material = new UnliteMaterial(_textureManager); break;
             //    default: _material = new BumpedDiffuseMaterial(_textureManager); break;
             //}
-            _materialManager = new MaterialManager<Material, Texture2D>(_textureManager, new BumpedDiffuseMaterialBuilder(_textureManager));
+            _materialManager = new MaterialManager<Material, Texture2D>(source, _textureManager, new BumpedDiffuseMaterialBuilder(_textureManager));
             _objectManager = new ObjectManager<GameObject, Material, Texture2D>(source, _materialManager, new UnityObjectBuilder(0));
             _shaderManager = new ShaderManager<Shader>(source, new UnityShaderBuilder());
         }

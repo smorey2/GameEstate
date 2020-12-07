@@ -7,17 +7,17 @@ namespace GameEstate.Graphics.OpenGL.Renderers
     public class TextureRenderer : IRenderer
     {
         readonly IOpenGLGraphic _graphic;
-        readonly Material _material;
+        readonly int _texture;
         readonly Shader _shader;
         readonly int _quadVao;
 
         public AABB BoundingBox => new AABB(-1, -1, -1, 1, 1, 1);
 
-        public TextureRenderer(IOpenGLGraphic graphic, Material material)
+        public TextureRenderer(IOpenGLGraphic graphic, int texture)
         {
             _graphic = graphic;
-            _material = material;
-            _shader = _graphic.ShaderManager.LoadPlaneShader(_material.Info.ShaderName, _material.Info.GetShaderArguments());
+            _texture = texture;
+            _shader = _graphic.ShaderManager.LoadPlaneShader("plane");
             _quadVao = SetupQuadBuffer();
         }
 
@@ -34,14 +34,11 @@ namespace GameEstate.Graphics.OpenGL.Renderers
 
             var vertices = new[]
             {
-                // position       ; normal          ; texcoord  ; tangent
-                -1.0f, -1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 1.0f, 0.0f, 0.0f,
-                // position      ; normal          ; texcoord  ; tangent
-                -1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f,
-                // position      ; normal          ; texcoord  ; tangent
-                1.0f, -1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f,
-                // position     ; normal          ; texcoord  ; tangent
-                1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f,
+                // position     ; normal        ; texcoord  ; tangent
+                -1f, -1f, +0f,  +0f, +0f, 1f,   +0f, +1f,   +1f, +0f, +0f,
+                -1f, +1f, +0f,  +0f, +0f, 1f,   +0f, +0f,   +1f, +0f, +0f,
+                +1f, -1f, +0f,  +0f, +0f, 1f,   +1f, +1f,   +1f, +0f, +0f,
+                +1f, +1f, +0f,  +0f, +0f, 1f,   +1f, +0f,   +1f, +0f, +0f,
             };
 
             GL.BufferData(BufferTarget.ArrayBuffer, vertices.Length * sizeof(float), vertices, BufferUsageHint.StaticDraw);
@@ -77,27 +74,13 @@ namespace GameEstate.Graphics.OpenGL.Renderers
             GL.BindVertexArray(_quadVao);
             GL.EnableVertexAttribArray(0);
 
-            var uniformLocation = _shader.GetUniformLocation("m_vTintColorSceneObject");
-            if (uniformLocation > -1)
-                GL.Uniform4(uniformLocation, Vector4.One);
-
-            uniformLocation = _shader.GetUniformLocation("m_vTintColorDrawCall");
-            if (uniformLocation > -1)
-                GL.Uniform3(uniformLocation, Vector3.One);
-
-            var identity = Matrix4.Identity;
-
-            uniformLocation = _shader.GetUniformLocation("projection");
-            GL.UniformMatrix4(uniformLocation, false, ref identity);
-
-            uniformLocation = _shader.GetUniformLocation("modelview");
-            GL.UniformMatrix4(uniformLocation, false, ref identity);
-
-            _material.Render(_shader);
+            if (_texture > -1)
+            {
+                GL.ActiveTexture(TextureUnit.Texture0);
+                GL.BindTexture(TextureTarget.Texture2D, _texture);
+            }
 
             GL.DrawArrays(PrimitiveType.TriangleStrip, 0, 4);
-
-            _material.PostRender();
 
             GL.BindVertexArray(0);
             GL.UseProgram(0);

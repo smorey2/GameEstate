@@ -99,6 +99,7 @@ namespace GameEstate.Graphics
 
         public override bool Equals(object other) => other is Color color && Equals(color);
         public bool Equals(Color other) => R.Equals(other.R) && Equals(other.G) && B.Equals(other.B) && A.Equals(other.A);
+        public override int GetHashCode() => (R, G, B, A).GetHashCode();
 
         public static Color Lerp(Color a, Color b, float t)
         {

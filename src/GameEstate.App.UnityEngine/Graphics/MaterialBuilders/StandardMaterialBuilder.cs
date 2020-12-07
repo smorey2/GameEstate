@@ -9,6 +9,7 @@ namespace GameEstate.Graphics.MaterialBuilders
     /// </summary>
     public class StandardMaterialBuilder : AbstractMaterialBuilder<Material, Texture2D>
     {
+        Material _defaultMaterial;
         Material _standardMaterial;
         Material _standardCutoutMaterial;
 
@@ -17,21 +18,24 @@ namespace GameEstate.Graphics.MaterialBuilders
         {
             _standardMaterial = new Material(Shader.Find("Standard"));
             _standardCutoutMaterial = Resources.Load<Material>("Materials/StandardCutout");
+            _defaultMaterial = BuildMaterial();
         }
+
+        public override Material DefaultMaterial => _defaultMaterial;
 
         public override Material BuildMaterial(object key)
         {
             switch (key)
             {
                 case null: return BuildMaterial();
-                case MaterialProps p:
+                case IFixedMaterialInfo p:
                     Material material;
-                    if (p.AlphaBlended) material = BuildMaterialBlended(p.SrcBlendMode, p.DstBlendMode);
+                    if (p.AlphaBlended) material = BuildMaterialBlended((ur.BlendMode)p.SrcBlendMode, (ur.BlendMode)p.DstBlendMode);
                     else if (p.AlphaTest) material = BuildMaterialTested(p.AlphaCutoff);
                     else material = BuildMaterial();
-                    if (p.Textures.MainFilePath != null)
+                    if (p.MainFilePath != null)
                     {
-                        material.mainTexture = _textureManager.LoadTexture(p.Textures.MainFilePath, out var _);
+                        material.mainTexture = _textureManager.LoadTexture(p.MainFilePath, out var _);
                         if (NormalGeneratorIntensity != null)
                         {
                             material.EnableKeyword("_NORMALMAP");
@@ -39,10 +43,10 @@ namespace GameEstate.Graphics.MaterialBuilders
                         }
                     }
                     else material.DisableKeyword("_NORMALMAP");
-                    if (p.Textures.BumpFilePath != null)
+                    if (p.BumpFilePath != null)
                     {
                         material.EnableKeyword("_NORMALMAP");
-                        material.SetTexture("_NORMALMAP", _textureManager.LoadTexture(p.Textures.BumpFilePath, out var _));
+                        material.SetTexture("_NORMALMAP", _textureManager.LoadTexture(p.BumpFilePath, out var _));
                     }
                     return material;
                 case MaterialTerrain _: return BuildMaterialTerrain();

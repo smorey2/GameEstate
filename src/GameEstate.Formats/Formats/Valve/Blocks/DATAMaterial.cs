@@ -6,7 +6,7 @@ using System.Numerics;
 
 namespace GameEstate.Formats.Valve.Blocks
 {
-    public class DATAMaterial : DATABinaryKV3OrNTRO, IMaterialInfo
+    public class DATAMaterial : DATABinaryKV3OrNTRO, IParamMaterialInfo
     {
         public string Name { get; set; }
         public string ShaderName { get; set; }
@@ -26,30 +26,30 @@ namespace GameEstate.Formats.Valve.Blocks
             Name = Data.Get<string>("m_materialName");
             ShaderName = Data.Get<string>("m_shaderName");
             // TODO: Is this a string array?
-            //RenderAttributesUsed = ((ValveResourceFormat.ResourceTypes.NTROSerialization.NTROValue<string>)Output["m_renderAttributesUsed"]).Value;
+            //RenderAttributesUsed = Data.Get<string>("m_renderAttributesUsed");
             foreach (var kv in Data.GetArray("m_intParams"))
                 IntParams[kv.Get<string>("m_name")] = kv.GetInt("m_nValue");
             foreach (var kv in Data.GetArray("m_floatParams"))
                 FloatParams[kv.Get<string>("m_name")] = kv.GetFloat("m_flValue");
             foreach (var kv in Data.GetArray("m_vectorParams"))
-                VectorParams[kv.Get<string>("m_name")] = kv.Get<Vector4>("m_value"); //:GetSub<Vector4>
+                VectorParams[kv.Get<string>("m_name")] = kv.Get<Vector4>("m_value");
             foreach (var kv in Data.GetArray("m_textureParams"))
-                TextureParams[kv.Get<string>("m_name")] = kv.Get<string>("m_pValue");
+                TextureParams[kv.Get<string>("m_name")] = $"{kv.Get<string>("m_pValue")}_c";
             // TODO: These 3 parameters
-            //var textureAttributes = (NTROArray)Output["m_textureAttributes"];
-            //var dynamicParams = (NTROArray)Data["m_dynamicParams"];
-            //var dynamicTextureParams = (NTROArray)Data["m_dynamicTextureParams"];
+            //var textureAttributes = Data.GetArray("m_textureAttributes");
+            //var dynamicParams = Data.GetArray("m_dynamicParams");
+            //var dynamicTextureParams = Data.GetArray("m_dynamicTextureParams");
             foreach (var kv in Data.GetArray("m_intAttributes"))
                 IntAttributes[kv.Get<string>("m_name")] = kv.GetInt("m_nValue");
             foreach (var kv in Data.GetArray("m_floatAttributes"))
                 FloatAttributes[kv.Get<string>("m_name")] = kv.GetFloat("m_flValue");
             foreach (var kv in Data.GetArray("m_vectorAttributes"))
-                VectorAttributes[kv.Get<string>("m_name")] = kv.Get<Vector4>("m_value"); //:GetSub<Vector4>
+                VectorAttributes[kv.Get<string>("m_name")] = kv.Get<Vector4>("m_value");
             foreach (var kv in Data.GetArray("m_stringAttributes"))
                 StringAttributes[kv.Get<string>("m_name")] = kv.Get<string>("m_pValue");
         }
 
-        public IDictionary<string, bool> GetShaderArguments()
+        public IDictionary<string, bool> GetShaderArgs()
         {
             var arguments = new Dictionary<string, bool>();
             if (Data == null)

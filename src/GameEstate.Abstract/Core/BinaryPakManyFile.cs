@@ -38,48 +38,35 @@ namespace GameEstate.Core
             base.Close();
         }
 
-        bool TryLookupFilePak(string filePath, out BinaryPakFile pak, out string nextFilePath)
-        {
-            var paths = filePath.Split(new[] { ':' }, 2);
-            pak = paths.Length == 1 ? null : FilesByPath[paths[0].Replace('\\', '/')].FirstOrDefault()?.Pak;
-            if (pak != null)
-            {
-                nextFilePath = paths[1];
-                return true;
-            }
-            nextFilePath = null;
-            return false;
-        }
-
         /// <summary>
         /// Determines whether the pak contains the specified file path.
         /// </summary>
-        /// <param name="filePath">The file path.</param>
+        /// <param name="path">The file path.</param>
         /// <returns>
         ///   <c>true</c> if the specified file path contains file; otherwise, <c>false</c>.
         /// </returns>
-        public override bool Contains(string filePath) => TryLookupFilePak(filePath, out var pak, out var nextFilePath)
-            ? pak.Contains(nextFilePath)
-            : FilesByPath.Contains(filePath.Replace('\\', '/'));
+        public override bool Contains(string path) => TryLookupPath(path, out var pak, out var nextPath)
+            ? pak.Contains(nextPath)
+            : FilesByPath.Contains(path.Replace('\\', '/'));
 
         /// <summary>
         /// Loads the file data asynchronous.
         /// </summary>
-        /// <param name="filePath">The file path.</param>
+        /// <param name="path">The file path.</param>
         /// <param name="exception">The exception.</param>
         /// <returns></returns>
         /// <exception cref="FileNotFoundException"></exception>
         /// <exception cref="InvalidOperationException"></exception>
-        public override Task<Stream> LoadFileDataAsync(string filePath, Action<FileMetadata, string> exception = null)
+        public override Task<Stream> LoadFileDataAsync(string path, Action<FileMetadata, string> exception = null)
         {
-            if (TryLookupFilePak(filePath, out var pak, out var nextFilePath))
+            if (TryLookupPath(path, out var pak, out var nextFilePath))
                 return pak.LoadFileDataAsync(nextFilePath, exception);
-            var files = FilesByPath[filePath.Replace('\\', '/')].ToArray();
+            var files = FilesByPath[path.Replace('\\', '/')].ToArray();
             if (files.Length == 1)
                 return LoadFileDataAsync(files[0], exception);
-            exception?.Invoke(null, $"LoadFileDataAsync: {filePath} @ {files.Length}"); //CoreDebug.Log($"LoadFileDataAsync: {filePath} @ {files.Length}");
+            exception?.Invoke(null, $"LoadFileDataAsync: {path} @ {files.Length}"); //CoreDebug.Log($"LoadFileDataAsync: {filePath} @ {files.Length}");
             if (files.Length == 0)
-                throw new FileNotFoundException(filePath);
+                throw new FileNotFoundException(path);
             throw new InvalidOperationException();
         }
 
@@ -87,23 +74,23 @@ namespace GameEstate.Core
         /// Loads the object asynchronous.
         /// </summary>
         /// <typeparam name="T"></typeparam>
-        /// <param name="filePath">The file path.</param>
+        /// <param name="path">The file path.</param>
         /// <param name="exception">The exception.</param>
         /// <returns></returns>
         /// <exception cref="FileNotFoundException"></exception>
         /// <exception cref="InvalidOperationException"></exception>
-        public override Task<T> LoadFileObjectAsync<T>(string filePath, Action<FileMetadata, string> exception = null)
+        public override Task<T> LoadFileObjectAsync<T>(string path, Action<FileMetadata, string> exception = null)
         {
-            if (TryLookupFilePak(filePath, out var pak, out var nextFilePath))
+            if (TryLookupPath(path, out var pak, out var nextFilePath))
                 return pak.LoadFileObjectAsync<T>(nextFilePath, exception);
-            if (typeof(T) == typeof(TextureInfo))
-                filePath = FindTexture(filePath);
-            var files = FilesByPath[filePath.Replace('\\', '/')].ToArray();
+            if (typeof(T) == typeof(ITextureInfo))
+                path = FindTexture(path);
+            var files = FilesByPath[path.Replace('\\', '/')].ToArray();
             if (files.Length == 1)
                 return LoadFileObjectAsync<T>(files[0], exception);
-            exception?.Invoke(null, $"LoadFileObjectAsync: {filePath} @ {files.Length}"); //CoreDebug.Log($"LoadFileObjectAsync: {filePath} @ {files.Length}");
+            exception?.Invoke(null, $"LoadFileObjectAsync: {path} @ {files.Length}"); //CoreDebug.Log($"LoadFileObjectAsync: {filePath} @ {files.Length}");
             if (files.Length == 0)
-                throw new FileNotFoundException(filePath);
+                throw new FileNotFoundException(path);
             throw new InvalidOperationException();
         }
 
@@ -125,6 +112,19 @@ namespace GameEstate.Core
                     FilesRawSet = new HashSet<string>();
                 FilesRawSet.Add(file.Path);
             }
+        }
+
+        bool TryLookupPath(string path, out BinaryPakFile pak, out string nextPath)
+        {
+            var paths = path.Split(new[] { ':' }, 2);
+            pak = paths.Length == 1 ? null : FilesByPath[paths[0].Replace('\\', '/')].FirstOrDefault()?.Pak;
+            if (pak != null)
+            {
+                nextPath = paths[1];
+                return true;
+            }
+            nextPath = null;
+            return false;
         }
     }
 }

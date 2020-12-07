@@ -17,7 +17,7 @@ namespace GameEstate.Graphics.OpenGL.Renderers
         {
             _graphic = graphic;
             _material = material;
-            _shader = _graphic.ShaderManager.LoadPlaneShader(_material.Info.ShaderName, _material.Info.GetShaderArguments());
+            _shader = _graphic.ShaderManager.LoadPlaneShader(_material.Info.ShaderName, _material.Info.GetShaderArgs());
             _quadVao = SetupQuadBuffer();
         }
 
@@ -34,14 +34,11 @@ namespace GameEstate.Graphics.OpenGL.Renderers
 
             var vertices = new[]
             {
-                // position       ; normal          ; texcoord  ; tangent
-                -1.0f, -1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 1.0f, 0.0f, 0.0f,
-                // position      ; normal          ; texcoord  ; tangent
-                -1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f,
-                // position      ; normal          ; texcoord  ; tangent
-                1.0f, -1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f,
-                // position     ; normal          ; texcoord  ; tangent
-                1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f,
+                // position     ; normal        ; texcoord  ; tangent
+                -1f, -1f, +0f,  +0f, +0f, 1f,   +0f, +1f,   +1f, +0f, +0f,
+                -1f, +1f, +0f,  +0f, +0f, 1f,   +0f, +0f,   +1f, +0f, +0f,
+                +1f, -1f, +0f,  +0f, +0f, 1f,   +1f, +1f,   +1f, +0f, +0f,
+                +1f, +1f, +0f,  +0f, +0f, 1f,   +1f, +0f,   +1f, +0f, +0f,
             };
 
             GL.BufferData(BufferTarget.ArrayBuffer, vertices.Length * sizeof(float), vertices, BufferUsageHint.StaticDraw);

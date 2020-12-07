@@ -20,7 +20,7 @@
 
         <Grid.Resources>
             <DataTemplate x:Key="FileExplorer" DataType="{x:Type local:ExplorerMainTab}">
-                <local:FileExplorer x:Name="PakFileExplorer" PakFile="{Binding Path=Content.PakFile, RelativeSource={x:Static RelativeSource.TemplatedParent}}" Margin="0,0,10,10" />
+                <local:FileExplorer x:Name="PakFileExplorer" OpenPath="{Binding Path=Content.OpenPath, RelativeSource={x:Static RelativeSource.TemplatedParent}}" PakFile="{Binding Path=Content.PakFile, RelativeSource={x:Static RelativeSource.TemplatedParent}}" Margin="0,0,10,10" />
             </DataTemplate>
             <DataTemplate x:Key="TextBlock" DataType="{x:Type local:ExplorerMainTab}">
                 <ScrollViewer>

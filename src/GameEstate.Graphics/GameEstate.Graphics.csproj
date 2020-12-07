@@ -9,10 +9,65 @@
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <DefineConstants>TRACE</DefineConstants>
   </PropertyGroup>
 
   <ItemGroup>
     <Compile Remove="Graphics\OctreeDebugRenderer.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="Graphics\OpenGL\Shaders\animation.incl" />
+    <None Remove="Graphics\OpenGL\Shaders\compression.incl" />
+    <None Remove="Graphics\OpenGL\Shaders\debug_grid.frag" />
+    <None Remove="Graphics\OpenGL\Shaders\debug_grid.vert" />
+    <None Remove="Graphics\OpenGL\Shaders\dota_hero.frag" />
+    <None Remove="Graphics\OpenGL\Shaders\dota_hero.vert" />
+    <None Remove="Graphics\OpenGL\Shaders\error.frag" />
+    <None Remove="Graphics\OpenGL\Shaders\error.vert" />
+    <None Remove="Graphics\OpenGL\Shaders\multiblend.frag" />
+    <None Remove="Graphics\OpenGL\Shaders\multiblend.vert" />
+    <None Remove="Graphics\OpenGL\Shaders\particle_sprite.frag" />
+    <None Remove="Graphics\OpenGL\Shaders\particle_sprite.vert" />
+    <None Remove="Graphics\OpenGL\Shaders\particle_trail.frag" />
+    <None Remove="Graphics\OpenGL\Shaders\particle_trail.vert" />
+    <None Remove="Graphics\OpenGL\Shaders\plane.frag" />
+    <None Remove="Graphics\OpenGL\Shaders\plane.vert" />
+    <None Remove="Graphics\OpenGL\Shaders\simple.frag" />
+    <None Remove="Graphics\OpenGL\Shaders\simple.vert" />
+    <None Remove="Graphics\OpenGL\Shaders\vr_standard.frag" />
+    <None Remove="Graphics\OpenGL\Shaders\vr_standard.vert" />
+    <None Remove="Graphics\OpenGL\Shaders\vr_unlit.frag" />
+    <None Remove="Graphics\OpenGL\Shaders\vr_unlit.vert" />
+    <None Remove="Graphics\OpenGL\Shaders\water.frag" />
+    <None Remove="Graphics\OpenGL\Shaders\water.vert" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Graphics\OpenGL\Shaders\animation.incl" />
+    <EmbeddedResource Include="Graphics\OpenGL\Shaders\compression.incl" />
+    <EmbeddedResource Include="Graphics\OpenGL\Shaders\debug_grid.frag" />
+    <EmbeddedResource Include="Graphics\OpenGL\Shaders\debug_grid.vert" />
+    <EmbeddedResource Include="Graphics\OpenGL\Shaders\dota_hero.frag" />
+    <EmbeddedResource Include="Graphics\OpenGL\Shaders\dota_hero.vert" />
+    <EmbeddedResource Include="Graphics\OpenGL\Shaders\error.frag" />
+    <EmbeddedResource Include="Graphics\OpenGL\Shaders\error.vert" />
+    <EmbeddedResource Include="Graphics\OpenGL\Shaders\multiblend.frag" />
+    <EmbeddedResource Include="Graphics\OpenGL\Shaders\multiblend.vert" />
+    <EmbeddedResource Include="Graphics\OpenGL\Shaders\particle_sprite.frag" />
+    <EmbeddedResource Include="Graphics\OpenGL\Shaders\particle_sprite.vert" />
+    <EmbeddedResource Include="Graphics\OpenGL\Shaders\particle_trail.frag" />
+    <EmbeddedResource Include="Graphics\OpenGL\Shaders\particle_trail.vert" />
+    <EmbeddedResource Include="Graphics\OpenGL\Shaders\plane.frag" />
+    <EmbeddedResource Include="Graphics\OpenGL\Shaders\plane.vert" />
+    <EmbeddedResource Include="Graphics\OpenGL\Shaders\simple.frag" />
+    <EmbeddedResource Include="Graphics\OpenGL\Shaders\simple.vert" />
+    <EmbeddedResource Include="Graphics\OpenGL\Shaders\vr_standard.frag" />
+    <EmbeddedResource Include="Graphics\OpenGL\Shaders\vr_standard.vert" />
+    <EmbeddedResource Include="Graphics\OpenGL\Shaders\vr_unlit.frag" />
+    <EmbeddedResource Include="Graphics\OpenGL\Shaders\vr_unlit.vert" />
+    <EmbeddedResource Include="Graphics\OpenGL\Shaders\water.frag" />
+    <EmbeddedResource Include="Graphics\OpenGL\Shaders\water.vert" />
   </ItemGroup>
 
   <ItemGroup>

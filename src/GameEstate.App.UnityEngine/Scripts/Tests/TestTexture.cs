@@ -1,4 +1,5 @@
 ﻿using GameEstate.Graphics;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace Tests
@@ -9,6 +10,26 @@ namespace Tests
     // game:/Fallout4*#Fallout4VR
     public class TestTexture : AbstractTest
     {
+        class FixedMaterialInfo : IFixedMaterialInfo
+        {
+            public string Name { get; set; }
+            public string ShaderName { get; set; }
+            public IDictionary<string, bool> GetShaderArgs() => null;
+            public IDictionary<string, object> Data { get; set; }
+            public string MainFilePath { get; set; }
+            public string DarkFilePath { get; set; }
+            public string DetailFilePath { get; set; }
+            public string GlossFilePath { get; set; }
+            public string GlowFilePath { get; set; }
+            public string BumpFilePath { get; set; }
+            public bool AlphaBlended { get; set; }
+            public int SrcBlendMode { get; set; }
+            public int DstBlendMode { get; set; }
+            public bool AlphaTest { get; set; }
+            public float AlphaCutoff { get; set; }
+            public bool ZWrite { get; set; }
+        }
+
         public TestTexture(UnityTest test) : base(test) { }
 
         public override void Start()
@@ -21,9 +42,8 @@ namespace Tests
 
         GameObject MakeTexture(string path)
         {
-            var materialManager = Graphic.MaterialManager;
             var obj = GameObject.CreatePrimitive(PrimitiveType.Cube);
-            var materialProps = new MaterialProps { Textures = new MaterialTextures { MainFilePath = path } };
+            var materialProps = new FixedMaterialInfo { MainFilePath = path };
             var meshRenderer = obj.GetComponent<MeshRenderer>();
             meshRenderer.material = Graphic.MaterialManager.LoadMaterial(materialProps, out var _);
             return obj;

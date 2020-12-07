@@ -26,7 +26,7 @@ namespace GameEstate.Formats.Valve.Blocks
             foreach (var refStruct in parent.NTRO.ReferencedStructs)
             {
                 Data = ReadStructure(r, refStruct, Offset);
-                break;
+                return;
             }
         }
 
@@ -57,9 +57,10 @@ namespace GameEstate.Formats.Valve.Blocks
         void ReadFieldIntrospection(BinaryReader r, NTRO.ResourceDiskStruct.Field field, ref Dictionary<string, object> data)
         {
             var count = (uint)field.Count;
-            var pointer = false;
             if (count == 0)
                 count = 1;
+            var pointer = false;
+
 
             var prevOffset = 0L;
             if (field.Indirections.Count > 0)
@@ -93,12 +94,13 @@ namespace GameEstate.Formats.Valve.Blocks
             }
             if (field.Count > 0 || field.Indirections.Count > 0)
             {
-                var ntroValues = new object[(int)count]; // new NTROArray(field.Type, (int)count, pointer, field.Indirections.Count > 0);
+                var ntroValues = new object[(int)count];
                 for (var i = 0; i < count; i++)
                     ntroValues[i] = ReadField(r, field, pointer);
                 data.Add(field.FieldName, ntroValues);
             }
-            else for (var i = 0; i < count; i++)
+            else
+                for (var i = 0; i < count; i++)
                     data.Add(field.FieldName, ReadField(r, field, pointer));
             if (prevOffset > 0)
                 r.BaseStream.Position = prevOffset;
@@ -108,7 +110,11 @@ namespace GameEstate.Formats.Valve.Blocks
         {
             switch (field.Type)
             {
-                case NTRO.DataType.Struct: return MakeValue<IDictionary<string, object>>(field.Type, ReadStructure(r, Parent.NTRO.ReferencedStructs.First(x => x.Id == field.TypeData), r.BaseStream.Position), pointer);
+                case NTRO.DataType.Struct:
+                    {
+                        var value = ReadStructure(r, Parent.NTRO.ReferencedStructs.First(x => x.Id == field.TypeData), r.BaseStream.Position);
+                        return MakeValue<IDictionary<string, object>>(field.Type, value, pointer);
+                    }
                 case NTRO.DataType.Enum: return MakeValue<uint>(field.Type, r.ReadUInt32(), pointer);
                 case NTRO.DataType.SByte: return MakeValue<sbyte>(field.Type, r.ReadSByte(), pointer);
                 case NTRO.DataType.Byte: return MakeValue<byte>(field.Type, r.ReadByte(), pointer);
@@ -119,7 +125,12 @@ namespace GameEstate.Formats.Valve.Blocks
                 case NTRO.DataType.UInt32: return MakeValue<uint>(field.Type, r.ReadUInt32(), pointer);
                 case NTRO.DataType.Float: return MakeValue<float>(field.Type, r.ReadSingle(), pointer);
                 case NTRO.DataType.Int64: return MakeValue<long>(field.Type, r.ReadInt64(), pointer);
-                case NTRO.DataType.ExternalReference: var id = r.ReadUInt64(); return MakeValue<string>(field.Type, id > 0 ? Parent.RERL?.RERLInfos.FirstOrDefault(c => c.Id == id)?.Name : null, pointer);
+                case NTRO.DataType.ExternalReference:
+                    {
+                        var id = r.ReadUInt64();
+                        var value = id > 0 ? Parent.RERL?.RERLInfos.FirstOrDefault(c => c.Id == id)?.Name : null;
+                        return MakeValue<string>(field.Type, value, pointer);
+                    }
                 case NTRO.DataType.UInt64: return MakeValue<ulong>(field.Type, r.ReadUInt64(), pointer);
                 case NTRO.DataType.Vector: return MakeValue<Vector3>(field.Type, new Vector3(r.ReadSingle(), r.ReadSingle(), r.ReadSingle()), pointer);
                 case NTRO.DataType.Quaternion: return MakeValue<Quaternion>(field.Type, new Quaternion(r.ReadSingle(), r.ReadSingle(), r.ReadSingle(), r.ReadSingle()), pointer);
@@ -180,10 +191,7 @@ namespace GameEstate.Formats.Valve.Blocks
             }
         }
 
-        static object MakeValue<T>(NTRO.DataType type, object data, bool pointer)
-        {
-            return data;
-        }
+        static object MakeValue<T>(NTRO.DataType type, object data, bool pointer) => data;
 
         public override string ToString() => Data?.ToString() ?? "None";
     }

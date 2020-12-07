@@ -35,6 +35,13 @@ namespace GameEstate.Explorer.View
         public event PropertyChangedEventHandler PropertyChanged;
         void NotifyPropertyChanged([CallerMemberName] string propertyName = "") => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
 
+        public static readonly DependencyProperty OpenPathProperty = DependencyProperty.Register(nameof(OpenPath), typeof(string), typeof(FileExplorer));
+        public string OpenPath
+        {
+            get => GetValue(OpenPathProperty) as string;
+            set => SetValue(OpenPathProperty, value);
+        }
+
         public static readonly DependencyProperty PakFileProperty = DependencyProperty.Register(nameof(PakFile), typeof(EstatePakFile), typeof(FileExplorer),
             new PropertyMetadata((d, e) =>
             {
@@ -42,13 +49,19 @@ namespace GameEstate.Explorer.View
                     return;
                 fileExplorer.NodeFilters = pakFile.GetExplorerItemFiltersAsync(Resource).Result;
                 fileExplorer.Nodes = fileExplorer.PakNodes = pakFile.GetExplorerItemNodesAsync(Resource).Result;
-                fileExplorer.OnFileInfo(null);
+                fileExplorer.SelectedItem = string.IsNullOrEmpty(fileExplorer.OpenPath) ? null : fileExplorer.FindByPath(fileExplorer.OpenPath);
             }));
-
         public EstatePakFile PakFile
         {
             get => GetValue(PakFileProperty) as EstatePakFile;
             set => SetValue(PakFileProperty, value);
+        }
+
+        public ExplorerItemNode FindByPath(string path)
+        {
+            var paths = path.Split(new[] { '\\', '/', ':' }, 2);
+            var node = PakNodes.FirstOrDefault(x => x.Name == paths[0]);
+            return paths.Length == 1 ? node : node.FindByPath(paths[1]);
         }
 
         List<ExplorerItemNode.Filter> _nodeFilters;
@@ -89,22 +102,29 @@ namespace GameEstate.Explorer.View
             set { _nodes = value; NotifyPropertyChanged(); }
         }
 
-        public void OnFileInfo(List<ExplorerInfoNode> infos)
+        ExplorerItemNode _selectedItem;
+        public ExplorerItemNode SelectedItem
         {
-            FileContent.OnFileInfo(infos?.Where(x => x.Name == null).ToList());
-            FileInfo.Infos = infos?.Where(x => x.Name != null).ToList();
+            get => _selectedItem;
+            set
+            {
+                _selectedItem = value;
+                OnFileInfo(value?.PakFile?.GetExplorerInfoNodesAsync(Resource, value).Result);
+            }
         }
 
-        ExplorerItemNode SelectedItem;
+        public void OnFileInfo(List<ExplorerInfoNode> infos)
+        {
+            FileContent.OnFileInfo(PakFile, infos?.Where(x => x.Name == null).ToList());
+            FileInfo.Infos = infos?.Where(x => x.Name != null).ToList();
+        }
 
         void Node_SelectedItemChanged(object sender, RoutedPropertyChangedEventArgs<object> e)
         {
             if (e.NewValue is TreeViewItem item && item.Items.Count > 0)
                 (item.Items[0] as TreeViewItem).IsSelected = true;
-            if (e.NewValue is ExplorerItemNode itemNode && (itemNode.PakFile != null) && SelectedItem != itemNode)
+            if (e.NewValue is ExplorerItemNode itemNode && itemNode.PakFile != null && SelectedItem != itemNode)
                 SelectedItem = itemNode;
-            if (SelectedItem != null)
-                OnFileInfo(SelectedItem.PakFile?.GetExplorerInfoNodesAsync(Resource, SelectedItem).Result);
         }
     }
 }

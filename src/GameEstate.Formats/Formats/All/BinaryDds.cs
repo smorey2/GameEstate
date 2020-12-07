@@ -2,14 +2,16 @@ using GameEstate.Core;
 using GameEstate.Explorer;
 using GameEstate.Explorer.ViewModel;
 using GameEstate.Formats._Packages;
+using GameEstate.Graphics;
 using GameEstate.Graphics.DirectX;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 
 namespace GameEstate.Formats.All
 {
-    public class BinaryDds : IGetExplorerInfo
+    public class BinaryDds : ITextureInfo, IGetExplorerInfo
     {
         public BinaryDds() { }
         public BinaryDds(BinaryReader r) => Read(r);
@@ -17,6 +19,21 @@ namespace GameEstate.Formats.All
 
         public DDS_HEADER Header;
         public DDS_HEADER_DXT10? HeaderDXT10;
+
+        public IDictionary<string, object> Data => null;
+        public int Width => (int)Header.dwWidth;
+        public int Height => (int)Header.dwHeight;
+        public int Depth => 0;
+        public TextureFlags Flags => 0;
+        public TextureUnityFormat UnityFormat => TextureUnityFormat.RGBA32;
+        public TextureGLFormat GLFormat => TextureGLFormat.BGRA8888;
+        public int NumMipMaps => (int)Header.dwMipMapCount;
+        public byte[] this[int index]
+        {
+            get => throw new NotImplementedException();
+            set => throw new NotImplementedException();
+        }
+        public void MoveToData() { }
 
         List<ExplorerInfoNode> IGetExplorerInfo.GetInfoNodes(ExplorerManager resource, FileMetadata file) => new List<ExplorerInfoNode> {
             new ExplorerInfoNode(null, new ExplorerContentTab { Type = "Texture", Name = Path.GetFileName(file.Path), Value = this }),

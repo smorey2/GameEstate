@@ -1,5 +1,6 @@
 ﻿using GameEstate.Graphics;
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 using static GameEstate.EstateDebug;
 
@@ -7,8 +8,29 @@ namespace GameEstate.Formats.Tes
 {
     public class NifObjectBuilder
     {
-        const bool KinematicRigidbodies = true;
+        public enum MatTestMode { Always, Less, LEqual, Equal, GEqual, Greater, NotEqual, Never }
 
+        class FixedMaterialInfo : IFixedMaterialInfo
+        {
+            public string Name { get; set; }
+            public string ShaderName { get; set; }
+            public IDictionary<string, bool> GetShaderArgs() => null;
+            public IDictionary<string, object> Data { get; set; }
+            public string MainFilePath { get; set; }
+            public string DarkFilePath { get; set; }
+            public string DetailFilePath { get; set; }
+            public string GlossFilePath { get; set; }
+            public string GlowFilePath { get; set; }
+            public string BumpFilePath { get; set; }
+            public bool AlphaBlended { get; set; }
+            public int SrcBlendMode { get; set; }
+            public int DstBlendMode { get; set; }
+            public bool AlphaTest { get; set; }
+            public float AlphaCutoff { get; set; }
+            public bool ZWrite { get; set; }
+        }
+
+        const bool KinematicRigidbodies = true;
         readonly NiFile _obj;
         readonly MaterialManager<Material, Texture2D> _materialManager;
         readonly int _markerLayer;
@@ -19,6 +41,8 @@ namespace GameEstate.Formats.Tes
             _materialManager = materialManager;
             _markerLayer = markerLayer;
         }
+
+
 
         public GameObject BuildObject()
         {
@@ -229,7 +253,7 @@ namespace GameEstate.Formats.Tes
             return mesh;
         }
 
-        MaterialProps NiAVObjectPropertiesToMaterialProperties(NiAVObject obj)
+        IMaterialInfo NiAVObjectPropertiesToMaterialProperties(NiAVObject obj)
         {
             // Find relevant properties.
             NiTexturingProperty texturingProperty = null;
@@ -244,7 +268,7 @@ namespace GameEstate.Formats.Tes
             }
 
             // Create the material properties.
-            var mp = new MaterialProps();
+            var mp = new FixedMaterialInfo();
 
             if (alphaProperty != null)
             {
@@ -298,8 +322,8 @@ namespace GameEstate.Formats.Tes
                 if ((flags & 0x01) == 0x01) // if flags contain the alpha blend flag at bit 0 in byte 0
                 {
                     mp.AlphaBlended = true;
-                    mp.SrcBlendMode = FigureBlendMode(srcbm);
-                    mp.DstBlendMode = FigureBlendMode(dstbm);
+                    mp.SrcBlendMode = (int)FigureBlendMode(srcbm);
+                    mp.DstBlendMode = (int)FigureBlendMode(dstbm);
                 }
                 else if ((flags & 0x100) == 0x100) // if flags contain the alpha test flag
                 {
@@ -313,21 +337,19 @@ namespace GameEstate.Formats.Tes
                 mp.AlphaTest = false;
             }
             // Apply textures.
-            if (texturingProperty != null) mp.Textures = ConfigureTextureProperties(texturingProperty);
+            if (texturingProperty != null) ConfigureTextureProperties(mp, texturingProperty);
             return mp;
         }
 
-        MaterialTextures ConfigureTextureProperties(NiTexturingProperty ntp)
+        void ConfigureTextureProperties(FixedMaterialInfo info, NiTexturingProperty ntp)
         {
-            var tp = new MaterialTextures();
-            if (ntp.TextureCount < 1) return tp;
-            if (ntp.BaseTexture != null) { var src = (NiSourceTexture)_obj.Blocks[ntp.BaseTexture.source.Value]; tp.MainFilePath = src.FileName; }
-            if (ntp.DarkTexture != null) { var src = (NiSourceTexture)_obj.Blocks[ntp.DarkTexture.source.Value]; tp.DarkFilePath = src.FileName; }
-            if (ntp.DetailTexture != null) { var src = (NiSourceTexture)_obj.Blocks[ntp.DetailTexture.source.Value]; tp.DetailFilePath = src.FileName; }
-            if (ntp.GlossTexture != null) { var src = (NiSourceTexture)_obj.Blocks[ntp.GlossTexture.source.Value]; tp.GlossFilePath = src.FileName; }
-            if (ntp.GlowTexture != null) { var src = (NiSourceTexture)_obj.Blocks[ntp.GlowTexture.source.Value]; tp.GlowFilePath = src.FileName; }
-            if (ntp.BumpMapTexture != null) { var src = (NiSourceTexture)_obj.Blocks[ntp.BumpMapTexture.source.Value]; tp.BumpFilePath = src.FileName; }
-            return tp;
+            if (ntp.TextureCount < 1) return;
+            if (ntp.BaseTexture != null) { var src = (NiSourceTexture)_obj.Blocks[ntp.BaseTexture.source.Value]; info.MainFilePath = src.FileName; }
+            if (ntp.DarkTexture != null) { var src = (NiSourceTexture)_obj.Blocks[ntp.DarkTexture.source.Value]; info.DarkFilePath = src.FileName; }
+            if (ntp.DetailTexture != null) { var src = (NiSourceTexture)_obj.Blocks[ntp.DetailTexture.source.Value]; info.DetailFilePath = src.FileName; }
+            if (ntp.GlossTexture != null) { var src = (NiSourceTexture)_obj.Blocks[ntp.GlossTexture.source.Value]; info.GlossFilePath = src.FileName; }
+            if (ntp.GlowTexture != null) { var src = (NiSourceTexture)_obj.Blocks[ntp.GlowTexture.source.Value]; info.GlowFilePath = src.FileName; }
+            if (ntp.BumpMapTexture != null) { var src = (NiSourceTexture)_obj.Blocks[ntp.BumpMapTexture.source.Value]; info.BumpFilePath = src.FileName; }
         }
 
         UnityEngine.Rendering.BlendMode FigureBlendMode(byte b) => (UnityEngine.Rendering.BlendMode)Mathf.Min(b, 10);

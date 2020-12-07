@@ -60,7 +60,7 @@ namespace GameEstate.Graphics.OpenGL
                         materialName = skinMaterials[materialName];
 
                     var material = _graphic.MaterialManager.LoadMaterial(materialName, out var _);
-                    var isOverlay = material.Info.IntParams.ContainsKey("F_OVERLAY");
+                    var isOverlay = material.Info is IParamMaterialInfo z && z.IntParams.ContainsKey("F_OVERLAY");
 
                     // Ignore overlays for now
                     if (isOverlay)
@@ -82,7 +82,7 @@ namespace GameEstate.Graphics.OpenGL
             //drawCalls = drawCalls.OrderBy(x => x.Material.Parameters.Name).ToList();
         }
 
-        DrawCall<Material> CreateDrawCall(IDictionary<string, object> objectDrawCall, IVBIB vbib, IDictionary<string, bool> shaderArguments, Material material)
+        DrawCall<Material> CreateDrawCall(IDictionary<string, object> objectDrawCall, IVBIB vbib, IDictionary<string, bool> shaderArgs, Material material)
         {
             var drawCall = new DrawCall<Material>
             {
@@ -94,12 +94,12 @@ namespace GameEstate.Graphics.OpenGL
                 Material = material
             };
             // Add shader parameters from material to the shader parameters from the draw call
-            var combinedShaderParameters = shaderArguments
-                .Concat(material.Info.GetShaderArguments())
+            var combinedShaderArgs = shaderArgs
+                .Concat(material.Info.GetShaderArgs())
                 .ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
 
             // Load shader
-            drawCall.Shader = _graphic.LoadShader(drawCall.Material.Info.ShaderName, combinedShaderParameters);
+            drawCall.Shader = _graphic.LoadShader(drawCall.Material.Info.ShaderName, combinedShaderArgs);
 
             //Bind and validate shader
             GL.UseProgram(drawCall.Shader.Program);
@@ -124,10 +124,10 @@ namespace GameEstate.Graphics.OpenGL
             }
 
             if (!drawCall.Material.Textures.ContainsKey("g_tTintMask"))
-                drawCall.Material.Textures.Add("g_tTintMask", _graphic.TextureManager.BuildSolidTexture(1f, 1f, 1f, 1f));
+                drawCall.Material.Textures.Add("g_tTintMask", _graphic.TextureManager.BuildSolidTexture(1, 1, 1f, 1f, 1f, 1f));
 
             if (!drawCall.Material.Textures.ContainsKey("g_tNormal"))
-                drawCall.Material.Textures.Add("g_tNormal", _graphic.TextureManager.BuildSolidTexture(0.5f, 1f, 0.5f, 1f));
+                drawCall.Material.Textures.Add("g_tNormal", _graphic.TextureManager.BuildSolidTexture(1, 1, 0.5f, 1f, 0.5f, 1f));
 
             if (indexElementSize == 2) drawCall.IndexType = (int)DrawElementsType.UnsignedShort; // shopkeeper_vr
             else if (indexElementSize == 4) drawCall.IndexType = (int)DrawElementsType.UnsignedInt; // glados

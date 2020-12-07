@@ -183,7 +183,7 @@ namespace GameEstate.Core
             return position;
         }
         public static void Seek(this BinaryReader source, long offset, SeekOrigin origin) => source.BaseStream.Seek(offset, origin);
-        public static void Skip(this BinaryReader source, long count) => source.BaseStream.Seek(count, SeekOrigin.Current); // source.BaseStream.Position += count;
+        public static void Skip(this BinaryReader source, long count) => source.BaseStream.Position += count; //source.BaseStream.Seek(count, SeekOrigin.Current);
 
         public static void Peek(this BinaryReader source, Action<BinaryReader> action, int offset = 0)
         {

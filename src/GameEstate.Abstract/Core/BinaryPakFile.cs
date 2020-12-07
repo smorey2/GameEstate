@@ -95,11 +95,11 @@ namespace GameEstate.Core
         /// <summary>
         /// Determines whether the pak contains the specified file path.
         /// </summary>
-        /// <param name="filePath">The file path.</param>
+        /// <param name="path">The file path.</param>
         /// <returns>
         ///   <c>true</c> if the specified file path contains file; otherwise, <c>false</c>.
         /// </returns>
-        public override bool Contains(string filePath) => throw new NotSupportedException();
+        public override bool Contains(string path) => throw new NotSupportedException();
 
         // string or bytes
         /// <summary>
@@ -125,29 +125,29 @@ namespace GameEstate.Core
         /// <summary>
         /// Finds the texture.
         /// </summary>
-        /// <param name="texturePath">The texture path.</param>
+        /// <param name="path">The texture path.</param>
         /// <returns></returns>
-        public override string FindTexture(string texturePath) => Contains(texturePath) ? texturePath : null;
+        public override string FindTexture(string path) => Contains(path) ? path : null;
 
         /// <summary>
         /// Loads the file data asynchronous.
         /// </summary>
-        /// <param name="filePath">The file path.</param>
+        /// <param name="path">The file path.</param>
         /// <param name="exception">The exception.</param>
         /// <returns></returns>
         /// <exception cref="FileNotFoundException"></exception>
         /// <exception cref="InvalidOperationException"></exception>
-        public override Task<Stream> LoadFileDataAsync(string filePath, Action<FileMetadata, string> exception = null) => throw new NotSupportedException();
+        public override Task<Stream> LoadFileDataAsync(string path, Action<FileMetadata, string> exception = null) => throw new NotSupportedException();
 
         /// <summary>
         /// Loads the object asynchronous.
         /// </summary>
         /// <typeparam name="T"></typeparam>
-        /// <param name="filePath">The file path.</param>
+        /// <param name="path">The file path.</param>
         /// <param name="exception">The exception.</param>
         /// <returns></returns>
         /// <exception cref="NotSupportedException"></exception>
-        public override Task<T> LoadFileObjectAsync<T>(string filePath, Action<FileMetadata, string> exception = null) => throw new NotSupportedException();
+        public override Task<T> LoadFileObjectAsync<T>(string path, Action<FileMetadata, string> exception = null) => throw new NotSupportedException();
 
         /// <summary>
         /// Loads the file data asynchronous.
@@ -174,7 +174,7 @@ namespace GameEstate.Core
             if (file.ObjectFactory == null)
                 return type == typeof(Stream) || type == typeof(object)
                     ? (T)(object)stream
-                    : throw new ArgumentOutOfRangeException(nameof(T), $"Stream returned for {file.Path} with {type.Name}");
+                    : throw new ArgumentOutOfRangeException(nameof(T), $"Stream not returned for {file.Path} with {type.Name}");
             var r = new BinaryReader(stream);
             object value = null;
             Task<object> task = null;
@@ -184,9 +184,11 @@ namespace GameEstate.Core
                 if (task == null)
                     return type == typeof(Stream) || type == typeof(object)
                         ? (T)(object)stream
-                        : throw new ArgumentOutOfRangeException(nameof(T), $"Stream returned for {file.Path} with {type.Name}");
+                        : throw new ArgumentOutOfRangeException(nameof(T), $"Stream not returned for {file.Path} with {type.Name}");
                 value = await task;
-                return (T)value;
+                return value is T z ? z
+                    : value is IRedirected<T> y ? y.Value
+                    : throw new InvalidCastException();
             }
             finally { if (task != null && !(value != null && value is IDisposable)) r.Dispose(); }
         }

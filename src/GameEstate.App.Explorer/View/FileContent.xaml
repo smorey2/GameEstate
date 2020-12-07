@@ -36,14 +36,13 @@
                 <Image MaxWidth="{Binding Path=MaxWidth}" MaxHeight="{Binding Path=MaxHeight}" Margin="5,5,5,5" />
             </DataTemplate>
             <DataTemplate x:Key="Content_Material" DataType="{x:Type model:ExplorerContentTab}">
-                <local:GLMaterialViewer Source="{Binding Path=Value}" Margin="3,3,3,3" />
+                <local:GLMaterialViewer Source="{Binding Path=Value}" Graphic="{Binding Path=Graphic, RelativeSource={RelativeSource AncestorType={x:Type local:FileContent}}}" Margin="3,3,3,3" />
             </DataTemplate>
             <DataTemplate x:Key="Content_Particle" DataType="{x:Type model:ExplorerContentTab}">
-                <local:GLParticleViewer Source="{Binding Path=Value}" Margin="3,3,3,3" />
+                <local:GLParticleViewer Source="{Binding Path=Value}" Graphic="{Binding Path=Graphic, RelativeSource={RelativeSource AncestorType={x:Type local:FileContent}}}" Margin="3,3,3,3" />
             </DataTemplate>
             <DataTemplate x:Key="Content_Texture" DataType="{x:Type model:ExplorerContentTab}">
-                <!--<TextBlock Text="TEXTURE" Margin="5,5,5,5" />-->
-                <local:GLTextureViewer Source="{Binding Path=Value}" Margin="3,3,3,3" />
+                <local:GLTextureViewer Source="{Binding Path=Value}" Graphic="{Binding Path=Graphic, RelativeSource={RelativeSource AncestorType={x:Type local:FileContent}}}" Margin="3,3,3,3" />
             </DataTemplate>
         </Grid.Resources>
 

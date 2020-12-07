@@ -1,3 +1,4 @@
+using GameEstate.Core;
 using GameEstate.Graphics;
 using GameEstate.Graphics.Controls;
 using GameEstate.Graphics.OpenGL.Renderers;
@@ -13,44 +14,50 @@ namespace GameEstate.Explorer.View
     {
         public GLMaterialViewer()
         {
-            GLLoad += OnLoad;
+            GLPaint += OnPaint;
             Unloaded += (a, b) =>
             {
-                GLLoad -= OnLoad;
                 GLPaint -= OnPaint;
             };
         }
 
-        public event EventHandler Load;
+        public event PropertyChangedEventHandler PropertyChanged;
+        void NotifyPropertyChanged([CallerMemberName] string propertyName = "") => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
 
-        void OnLoad(object sender, EventArgs e)
+        public static readonly DependencyProperty GraphicProperty = DependencyProperty.Register(nameof(Graphic), typeof(object), typeof(GLMaterialViewer),
+            new PropertyMetadata((d, e) => (d as GLMaterialViewer).OnProperty()));
+        public IEstateGraphic Graphic
         {
-            Load?.Invoke(this, e);
-            GLPaint += OnPaint;
+            get => GetValue(GraphicProperty) as IEstateGraphic;
+            set => SetValue(GraphicProperty, value);
+        }
+
+        public static readonly DependencyProperty SourceProperty = DependencyProperty.Register(nameof(Source), typeof(object), typeof(GLMaterialViewer),
+            new PropertyMetadata((d, e) => (d as GLMaterialViewer).OnProperty()));
+        public object Source
+        {
+            get => GetValue(SourceProperty);
+            set => SetValue(SourceProperty, value);
+        }
+
+        HashSet<MaterialRenderer> Renderers { get; } = new HashSet<MaterialRenderer>();
+
+        void OnProperty()
+        {
+            if (Graphic == null || Source == null)
+                return;
+            var graphic = Graphic as IOpenGLGraphic;
+            var source = Source is IMaterialInfo z ? z
+                : Source is IRedirected<IMaterialInfo> y ? y.Value
+                : throw new InvalidCastException();
+            var material = graphic.MaterialManager.LoadMaterial(source, out var _);
+            Renderers.Add(new MaterialRenderer(graphic, material));
         }
 
         void OnPaint(object sender, RenderEventArgs e)
         {
             foreach (var renderer in Renderers)
                 renderer.Render(e.Camera, RenderPass.Both);
-        }
-
-        HashSet<MaterialRenderer> Renderers { get; } = new HashSet<MaterialRenderer>();
-
-        public event PropertyChangedEventHandler PropertyChanged;
-        void NotifyPropertyChanged([CallerMemberName] string propertyName = "") => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-
-        public static readonly DependencyProperty SourceProperty = DependencyProperty.Register(nameof(Source), typeof(object), typeof(GLMaterialViewer),
-            new PropertyMetadata((d, e) => (d as GLMaterialViewer).LoadSource()));
-
-        public object Source
-        {
-            get => GetValue(SourceProperty) as object;
-            set => SetValue(SourceProperty, value);
-        }
-
-        void LoadSource()
-        {
         }
     }
 }

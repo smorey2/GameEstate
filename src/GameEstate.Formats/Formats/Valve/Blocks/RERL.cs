@@ -48,10 +48,8 @@ namespace GameEstate.Formats.Valve.Blocks
             {
                 var id = r.ReadUInt64();
                 var previousPosition = r.BaseStream.Position;
-                // jump to string
-                // offset is counted from current position,
-                // so we will need to add 8 to position later
-                r.Skip(r.ReadInt64());
+                // jump to string: offset is counted from current position, so we will need to add 8 to position later
+                r.BaseStream.Position += r.ReadInt64();
                 RERLInfos.Add(new RERLInfo
                 {
                     Id = id,

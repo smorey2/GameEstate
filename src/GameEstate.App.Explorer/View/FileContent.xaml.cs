@@ -37,6 +37,13 @@ namespace GameEstate.Explorer.View
         public event PropertyChangedEventHandler PropertyChanged;
         void NotifyPropertyChanged([CallerMemberName] string propertyName = "") => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
 
+        IEstateGraphic _graphic;
+        public IEstateGraphic Graphic
+        {
+            get => _graphic;
+            set { _graphic = value; NotifyPropertyChanged(); }
+        }
+
         IList<ExplorerContentTab> _contentTabs;
         public IList<ExplorerContentTab> ContentTabs
         {
@@ -44,11 +51,13 @@ namespace GameEstate.Explorer.View
             set { _contentTabs = value; NotifyPropertyChanged(); }
         }
 
-        public void OnFileInfo(List<ExplorerInfoNode> infos)
+        public void OnFileInfo(EstatePakFile pakFile, List<ExplorerInfoNode> infos)
         {
             if (ContentTabs != null)
                 foreach (var dispose in ContentTabs.Where(x => x.Dispose != null).Select(x => x.Dispose))
                     dispose.Dispose();
+
+            Graphic = pakFile.Graphic;
             ContentTabs = infos?.Select(x => x.Tag as ExplorerContentTab).Where(x => x != null).ToList();
             ContentTab.SelectedIndex = ContentTabs != null ? 0 : -1;
         }

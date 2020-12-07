@@ -1,4 +1,5 @@
 //#define DEBUG_SHADERS
+using System.Diagnostics;
 using System.IO;
 using System.Reflection;
 
@@ -6,13 +7,14 @@ namespace GameEstate.Graphics.OpenGL
 {
     public class ShaderDebugLoader : ShaderLoader
     {
-        const string ShaderDirectory = "GameEstate.Graphics.OpenGL.Shaders.";
+        const string ShaderDirectory = "GameEstate.Graphics.Graphics.OpenGL.Shaders";
 
         // Map shader names to shader files
         protected override string GetShaderFileByName(string shaderName)
         {
             switch (shaderName)
             {
+                case "plane": return "plane";
                 case "vrf.error": return "error";
                 case "vrf.grid": return "debug_grid";
                 case "vrf.particle.sprite": return "particle_sprite";
@@ -39,7 +41,7 @@ namespace GameEstate.Graphics.OpenGL
             using (var stream = File.Open(GetShaderDiskPath(shaderFileName), FileMode.Open))
 #else
             var assembly = Assembly.GetExecutingAssembly();
-            using (var stream = assembly.GetManifestResourceStream($"{ShaderDirectory}{shaderFileName}"))
+            using (var stream = assembly.GetManifestResourceStream($"{ShaderDirectory}.{shaderFileName}"))
 #endif
             using (var reader = new StreamReader(stream))
                 return reader.ReadToEnd();
@@ -48,7 +50,7 @@ namespace GameEstate.Graphics.OpenGL
 #if DEBUG_SHADERS && DEBUG
         // Reload shaders at runtime
          static string GetShaderDiskPath(string name) =>
-            Path.Combine(Path.GetDirectoryName(Process.GetCurrentProcess().MainModule?.FileName), "../../../", ShaderDirectory.Replace('.', '/'), name);
+            Path.Combine(Path.GetDirectoryName(Process.GetCurrentProcess().MainModule?.FileName), "../../../../", ShaderDirectory.Replace(".", "/"), name);
 #endif
     }
 }
