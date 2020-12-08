@@ -39,7 +39,7 @@ namespace GameEstate.Formats.Valve
 
         static IEnumerable<ModelAnimation> LoadAnimationFile(IOpenGLGraphic graphic, string animationFile, IDictionary<string, object> decodeKey)
         {
-            var animResource = graphic.Source.LoadFileObjectAsync<BinaryPak>($"{animationFile}_c").Result;
+            var animResource = graphic.Source.LoadFileObjectAsync<BinaryPak>(animationFile).Result;
             if (animResource == null)
                 throw new FileNotFoundException($"Failed to load {animationFile}_c. Did you configure game paths correctly?");
             // Build animation classes

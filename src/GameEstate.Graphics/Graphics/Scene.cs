@@ -38,8 +38,8 @@ namespace GameEstate.Graphics
 
         public Scene(IEstateGraphic graphic, Action<List<MeshBatchRequest>, RenderContext> meshBatchRenderer, float sizeHint = 32768)
         {
-            Graphic = graphic;
-            _meshBatchRenderer = meshBatchRenderer;
+            Graphic = graphic ?? throw new ArgumentNullException(nameof(graphic));
+            _meshBatchRenderer = meshBatchRenderer ?? throw new ArgumentNullException(nameof(meshBatchRenderer));
             StaticOctree = new Octree<SceneNode>(sizeHint);
             DynamicOctree = new Octree<SceneNode>(sizeHint);
         }
@@ -123,7 +123,7 @@ namespace GameEstate.Graphics
                 node.Render(opaqueRenderContext);
 
             // Blended render pass, back to front for loose nodes
-            var blendedRenderContext = new RenderContext(camera, RenderPass.Blended);
+            var blendedRenderContext = new RenderContext(camera, RenderPass.Translucent);
             _meshBatchRenderer(blendedDrawCalls, blendedRenderContext);
             foreach (var node in Enumerable.Reverse(looseNodes))
                 node.Render(blendedRenderContext);

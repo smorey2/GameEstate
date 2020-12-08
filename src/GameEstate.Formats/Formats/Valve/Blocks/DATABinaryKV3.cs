@@ -94,7 +94,7 @@ namespace GameEstate.Formats.Valve.Blocks
             for (var i = 0; i < _strings.Length; i++)
                 _strings[i] = r.ReadZUTF8();
 
-            Data = ParseBinaryKV3(r, null, true);
+            Data = (IDictionary<string, object>)ParseBinaryKV3(r, null, true);
         }
 
         void ReadVersion2(BinaryReader r, BinaryWriter w, BinaryReader r2)
@@ -135,7 +135,7 @@ namespace GameEstate.Formats.Valve.Blocks
 
             // Move back to the start of the KV data for reading.
             r2.Position(kv3Offset);
-            Data = ParseBinaryKV3(r2, null, true);
+            Data = (IDictionary<string, object>)ParseBinaryKV3(r2, null, true);
         }
 
         static void BlockDecompress(BinaryReader r, BinaryWriter w, BinaryReader r2)
@@ -203,7 +203,7 @@ namespace GameEstate.Formats.Valve.Blocks
             return ((KVType)databyte, flag);
         }
 
-        IDictionary<string, object> ParseBinaryKV3(BinaryReader r, IDictionary<string, object> parent, bool inArray = false)
+        object ParseBinaryKV3(BinaryReader r, IDictionary<string, object> parent, bool inArray)
         {
             string name;
             if (!inArray)
@@ -211,108 +211,126 @@ namespace GameEstate.Formats.Valve.Blocks
                 var stringId = r.ReadInt32();
                 name = stringId == -1 ? string.Empty : _strings[stringId];
             }
-            else name = null;
+            else
+                name = null;
             var (type, flag) = ReadType(r);
-            return ReadBinaryValue(name, type, flag, r, parent);
+            var value = ReadBinaryValue(type, flag, r);
+            if (name != null)
+                parent?.Add(name, value);
+            return value;
         }
 
-        IDictionary<string, object> ReadBinaryValue(string name, KVType type, KVFlag flag, BinaryReader r, IDictionary<string, object> parent)
+        object ReadBinaryValue(KVType type, KVFlag flag, BinaryReader r)
         {
             var position = r.BaseStream.Position;
             switch (type)
             {
-                case KVType.NULL: parent.Add(name, MakeValue(type, null, flag)); break;
+                case KVType.NULL: return MakeValue(type, null, flag);
                 case KVType.BOOLEAN:
-                    if (_binaryBytesOffset > -1) r.BaseStream.Position = _binaryBytesOffset;
-                    parent.Add(name, MakeValue(type, r.ReadBoolean(), flag));
-                    if (_binaryBytesOffset > -1) { _binaryBytesOffset++; r.BaseStream.Position = position; }
-                    break;
-                case KVType.BOOLEAN_TRUE: parent.Add(name, MakeValue(type, true, flag)); break;
-                case KVType.BOOLEAN_FALSE: parent.Add(name, MakeValue(type, false, flag)); break;
-                case KVType.INT64_ZERO: parent.Add(name, MakeValue(type, 0L, flag)); break;
-                case KVType.INT64_ONE: parent.Add(name, MakeValue(type, 1L, flag)); break;
+                    {
+                        if (_binaryBytesOffset > -1) r.BaseStream.Position = _binaryBytesOffset;
+                        var value = MakeValue(type, r.ReadBoolean(), flag);
+                        if (_binaryBytesOffset > -1) { _binaryBytesOffset = r.BaseStream.Position; r.BaseStream.Position = position; }
+                        return value;
+                    }
+                case KVType.BOOLEAN_TRUE: return MakeValue(type, true, flag);
+                case KVType.BOOLEAN_FALSE: return MakeValue(type, false, flag);
+                case KVType.INT64_ZERO: return MakeValue(type, 0L, flag);
+                case KVType.INT64_ONE: return MakeValue(type, 1L, flag);
                 case KVType.INT64:
-                    if (_eightBytesOffset > 0) r.BaseStream.Position = _eightBytesOffset;
-                    parent.Add(name, MakeValue(type, r.ReadInt64(), flag));
-                    if (_eightBytesOffset > 0) { _eightBytesOffset = r.BaseStream.Position; r.BaseStream.Position = position; }
-                    break;
+                    {
+                        if (_eightBytesOffset > 0) r.BaseStream.Position = _eightBytesOffset;
+                        var value = MakeValue(type, r.ReadInt64(), flag);
+                        if (_eightBytesOffset > 0) { _eightBytesOffset = r.BaseStream.Position; r.BaseStream.Position = position; }
+                        return value;
+                    }
                 case KVType.UINT64:
-                    if (_eightBytesOffset > 0) r.BaseStream.Position = _eightBytesOffset;
-                    parent.Add(name, MakeValue(type, r.ReadUInt64(), flag));
-                    if (_eightBytesOffset > 0) { _eightBytesOffset = r.BaseStream.Position; r.BaseStream.Position = position; }
-                    break;
-                case KVType.INT32: parent.Add(name, MakeValue(type, r.ReadInt32(), flag)); break;
-                case KVType.UINT32: parent.Add(name, MakeValue(type, r.ReadUInt32(), flag)); break;
+                    {
+                        if (_eightBytesOffset > 0) r.BaseStream.Position = _eightBytesOffset;
+                        var value = MakeValue(type, r.ReadUInt64(), flag);
+                        if (_eightBytesOffset > 0) { _eightBytesOffset = r.BaseStream.Position; r.BaseStream.Position = position; }
+                        return value;
+                    }
+                case KVType.INT32: return MakeValue(type, r.ReadInt32(), flag);
+                case KVType.UINT32: return MakeValue(type, r.ReadUInt32(), flag);
                 case KVType.DOUBLE:
-                    if (_eightBytesOffset > 0) r.BaseStream.Position = _eightBytesOffset;
-                    parent.Add(name, MakeValue(type, r.ReadDouble(), flag));
-                    if (_eightBytesOffset > 0) { _eightBytesOffset = r.BaseStream.Position; r.BaseStream.Position = position; }
-                    break;
-                case KVType.DOUBLE_ZERO: parent.Add(name, MakeValue(type, 0.0D, flag)); break;
-                case KVType.DOUBLE_ONE: parent.Add(name, MakeValue(type, 1.0D, flag)); break;
+                    {
+                        if (_eightBytesOffset > 0) r.BaseStream.Position = _eightBytesOffset;
+                        var value = MakeValue(type, r.ReadDouble(), flag);
+                        if (_eightBytesOffset > 0) { _eightBytesOffset = r.BaseStream.Position; r.BaseStream.Position = position; }
+                        return value;
+                    }
+                case KVType.DOUBLE_ZERO: return MakeValue(type, 0.0D, flag);
+                case KVType.DOUBLE_ONE: return MakeValue(type, 1.0D, flag);
                 case KVType.STRING:
-                    var id = r.ReadInt32();
-                    parent.Add(name, MakeValue(type, id == -1 ? string.Empty : _strings[id], flag));
-                    break;
+                    {
+                        var id = r.ReadInt32();
+                        return MakeValue(type, id == -1 ? string.Empty : _strings[id], flag);
+                    }
                 case KVType.BINARY_BLOB:
-                    var length = r.ReadInt32();
-                    if (_binaryBytesOffset > -1) r.BaseStream.Position = _binaryBytesOffset;
-                    parent.Add(name, MakeValue(type, r.ReadBytes(length), flag));
-                    if (_binaryBytesOffset > -1) { _binaryBytesOffset = r.BaseStream.Position; r.BaseStream.Position = position + 4; }
-                    break;
+                    {
+                        var length = r.ReadInt32();
+                        if (_binaryBytesOffset > -1) r.BaseStream.Position = _binaryBytesOffset;
+                        var value = MakeValue(type, r.ReadBytes(length), flag);
+                        if (_binaryBytesOffset > -1) { _binaryBytesOffset = r.BaseStream.Position; r.BaseStream.Position = position + 4; }
+                        return value;
+                    }
                 case KVType.ARRAY:
-                    var arrayLength = r.ReadInt32();
-                    var array = new Dictionary<string, object> { { "_name", name }, { "_array", true } };
-                    for (var i = 0; i < arrayLength; i++)
-                        ParseBinaryKV3(r, array, true);
-                    parent.Add(name, MakeValue(type, array, flag));
-                    break;
+                    {
+                        var count = r.ReadInt32();
+                        var values = new object[count];
+                        for (var i = 0; i < count; i++)
+                            values[i] = ParseBinaryKV3(r, null, true);
+                        return MakeValue(type, values, flag);
+                    }
                 case KVType.ARRAY_TYPED:
-                    var typeArrayLength = r.ReadInt32();
-                    var (subType, subFlag) = ReadType(r);
-                    var typedArray = new Dictionary<string, object> { { "_name", name }, { "_array", true } };
-                    for (var i = 0; i < typeArrayLength; i++)
-                        ReadBinaryValue(name, subType, subFlag, r, typedArray);
-                    parent.Add(name, MakeValue(type, typedArray, flag));
-                    break;
+                    {
+                        var count = r.ReadInt32();
+                        var (subType, subFlag) = ReadType(r);
+                        var values = new object[count];
+                        for (var i = 0; i < count; i++)
+                            values[i] = ReadBinaryValue(subType, subFlag, r);
+                        return MakeValue(type, values, flag);
+                    }
                 case KVType.OBJECT:
-                    var objectLength = r.ReadInt32();
-                    var newObject = new Dictionary<string, object> { { "_name", name }, { "_array", false } };
-                    for (var i = 0; i < objectLength; i++)
-                        ParseBinaryKV3(r, newObject, false);
-                    if (parent == null) parent = newObject;
-                    else parent.Add(name, MakeValue(type, newObject, flag));
-                    break;
-                default: throw new InvalidDataException($"Unknown KVType {type} for field '{name}' on byte {r.BaseStream.Position - 1}");
-            }
-            return parent;
-        }
-
-        static KVType ConvertBinaryOnlyKVType(KVType type)
-        {
-            switch (type)
-            {
-                case KVType.BOOLEAN:
-                case KVType.BOOLEAN_TRUE:
-                case KVType.BOOLEAN_FALSE: return KVType.BOOLEAN;
-                case KVType.INT64:
-                case KVType.INT32:
-                case KVType.INT64_ZERO:
-                case KVType.INT64_ONE: return KVType.INT64;
-                case KVType.UINT64:
-                case KVType.UINT32: return KVType.UINT64;
-                case KVType.DOUBLE:
-                case KVType.DOUBLE_ZERO:
-                case KVType.DOUBLE_ONE: return KVType.DOUBLE;
-                case KVType.ARRAY_TYPED: return KVType.ARRAY;
-                default: return type;
+                    {
+                        var objectLength = r.ReadInt32();
+                        var newObject = new Dictionary<string, object>();
+                        for (var i = 0; i < objectLength; i++)
+                            ParseBinaryKV3(r, newObject, false);
+                        return MakeValue(type, newObject, flag);
+                    }
+                default: throw new InvalidDataException($"Unknown KVType {type} on byte {r.BaseStream.Position - 1}");
             }
         }
 
-        static object MakeValue(KVType type, object data, KVFlag flag)
-        {
-            var realType = ConvertBinaryOnlyKVType(type);
-            return flag != KVFlag.None ? (object)(realType, flag, data) : (realType, data);
-        }
+        //static KVType ConvertBinaryOnlyKVType(KVType type)
+        //{
+        //    switch (type)
+        //    {
+        //        case KVType.BOOLEAN:
+        //        case KVType.BOOLEAN_TRUE:
+        //        case KVType.BOOLEAN_FALSE: return KVType.BOOLEAN;
+        //        case KVType.INT64:
+        //        case KVType.INT32:
+        //        case KVType.INT64_ZERO:
+        //        case KVType.INT64_ONE: return KVType.INT64;
+        //        case KVType.UINT64:
+        //        case KVType.UINT32: return KVType.UINT64;
+        //        case KVType.DOUBLE:
+        //        case KVType.DOUBLE_ZERO:
+        //        case KVType.DOUBLE_ONE: return KVType.DOUBLE;
+        //        case KVType.ARRAY_TYPED: return KVType.ARRAY;
+        //        default: return type;
+        //    }
+        //}
+
+        static object MakeValue(KVType type, object data, KVFlag flag) => data;
+        //{
+        //    var realType = ConvertBinaryOnlyKVType(type);
+        //    flag != KVFlag.None ? (object)(realType, flag, data) : (realType, data);
+        //}
+
+        public override void WriteText(IndentedTextWriter w) => w.Write(KVExtensions.Print(Data));
     }
 }

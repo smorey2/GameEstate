@@ -4,6 +4,6 @@ namespace GameEstate.Graphics
     {
         Both,
         Opaque,
-        Blended,
+        Translucent, //: Blended
     }
 }

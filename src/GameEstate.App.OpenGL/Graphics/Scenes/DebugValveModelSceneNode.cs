@@ -8,23 +8,23 @@ using GameEstate.Formats.Valve.Blocks.Animation;
 using GameEstate.Graphics.OpenGL;
 using OpenTK.Graphics.OpenGL;
 
-namespace GameEstate.Graphics
+namespace GameEstate.Graphics.Scenes
 {
-    public class ModelSceneNode : SceneNode, IMeshCollection
+    public class DebugValveModelSceneNode : SceneNode, IMeshCollection
     {
-        DATAModel Model { get; }
+        IValveModelInfo Model { get; }
 
         public Vector4 Tint
         {
-            get => meshRenderers.Count > 0 ? meshRenderers[0].Tint : Vector4.One;
-            set { foreach (var renderer in meshRenderers) renderer.Tint = value; }
+            get => _meshRenderers.Count > 0 ? _meshRenderers[0].Tint : Vector4.One;
+            set { foreach (var renderer in _meshRenderers) renderer.Tint = value; }
         }
 
         public IEnumerable<Mesh> Meshes => _activeMeshRenderers;
 
-        readonly List<Mesh> meshRenderers = new List<Mesh>();
-        readonly List<ModelAnimation> animations = new List<ModelAnimation>();
-        Dictionary<string, string> skinMaterials;
+        readonly List<Mesh> _meshRenderers = new List<Mesh>();
+        readonly List<ModelAnimation> _animations = new List<ModelAnimation>();
+        Dictionary<string, string> _skinMaterials;
 
         ModelAnimation _activeAnimation;
         int _animationTexture;
@@ -34,7 +34,7 @@ namespace GameEstate.Graphics
 
         float _time;
 
-        public ModelSceneNode(Scene scene, DATAModel model, string skin = null, bool loadAnimations = true)
+        public DebugValveModelSceneNode(Scene scene, IValveModelInfo model, string skin = null, bool loadAnimations = true)
             : base(scene)
         {
             Model = model;
@@ -80,11 +80,11 @@ namespace GameEstate.Graphics
 
         public override void Render(Scene.RenderContext context) { } // This node does not render itself; it uses the batching system via IRenderableMeshCollection
 
-        public override IEnumerable<string> GetSupportedRenderModes() => meshRenderers.SelectMany(renderer => renderer.GetSupportedRenderModes()).Distinct();
+        public override IEnumerable<string> GetSupportedRenderModes() => _meshRenderers.SelectMany(renderer => renderer.GetSupportedRenderModes()).Distinct();
 
         public override void SetRenderMode(string renderMode)
         {
-            foreach (var renderer in meshRenderers)
+            foreach (var renderer in _meshRenderers)
                 renderer.SetRenderMode(renderMode);
         }
 
@@ -103,10 +103,10 @@ namespace GameEstate.Graphics
                 {
                     var materials = materialGroup.Get<string[]>("m_materials");
 
-                    skinMaterials = new Dictionary<string, string>();
+                    _skinMaterials = new Dictionary<string, string>();
 
                     for (var i = 0; i < defaultMaterials.Length; i++)
-                        skinMaterials[defaultMaterials[i]] = materials[i];
+                        _skinMaterials[defaultMaterials[i]] = materials[i];
 
                     break;
                 }
@@ -117,23 +117,23 @@ namespace GameEstate.Graphics
         {
             // Get embedded meshes
             foreach (var embeddedMesh in Model.GetEmbeddedMeshesAndLoD().Where(m => (m.LoDMask & 1) != 0))
-                meshRenderers.Add(new GLMesh(Scene.Graphic as IOpenGLGraphic, embeddedMesh.Mesh, skinMaterials));
+                _meshRenderers.Add(new GLMesh(Scene.Graphic as IOpenGLGraphic, embeddedMesh.Mesh, _skinMaterials));
 
             // Load referred meshes from file (only load meshes with LoD 1)
             var referredMeshesAndLoDs = Model.GetReferenceMeshNamesAndLoD();
             foreach (var refMesh in referredMeshesAndLoDs.Where(m => (m.LoDMask & 1) != 0))
             {
-                var newResource = Scene.Graphic.Source.LoadFileObjectAsync<BinaryPak>($"{refMesh.MeshName}_c").Result;
+                var newResource = Scene.Graphic.Source.LoadFileObjectAsync<BinaryPak>(refMesh.MeshName).Result;
                 if (newResource == null)
                     continue;
 
-                if (!newResource.ContainsBlockType<VBIB_>())
+                if (!newResource.ContainsBlockType<VBIB>())
                 {
                     Console.WriteLine("Old style model, no VBIB!");
                     continue;
                 }
 
-                meshRenderers.Add(new GLMesh(Scene.Graphic as IOpenGLGraphic, new DATAMesh(newResource), skinMaterials));
+                _meshRenderers.Add(new GLMesh(Scene.Graphic as IOpenGLGraphic, new DATAMesh(newResource), _skinMaterials));
             }
 
             // Set active meshes to default
@@ -163,9 +163,9 @@ namespace GameEstate.Graphics
         void LoadAnimations()
         {
             var animGroupPaths = Model.GetReferencedAnimationGroupNames();
-            var emebeddedAnims = Model.GetEmbeddedAnimations();
+            var embeddedAnims = Model.GetEmbeddedAnimations();
 
-            if (!animGroupPaths.Any() && !emebeddedAnims.Any())
+            if (!animGroupPaths.Any() && !embeddedAnims.Any())
                 return;
 
             SetupAnimationTexture();
@@ -173,12 +173,12 @@ namespace GameEstate.Graphics
             // Load animations from referenced animation groups
             foreach (var animGroupPath in animGroupPaths)
             {
-                var animGroup = Scene.Graphic.Source.LoadFileObjectAsync<BinaryPak>($"{animGroupPath}_c").Result;
-                animations.AddRange(AnimationGroupLoader.LoadAnimationGroup(Scene.Graphic as IOpenGLGraphic, animGroup));
+                var animGroup = Scene.Graphic.Source.LoadFileObjectAsync<BinaryPak>(animGroupPath).Result;
+                _animations.AddRange(AnimationGroupLoader.LoadAnimationGroup(Scene.Graphic as IOpenGLGraphic, animGroup));
             }
 
             // Get embedded animations
-            animations.AddRange(emebeddedAnims);
+            _animations.AddRange(embeddedAnims);
         }
 
         public void LoadAnimation(string animationName)
@@ -199,35 +199,35 @@ namespace GameEstate.Graphics
             var embeddedAnim = embeddedAnims.FirstOrDefault(a => a.Name == animationName);
             if (embeddedAnim != default)
             {
-                animations.Add(embeddedAnim);
+                _animations.Add(embeddedAnim);
                 return;
             }
 
             // Load animations from referenced animation groups
             foreach (var animGroupPath in animGroupPaths)
             {
-                var animGroup = Scene.Graphic.Source.LoadFileObjectAsync<BinaryPak>($"{animGroupPath}_c").Result;
+                var animGroup = Scene.Graphic.Source.LoadFileObjectAsync<BinaryPak>(animGroupPath).Result;
                 var foundAnimations = AnimationGroupLoader.TryLoadSingleAnimationFileFromGroup(Scene.Graphic as IOpenGLGraphic, animGroup, animationName);
                 if (foundAnimations != default)
                 {
-                    animations.AddRange(foundAnimations);
+                    _animations.AddRange(foundAnimations);
                     return;
                 }
             }
         }
 
-        public IEnumerable<string> GetSupportedAnimationNames() => animations.Select(a => a.Name);
+        public IEnumerable<string> GetSupportedAnimationNames() => _animations.Select(a => a.Name);
 
         public void SetAnimation(string animationName)
         {
             _time = 0f;
-            _activeAnimation = animations.FirstOrDefault(a => a.Name == animationName);
+            _activeAnimation = _animations.FirstOrDefault(a => a.Name == animationName);
 
             if (_activeAnimation != default)
-                foreach (var renderer in meshRenderers)
+                foreach (var renderer in _meshRenderers)
                     renderer.SetAnimationTexture(_animationTexture, _skeleton.AnimationTextureSize);
             else
-                foreach (var renderer in meshRenderers)
+                foreach (var renderer in _meshRenderers)
                     renderer.SetAnimationTexture(null, 0);
         }
 
@@ -246,19 +246,19 @@ namespace GameEstate.Graphics
                 foreach (var group in _activeMeshGroups)
                 {
                     var meshMask = Model.GetActiveMeshMaskForGroup(group).ToArray();
-                    for (var meshIndex = 0; meshIndex < meshRenderers.Count; meshIndex++)
-                        if (meshMask[meshIndex] && !_activeMeshRenderers.Contains(meshRenderers[meshIndex]))
-                            _activeMeshRenderers.Add(meshRenderers[meshIndex]);
+                    for (var meshIndex = 0; meshIndex < _meshRenderers.Count; meshIndex++)
+                        if (meshMask[meshIndex] && !_activeMeshRenderers.Contains(_meshRenderers[meshIndex]))
+                            _activeMeshRenderers.Add(_meshRenderers[meshIndex]);
                 }
             }
             else
-                _activeMeshRenderers = new HashSet<Mesh>(meshRenderers);
+                _activeMeshRenderers = new HashSet<Mesh>(_meshRenderers);
         }
 
         void UpdateBoundingBox()
         {
             var first = true;
-            foreach (var mesh in meshRenderers)
+            foreach (var mesh in _meshRenderers)
             {
                 LocalBoundingBox = first ? mesh.BoundingBox : BoundingBox.Union(mesh.BoundingBox);
                 first = false;

@@ -40,8 +40,6 @@ namespace GameEstate.Explorer.View
             set => SetValue(SourceProperty, value);
         }
 
-        HashSet<TextureRenderer> Renderers { get; } = new HashSet<TextureRenderer>();
-
         void OnProperty()
         {
             if (Graphic == null || Source == null)
@@ -49,10 +47,14 @@ namespace GameEstate.Explorer.View
             var graphic = Graphic as IOpenGLGraphic;
             var source = Source is ITextureInfo z ? z
                 : Source is IRedirected<ITextureInfo> y ? y.Value
-                : throw new InvalidCastException();
+                : null;
+            if (source == null)
+                return;
             var texture = graphic.TextureManager.LoadTexture(source, out var _);
             Renderers.Add(new TextureRenderer(graphic, texture));
         }
+
+        HashSet<TextureRenderer> Renderers { get; } = new HashSet<TextureRenderer>();
 
         void OnPaint(object sender, RenderEventArgs e)
         {

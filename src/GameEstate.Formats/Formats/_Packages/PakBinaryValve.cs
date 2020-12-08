@@ -157,6 +157,15 @@ namespace GameEstate.Formats._Packages
                 else if (magic == ToolsAssetInfo.MAGIC) return Task.FromResult((object)new ToolsAssetInfo(r));
                 else if (magic == DATABinaryKV3.MAGIC || magic == DATABinaryKV3.MAGIC2) { var kv3 = new DATABinaryKV3 { Size = (uint)r.BaseStream.Length }; kv3.Read(null, r); return Task.FromResult((object)kv3); }
                 else if (magicResourceVersion == BinaryPak.KnownHeaderVersion) return Task.FromResult((object)new BinaryPak(r));
+                //else if (magicResourceVersion == BinaryPak.KnownHeaderVersion)
+                //{
+                //    var pak = new BinaryPak(r);
+                //    switch (pak.DataType)
+                //    {
+                //        //case DATA.DataType.Mesh: return Task.FromResult((object)new DATAMesh(pak));
+                //        default: return Task.FromResult((object)pak);
+                //    }
+                //}
                 else return null;
             }
             switch (Path.GetExtension(path).ToLowerInvariant())
@@ -204,14 +213,14 @@ namespace GameEstate.Formats._Packages
             if (sourceFileDirVpk)
                 sourceFilePath = sourceFilePath.Substring(0, sourceFilePath.Length - 8);
 
-            source.FileMask = fileName =>
+            source.FileMask = path =>
             {
-                var extension = Path.GetExtension(fileName);
+                var extension = Path.GetExtension(path);
                 if (extension.EndsWith("_c", StringComparison.Ordinal))
                     extension = extension.Substring(0, extension.Length - 2);
                 if (extension.StartsWith(".v"))
                     extension = extension.Remove(1, 1);
-                return $"{Path.GetFileNameWithoutExtension(fileName)}{extension}";
+                return $"{Path.GetFileNameWithoutExtension(path)}{extension}";
             };
 
             // types

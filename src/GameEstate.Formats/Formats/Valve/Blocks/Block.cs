@@ -46,7 +46,7 @@ namespace GameEstate.Formats.Valve.Blocks
                 case "REDI": return new REDI();
                 case "RERL": return new RERL();
                 case "NTRO": return new NTRO();
-                case "VBIB": return new VBIB_();
+                case "VBIB": return new VBIB();
                 case "VXVS": return new VXVS();
                 case "SNAP": return new SNAP();
                 case "MBUF": return new MBUF();

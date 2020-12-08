@@ -17,17 +17,10 @@ namespace GameEstate.Formats.Valve.Blocks
         public override void Read(BinaryPak parent, BinaryReader r)
         {
             Parent = parent;
-            if (StructName != null)
-            {
-                var refStruct = parent.NTRO.ReferencedStructs.Find(s => s.Name == StructName);
-                Data = ReadStructure(r, refStruct, Offset);
-                return;
-            }
-            foreach (var refStruct in parent.NTRO.ReferencedStructs)
-            {
-                Data = ReadStructure(r, refStruct, Offset);
-                return;
-            }
+            var refStruct = StructName != null
+                ? parent.NTRO.ReferencedStructs.Find(s => s.Name == StructName)
+                : parent.NTRO.ReferencedStructs.First();
+            Data = ReadStructure(r, refStruct, Offset);
         }
 
         IDictionary<string, object> ReadStructure(BinaryReader r, NTRO.ResourceDiskStruct refStruct, long startingOffset)
@@ -61,7 +54,6 @@ namespace GameEstate.Formats.Valve.Blocks
                 count = 1;
             var pointer = false;
 
-
             var prevOffset = 0L;
             if (field.Indirections.Count > 0)
             {
@@ -94,10 +86,10 @@ namespace GameEstate.Formats.Valve.Blocks
             }
             if (field.Count > 0 || field.Indirections.Count > 0)
             {
-                var ntroValues = new object[(int)count];
+                var values = new object[(int)count];
                 for (var i = 0; i < count; i++)
-                    ntroValues[i] = ReadField(r, field, pointer);
-                data.Add(field.FieldName, ntroValues);
+                    values[i] = ReadField(r, field, pointer);
+                data.Add(field.FieldName, values);
             }
             else
                 for (var i = 0; i < count; i++)

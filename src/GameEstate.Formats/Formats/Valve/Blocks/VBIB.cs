@@ -10,10 +10,10 @@ namespace GameEstate.Formats.Valve.Blocks
     /// <summary>
     /// "VBIB" block.
     /// </summary>
-    public class VBIB_ : Block, IVBIB
+    public class VBIB : Block, IVBIB
     {
-        public List<VBIB.VertexBuffer> VertexBuffers { get; } = new List<VBIB.VertexBuffer>();
-        public List<VBIB.IndexBuffer> IndexBuffers { get; } = new List<VBIB.IndexBuffer>();
+        public List<VertexBuffer> VertexBuffers { get; } = new List<VertexBuffer>();
+        public List<IndexBuffer> IndexBuffers { get; } = new List<IndexBuffer>();
 
         public override void Read(BinaryPak parent, BinaryReader r)
         {
@@ -26,7 +26,7 @@ namespace GameEstate.Formats.Valve.Blocks
             r.BaseStream.Position = Offset + vertexBufferOffset;
             for (var i = 0; i < vertexBufferCount; i++)
             {
-                var vertexBuffer = default(VBIB.VertexBuffer);
+                var vertexBuffer = default(VertexBuffer);
 
                 vertexBuffer.Count = r.ReadUInt32();            //0
                 vertexBuffer.Size = r.ReadUInt32();             //4
@@ -41,14 +41,14 @@ namespace GameEstate.Formats.Valve.Blocks
                 var dataOffset = r.ReadUInt32();       //16
                 var totalSize = r.ReadUInt32();        //20
 
-                vertexBuffer.Attributes = new List<VBIB.VertexAttribute>();
+                vertexBuffer.Attributes = new List<VertexBuffer.VertexAttribute>();
 
                 r.BaseStream.Position = refA + attributeOffset;
                 for (var j = 0; j < attributeCount; j++)
                 {
                     var previousPosition = r.BaseStream.Position;
 
-                    var attribute = default(VBIB.VertexAttribute);
+                    var attribute = default(VertexBuffer.VertexAttribute);
 
                     attribute.Name = r.ReadZUTF8().ToUpperInvariant();
 
@@ -79,7 +79,7 @@ namespace GameEstate.Formats.Valve.Blocks
             r.BaseStream.Position = Offset + 8 + indexBufferOffset; //8 to take into account vertexOffset / count
             for (var i = 0; i < indexBufferCount; i++)
             {
-                var indexBuffer = default(VBIB.IndexBuffer);
+                var indexBuffer = default(IndexBuffer);
 
                 indexBuffer.Count = r.ReadUInt32();        //0
                 indexBuffer.Size = r.ReadUInt32();         //4
@@ -104,7 +104,7 @@ namespace GameEstate.Formats.Valve.Blocks
             }
         }
 
-        public static float[] ReadVertexAttribute(int offset, VBIB.VertexBuffer vertexBuffer, VBIB.VertexAttribute attribute)
+        public static float[] ReadVertexAttribute(int offset, VertexBuffer vertexBuffer, VertexBuffer.VertexAttribute attribute)
         {
             offset = (int)(offset * vertexBuffer.Size) + (int)attribute.Offset;
             return attribute.Type.ReadVertex(vertexBuffer.Buffer, offset);

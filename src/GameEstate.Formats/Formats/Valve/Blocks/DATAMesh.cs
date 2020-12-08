@@ -1,3 +1,6 @@
+using GameEstate.Explorer;
+using GameEstate.Explorer.ViewModel;
+using GameEstate.Formats._Packages;
 using GameEstate.Graphics;
 using System;
 using System.Collections.Generic;
@@ -5,23 +8,26 @@ using System.Numerics;
 
 namespace GameEstate.Formats.Valve.Blocks
 {
-    public class DATAMesh : IMeshInfo
+    public class DATAMesh : IMeshInfo, IGetExplorerInfo
     {
+        readonly BinaryPak _source;
         readonly DATA _data;
 
-        public DATAMesh(BinaryPak resource)
+        public DATAMesh(BinaryPak source)
         {
-            _data = resource.DATA;
-            VBIB = resource.VBIB;
+            _source = source;
+            _data = source.DATA;
+            VBIB = source.VBIB;
             GetBounds();
         }
-
         public DATAMesh(DATA data, IVBIB vbib)
         {
             _data = data;
             VBIB = vbib;
             GetBounds();
         }
+
+        public List<ExplorerInfoNode> GetInfoNodes(ExplorerManager resource, FileMetadata file) => (_source as IGetExplorerInfo).GetInfoNodes(resource, file);
 
         public IVBIB VBIB { get; }
 
@@ -49,12 +55,12 @@ namespace GameEstate.Formats.Valve.Blocks
                 MinBounds = MaxBounds = new Vector3(0, 0, 0);
                 return;
             }
-            var minBounds = sceneObjects[0].GetSub("m_vMinBounds").ToVector3();
-            var maxBounds = sceneObjects[0].GetSub("m_vMaxBounds").ToVector3();
+            var minBounds = sceneObjects[0].GetVector3("m_vMinBounds");
+            var maxBounds = sceneObjects[0].GetVector3("m_vMaxBounds");
             for (var i = 1; i < sceneObjects.Length; ++i)
             {
-                var localMin = sceneObjects[i].GetSub("m_vMinBounds").ToVector3();
-                var localMax = sceneObjects[i].GetSub("m_vMaxBounds").ToVector3();
+                var localMin = sceneObjects[i].GetVector3("m_vMinBounds");
+                var localMax = sceneObjects[i].GetVector3("m_vMaxBounds");
                 minBounds.X = Math.Min(minBounds.X, localMin.X);
                 minBounds.Y = Math.Min(minBounds.Y, localMin.Y);
                 minBounds.Z = Math.Min(minBounds.Z, localMin.Z);

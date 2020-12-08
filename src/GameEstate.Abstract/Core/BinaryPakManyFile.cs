@@ -83,8 +83,8 @@ namespace GameEstate.Core
         {
             if (TryLookupPath(path, out var pak, out var nextFilePath))
                 return pak.LoadFileObjectAsync<T>(nextFilePath, exception);
-            if (typeof(T) == typeof(ITextureInfo))
-                path = FindTexture(path);
+            if (PathFinders.Count > 0)
+                path = FindPath<T>(path);
             var files = FilesByPath[path.Replace('\\', '/')].ToArray();
             if (files.Length == 1)
                 return LoadFileObjectAsync<T>(files[0], exception);

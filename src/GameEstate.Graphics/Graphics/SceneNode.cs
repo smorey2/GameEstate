@@ -18,7 +18,7 @@ namespace GameEstate.Graphics
         public AABB LocalBoundingBox
         {
             get => _localBoundingBox;
-            protected set { _localBoundingBox = value; BoundingBox = LocalBoundingBox.Transform(_transform); }
+            protected set { _localBoundingBox = value; BoundingBox = _localBoundingBox.Transform(_transform); }
         }
 
         public Scene Scene { get; }

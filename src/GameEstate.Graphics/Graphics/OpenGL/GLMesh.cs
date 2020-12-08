@@ -11,7 +11,7 @@ namespace GameEstate.Graphics.OpenGL
         readonly IOpenGLGraphic _graphic;
         readonly IMeshInfo _mesh;
 
-        public GLMesh(IOpenGLGraphic graphic, IMeshInfo mesh, Dictionary<string, string> skinMaterials = null)
+        public GLMesh(IOpenGLGraphic graphic, IMeshInfo mesh, IDictionary<string, string> skinMaterials = null)
         {
             _graphic = graphic;
             _mesh = mesh;
@@ -23,7 +23,6 @@ namespace GameEstate.Graphics.OpenGL
         public override void SetRenderMode(string renderMode)
         {
             var drawCalls = DrawCallsOpaque.Union(DrawCallsBlended);
-
             foreach (var call in drawCalls)
             {
                 // Recycle old shader parameters that are not render modes since we are scrapping those anyway
@@ -39,23 +38,21 @@ namespace GameEstate.Graphics.OpenGL
             }
         }
 
-        void SetupDrawCalls(IMeshInfo mesh, Dictionary<string, string> skinMaterials)
+        void SetupDrawCalls(IMeshInfo mesh, IDictionary<string, string> skinMaterials)
         {
             var vbib = mesh.VBIB;
             var data = mesh.Data;
-            var gpuMeshBuffers = _graphic.MeshBufferCache.GetVertexIndexBuffers(vbib);
+            /*var gpuMeshBuffers = */
+            _graphic.MeshBufferCache.GetVertexIndexBuffers(vbib);
 
             // Prepare drawcalls
             var sceneObjects = data.GetArray("m_sceneObjects");
-
             foreach (var sceneObject in sceneObjects)
             {
                 var objectDrawCalls = sceneObject.GetArray("m_drawCalls");
-
                 foreach (var objectDrawCall in objectDrawCalls)
                 {
                     var materialName = objectDrawCall.Get<string>("m_material");
-
                     if (skinMaterials != null && skinMaterials.ContainsKey(materialName))
                         materialName = skinMaterials[materialName];
 
@@ -78,8 +75,6 @@ namespace GameEstate.Graphics.OpenGL
                     else DrawCallsOpaque.Add(drawCall);
                 }
             }
-
-            //drawCalls = drawCalls.OrderBy(x => x.Material.Parameters.Name).ToList();
         }
 
         DrawCall<Material> CreateDrawCall(IDictionary<string, object> objectDrawCall, IVBIB vbib, IDictionary<string, bool> shaderArgs, Material material)
@@ -104,24 +99,17 @@ namespace GameEstate.Graphics.OpenGL
             //Bind and validate shader
             GL.UseProgram(drawCall.Shader.Program);
 
-            var indexBufferObject = objectDrawCall.GetSub("m_indexBuffer");
-
-            var indexBuffer = default(DrawCall.DrawBuffer);
-            indexBuffer.Id = Convert.ToUInt32(indexBufferObject.Get<object>("m_hBuffer"));
-            indexBuffer.Offset = Convert.ToUInt32(indexBufferObject.Get<object>("m_nBindOffsetBytes"));
-            drawCall.IndexBuffer = indexBuffer;
+            var indexBuffer = objectDrawCall.GetSub("m_indexBuffer");
+            drawCall.IndexBuffer = (indexBuffer.GetUInt32("m_hBuffer"), indexBuffer.GetUInt32("m_nBindOffsetBytes")); ;
 
             var indexElementSize = vbib.IndexBuffers[(int)drawCall.IndexBuffer.Id].Size;
-            //drawCall.BaseVertex = Convert.ToUInt32(objectDrawCall.Get<object>("m_nBaseVertex"));
-            //drawCall.VertexCount = Convert.ToUInt32(objectDrawCall.Get<object>("m_nVertexCount"));
-            drawCall.StartIndex = Convert.ToUInt32(objectDrawCall.Get<object>("m_nStartIndex")) * indexElementSize;
-            drawCall.IndexCount = Convert.ToInt32(objectDrawCall.Get<object>("m_nIndexCount"));
+            //drawCall.BaseVertex = objectDrawCall.ToUInt32("m_nBaseVertex");
+            //drawCall.VertexCount = objectDrawCall.ToUInt32("m_nVertexCount");
+            drawCall.StartIndex = objectDrawCall.GetUInt32("m_nStartIndex") * indexElementSize;
+            drawCall.IndexCount = objectDrawCall.GetInt32("m_nIndexCount");
 
             if (objectDrawCall.ContainsKey("m_vTintColor"))
-            {
-                var tintColor = objectDrawCall.GetSub("m_vTintColor").ToVector3();
-                drawCall.TintColor = new Vector3(tintColor.X, tintColor.Y, tintColor.Z);
-            }
+                drawCall.TintColor = objectDrawCall.GetVector3("m_vTintColor");
 
             if (!drawCall.Material.Textures.ContainsKey("g_tTintMask"))
                 drawCall.Material.Textures.Add("g_tTintMask", _graphic.TextureManager.BuildSolidTexture(1, 1, 1f, 1f, 1f, 1f));
@@ -133,13 +121,8 @@ namespace GameEstate.Graphics.OpenGL
             else if (indexElementSize == 4) drawCall.IndexType = (int)DrawElementsType.UnsignedInt; // glados
             else throw new Exception("Unsupported index type");
 
-            var m_vertexBuffers = objectDrawCall.GetSub("m_vertexBuffers");
-            var m_vertexBuffer = m_vertexBuffers.GetSub("0"); // TODO: Not just 0
-
-            var vertexBuffer = default(DrawCall.DrawBuffer);
-            vertexBuffer.Id = Convert.ToUInt32(m_vertexBuffer.Get<object>("m_hBuffer"));
-            vertexBuffer.Offset = Convert.ToUInt32(m_vertexBuffer.Get<object>("m_nBindOffsetBytes"));
-            drawCall.VertexBuffer = vertexBuffer;
+            var vertexBuffer = objectDrawCall.GetArray("m_vertexBuffers").First();
+            drawCall.VertexBuffer = (vertexBuffer.GetUInt32("m_hBuffer"), vertexBuffer.GetUInt32("m_nBindOffsetBytes"));
 
             drawCall.VertexArrayObject = _graphic.MeshBufferCache.GetVertexArrayObject(vbib, drawCall.Shader, drawCall.VertexBuffer.Id, drawCall.IndexBuffer.Id);
 

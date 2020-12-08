@@ -40,8 +40,6 @@ namespace GameEstate.Explorer.View
             set => SetValue(SourceProperty, value);
         }
 
-        HashSet<MaterialRenderer> Renderers { get; } = new HashSet<MaterialRenderer>();
-
         void OnProperty()
         {
             if (Graphic == null || Source == null)
@@ -49,10 +47,14 @@ namespace GameEstate.Explorer.View
             var graphic = Graphic as IOpenGLGraphic;
             var source = Source is IMaterialInfo z ? z
                 : Source is IRedirected<IMaterialInfo> y ? y.Value
-                : throw new InvalidCastException();
+                : null;
+            if (source == null)
+                return;
             var material = graphic.MaterialManager.LoadMaterial(source, out var _);
             Renderers.Add(new MaterialRenderer(graphic, material));
         }
+
+        HashSet<MaterialRenderer> Renderers { get; } = new HashSet<MaterialRenderer>();
 
         void OnPaint(object sender, RenderEventArgs e)
         {

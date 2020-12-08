@@ -5,9 +5,9 @@ using GameEstate.Graphics.ParticleSystem;
 using System.Collections;
 using System.Collections.Generic;
 
-namespace GameEstate.Graphics
+namespace GameEstate.Graphics.Scenes
 {
-    public class ParticleSceneNode : SceneNode
+    public class DebugParticleSceneNode : SceneNode
     {
         class ParticleSystemWrapper : IParticleSystem
         {
@@ -23,7 +23,7 @@ namespace GameEstate.Graphics
 
         ParticleRenderer _particleRenderer;
 
-        public ParticleSceneNode(Scene scene, DATAParticleSystem particleSystem)
+        public DebugParticleSceneNode(Scene scene, DATAParticleSystem particleSystem)
             : base(scene)
         {
             _particleRenderer = new ParticleRenderer(Scene.Graphic as IOpenGLGraphic, new ParticleSystemWrapper(particleSystem));

@@ -127,7 +127,7 @@ namespace GameEstate.Core
         /// </summary>
         /// <param name="path">The texture path.</param>
         /// <returns></returns>
-        public override string FindTexture(string path) => Contains(path) ? path : null;
+        //public override string FindTexture(string path) => Contains(path) ? path : null;
 
         /// <summary>
         /// Loads the file data asynchronous.

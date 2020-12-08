@@ -42,7 +42,7 @@ namespace GameEstate.Graphics.OpenGL.Renderers
 
             _additive = keyValues.Get<bool>("m_bAdditive");
             _overbrightFactor = keyValues.GetFloat("m_flOverbrightFactor", 1f);
-            _orientationType = keyValues.GetInt("m_nOrientationType");
+            _orientationType = keyValues.GetInt64("m_nOrientationType");
 
             _animationRate = keyValues.GetFloat("m_flAnimationRate", .1f);
 
@@ -86,7 +86,7 @@ namespace GameEstate.Graphics.OpenGL.Renderers
 
         //static (int TextureIndex, Texture TextureData) LoadTexture(string textureName, GuiContext guiContext)
         //{
-        //    var textureResource = guiContext.LoadFileByAnyMeansNecessary(textureName + "_c");
+        //    var textureResource = guiContext.LoadFileByAnyMeansNecessary(textureName);
 
         //    return textureResource == null
         //        ? (guiContext.MaterialLoader.GetErrorTexture(), null)

@@ -171,7 +171,7 @@ namespace GameEstate.Graphics.OpenGL.Renderers
             if (_particleBag.Count == 0)
                 return;
 
-            if (renderPass == RenderPass.Blended || renderPass == RenderPass.Both)
+            if (renderPass == RenderPass.Translucent || renderPass == RenderPass.Both)
                 foreach (var renderer in Renderers)
                     renderer.Render(_particleBag, camera.ViewProjectionMatrix, camera.CameraViewMatrix);
 
@@ -239,7 +239,7 @@ namespace GameEstate.Graphics.OpenGL.Renderers
         {
             foreach (var childName in childNames)
             {
-                //var childResource = _context.LoadFileByAnyMeansNecessary(childName + "_c");
+                //var childResource = _context.LoadFileByAnyMeansNecessary(childName);
                 //var childSystem = (IParticleSystem)childResource.DataBlock;
 
                 //_childParticleRenderers.Add(new ParticleRenderer(childSystem, _context, _systemRenderState.GetControlPoint(0)));

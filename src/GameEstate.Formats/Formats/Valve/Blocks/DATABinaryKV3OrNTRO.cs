@@ -44,11 +44,6 @@ namespace GameEstate.Formats.Valve.Blocks
             }
         }
 
-        //public override string ToString()
-        //{
-        //    if (BackingData is DATABinaryKV3 kv3)
-        //        return kv3.GetKV3File().ToString();
-        //    return BackingData.ToString();
-        //}
+        public override string ToString() => BackingData is DATABinaryKV3 kv3 ? kv3.ToString() : BackingData.ToString();
     }
 }

@@ -7,7 +7,7 @@ namespace GameEstate.Graphics
     {
         readonly Func<int, string, int> _getUniformLocation;
 
-        public Shader(Func<int, string, int> getUniformLocation) => _getUniformLocation = getUniformLocation; //: GL.GetUniformLocation
+        public Shader(Func<int, string, int> getUniformLocation) => _getUniformLocation = getUniformLocation ?? throw new ArgumentNullException(nameof(getUniformLocation)); //: GL.GetUniformLocation
 
         public string Name { get; set; }
         public int Program { get; set; }

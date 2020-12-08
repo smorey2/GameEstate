@@ -19,12 +19,18 @@ namespace System.Collections.Generic
             => collection.TryGetValue(name, out var z) && z is IDictionary<string, object> v ? v : default;
 
         public static T[] GetArray<T>(this IDictionary<string, object> collection, string name, Func<IDictionary<string, object>, T> mapper)
-            => collection.TryGetValue(name, out var z) && z is IDictionary<string, object>[] v ? v.Select(mapper).ToArray() : default;
+            => collection.TryGetValue(name, out var z) && z is Array v ? v.Cast<IDictionary<string, object>>().Select(mapper).ToArray() : default;
 
-        public static long GetInt(this IDictionary<string, object> collection, string name, long defaultValue = default)
-            => collection.TryGetValue(name, out var z) ? Convert.ToInt64(z) : defaultValue;
+        public static int GetInt32(this IDictionary<string, object> collection, string name, int defaultValue = default)
+            => collection.TryGetValue(name, out var z) ? z is int i ? i : Convert.ToInt32(z) : defaultValue;
 
-        public static ulong GetUInt(this IDictionary<string, object> collection, string name, ulong defaultValue = default)
+        public static uint GetUInt32(this IDictionary<string, object> collection, string name, uint defaultValue = default)
+            => collection.TryGetValue(name, out var z) ? z is uint i ? i : Convert.ToUInt32(z) : defaultValue;
+
+        public static long GetInt64(this IDictionary<string, object> collection, string name, long defaultValue = default)
+            => collection.TryGetValue(name, out var z) ? z is long i ? i : Convert.ToInt64(z) : defaultValue;
+
+        public static ulong GetUInt64(this IDictionary<string, object> collection, string name, ulong defaultValue = default)
         {
             unchecked
             {
@@ -47,22 +53,40 @@ namespace System.Collections.Generic
         public static IDictionary<string, object>[] GetArray(this IDictionary<string, object> collection, string name)
             => collection.TryGetValue(name, out var z) && z is Array v ? v.Cast<IDictionary<string, object>>().ToArray() : default;
 
+
         public static Vector3 ToVector3(this IDictionary<string, object> collection) => new Vector3(
             collection.GetFloat("0"),
             collection.GetFloat("1"),
             collection.GetFloat("2"));
+        public static Vector3 GetVector3(this IDictionary<string, object> collection, string name)
+            => collection.TryGetValue(name, out var z) && z is object[] v && v.Length == 3 ? new Vector3(
+            (float)Convert.ToDouble(v[0]),
+            (float)Convert.ToDouble(v[1]),
+            (float)Convert.ToDouble(v[2])) : default;
 
         public static Vector4 ToVector4(this IDictionary<string, object> collection) => new Vector4(
             collection.GetFloat("0"),
             collection.GetFloat("1"),
             collection.GetFloat("2"),
             collection.GetFloat("3"));
+        public static Vector4 GetVector4(this IDictionary<string, object> collection, string name)
+            => collection.TryGetValue(name, out var z) && z is object[] v && v.Length == 4 ? new Vector4(
+            (float)Convert.ToDouble(v[0]),
+            (float)Convert.ToDouble(v[1]),
+            (float)Convert.ToDouble(v[2]),
+            (float)Convert.ToDouble(v[3])) : default;
 
         public static Quaternion ToQuaternion(this IDictionary<string, object> collection) => new Quaternion(
             collection.GetFloat("0"),
             collection.GetFloat("1"),
             collection.GetFloat("2"),
             collection.GetFloat("3"));
+        public static Quaternion GetQuaternion(this IDictionary<string, object> collection, string name)
+            => collection.TryGetValue(name, out var z) && z is object[] v && v.Length == 4 ? new Quaternion(
+            (float)Convert.ToDouble(v[0]),
+            (float)Convert.ToDouble(v[1]),
+            (float)Convert.ToDouble(v[2]),
+            (float)Convert.ToDouble(v[3])) : default;
 
         public static Matrix4x4 ToMatrix4x4(this IDictionary<string, object>[] array)
         {

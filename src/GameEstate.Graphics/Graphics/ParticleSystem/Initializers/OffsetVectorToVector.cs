@@ -15,8 +15,8 @@ namespace GameEstate.Graphics.ParticleSystem.Initializers
 
         public OffsetVectorToVector(IDictionary<string, object> keyValues)
         {
-            _inputField = (ParticleField)keyValues.GetInt("m_nFieldInput");
-            _outputField = (ParticleField)keyValues.GetInt("m_nFieldOutput");
+            _inputField = (ParticleField)keyValues.GetInt64("m_nFieldInput");
+            _outputField = (ParticleField)keyValues.GetInt64("m_nFieldOutput");
             _offsetMin = keyValues.TryGet<double[]>("m_vecOutputMin", out var vectorValues)
                 ? new Vector3((float)vectorValues[0], (float)vectorValues[1], (float)vectorValues[2])
                 : Vector3.Zero;

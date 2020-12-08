@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System;
 using System.Numerics;
 using GameEstate.Graphics;
+using GameEstate.Graphics.Scenes;
 
 namespace GameEstate.Formats.Valve
 {
@@ -43,10 +44,10 @@ namespace GameEstate.Formats.Valve
 
                 if (renderableModel != null)
                 {
-                    var newResource = _graphic.Source.LoadFileObjectAsync<BinaryPak>($"{renderableModel}_c").Result;
+                    var newResource = _graphic.Source.LoadFileObjectAsync<BinaryPak>(renderableModel).Result;
                     if (newResource == null)
                         continue;
-                    var modelNode = new ModelSceneNode(scene, (DATAModel)newResource.DATA, null, false)
+                    var modelNode = new DebugValveModelSceneNode(scene, (IValveModelInfo)newResource.DATA, null, false)
                     {
                         Transform = matrix,
                         Tint = tintColor,
@@ -58,10 +59,10 @@ namespace GameEstate.Formats.Valve
                 var renderable = sceneObject.Get<string>("m_renderable");
                 if (renderable != null)
                 {
-                    var newResource = _graphic.Source.LoadFileObjectAsync<BinaryPak>($"{renderable}_c").Result;
+                    var newResource = _graphic.Source.LoadFileObjectAsync<BinaryPak>(renderable).Result;
                     if (newResource == null)
                         continue;
-                    var meshNode = new MeshSceneNode(scene, new DATAMesh(newResource))
+                    var meshNode = new DebugMeshSceneNode(scene, new DATAMesh(newResource))
                     {
                         Transform = matrix,
                         Tint = tintColor,

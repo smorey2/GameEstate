@@ -1,6 +1,7 @@
 using GameEstate.Formats.Valve.Blocks;
 using GameEstate.Graphics;
 using GameEstate.Graphics.OpenGL;
+using GameEstate.Graphics.Scenes;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -44,7 +45,7 @@ namespace GameEstate.Formats.Valve
             {
                 if (worldNode != null)
                 {
-                    var newResource = _graphic.Source.LoadFileObjectAsync<BinaryPak>($"{worldNode}.vwnod_c").Result;
+                    var newResource = _graphic.Source.LoadFileObjectAsync<BinaryPak>($"{worldNode}.vwnod").Result;
                     if (newResource == null)
                         throw new Exception("WTF");
                     var subloader = new WorldNodeLoader(_graphic, (DATAWorldNode)newResource.DATA);
@@ -57,7 +58,7 @@ namespace GameEstate.Formats.Valve
                 if (lumpName == null)
                     return result;
 
-                var newResource = _graphic.Source.LoadFileObjectAsync<BinaryPak>($"{lumpName}_c").Result;
+                var newResource = _graphic.Source.LoadFileObjectAsync<BinaryPak>(lumpName).Result;
                 if (newResource == null)
                     return result;
 
@@ -74,7 +75,7 @@ namespace GameEstate.Formats.Valve
 
             foreach (var childEntityName in childEntities)
             {
-                var newResource = _graphic.Source.LoadFileObjectAsync<BinaryPak>($"{childEntityName}_c").Result;
+                var newResource = _graphic.Source.LoadFileObjectAsync<BinaryPak>(childEntityName).Result;
 
                 if (newResource == null)
                     continue;
@@ -107,9 +108,7 @@ namespace GameEstate.Formats.Valve
                     var worldgroupid = entity.Get<string>("worldgroupid");
                     var targetmapname = entity.Get<string>("targetmapname");
 
-                    var skyboxWorldPath = $"maps/{Path.GetFileNameWithoutExtension(targetmapname)}/world.vwrld_c";
-                    var skyboxPackage = _graphic.Source.LoadFileObjectAsync<BinaryPak>(skyboxWorldPath).Result;
-
+                    var skyboxPackage = _graphic.Source.LoadFileObjectAsync<BinaryPak>($"maps/{Path.GetFileNameWithoutExtension(targetmapname)}/world.vwrld").Result;
                     if (skyboxPackage != null)
                         result.Skybox = (DATAWorld)skyboxPackage.DATA;
                 }
@@ -153,7 +152,7 @@ namespace GameEstate.Formats.Valve
 
                 if (particle != null)
                 {
-                    var particleResource = _graphic.Source.LoadFileObjectAsync<BinaryPak>($"{particle}_c").Result;
+                    var particleResource = _graphic.Source.LoadFileObjectAsync<BinaryPak>(particle).Result;
 
                     if (particleResource != null)
                     {
@@ -162,7 +161,7 @@ namespace GameEstate.Formats.Valve
 
                         try
                         {
-                            var particleNode = new ParticleSceneNode(scene, particleSystem)
+                            var particleNode = new DebugParticleSceneNode(scene, particleSystem)
                             {
                                 Transform = Matrix4x4.CreateTranslation(origin),
                                 LayerName = layerName,
@@ -214,13 +213,13 @@ namespace GameEstate.Formats.Valve
                     objColor.W = colourBytes[3] / 255.0f;
                 }
 
-                var newEntity = _graphic.Source.LoadFileObjectAsync<BinaryPak>($"{model}_c").Result;
+                var newEntity = _graphic.Source.LoadFileObjectAsync<BinaryPak>(model).Result;
                 if (newEntity == null)
                 {
-                    var errorModelResource = _graphic.Source.LoadFileObjectAsync<BinaryPak>("models/dev/error.vmdl_c").Result;
+                    var errorModelResource = _graphic.Source.LoadFileObjectAsync<BinaryPak>("models/dev/error.vmdl").Result;
                     if (errorModelResource != null)
                     {
-                        var errorModel = new ModelSceneNode(scene, (DATAModel)errorModelResource.DATA, skin, false)
+                        var errorModel = new DebugValveModelSceneNode(scene, (IValveModelInfo)errorModelResource.DATA, skin, false)
                         {
                             Transform = transformationMatrix,
                             LayerName = layerName,
@@ -233,9 +232,8 @@ namespace GameEstate.Formats.Valve
                     continue;
                 }
 
-                var newModel = (DATAModel)newEntity.DATA;
-
-                var modelNode = new ModelSceneNode(scene, newModel, skin, false)
+                var newModel = (IValveModelInfo)newEntity.DATA;
+                var modelNode = new DebugValveModelSceneNode(scene, newModel, skin, false)
                 {
                     Transform = transformationMatrix,
                     Tint = objColor,

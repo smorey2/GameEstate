@@ -12,7 +12,7 @@ using System.Text;
 
 namespace GameEstate.Formats.Valve
 {
-    public class BinaryPak : IDisposable, IGetExplorerInfo, IRedirected<IMaterialInfo>, IRedirected<ITextureInfo>
+    public class BinaryPak : IDisposable, IGetExplorerInfo, IRedirected<ITextureInfo>, IRedirected<IMaterialInfo>, IRedirected<IMeshInfo>, IRedirected<IModelInfo>
     {
         public const ushort KnownHeaderVersion = 12;
 
@@ -25,9 +25,10 @@ namespace GameEstate.Formats.Valve
             Reader = null;
         }
 
-        IMaterialInfo IRedirected<IMaterialInfo>.Value => DATA as IMaterialInfo;
-
         ITextureInfo IRedirected<ITextureInfo>.Value => DATA as ITextureInfo;
+        IMaterialInfo IRedirected<IMaterialInfo>.Value => DATA as IMaterialInfo;
+        IMeshInfo IRedirected<IMeshInfo>.Value => DataType == DATA.DataType.Mesh ? new DATAMesh(this) as IMeshInfo : null;
+        IModelInfo IRedirected<IModelInfo>.Value => DATA as IModelInfo;
 
         List<ExplorerInfoNode> IGetExplorerInfo.GetInfoNodes(ExplorerManager resource, FileMetadata file)
         {
@@ -80,7 +81,7 @@ namespace GameEstate.Formats.Valve
                 case DATA.DataType.PanoramaStyle:
                     break;
                 case DATA.DataType.Particle:
-                    nodes.Add(new ExplorerInfoNode(null, new ExplorerContentTab { Type = "Engine", Name = "Particle", Value = (DATAParticleSystem)DATA, Dispose = this }));
+                    nodes.Add(new ExplorerInfoNode(null, new ExplorerContentTab { Type = "Particle", Name = "Particle", Value = (DATAParticleSystem)DATA, Dispose = this }));
                     break;
                 case DATA.DataType.Sound:
                     {
@@ -90,16 +91,16 @@ namespace GameEstate.Formats.Valve
                     }
                     break;
                 case DATA.DataType.World:
-                    nodes.Add(new ExplorerInfoNode(null, new ExplorerContentTab { Type = "Engine", Name = "World", Value = (DATAWorld)DATA, Dispose = this }));
+                    nodes.Add(new ExplorerInfoNode(null, new ExplorerContentTab { Type = "World", Name = "World", Value = (DATAWorld)DATA, Dispose = this }));
                     break;
                 case DATA.DataType.WorldNode:
-                    nodes.Add(new ExplorerInfoNode(null, new ExplorerContentTab { Type = "Engine", Name = "World Node", Value = (DATAWorldNode)DATA, Dispose = this }));
+                    nodes.Add(new ExplorerInfoNode(null, new ExplorerContentTab { Type = "World", Name = "World Node", Value = (DATAWorldNode)DATA, Dispose = this }));
                     break;
                 case DATA.DataType.Model:
-                    nodes.Add(new ExplorerInfoNode(null, new ExplorerContentTab { Type = "Engine", Name = "Model", Value = (DATAModel)DATA, Dispose = this }));
+                    nodes.Add(new ExplorerInfoNode(null, new ExplorerContentTab { Type = "Model", Name = "Model", Value = this, Dispose = this }));
                     break;
                 case DATA.DataType.Mesh:
-                    nodes.Add(new ExplorerInfoNode(null, new ExplorerContentTab { Type = "Engine", Name = "Mesh", Value = (DATA, VBIB), Dispose = this }));
+                    nodes.Add(new ExplorerInfoNode(null, new ExplorerContentTab { Type = "Model", Name = "Mesh", Value = this, Dispose = this }));
                     break;
                 case DATA.DataType.Material:
                     nodes.Add(new ExplorerInfoNode(null, new ExplorerContentTab { Type = "Material", Name = "Material", Value = this, Dispose = this }));
@@ -148,7 +149,7 @@ namespace GameEstate.Formats.Valve
         public RERL RERL => GetBlockByType<RERL>();
         public REDI REDI => GetBlockByType<REDI>();
         public NTRO NTRO => GetBlockByType<NTRO>();
-        public VBIB_ VBIB => GetBlockByType<VBIB_>();
+        public VBIB VBIB => GetBlockByType<VBIB>();
         public DATA DATA => GetBlockByType<DATA>();
 
         public T GetBlockByIndex<T>(int index) where T : Block => Blocks[index] as T;

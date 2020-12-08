@@ -136,7 +136,7 @@ namespace GameEstate.Formats.Valve.Blocks.Animation
                 ? ntroArray[0] as IDictionary<string, object>
                 : pDataObject as IDictionary<string, object>;
             var frameBlockArray = pData.GetArray("m_frameblockArray");
-            FrameCount = pData.GetInt("m_nFrames");
+            FrameCount = pData.GetInt64("m_nFrames");
             Frames = new ModelFrame[FrameCount];
 
             // Figure out each frame
@@ -147,8 +147,8 @@ namespace GameEstate.Formats.Valve.Blocks.Animation
                 // Read all frame blocks
                 foreach (var frameBlock in frameBlockArray)
                 {
-                    var startFrame = frameBlock.GetInt("m_nStartFrame");
-                    var endFrame = frameBlock.GetInt("m_nEndFrame");
+                    var startFrame = frameBlock.GetInt64("m_nStartFrame");
+                    var endFrame = frameBlock.GetInt64("m_nEndFrame");
                     // Only consider blocks that actual contain info for this frame
                     if (frame >= startFrame && frame <= endFrame)
                     {
@@ -172,7 +172,7 @@ namespace GameEstate.Formats.Valve.Blocks.Animation
             frame = frame < 0 ? 0 : frame;
             frame = frame >= FrameCount ? FrameCount - 1 : frame;
 
-            var localChannel = segment.GetInt("m_nLocalChannel");
+            var localChannel = segment.GetInt64("m_nLocalChannel");
             var dataChannel = decodeKey.GetArray("m_dataChannelArray")[localChannel];
             var boneNames = dataChannel.Get<string[]>("m_szElementNameArray");
 

@@ -19,6 +19,7 @@ namespace GameEstate
         public readonly Estate Estate;
         public readonly string Game;
         public readonly string Name;
+        public readonly IDictionary<Type, Func<string, string>> PathFinders = new Dictionary<Type, Func<string, string>>();
 
         /// <summary>
         /// Initializes a new instance of the <see cref="EstatePakFile" /> class.
@@ -47,35 +48,41 @@ namespace GameEstate
         /// <summary>
         /// Determines whether this instance contains the object.
         /// </summary>
-        /// <param name="filePath">The file path.</param>
+        /// <param name="path">The file path.</param>
         /// <returns>
         ///   <c>true</c> if [contains] [the specified file path]; otherwise, <c>false</c>.
         /// </returns>
-        public abstract bool Contains(string filePath);
+        public abstract bool Contains(string path);
 
         /// <summary>
         /// Finds the texture.
         /// </summary>
-        /// <param name="texturePath">The texture path.</param>
+        /// <param name="path">The texture path.</param>
         /// <returns></returns>
-        public virtual string FindTexture(string texturePath) => Contains(texturePath) ? texturePath : null;
+        public string FindPath<T>(string path)
+        {
+            if (PathFinders.Count != 1)
+                return PathFinders.TryGetValue(typeof(T), out var pathFinder) ? pathFinder(path) : path;
+            var first = PathFinders.First();
+            return first.Key == typeof(T) || first.Key == typeof(object) ? first.Value(path) : path;
+        }
 
         /// <summary>
         /// Loads the file data asynchronous.
         /// </summary>
-        /// <param name="filePath">The file path.</param>
+        /// <param name="path">The file path.</param>
         /// <param name="exception">The exception.</param>
         /// <returns></returns>
-        public abstract Task<Stream> LoadFileDataAsync(string filePath, Action<FileMetadata, string> exception = null);
+        public abstract Task<Stream> LoadFileDataAsync(string path, Action<FileMetadata, string> exception = null);
 
         /// <summary>
         /// Loads the object asynchronous.
         /// </summary>
         /// <typeparam name="T"></typeparam>
-        /// <param name="filePath">The file path.</param>
+        /// <param name="path">The file path.</param>
         /// <param name="exception">The exception.</param>
         /// <returns></returns>
-        public abstract Task<T> LoadFileObjectAsync<T>(string filePath, Action<FileMetadata, string> exception = null);
+        public abstract Task<T> LoadFileObjectAsync<T>(string path, Action<FileMetadata, string> exception = null);
 
         /// <summary>
         /// Gets the graphic.

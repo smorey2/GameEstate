@@ -15,8 +15,8 @@ namespace GameEstate.Graphics.ParticleSystem.Initializers
 
         public RandomSequence(IDictionary<string, object> keyValues)
         {
-            _sequenceMin = (int)keyValues.GetInt("m_nSequenceMin");
-            _sequenceMax = (int)keyValues.GetInt("m_nSequenceMax");
+            _sequenceMin = (int)keyValues.GetInt64("m_nSequenceMin");
+            _sequenceMax = (int)keyValues.GetInt64("m_nSequenceMax");
             _shuffle = keyValues.Get<bool>("m_bShuffle");
         }
 

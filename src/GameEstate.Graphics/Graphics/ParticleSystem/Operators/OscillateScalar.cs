@@ -18,7 +18,7 @@ namespace GameEstate.Graphics.ParticleSystem.Operators
 
         public OscillateScalar(IDictionary<string, object> keyValues)
         {
-            _outputField = (ParticleField)keyValues.GetInt("m_nField", (int)ParticleField.Alpha);
+            _outputField = (ParticleField)keyValues.GetInt64("m_nField", (int)ParticleField.Alpha);
             _rateMin = keyValues.GetFloat("m_RateMin");
             _rateMax = keyValues.GetFloat("m_RateMax");
             _frequencyMin = keyValues.GetFloat("m_FrequencyMin", 1f);

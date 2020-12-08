@@ -14,9 +14,9 @@ namespace GameEstate.Graphics.ParticleSystem.Initializers
 
         public RemapParticleCountToScalar(IDictionary<string, object> keyValues)
         {
-            _fieldOutput = keyValues.GetInt("m_nFieldOutput", 3);
-            _inputMin = keyValues.GetInt("m_nInputMin");
-            _inputMax = keyValues.GetInt("m_nInputMax", 10);
+            _fieldOutput = keyValues.GetInt64("m_nFieldOutput", 3);
+            _inputMin = keyValues.GetInt64("m_nInputMin");
+            _inputMax = keyValues.GetInt64("m_nInputMax", 10);
             _outputMin = keyValues.GetFloat("m_flOutputMin");
             _outputMax = keyValues.GetFloat("m_flOutputMax", 1f);
             _scaleInitialRange = keyValues.Get<bool>("m_bScaleInitialRange");

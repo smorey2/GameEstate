@@ -58,7 +58,6 @@ namespace GameEstate.Graphics.OpenGL
             switch (Info)
             {
                 case IParamMaterialInfo p:
-
                     foreach (var param in p.FloatParams)
                     {
                         uniformLocation = Shader.GetUniformLocation(param.Key);

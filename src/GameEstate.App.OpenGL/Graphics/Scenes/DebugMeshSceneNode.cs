@@ -3,13 +3,13 @@ using GameEstate.Graphics.OpenGL;
 using System.Collections.Generic;
 using System.Numerics;
 
-namespace GameEstate.Graphics
+namespace GameEstate.Graphics.Scenes
 {
-    public class MeshSceneNode : SceneNode, IMeshCollection
+    public class DebugMeshSceneNode : SceneNode, IMeshCollection
     {
         GLMesh _mesh;
 
-        public MeshSceneNode(Scene scene, DATAMesh mesh, Dictionary<string, string> skinMaterials = null)
+        public DebugMeshSceneNode(Scene scene, IMeshInfo mesh, IDictionary<string, string> skinMaterials = null)
             : base(scene)
         {
             _mesh = new GLMesh(Scene.Graphic as IOpenGLGraphic, mesh, skinMaterials);

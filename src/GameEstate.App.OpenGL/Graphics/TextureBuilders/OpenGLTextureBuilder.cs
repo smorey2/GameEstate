@@ -54,6 +54,7 @@ namespace GameEstate.Graphics.TextureBuilders
             switch (info.GLFormat)
             {
                 case TextureGLFormat.DXT1: format = InternalFormat.CompressedRgbaS3tcDxt1Ext; break;
+                //case TextureGLFormat.DXT3: format = InternalFormat.CompressedRgbaS3tcDxt3Ext; break;
                 case TextureGLFormat.DXT5: format = InternalFormat.CompressedRgbaS3tcDxt5Ext; break;
                 case TextureGLFormat.ETC2: format = InternalFormat.CompressedRgb8Etc2; break;
                 case TextureGLFormat.ETC2_EAC: format = InternalFormat.CompressedRgba8Etc2Eac; break;

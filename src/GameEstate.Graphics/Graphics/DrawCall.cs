@@ -5,12 +5,6 @@ namespace GameEstate.Graphics
 {
     public class DrawCall
     {
-        public struct DrawBuffer
-        {
-            public uint Id;
-            public uint Offset;
-        }
-
         public int PrimitiveType { get; set; } //: PrimitiveType
         public Shader Shader { get; set; }
         //public uint BaseVertex { get; set; }
@@ -24,9 +18,9 @@ namespace GameEstate.Graphics
         public Vector3 TintColor { get; set; } = Vector3.One;
         //public object Material { get; set; } //: Material
         public uint VertexArrayObject { get; set; }
-        public DrawBuffer VertexBuffer { get; set; }
+        public (uint Id, uint Offset) VertexBuffer { get; set; }
         public int IndexType { get; set; } //: DrawElementsType
-        public DrawBuffer IndexBuffer { get; set; }
+        public (uint Id, uint Offset) IndexBuffer { get; set; }
 
         public static bool IsCompressedNormalTangent(IDictionary<string, object> drawCall)
         {

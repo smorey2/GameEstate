@@ -14,7 +14,7 @@ namespace GameEstate.Graphics.OpenGL
                 DrawBatch(requests, context);
 
             // Blended: In reverse order
-            if (context.RenderPass == RenderPass.Both || context.RenderPass == RenderPass.Blended)
+            if (context.RenderPass == RenderPass.Both || context.RenderPass == RenderPass.Translucent)
             {
                 var holder = new MeshBatchRequest[1]; // Holds the one request we render at a time
 

@@ -1,11 +1,13 @@
 ﻿using GameEstate.Core;
 using GameEstate.Explorer;
 using GameEstate.Formats._Packages;
+using System;
+using static GameEstate.EstateDebug;
 
 namespace GameEstate.Estates
 {
     /// <summary>
-    /// UOPakFile
+    /// ValvePakFile
     /// </summary>
     /// <seealso cref="GameEstate.Core.BinaryPakFile" />
     public class ValvePakFile : BinaryPakManyFile
@@ -20,7 +22,28 @@ namespace GameEstate.Estates
         public ValvePakFile(Estate estate, string game, string filePath, object tag = null) : base(estate, game, filePath, PakBinaryValve.Instance, tag)
         {
             ExplorerItems = StandardExplorerItem.GetPakFilesAsync;
+            PathFinders.Add(typeof(object), FindBinary);
             Open();
         }
+
+        #region PathFinders
+
+        /// <summary>
+        /// Finds the actual path of a texture.
+        /// </summary>
+        public string FindBinary(string path)
+        {
+            if (Contains(path))
+                return path;
+            if (!path.EndsWith("_c", StringComparison.Ordinal))
+                path = $"{path}_c";
+            if (Contains(path))
+                return path;
+            Log($"Could not find file '{path}' in a PAK file.");
+            return null;
+        }
+
+        #endregion
+
     }
 }

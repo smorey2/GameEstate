@@ -17,7 +17,7 @@ namespace GameEstate.Graphics.ParticleSystem.Initializers
 
         public RandomRotationSpeed(IDictionary<string, object> keyValues)
         {
-            _fieldOutput = (ParticleField)keyValues.GetInt("m_nFieldOutput", (int)ParticleField.Roll);
+            _fieldOutput = (ParticleField)keyValues.GetInt64("m_nFieldOutput", (int)ParticleField.Roll);
             _randomlyFlipDirection = keyValues.Get<bool>("m_bRandomlyFlipDirection", true);
             _degrees = keyValues.GetFloat("m_flDegrees");
             _degreesMin = keyValues.GetFloat("m_flDegreesMin");

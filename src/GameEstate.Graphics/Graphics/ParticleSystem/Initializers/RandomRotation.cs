@@ -21,7 +21,7 @@ namespace GameEstate.Graphics.ParticleSystem.Initializers
             _degreesMax = keyValues.GetFloat("m_flDegreesMax", 360f);
             _degreesOffset = keyValues.GetFloat("m_flDegrees");
 
-            _fieldOutput = keyValues.GetInt("m_nFieldOutput", 4);
+            _fieldOutput = keyValues.GetInt64("m_nFieldOutput", 4);
 
             _randomlyFlipDirection = keyValues.Get<bool>("m_bRandomlyFlipDirection");
         }

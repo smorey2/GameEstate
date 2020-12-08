@@ -12,8 +12,8 @@ namespace GameEstate.Graphics.ParticleSystem.Initializers
 
         public RandomAlpha(IDictionary<string, object> keyValue)
         {
-            _alphaMin = (int)keyValue.GetInt("m_nAlphaMin", 255);
-            _alphaMax = (int)keyValue.GetInt("m_nAlphaMax", 255);
+            _alphaMin = (int)keyValue.GetInt64("m_nAlphaMin", 255);
+            _alphaMax = (int)keyValue.GetInt64("m_nAlphaMax", 255);
 
             if (_alphaMin > _alphaMax)
             {

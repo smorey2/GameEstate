@@ -11,7 +11,7 @@
     <Grid>
         <Grid.Resources>
             <DataTemplate x:Key="Content_Null" DataType="{x:Type model:ExplorerContentTab}">
-                <TextBlock Text="Null" Margin="5,5,5,5" />
+                <TextBlock Text="Null" Margin="5,5,5,5" FontFamily="GenericMonospace" />
             </DataTemplate>
             <DataTemplate x:Key="Content_Hex" DataType="{x:Type model:ExplorerContentTab}">
                 <control:HexEditor Margin="5,5,5,5" />
@@ -23,7 +23,7 @@
             </DataTemplate>
             <DataTemplate x:Key="Content_Text" DataType="{x:Type model:ExplorerContentTab}">
                 <ScrollViewer>
-                    <TextBlock TextWrapping="Wrap" Text="{Binding Path=Value}" Margin="5,5,5,5" FontFamily="GenericMonospace" />
+                    <TextBlock TextWrapping="Wrap" Text="{Binding Path=Value}" Margin="5,5,5,5" FontFamily="Courier New" />
                 </ScrollViewer>
             </DataTemplate>
             <DataTemplate x:Key="Content_DataGrid" DataType="{x:Type model:ExplorerContentTab}">
@@ -43,6 +43,12 @@
             </DataTemplate>
             <DataTemplate x:Key="Content_Texture" DataType="{x:Type model:ExplorerContentTab}">
                 <local:GLTextureViewer Source="{Binding Path=Value}" Graphic="{Binding Path=Graphic, RelativeSource={RelativeSource AncestorType={x:Type local:FileContent}}}" Margin="3,3,3,3" />
+            </DataTemplate>
+            <DataTemplate x:Key="Content_Model" DataType="{x:Type model:ExplorerContentTab}">
+                <local:GLModelViewer Source="{Binding Path=Value}" Graphic="{Binding Path=Graphic, RelativeSource={RelativeSource AncestorType={x:Type local:FileContent}}}" Margin="3,3,3,3" />
+            </DataTemplate>
+            <DataTemplate x:Key="Content_World" DataType="{x:Type model:ExplorerContentTab}">
+                <local:GLModelViewer Source="{Binding Path=Value}" Graphic="{Binding Path=Graphic, RelativeSource={RelativeSource AncestorType={x:Type local:FileContent}}}" Margin="3,3,3,3" />
             </DataTemplate>
         </Grid.Resources>
 
@@ -82,6 +88,12 @@
                                     </DataTrigger>
                                     <DataTrigger Binding="{Binding Path=Type}" Value="Texture">
                                         <Setter Property="ContentTemplate" Value="{StaticResource Content_Texture}" />
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding Path=Type}" Value="Model">
+                                        <Setter Property="ContentTemplate" Value="{StaticResource Content_Model}" />
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding Path=Type}" Value="World">
+                                        <Setter Property="ContentTemplate" Value="{StaticResource Content_World}" />
                                     </DataTrigger>
                                     <DataTrigger Binding="{Binding Path=Value}" Value="{x:Null}">
                                         <Setter Property="ContentTemplate" Value="{StaticResource Content_Null}" />

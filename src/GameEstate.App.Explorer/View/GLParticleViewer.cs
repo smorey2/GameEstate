@@ -49,7 +49,7 @@ namespace GameEstate.Explorer.View
                 return;
             particleGrid = new ParticleGridRenderer(20, 5, null);
 
-            Camera.SetViewportSize((int)Width, (int)Height);
+            Camera.SetViewportSize((int)ActualWidth, (int)ActualHeight); //: HandleResize()
             Camera.SetLocation(new Vector3(200));
             Camera.LookAt(new Vector3(0));
         }

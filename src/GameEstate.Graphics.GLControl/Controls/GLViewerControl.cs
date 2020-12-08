@@ -28,7 +28,7 @@ namespace GameEstate.Graphics.Controls
 
         public GLViewerControl()
         {
-            //if (!IsInDesignMode) ConsoleManager.Show();
+            if (!IsInDesignMode) ConsoleManager.Show();
         }
 
         void OnTimerElapsed(object sender, EventArgs e) => InvalidateVisual();
@@ -107,7 +107,7 @@ namespace GameEstate.Graphics.Controls
         {
         }
 
-        void HandleResize()
+        protected void HandleResize()
         {
             if (ActualWidth <= 0 || ActualHeight <= 0)
                 return;

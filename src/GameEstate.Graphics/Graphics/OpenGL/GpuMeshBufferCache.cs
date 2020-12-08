@@ -67,7 +67,7 @@ namespace GameEstate.Graphics.OpenGL
             }
         }
 
-        static void BindVertexAttrib(VBIB.VertexAttribute attribute, string attributeName, int shaderProgram, int stride)
+        static void BindVertexAttrib(VertexBuffer.VertexAttribute attribute, string attributeName, int shaderProgram, int stride)
         {
             var attributeLocation = GL.GetAttribLocation(shaderProgram, attributeName);
 

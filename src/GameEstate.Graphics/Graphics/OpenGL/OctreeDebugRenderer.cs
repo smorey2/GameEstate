@@ -14,12 +14,12 @@ namespace GameEstate.Graphics.OpenGL
         readonly bool _dynamic;
         int _vertexCount;
 
-        public OctreeDebugRenderer(Octree<T> octree, ShaderLoader shaderLoader, bool dynamic)
+        public OctreeDebugRenderer(Octree<T> octree, IOpenGLGraphic graphic, bool dynamic)
         {
             _octree = octree;
             _dynamic = dynamic;
 
-            _shader = shaderLoader.LoadShader("vrf.grid", new Dictionary<string, bool>());
+            _shader = graphic.LoadShader("vrf.grid");
             GL.UseProgram(_shader.Program);
 
             _vboHandle = GL.GenBuffer();
@@ -97,9 +97,9 @@ namespace GameEstate.Graphics.OpenGL
             GL.BufferData(BufferTarget.ArrayBuffer, vertices.Count * sizeof(float), vertices.ToArray(), _dynamic ? BufferUsageHint.DynamicDraw : BufferUsageHint.StaticDraw);
         }
 
-        public void Render(Camera camera, int renderPass)
+        public void Render(Camera camera, RenderPass renderPass)
         {
-            if (renderPass > 100)
+            if (renderPass == RenderPass.Translucent || renderPass == RenderPass.Both)
             {
                 if (_dynamic)
                     Rebuild();
