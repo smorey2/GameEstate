@@ -100,7 +100,7 @@ namespace GameEstate.Graphics.OpenGL
             GL.UseProgram(drawCall.Shader.Program);
 
             var indexBuffer = objectDrawCall.GetSub("m_indexBuffer");
-            drawCall.IndexBuffer = (indexBuffer.GetUInt32("m_hBuffer"), indexBuffer.GetUInt32("m_nBindOffsetBytes")); ;
+            drawCall.IndexBuffer = (indexBuffer.GetUInt32("m_hBuffer"), indexBuffer.GetUInt32("m_nBindOffsetBytes"));
 
             var indexElementSize = vbib.IndexBuffers[(int)drawCall.IndexBuffer.Id].Size;
             //drawCall.BaseVertex = objectDrawCall.ToUInt32("m_nBaseVertex");

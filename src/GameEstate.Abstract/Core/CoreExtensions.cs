@@ -1,9 +1,11 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Numerics;
+using System.Reflection;
 using System.Text;
 using static GameEstate.EstateDebug;
 
@@ -34,6 +36,18 @@ namespace GameEstate.Core
                     return false;
             return true;
         }
+
+        static readonly MethodInfo Enumerable_CastMethod = typeof(Enumerable).GetMethod("Cast");
+        static readonly MethodInfo Enumerable_ToArrayMethod = typeof(Enumerable).GetMethod("ToArray");
+
+        /// <summary>
+        /// Casts to array.
+        /// </summary>
+        /// <param name="source">The source.</param>
+        /// <param name="type">The type.</param>
+        /// <returns></returns>
+        public static object CastToArray(this IEnumerable source, Type type)
+            => Enumerable_ToArrayMethod.MakeGenericMethod(type).Invoke(null, new[] { Enumerable_CastMethod.MakeGenericMethod(type).Invoke(null, new[] { source }) });
 
         #endregion
 

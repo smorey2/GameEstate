@@ -6,11 +6,11 @@ using System.Runtime.InteropServices;
 namespace GameEstate.Graphics
 {
     /// <summary>
-    /// Color
+    /// GXColor
     /// </summary>
-    /// <seealso cref="System.IEquatable{GameEstate.Graphics.Color}" />
+    /// <seealso cref="System.IEquatable{GameEstate.Graphics.GXColor}" />
     [StructLayout(LayoutKind.Sequential)]
-    public struct Color : IEquatable<Color>
+    public struct GXColor : IEquatable<GXColor>
     {
         /// <summary>
         /// The r
@@ -30,13 +30,13 @@ namespace GameEstate.Graphics
         public float A;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="Color"/> struct.
+        /// Initializes a new instance of the <see cref="GXColor"/> struct.
         /// </summary>
         /// <param name="r">The r.</param>
         /// <param name="g">The g.</param>
         /// <param name="b">The b.</param>
         /// <param name="a">a.</param>
-        public Color(float r, float g, float b, float a = 1f)
+        public GXColor(float r, float g, float b, float a = 1f)
         {
             R = r;
             G = g;
@@ -44,16 +44,16 @@ namespace GameEstate.Graphics
             A = a;
         }
 
-        public static implicit operator Vector4(Color c) => new Vector4(c.R, c.G, c.B, c.A);
-        public static implicit operator Color(Vector4 v) => new Color(v.X, v.Y, v.Z, v.W);
-        public static Color operator +(Color a, Color b) => new Color(a.R + b.R, a.G + b.G, a.B + b.B, a.A + b.A);
-        public static Color operator -(Color a, Color b) => new Color(a.R - b.R, a.G - b.G, a.B - b.B, a.A - b.A);
-        public static Color operator *(Color a, Color b) => new Color(a.R * b.R, a.G * b.G, a.B * b.B, a.A * b.A);
-        public static Color operator *(Color a, float b) => new Color(a.R * b, a.G * b, a.B * b, a.A * b);
-        public static Color operator *(float b, Color a) => new Color(a.R * b, a.G * b, a.B * b, a.A * b);
-        public static Color operator /(Color a, float b) => new Color(a.R / b, a.G / b, a.B / b, a.A / b);
-        public static bool operator ==(Color lhs, Color rhs) => (lhs == rhs);
-        public static bool operator !=(Color lhs, Color rhs) => !(lhs == rhs);
+        public static implicit operator Vector4(GXColor c) => new Vector4(c.R, c.G, c.B, c.A);
+        public static implicit operator GXColor(Vector4 v) => new GXColor(v.X, v.Y, v.Z, v.W);
+        public static GXColor operator +(GXColor a, GXColor b) => new GXColor(a.R + b.R, a.G + b.G, a.B + b.B, a.A + b.A);
+        public static GXColor operator -(GXColor a, GXColor b) => new GXColor(a.R - b.R, a.G - b.G, a.B - b.B, a.A - b.A);
+        public static GXColor operator *(GXColor a, GXColor b) => new GXColor(a.R * b.R, a.G * b.G, a.B * b.B, a.A * b.A);
+        public static GXColor operator *(GXColor a, float b) => new GXColor(a.R * b, a.G * b, a.B * b, a.A * b);
+        public static GXColor operator *(float b, GXColor a) => new GXColor(a.R * b, a.G * b, a.B * b, a.A * b);
+        public static GXColor operator /(GXColor a, float b) => new GXColor(a.R / b, a.G / b, a.B / b, a.A / b);
+        public static bool operator ==(GXColor lhs, GXColor rhs) => (lhs == rhs);
+        public static bool operator !=(GXColor lhs, GXColor rhs) => !(lhs == rhs);
 
         public float this[int index]
         {
@@ -97,34 +97,34 @@ namespace GameEstate.Graphics
         /// </returns>
         public string ToString(string format) => $"RGBA({R.ToString(format)}, {G.ToString(format)}, {B.ToString(format)}, {A.ToString(format)})";
 
-        public override bool Equals(object other) => other is Color color && Equals(color);
-        public bool Equals(Color other) => R.Equals(other.R) && Equals(other.G) && B.Equals(other.B) && A.Equals(other.A);
+        public override bool Equals(object other) => other is GXColor color && Equals(color);
+        public bool Equals(GXColor other) => R.Equals(other.R) && Equals(other.G) && B.Equals(other.B) && A.Equals(other.A);
         public override int GetHashCode() => (R, G, B, A).GetHashCode();
 
-        public static Color Lerp(Color a, Color b, float t)
+        public static GXColor Lerp(GXColor a, GXColor b, float t)
         {
             t = Mathx.Clamp(t);
-            return new Color(a.R + ((b.R - a.R) * t), a.G + ((b.G - a.G) * t), a.B + ((b.B - a.B) * t), a.A + ((b.A - a.A) * t));
+            return new GXColor(a.R + ((b.R - a.R) * t), a.G + ((b.G - a.G) * t), a.B + ((b.B - a.B) * t), a.A + ((b.A - a.A) * t));
         }
 
-        public static Color LerpUnclamped(Color a, Color b, float t) => new Color(a.R + ((b.R - a.R) * t), a.G + ((b.G - a.G) * t), a.B + ((b.B - a.B) * t), a.A + ((b.A - a.A) * t));
+        public static GXColor LerpUnclamped(GXColor a, GXColor b, float t) => new GXColor(a.R + ((b.R - a.R) * t), a.G + ((b.G - a.G) * t), a.B + ((b.B - a.B) * t), a.A + ((b.A - a.A) * t));
 
-        internal Color RGBMultiplied(float multiplier) => new Color(R * multiplier, G * multiplier, B * multiplier, A);
+        internal GXColor RGBMultiplied(float multiplier) => new GXColor(R * multiplier, G * multiplier, B * multiplier, A);
 
-        internal Color AlphaMultiplied(float multiplier) => new Color(R, G, B, A * multiplier);
+        internal GXColor AlphaMultiplied(float multiplier) => new GXColor(R, G, B, A * multiplier);
 
-        internal Color RGBMultiplied(Color multiplier) => new Color(R * multiplier.R, G * multiplier.G, B * multiplier.B, A);
+        internal GXColor RGBMultiplied(GXColor multiplier) => new GXColor(R * multiplier.R, G * multiplier.G, B * multiplier.B, A);
 
-        public static Color Red => new Color(1f, 0f, 0f, 1f);
-        public static Color Green => new Color(0f, 1f, 0f, 1f);
-        public static Color Blue => new Color(0f, 0f, 1f, 1f);
-        public static Color White => new Color(1f, 1f, 1f, 1f);
-        public static Color Black => new Color(0f, 0f, 0f, 1f);
-        public static Color Yellow => new Color(1f, 0.9215686f, 0.01568628f, 1f);
-        public static Color Cyan => new Color(0f, 1f, 1f, 1f);
-        public static Color Magenta => new Color(1f, 0f, 1f, 1f);
-        public static Color Gray => new Color(0.5f, 0.5f, 0.5f, 1f);
-        public static Color Clear => new Color(0f, 0f, 0f, 0f);
+        public static GXColor Red => new GXColor(1f, 0f, 0f, 1f);
+        public static GXColor Green => new GXColor(0f, 1f, 0f, 1f);
+        public static GXColor Blue => new GXColor(0f, 0f, 1f, 1f);
+        public static GXColor White => new GXColor(1f, 1f, 1f, 1f);
+        public static GXColor Black => new GXColor(0f, 0f, 0f, 1f);
+        public static GXColor Yellow => new GXColor(1f, 0.9215686f, 0.01568628f, 1f);
+        public static GXColor Cyan => new GXColor(0f, 1f, 1f, 1f);
+        public static GXColor Magenta => new GXColor(1f, 0f, 1f, 1f);
+        public static GXColor Gray => new GXColor(0.5f, 0.5f, 0.5f, 1f);
+        public static GXColor Clear => new GXColor(0f, 0f, 0f, 0f);
 
         public float Grayscale => (((0.299f * R) + (0.587f * G)) + (0.114f * B));
 
@@ -135,7 +135,7 @@ namespace GameEstate.Graphics
 
         #region HSV
 
-        public static void RGBToHSV(Color rgbColor, out float H, out float S, out float V)
+        public static void RGBToHSV(GXColor rgbColor, out float H, out float S, out float V)
         {
             if (rgbColor.B > rgbColor.G && rgbColor.B > rgbColor.R) RGBToHSVHelper(4f, rgbColor.B, rgbColor.R, rgbColor.G, out H, out S, out V);
             else if (rgbColor.G > rgbColor.R) RGBToHSVHelper(2f, rgbColor.G, rgbColor.B, rgbColor.R, out H, out S, out V);
@@ -162,9 +162,9 @@ namespace GameEstate.Graphics
             }
         }
 
-        public static Color HSVToRGB(float h, float s, float v) => HSVToRGB(h, s, v, true);
+        public static GXColor HSVToRGB(float h, float s, float v) => HSVToRGB(h, s, v, true);
 
-        public static Color HSVToRGB(float h, float s, float v, bool hdr)
+        public static GXColor HSVToRGB(float h, float s, float v, bool hdr)
         {
             var white = White;
             if (s == 0f) { white.R = v; white.G = v; white.B = v; }

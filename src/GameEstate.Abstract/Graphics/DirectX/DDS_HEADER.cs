@@ -285,7 +285,7 @@ namespace GameEstate.Graphics.DirectX
         /// Decodes a DXT1-compressed 4x4 block of texels using a prebuilt 4-color color table.
         /// </summary>
         /// <remarks>See https://msdn.microsoft.com/en-us/library/windows/desktop/bb694531(v=vs.85).aspx#BC1 </remarks>
-        static Color32[] DecodeDXT1TexelBlock(BinaryReader r, Color[] colorTable)
+        static GXColor32[] DecodeDXT1TexelBlock(BinaryReader r, GXColor[] colorTable)
         {
             Assert(colorTable.Length == 4);
             // Read pixel color indices.
@@ -305,7 +305,7 @@ namespace GameEstate.Graphics.DirectX
                 }
             }
             // Calculate pixel colors.
-            var colors = new Color32[16];
+            var colors = new GXColor32[16];
             for (var i = 0; i < 16; i++)
                 colors[i] = colorTable[colorIndices[i]];
             return colors;
@@ -315,21 +315,21 @@ namespace GameEstate.Graphics.DirectX
         /// Builds a 4-color color table for a DXT1-compressed 4x4 block of texels and then decodes the texels.
         /// </summary>
         /// <remarks>See https://msdn.microsoft.com/en-us/library/windows/desktop/bb694531(v=vs.85).aspx#BC1 </remarks>
-        static Color32[] DecodeDXT1TexelBlock(BinaryReader r, bool containsAlpha)
+        static GXColor32[] DecodeDXT1TexelBlock(BinaryReader r, bool containsAlpha)
         {
             // Create the color table.
-            var colorTable = new Color[4];
+            var colorTable = new GXColor[4];
             colorTable[0] = r.ReadUInt16().B565ToColor();
             colorTable[1] = r.ReadUInt16().B565ToColor();
             if (!containsAlpha)
             {
-                colorTable[2] = Color.Lerp(colorTable[0], colorTable[1], 1.0f / 3);
-                colorTable[3] = Color.Lerp(colorTable[0], colorTable[1], 2.0f / 3);
+                colorTable[2] = GXColor.Lerp(colorTable[0], colorTable[1], 1.0f / 3);
+                colorTable[3] = GXColor.Lerp(colorTable[0], colorTable[1], 2.0f / 3);
             }
             else
             {
-                colorTable[2] = Color.Lerp(colorTable[0], colorTable[1], 1.0f / 2);
-                colorTable[3] = new Color(0, 0, 0, 0);
+                colorTable[2] = GXColor.Lerp(colorTable[0], colorTable[1], 1.0f / 2);
+                colorTable[3] = new GXColor(0, 0, 0, 0);
             }
             // Calculate pixel colors.
             return DecodeDXT1TexelBlock(r, colorTable);
@@ -339,7 +339,7 @@ namespace GameEstate.Graphics.DirectX
         /// Decodes a DXT3-compressed 4x4 block of texels.
         /// </summary>
         /// <remarks>See https://msdn.microsoft.com/en-us/library/windows/desktop/bb694531(v=vs.85).aspx#BC2 </remarks>
-        static Color32[] DecodeDXT3TexelBlock(BinaryReader r)
+        static GXColor32[] DecodeDXT3TexelBlock(BinaryReader r)
         {
             // Read compressed pixel alphas.
             var compressedAlphas = new byte[16];
@@ -358,11 +358,11 @@ namespace GameEstate.Graphics.DirectX
                 alphas[i] = (byte)Math.Round(alphaPercent * 255);
             }
             // Create the color table.
-            var colorTable = new Color[4];
+            var colorTable = new GXColor[4];
             colorTable[0] = r.ReadUInt16().B565ToColor();
             colorTable[1] = r.ReadUInt16().B565ToColor();
-            colorTable[2] = Color.Lerp(colorTable[0], colorTable[1], 1.0f / 3);
-            colorTable[3] = Color.Lerp(colorTable[0], colorTable[1], 2.0f / 3);
+            colorTable[2] = GXColor.Lerp(colorTable[0], colorTable[1], 1.0f / 3);
+            colorTable[3] = GXColor.Lerp(colorTable[0], colorTable[1], 2.0f / 3);
             // Calculate pixel colors.
             var colors = DecodeDXT1TexelBlock(r, colorTable);
             for (var i = 0; i < 16; i++)
@@ -374,7 +374,7 @@ namespace GameEstate.Graphics.DirectX
         /// Decodes a DXT5-compressed 4x4 block of texels.
         /// </summary>
         /// <remarks>See https://msdn.microsoft.com/en-us/library/windows/desktop/bb694531(v=vs.85).aspx#BC3 </remarks>
-        static Color32[] DecodeDXT5TexelBlock(BinaryReader r)
+        static GXColor32[] DecodeDXT5TexelBlock(BinaryReader r)
         {
             // Create the alpha table.
             var alphaTable = new float[8];
@@ -417,11 +417,11 @@ namespace GameEstate.Graphics.DirectX
             alphaIndices[14] = (uint)Utils.GetBits(3, bitsPerAlphaIndex, alphaIndexBytesRow1);
             alphaIndices[15] = (uint)Utils.GetBits(0, bitsPerAlphaIndex, alphaIndexBytesRow1);
             // Create the color table.
-            var colorTable = new Color[4];
+            var colorTable = new GXColor[4];
             colorTable[0] = r.ReadUInt16().B565ToColor();
             colorTable[1] = r.ReadUInt16().B565ToColor();
-            colorTable[2] = Color.Lerp(colorTable[0], colorTable[1], 1.0f / 3);
-            colorTable[3] = Color.Lerp(colorTable[0], colorTable[1], 2.0f / 3);
+            colorTable[2] = GXColor.Lerp(colorTable[0], colorTable[1], 1.0f / 3);
+            colorTable[3] = GXColor.Lerp(colorTable[0], colorTable[1], 2.0f / 3);
             // Calculate pixel colors.
             var colors = DecodeDXT1TexelBlock(r, colorTable);
             for (var i = 0; i < 16; i++)
@@ -439,7 +439,7 @@ namespace GameEstate.Graphics.DirectX
         /// <param name="baseColumnIndex">The base column index in the texture where decoded texels are copied.</param>
         /// <param name="textureWidth">The width of the texture.</param>
         /// <param name="textureHeight">The height of the texture.</param>
-        static void CopyDecodedTexelBlock(Color32[] decodedTexels, byte[] argb, int baseARGBIndex, int baseRowIndex, int baseColumnIndex, int textureWidth, int textureHeight)
+        static void CopyDecodedTexelBlock(GXColor32[] decodedTexels, byte[] argb, int baseARGBIndex, int baseRowIndex, int baseColumnIndex, int textureWidth, int textureHeight)
         {
             for (var i = 0; i < 4; i++) // row
                 for (var j = 0; j < 4; j++) // column
@@ -485,7 +485,7 @@ namespace GameEstate.Graphics.DirectX
                         {
                             if (r.Position() == r.BaseStream.Length)
                                 return argb;
-                            Color32[] colors = null;
+                            GXColor32[] colors = null;
                             switch (DXTVersion) // Doing a switch instead of using a delegate for speed.
                             {
                                 case 1: colors = DecodeDXT1TexelBlock(r, containsAlpha); break;

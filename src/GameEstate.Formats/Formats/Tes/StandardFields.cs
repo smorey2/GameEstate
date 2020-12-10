@@ -50,7 +50,7 @@ namespace GameEstate.Formats.Tes
     public struct ColorRef3 { public byte Red; public byte Green; public byte Blue; public override string ToString() => $"{Red}:{Green}:{Blue}"; }
 
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
-    public struct ColorRef4 { public byte Red; public byte Green; public byte Blue; public byte Null; public override string ToString() => $"{Red}:{Green}:{Blue}"; public Color32 ToColor32() => new Color32(Red, Green, Blue, 255); }
+    public struct ColorRef4 { public byte Red; public byte Green; public byte Blue; public byte Null; public override string ToString() => $"{Red}:{Green}:{Blue}"; public GXColor32 ToColor32() => new GXColor32(Red, Green, Blue, 255); }
 
     public static class ReaderExtension
     {

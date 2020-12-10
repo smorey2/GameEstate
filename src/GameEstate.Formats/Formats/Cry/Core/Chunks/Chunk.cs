@@ -71,7 +71,7 @@ namespace GameEstate.Formats.Cry.Core
                     factory = () => Activator.CreateInstance(targetType) as T;
                 _chunkFactoryCache[typeof(T)][version] = factory;
             }
-            return (factory?.Invoke() as T) ?? throw new NotSupportedException($"Version {version:X} of {typeof(T).Name} is not supported"); ;
+            return (factory?.Invoke() as T) ?? throw new NotSupportedException($"Version {version:X} of {typeof(T).Name} is not supported");
         }
 
         public void Load(Model model, ChunkHeader header)

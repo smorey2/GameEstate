@@ -57,7 +57,7 @@ namespace GameEstate.Graphics.ParticleSystem
             ConstantAlpha = 1.0f;
             if (baseProperties.ContainsKey("m_ConstantColor"))
             {
-                var vectorValues = baseProperties.GetIntArray("m_ConstantColor");
+                var vectorValues = baseProperties.GetInt64Array("m_ConstantColor");
                 ConstantColor = new Vector3(vectorValues[0], vectorValues[1], vectorValues[2]) / 255f;
             }
             else ConstantColor = Vector3.One;

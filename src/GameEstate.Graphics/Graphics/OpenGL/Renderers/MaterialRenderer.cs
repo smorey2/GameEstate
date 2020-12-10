@@ -85,10 +85,12 @@ namespace GameEstate.Graphics.OpenGL.Renderers
             var identity = Matrix4.Identity;
 
             uniformLocation = _shader.GetUniformLocation("projection");
-            GL.UniformMatrix4(uniformLocation, false, ref identity);
+            if (uniformLocation > -1)
+                GL.UniformMatrix4(uniformLocation, false, ref identity);
 
             uniformLocation = _shader.GetUniformLocation("modelview");
-            GL.UniformMatrix4(uniformLocation, false, ref identity);
+            if (uniformLocation > -1)
+                GL.UniformMatrix4(uniformLocation, false, ref identity);
 
             _material.Render(_shader);
 

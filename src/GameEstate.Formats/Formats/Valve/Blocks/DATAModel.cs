@@ -13,9 +13,9 @@ namespace GameEstate.Formats.Valve.Blocks
 
         public IEnumerable<string> GetReferencedMeshNames() => Data.Get<string[]>("m_refMeshes").Where(m => m != null);
 
-        public IEnumerable<(string MeshName, long LoDMask)> GetReferenceMeshNamesAndLoD() => GetReferencedMeshNames().Zip(Data.GetIntArray("m_refLODGroupMasks"), (l, r) => (l, r));
+        public IEnumerable<(string MeshName, long LoDMask)> GetReferenceMeshNamesAndLoD() => GetReferencedMeshNames().Zip(Data.GetInt64Array("m_refLODGroupMasks"), (l, r) => (l, r));
 
-        public IEnumerable<(IMeshInfo Mesh, long LoDMask)> GetEmbeddedMeshesAndLoD() => GetEmbeddedMeshes().Zip(Data.GetIntArray("m_refLODGroupMasks"), (l, r) => (l, r));
+        public IEnumerable<(IMeshInfo Mesh, long LoDMask)> GetEmbeddedMeshesAndLoD() => GetEmbeddedMeshes().Zip(Data.GetInt64Array("m_refLODGroupMasks"), (l, r) => (l, r));
 
         public IEnumerable<IMeshInfo> GetEmbeddedMeshes()
         {
@@ -66,7 +66,7 @@ namespace GameEstate.Formats.Valve.Blocks
         public IEnumerable<bool> GetActiveMeshMaskForGroup(string groupName)
         {
             var groupIndex = GetMeshGroups().ToList().IndexOf(groupName);
-            var meshGroupMasks = Data.GetIntArray("m_refMeshGroupMasks");
+            var meshGroupMasks = Data.GetInt64Array("m_refMeshGroupMasks");
             return groupIndex >= 0 ? meshGroupMasks.Select(mask => (mask & 1 << groupIndex) != 0) : meshGroupMasks.Select(_ => false);
         }
     }

@@ -89,23 +89,31 @@ namespace OpenTK
             hwndSource.Dispose();
         }
 
-        internal const int
-         WM_MOUSEHOVER = 0x02A1;
+        const int WM_WINDOWPOSCHANGING = 0x0046;
+        const int WM_NCHITTEST = 0x0084;
 
-        //protected IntPtr WndHook(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled)
-        //{
-        //    if ((msg & WM_MOUSEHOVER) == WM_MOUSEHOVER)
-        //    {
-        //        Console.WriteLine($"CHILD {msg}");
-        //    }
-        //    return hwnd;
-        //}
-     
+        bool _mouseEntered;
+        int _changing;
         protected override IntPtr WndProc(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled)
         {
-            if ((msg & WM_MOUSEHOVER) == WM_MOUSEHOVER)
+            switch (msg)
             {
-                Console.WriteLine($"Parent {msg}");
+                case WM_NCHITTEST:
+                    _changing = 5;
+                    if (!_mouseEntered)
+                    {
+                        OnMouseEnter(null);
+                        _mouseEntered = true;
+                    }
+                    break;
+                case WM_WINDOWPOSCHANGING:
+                    if (_mouseEntered && --_changing < 0)
+                    {
+                        OnMouseLeave(null);
+                        _mouseEntered = false;
+                    }
+                    break;
+                    //default: Console.Write($"{msg,5:x}"); break;
             }
             return base.WndProc(hwnd, msg, wParam, lParam, ref handled);
         }
@@ -133,8 +141,8 @@ namespace OpenTK
         /// <seealso cref="Image.StretchProperty" />
         public Stretch Stretch
         {
-            get { return (Stretch)GetValue(StretchProperty); }
-            set { SetValue(StretchProperty, value); }
+            get => (Stretch)GetValue(StretchProperty);
+            set => SetValue(StretchProperty, value);
         }
 
         /// <summary>
@@ -146,15 +154,14 @@ namespace OpenTK
         /// <seealso cref="Viewbox.StretchDirectionProperty" />
         public StretchDirection StretchDirection
         {
-            get { return (StretchDirection)GetValue(StretchDirectionProperty); }
-            set { SetValue(StretchDirectionProperty, value); }
+            get => (StretchDirection)GetValue(StretchDirectionProperty);
+            set => SetValue(StretchDirectionProperty, value);
         }
 
         /// <summary>
         /// DependencyProperty for Stretch property.
         /// </summary>
         /// <seealso cref="Viewbox.Stretch" />
-        //[CommonDependencyProperty]
         public static readonly DependencyProperty StretchProperty = Viewbox.StretchProperty.AddOwner(typeof(GLControl));
 
         /// <summary>

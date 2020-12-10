@@ -45,7 +45,7 @@ namespace GameEstate.Core
         /// <returns>
         ///   <c>true</c> if the specified file path contains file; otherwise, <c>false</c>.
         /// </returns>
-        public override bool Contains(string path) => TryLookupPath(path, out var pak, out var nextPath)
+        public override bool Contains(string path) => TryLookupPath(path ?? throw new ArgumentNullException(nameof(path)), out var pak, out var nextPath)
             ? pak.Contains(nextPath)
             : FilesByPath.Contains(path.Replace('\\', '/'));
 
@@ -59,6 +59,8 @@ namespace GameEstate.Core
         /// <exception cref="InvalidOperationException"></exception>
         public override Task<Stream> LoadFileDataAsync(string path, Action<FileMetadata, string> exception = null)
         {
+            if (path == null)
+                throw new ArgumentNullException(nameof(path));
             if (TryLookupPath(path, out var pak, out var nextFilePath))
                 return pak.LoadFileDataAsync(nextFilePath, exception);
             var files = FilesByPath[path.Replace('\\', '/')].ToArray();
@@ -81,6 +83,8 @@ namespace GameEstate.Core
         /// <exception cref="InvalidOperationException"></exception>
         public override Task<T> LoadFileObjectAsync<T>(string path, Action<FileMetadata, string> exception = null)
         {
+            if (path == null)
+                throw new ArgumentNullException(nameof(path));
             if (TryLookupPath(path, out var pak, out var nextFilePath))
                 return pak.LoadFileObjectAsync<T>(nextFilePath, exception);
             if (PathFinders.Count > 0)
@@ -106,6 +110,8 @@ namespace GameEstate.Core
         /// <param name="message">The message.</param>
         public void AddRawFile(FileMetadata file, string message)
         {
+            if (file == null)
+                throw new ArgumentNullException(nameof(file));
             lock (this)
             {
                 if (FilesRawSet == null)

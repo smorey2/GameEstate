@@ -15,13 +15,13 @@ namespace GameEstate.Graphics.ParticleSystem.Initializers
         {
             if (keyValues.ContainsKey("m_ColorMin"))
             {
-                var vectorValues = keyValues.GetIntArray("m_ColorMin");
+                var vectorValues = keyValues.GetInt64Array("m_ColorMin");
                 _colorMin = new Vector3(vectorValues[0], vectorValues[1], vectorValues[2]) / 255f;
             }
 
             if (keyValues.ContainsKey("m_ColorMax"))
             {
-                var vectorValues = keyValues.GetIntArray("m_ColorMax");
+                var vectorValues = keyValues.GetInt64Array("m_ColorMax");
                 _colorMax = new Vector3(vectorValues[0], vectorValues[1], vectorValues[2]) / 255f;
             }
         }

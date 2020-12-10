@@ -14,7 +14,7 @@ namespace GameEstate.Graphics.ParticleSystem.Operators
         {
             if (keyValues.ContainsKey("m_ColorFade"))
             {
-                var vectorValues = keyValues.GetIntArray("m_ColorFade");
+                var vectorValues = keyValues.GetInt64Array("m_ColorFade");
                 _colorFade = new Vector3(vectorValues[0], vectorValues[1], vectorValues[2]) / 255f;
             }
             else _colorFade = Vector3.One;

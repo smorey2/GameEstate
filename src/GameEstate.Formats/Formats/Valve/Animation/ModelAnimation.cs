@@ -152,7 +152,7 @@ namespace GameEstate.Formats.Valve.Blocks.Animation
                     // Only consider blocks that actual contain info for this frame
                     if (frame >= startFrame && frame <= endFrame)
                     {
-                        var segmentIndexArray = frameBlock.GetIntArray("m_segmentIndexArray");
+                        var segmentIndexArray = frameBlock.GetInt64Array("m_segmentIndexArray");
                         foreach (var segmentIndex in segmentIndexArray)
                         {
                             var segment = segmentArray[segmentIndex];
@@ -182,7 +182,7 @@ namespace GameEstate.Formats.Valve.Blocks.Animation
             var container = segment.Get<byte[]>("m_container");
             using (var containerReader = new BinaryReader(new MemoryStream(container)))
             {
-                var elementIndexArray = dataChannel.GetIntArray("m_nElementIndexArray");
+                var elementIndexArray = dataChannel.GetInt64Array("m_nElementIndexArray");
                 var elementBones = new int[decodeKey.Get<int>("m_nChannelElements")];
                 for (var i = 0; i < elementIndexArray.Length; i++)
                     elementBones[elementIndexArray[i]] = i;

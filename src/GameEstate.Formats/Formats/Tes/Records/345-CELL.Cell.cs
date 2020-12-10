@@ -116,7 +116,7 @@ namespace GameEstate.Formats.Tes.Records
 
         public bool IsInterior => (DATA.Value & 0x01) == 0x01;
         public Int3 GridId; // => new Int3(XCLC.Value.GridX, XCLC.Value.GridY, !IsInterior ? 0 : -1);
-        public Color? AmbientLight => XCLL != null ? (Color?)XCLL.Value.AmbientColor.ToColor32() : null;
+        public GXColor? AmbientLight => XCLL != null ? (GXColor?)XCLL.Value.AmbientColor.ToColor32() : null;
 
         public override bool CreateField(BinaryReader r, TesFormat format, string type, int dataSize)
         {

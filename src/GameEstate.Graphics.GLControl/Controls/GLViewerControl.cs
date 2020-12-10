@@ -1,4 +1,5 @@
-﻿using OpenTK;
+﻿using GameEstate.Graphics.TextureBuilders;
+using OpenTK;
 using OpenTK.Graphics.OpenGL;
 using System;
 using System.Collections.Generic;
@@ -33,7 +34,7 @@ namespace GameEstate.Graphics.Controls
 
         void OnTimerElapsed(object sender, EventArgs e) => InvalidateVisual();
 
-        void SetFps(double fps) => Console.WriteLine($"FPS: {Math.Round(fps)}");
+        //void SetFps(double fps) => Console.WriteLine($"FPS: {Math.Round(fps)}");
 
         public DebugCamera Camera { get; } = new DebugCamera();
 
@@ -45,9 +46,11 @@ namespace GameEstate.Graphics.Controls
             HandleResize();
         }
 
-        protected override void OnMouseEnter(MouseEventArgs e) { Console.WriteLine("Enter"); Camera.MouseOverRenderArea = true; }
+        public void RecalculatePositions() { }
 
-        protected override void OnMouseLeave(MouseEventArgs e) { Console.WriteLine("Leave"); Camera.MouseOverRenderArea = false; }
+        protected override void OnMouseEnter(MouseEventArgs e) => Camera.MouseOverRenderArea = true;
+
+        protected override void OnMouseLeave(MouseEventArgs e) => Camera.MouseOverRenderArea = false;
 
         protected override void AttachHandle(HandleRef hwnd)
         {
@@ -78,7 +81,11 @@ namespace GameEstate.Graphics.Controls
             base.DestroyHandle(hwnd);
         }
 
-        protected override void OnRender(DrawingContext drawingContext) { if (HasValidContext) Draw(); else base.OnRender(drawingContext); }
+        protected override void OnRender(DrawingContext drawingContext)
+        {
+            if (HasValidContext) Draw();
+            else base.OnRender(drawingContext);
+        }
 
         void Draw()
         {
@@ -101,23 +108,16 @@ namespace GameEstate.Graphics.Controls
             SwapBuffers();
         }
 
-        protected override void OnRenderSizeChanged(SizeChangedInfo sizeInfo) { if (HasValidContext) { HandleResize(); Draw(); } }
-
-        public void RecalculatePositions()
+        protected override void OnRenderSizeChanged(SizeChangedInfo sizeInfo)
         {
+            if (!HasValidContext)
+                return;
+            HandleResize();
+            Draw();
         }
 
         protected void HandleResize()
         {
-            if (ActualWidth <= 0 || ActualHeight <= 0)
-                return;
-
-            //GL.Viewport(0, 0, (int)ActualWidth, (int)ActualHeight);
-            //var aspectRatio = (float)ActualWidth / (float)ActualHeight;
-            //var projection = Matrix4.CreatePerspectiveFieldOfView(MathHelper.PiOver4, aspectRatio, 1.0f, 40000.0f); //64f
-            //GL.MatrixMode(MatrixMode.Projection);
-            //GL.LoadMatrix(ref projection);
-
             Camera.SetViewportSize((int)ActualWidth, (int)ActualHeight);
             RecalculatePositions();
         }
@@ -151,6 +151,7 @@ namespace GameEstate.Graphics.Controls
             if (extensions.Contains("GL_EXT_texture_filter_anisotropic"))
             {
                 var maxTextureMaxAnisotropy = GL.GetInteger((GetPName)ExtTextureFilterAnisotropic.MaxTextureMaxAnisotropyExt);
+                AbstractTextureBuilder<int>.MaxTextureMaxAnisotropy = maxTextureMaxAnisotropy;
                 Console.WriteLine($"MaxTextureMaxAnisotropyExt: {maxTextureMaxAnisotropy}");
             }
             else

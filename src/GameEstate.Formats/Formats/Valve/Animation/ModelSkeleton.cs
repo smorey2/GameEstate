@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Numerics;
 
 namespace GameEstate.Formats.Valve.Blocks.Animation
 {
@@ -22,10 +23,10 @@ namespace GameEstate.Formats.Valve.Blocks.Animation
                 Console.WriteLine("No skeleton data found.");
 
             // Get the remap table and invert it for our construction method
-            var remapTable = modelData.GetIntArray("m_remappingTable");
+            var remapTable = modelData.GetInt64Array("m_remappingTable");
             var start = 0;
             var end = remapTable.Length;
-            var remapTableStarts = modelData.GetIntArray("m_remappingTableStarts");
+            var remapTableStarts = modelData.GetInt64Array("m_remappingTableStarts");
 
             // we only use lod 1
             if (remapTableStarts.Length > 1)
@@ -51,10 +52,10 @@ namespace GameEstate.Formats.Valve.Blocks.Animation
         void ConstructFromNTRO(IDictionary<string, object> skeletonData, ILookup<long, int> remapTable)
         {
             var boneNames = skeletonData.Get<string[]>("m_boneName");
-            var boneParents = skeletonData.GetIntArray("m_nParent");
-            var boneFlags = skeletonData.GetIntArray("m_nFlag");
-            var bonePositions = skeletonData.GetArray("m_bonePosParent", v => v.ToVector3());
-            var boneRotations = skeletonData.GetArray("m_boneRotParent", v => v.ToQuaternion());
+            var boneParents = skeletonData.GetInt64Array("m_nParent");
+            var boneFlags = skeletonData.GetInt64Array("m_nFlag");
+            var bonePositions = skeletonData.Get<Vector3[]>("m_bonePosParent");
+            var boneRotations = skeletonData.Get<Quaternion[]>("m_boneRotParent");
 
             // Initialise bone array
             Bones = new ModelBone[boneNames.Length];

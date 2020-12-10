@@ -5,8 +5,6 @@ namespace GameEstate.Graphics.TextureBuilders
 {
     public class OpenGLTextureBuilder : AbstractTextureBuilder<int>
     {
-        public static int MaxTextureMaxAnisotropy { get; set; }
-
         public void Release()
         {
             if (_defaultTexture != 0)
