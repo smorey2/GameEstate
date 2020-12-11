@@ -1,6 +1,8 @@
+using GameEstate.Core;
 using GameEstate.Graphics;
 using GameEstate.Graphics.Controls;
 using GameEstate.Graphics.OpenGL.Renderers;
+using GameEstate.Graphics.ParticleSystem;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Numerics;
@@ -37,7 +39,7 @@ namespace GameEstate.Explorer.View
             new PropertyMetadata((d, e) => (d as GLParticleViewer).OnProperty()));
         public object Source
         {
-            get => GetValue(SourceProperty) as object;
+            get => GetValue(SourceProperty);
             set => SetValue(SourceProperty, value);
         }
 
@@ -47,11 +49,19 @@ namespace GameEstate.Explorer.View
         {
             if (Graphic == null || Source == null)
                 return;
-            particleGrid = new ParticleGridRenderer(20, 5, null);
+            var graphic = Graphic as IOpenGLGraphic;
+            var source = Source is IParticleSystemInfo z ? z
+                : Source is IRedirected<IParticleSystemInfo> y ? y.Value
+                : null;
+            if (source == null)
+                return;
 
-            Camera.SetViewportSize((int)ActualWidth, (int)ActualHeight); //: HandleResize()
+            particleGrid = new ParticleGridRenderer(20, 5, graphic);
+            Camera.SetViewportSize((int)ActualWidth, (int)ActualHeight);
             Camera.SetLocation(new Vector3(200));
             Camera.LookAt(new Vector3(0));
+
+            Renderers.Add(new ParticleRenderer(graphic, source));
         }
 
         void OnPaint(object sender, RenderEventArgs e)

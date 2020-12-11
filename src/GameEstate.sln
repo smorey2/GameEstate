@@ -31,6 +31,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GameEstate.App.OpenGL", "Ga
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GameEstate.App.Unreal", "GameEstate.App.Unreal\GameEstate.App.Unreal.csproj", "{9119282F-1BDD-4C59-84A8-5AA13EEC0D52}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GameEstate.Resources", "GameEstate.Resources\GameEstate.Resources.csproj", "{3F5074EC-8088-4AB6-A926-BF7387D6C4F5}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GameEstate.Formats.Red", "GameEstate.Formats.Red\GameEstate.Formats.Red.csproj", "{6A6EF16C-804C-4AE7-B280-2D8662CBF380}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -143,6 +147,22 @@ Global
 		{9119282F-1BDD-4C59-84A8-5AA13EEC0D52}.Release|Any CPU.Build.0 = Release|Any CPU
 		{9119282F-1BDD-4C59-84A8-5AA13EEC0D52}.Release|x64.ActiveCfg = Release|Any CPU
 		{9119282F-1BDD-4C59-84A8-5AA13EEC0D52}.Release|x64.Build.0 = Release|Any CPU
+		{3F5074EC-8088-4AB6-A926-BF7387D6C4F5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3F5074EC-8088-4AB6-A926-BF7387D6C4F5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3F5074EC-8088-4AB6-A926-BF7387D6C4F5}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{3F5074EC-8088-4AB6-A926-BF7387D6C4F5}.Debug|x64.Build.0 = Debug|Any CPU
+		{3F5074EC-8088-4AB6-A926-BF7387D6C4F5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3F5074EC-8088-4AB6-A926-BF7387D6C4F5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3F5074EC-8088-4AB6-A926-BF7387D6C4F5}.Release|x64.ActiveCfg = Release|Any CPU
+		{3F5074EC-8088-4AB6-A926-BF7387D6C4F5}.Release|x64.Build.0 = Release|Any CPU
+		{6A6EF16C-804C-4AE7-B280-2D8662CBF380}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6A6EF16C-804C-4AE7-B280-2D8662CBF380}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6A6EF16C-804C-4AE7-B280-2D8662CBF380}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{6A6EF16C-804C-4AE7-B280-2D8662CBF380}.Debug|x64.Build.0 = Debug|Any CPU
+		{6A6EF16C-804C-4AE7-B280-2D8662CBF380}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6A6EF16C-804C-4AE7-B280-2D8662CBF380}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6A6EF16C-804C-4AE7-B280-2D8662CBF380}.Release|x64.ActiveCfg = Release|Any CPU
+		{6A6EF16C-804C-4AE7-B280-2D8662CBF380}.Release|x64.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

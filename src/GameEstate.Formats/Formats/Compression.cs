@@ -5,6 +5,7 @@ using ICSharpCode.SharpZipLib.Zip.Compression.Streams;
 using K4os.Compression.LZ4;
 using System;
 using System.IO;
+using System.Linq;
 
 namespace GameEstate.Formats
 {
@@ -56,6 +57,22 @@ namespace GameEstate.Formats
         {
             var fileData = r.ReadBytes(length);
             return Lzf.Decompress(fileData, buffer);
+        }
+
+        public static byte[] DecompressOodleLZ(this BinaryReader r, int length, int newLength)
+        {
+            var oodleCompression = r.ReadBytes(4);
+            if (!(oodleCompression.SequenceEqual(new byte[] { 0x4b, 0x41, 0x52, 0x4b })))
+                throw new NotImplementedException();
+            var size = r.ReadUInt32();
+            if (size != newLength)
+                throw new FileFormatException();
+            var fileData = r.ReadBytes(length - 8);
+            var newFileData = new byte[newLength];
+            var unpackedSize = OodleLZ.Decompress(fileData, newFileData);
+            if (unpackedSize != newLength)
+                throw new FileFormatException($"Unpacked size does not match real size. {unpackedSize} vs {newLength}");
+            return newFileData;
         }
 
         //public static byte[] DecompressLzm(this BinaryReader r, int length, int newLength)

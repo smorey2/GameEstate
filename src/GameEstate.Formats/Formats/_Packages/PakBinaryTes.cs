@@ -1,12 +1,8 @@
 ﻿using GameEstate.Core;
 using GameEstate.Formats.All;
 using GameEstate.Formats.Tes;
-using GameEstate.Graphics;
 using GameEstate.Graphics.DirectX;
-using ICSharpCode.SharpZipLib.Lzw;
-using ICSharpCode.SharpZipLib.Zip.Compression.Streams;
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;

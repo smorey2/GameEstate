@@ -19,10 +19,16 @@
   "fileManager": {
     "registry": {
       "NWN": {
-        "key": "GOG.com/Games/1207658890"
+        "key": [
+          "GOG.com/Games/1207658890",
+          "BioWare/NWN/Neverwinter"
+        ]
       },
       "NWN2": {
-        "key": "GOG.com/Games/1207659162",
+        "key": [
+          "GOG.com/Games/1207659162",
+          "Obsidian/NWN 2/Neverwinter"
+        ],
         "assets": "Data"
       },
       "Kotor": {

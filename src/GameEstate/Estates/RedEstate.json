@@ -26,8 +26,12 @@
       "pak0": "game:/content0/bundles/xml.bundle#Witcher3",
       "pak1": "game:/content0/ar.w3strings#Witcher3"
     },
-    "Cyberpunk2077": {
-      "name": "Cyberpunk 2077"
+    "CP77": {
+      "name": "Cyberpunk 2077",
+      "pak": "game:/basegame_2_mainmenu.archive#CP77",
+      "pak1": "game:/lang_en_text.archive#CP77"
+      //"pak": "game:/lang_en_voice.archive#CP77"
+      //"pak": "game:/*.archive#CP77"
     }
   },
   "fileManager": {
@@ -47,6 +51,10 @@
           "GOG.com/Games/1495134320"
         ],
         "assets": "content"
+      },
+      "CP77": {
+        "key": "Microsoft/Windows/CurrentVersion/Uninstall/Steam App 1091500",
+        "assets": "archive/pc/content"
       }
     }
   }

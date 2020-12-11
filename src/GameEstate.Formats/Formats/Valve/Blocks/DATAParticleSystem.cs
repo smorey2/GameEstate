@@ -1,9 +1,10 @@
+using GameEstate.Graphics.ParticleSystem;
 using System.Collections.Generic;
 using System.Linq;
 
 namespace GameEstate.Formats.Valve.Blocks
 {
-    public class DATAParticleSystem : DATABinaryKV3OrNTRO
+    public class DATAParticleSystem : DATABinaryKV3OrNTRO, IParticleSystemInfo
     {
         public IEnumerable<IDictionary<string, object>> Renderers => Data.GetArray("m_Renderers") ?? Enumerable.Empty<IDictionary<string, object>>();
 

@@ -41,7 +41,7 @@ namespace GameEstate.Graphics.OpenGL.Renderers
         ParticleSystemRenderState _systemRenderState;
 
         // TODO: Passing in position here was for testing, do it properly
-        public ParticleRenderer(IOpenGLGraphic graphic, IParticleSystem particleSystem, Vector3 pos = default)
+        public ParticleRenderer(IOpenGLGraphic graphic, IParticleSystemInfo particleSystem, Vector3 pos = default)
         {
             _graphic = graphic;
             _childParticleRenderers = new List<ParticleRenderer>();
@@ -239,10 +239,8 @@ namespace GameEstate.Graphics.OpenGL.Renderers
         {
             foreach (var childName in childNames)
             {
-                //var childResource = _context.LoadFileByAnyMeansNecessary(childName);
-                //var childSystem = (IParticleSystem)childResource.DataBlock;
-
-                //_childParticleRenderers.Add(new ParticleRenderer(childSystem, _context, _systemRenderState.GetControlPoint(0)));
+                var childSystem = _graphic.Source.LoadFileObjectAsync<IParticleSystemInfo>(childName).Result;
+                _childParticleRenderers.Add(new ParticleRenderer(_graphic as IOpenGLGraphic, childSystem, _systemRenderState.GetControlPoint(0)));
             }
         }
     }

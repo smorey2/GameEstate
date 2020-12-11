@@ -17,7 +17,7 @@ namespace GameEstate.Graphics.MaterialBuilders
             : base(textureManager)
         {
             _standardMaterial = new Material(Shader.Find("Standard"));
-            _standardCutoutMaterial = Resources.Load<Material>("Materials/StandardCutout");
+            _standardCutoutMaterial = UnityEngine.Resources.Load<Material>("Materials/StandardCutout");
             _defaultMaterial = BuildMaterial();
         }
 

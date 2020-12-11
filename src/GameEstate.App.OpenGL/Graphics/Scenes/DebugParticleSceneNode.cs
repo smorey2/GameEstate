@@ -9,16 +9,16 @@ namespace GameEstate.Graphics.Scenes
 {
     public class DebugParticleSceneNode : SceneNode
     {
-        class ParticleSystemWrapper : IParticleSystem
+        class ParticleSystemWrapper : IParticleSystemInfo
         {
             readonly DATAParticleSystem _source;
             public ParticleSystemWrapper(DATAParticleSystem source) => _source = source;
-            IDictionary<string, object> IParticleSystem.Data => _source.Data;
-            IEnumerable<IDictionary<string, object>> IParticleSystem.Renderers => _source.Renderers;
-            IEnumerable<IDictionary<string, object>> IParticleSystem.Operators => _source.Operators;
-            IEnumerable<IDictionary<string, object>> IParticleSystem.Initializers => _source.Initializers;
-            IEnumerable<IDictionary<string, object>> IParticleSystem.Emitters => _source.Emitters;
-            IEnumerable<string> IParticleSystem.GetChildParticleNames(bool enabledOnly) => _source.GetChildParticleNames(enabledOnly);
+            IDictionary<string, object> IParticleSystemInfo.Data => _source.Data;
+            IEnumerable<IDictionary<string, object>> IParticleSystemInfo.Renderers => _source.Renderers;
+            IEnumerable<IDictionary<string, object>> IParticleSystemInfo.Operators => _source.Operators;
+            IEnumerable<IDictionary<string, object>> IParticleSystemInfo.Initializers => _source.Initializers;
+            IEnumerable<IDictionary<string, object>> IParticleSystemInfo.Emitters => _source.Emitters;
+            IEnumerable<string> IParticleSystemInfo.GetChildParticleNames(bool enabledOnly) => _source.GetChildParticleNames(enabledOnly);
         }
 
         ParticleRenderer _particleRenderer;

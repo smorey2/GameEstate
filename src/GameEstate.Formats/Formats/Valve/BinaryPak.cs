@@ -4,6 +4,7 @@ using GameEstate.Explorer.ViewModel;
 using GameEstate.Formats._Packages;
 using GameEstate.Formats.Valve.Blocks;
 using GameEstate.Graphics;
+using GameEstate.Graphics.ParticleSystem;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -12,7 +13,7 @@ using System.Text;
 
 namespace GameEstate.Formats.Valve
 {
-    public class BinaryPak : IDisposable, IGetExplorerInfo, IRedirected<ITextureInfo>, IRedirected<IMaterialInfo>, IRedirected<IMeshInfo>, IRedirected<IModelInfo>
+    public class BinaryPak : IDisposable, IGetExplorerInfo, IRedirected<ITextureInfo>, IRedirected<IMaterialInfo>, IRedirected<IMeshInfo>, IRedirected<IModelInfo>, IRedirected<IParticleSystemInfo>
     {
         public const ushort KnownHeaderVersion = 12;
 
@@ -29,6 +30,7 @@ namespace GameEstate.Formats.Valve
         IMaterialInfo IRedirected<IMaterialInfo>.Value => DATA as IMaterialInfo;
         IMeshInfo IRedirected<IMeshInfo>.Value => DataType == DATA.DataType.Mesh ? new DATAMesh(this) as IMeshInfo : null;
         IModelInfo IRedirected<IModelInfo>.Value => DATA as IModelInfo;
+        IParticleSystemInfo IRedirected<IParticleSystemInfo>.Value => DATA as IParticleSystemInfo;
 
         List<ExplorerInfoNode> IGetExplorerInfo.GetInfoNodes(ExplorerManager resource, FileMetadata file)
         {
@@ -81,7 +83,7 @@ namespace GameEstate.Formats.Valve
                 case DATA.DataType.PanoramaStyle:
                     break;
                 case DATA.DataType.Particle:
-                    nodes.Add(new ExplorerInfoNode(null, new ExplorerContentTab { Type = "Particle", Name = "Particle", Value = (DATAParticleSystem)DATA, Dispose = this }));
+                    nodes.Add(new ExplorerInfoNode(null, new ExplorerContentTab { Type = "Particle", Name = "Particle", Value = this, Dispose = this }));
                     break;
                 case DATA.DataType.Sound:
                     {
