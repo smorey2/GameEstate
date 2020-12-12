@@ -92,9 +92,9 @@ namespace GameEstate.Formats._Packages
             for (var i = 0; i < numFiles; i++)
             {
                 var id = Utility.Reverse(r.ReadUInt32());
-                var tag1 = r.ReadL32ASCII();
-                var tag2 = r.ReadL32ASCII();
-                var path = r.ReadL32ASCII().Replace('\\', '/');
+                var tag1 = r.ReadL32String();
+                var tag2 = r.ReadL32String();
+                var path = r.ReadL32String().Replace('\\', '/');
                 var position = Utility.Reverse(r.ReadUInt64());
                 var fileSize = Utility.Reverse(r.ReadUInt32());
                 var packedSize = Utility.Reverse(r.ReadUInt32());

@@ -546,7 +546,7 @@ namespace GameEstate.Formats._Packages
                         {
                             string path;
                             if (decryptKey == null)
-                                path = r.ReadL16ASCII(true);
+                                path = r.ReadL16String(true);
                             else
                             {
                                 var pathBytes = r.ReadBytes(r.ReadUInt16());

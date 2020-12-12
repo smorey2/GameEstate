@@ -57,7 +57,7 @@ namespace GameEstate.Formats.Tes
         {
             if (typeof(T) == typeof(float)) { return (T)(object)r.ReadSingle(); }
             else if (typeof(T) == typeof(byte)) { return (T)(object)r.ReadByte(); }
-            else if (typeof(T) == typeof(string)) { return (T)(object)r.ReadL32ASCII(); }
+            else if (typeof(T) == typeof(string)) { return (T)(object)r.ReadL32String(); }
             else if (typeof(T) == typeof(Vector3)) { return (T)(object)r.ReadVector3(); }
             else if (typeof(T) == typeof(Quaternion)) { return (T)(object)r.ReadQuaternionWFirst(); }
             else if (typeof(T) == typeof(Color4)) { var color = new Color4(); color.Deserialize(r); return (T)(object)color; }
@@ -603,7 +603,7 @@ namespace GameEstate.Formats.Tes
         public override void Deserialize(BinaryReader r)
         {
             base.Deserialize(r);
-            Name = r.ReadL32ASCII();
+            Name = r.ReadL32String();
             ExtraData = NiReaderUtils.ReadRef<NiExtraData>(r);
             Controller = NiReaderUtils.ReadRef<NiTimeController>(r);
         }
@@ -1086,7 +1086,7 @@ namespace GameEstate.Formats.Tes
         {
             base.Deserialize(reader);
             BytesRemaining = reader.ReadUInt32();
-            Str = reader.ReadL32ASCII();
+            Str = reader.ReadL32String();
         }
     }
 
@@ -1523,7 +1523,7 @@ namespace GameEstate.Formats.Tes
         {
             base.Deserialize(r);
             UseExternal = r.ReadByte();
-            FileName = r.ReadL32ASCII();
+            FileName = r.ReadL32String();
             PixelLayout = (PixelLayout)r.ReadUInt32();
             UseMipMaps = (MipMapFormat)r.ReadUInt32();
             AlphaFormat = (AlphaFormat)r.ReadUInt32();

@@ -18,7 +18,9 @@ namespace GameEstate.Explorer.View
         static App() => EstatePlatform.Startups.Add(OpenGLPlatform.Startup);
 
         //static string[] args = new string[0];
-        static string[] args = new string[] { "open", "-e", "Red", "-u", "game:/basegame_2_mainmenu.archive#CP77" };
+        //static string[] args = new string[] { "open", "-e", "AC", "-u", "game:/client_cell_1.dat#AC" };
+        static string[] args = new string[] { "open", "-e", "AC", "-u", "game:/client_portal.dat#AC", "-p", "16/0/040010B0.pal" };
+        //static string[] args = new string[] { "open", "-e", "Red", "-u", "game:/basegame_2_mainmenu.archive#CP77" };
         //static string[] args = new string[] { "open", "-e", "Red", "-u", "game:/basegame_1_engine.archive#CP77" };
         //static string[] args = new string[] { "open", "-e", "Red", "-u", "game:/lang_en_text.archive#CP77" };
         //static string[] args = new string[] { "open", "-e", "Valve", "-u", "game:/dota/pak01_dir.vpk#Dota2", "-p", "materials/models/npc_minions/siege1_color_psd_12a9c12b.vtex_c" };

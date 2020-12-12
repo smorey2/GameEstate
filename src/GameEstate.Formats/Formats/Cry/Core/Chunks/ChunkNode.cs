@@ -187,7 +187,7 @@ namespace GameEstate.Formats.Cry.Core
             PosCtrlID = r.ReadInt32();
             RotCtrlID = r.ReadInt32();
             SclCtrlID = r.ReadInt32();
-            Properties = r.ReadPString();
+            Properties = r.ReadL16String(Encoding.Default);
         }
 
         public override void WriteChunk()
