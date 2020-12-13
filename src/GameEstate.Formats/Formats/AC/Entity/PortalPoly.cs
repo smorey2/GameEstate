@@ -12,5 +12,7 @@ namespace GameEstate.Formats.AC.Entity
             PortalIndex = r.ReadInt16();
             PolygonId = r.ReadInt16();
         }
+
+        public override string ToString() => $"PortalIdx: {PortalIndex}, PolygonId: {PolygonId}";
     }
 }

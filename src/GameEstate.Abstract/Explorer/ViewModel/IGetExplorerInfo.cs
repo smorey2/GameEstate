@@ -5,6 +5,6 @@ namespace GameEstate.Explorer.ViewModel
 {
     public interface IGetExplorerInfo
     {
-        List<ExplorerInfoNode> GetInfoNodes(ExplorerManager resource, FileMetadata file);
+        List<ExplorerInfoNode> GetInfoNodes(ExplorerManager resource = null, FileMetadata file = null, object tag = null);
     }
 }

@@ -12,5 +12,7 @@ namespace GameEstate.Formats.AC.Entity
             PartId = r.ReadInt32();
             Frame = new Frame(r);
         }
+        
+        public override string ToString() => $"PartID: {PartId}, Frame: {Frame}";
     }
 }

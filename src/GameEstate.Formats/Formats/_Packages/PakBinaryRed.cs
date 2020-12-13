@@ -474,7 +474,7 @@ namespace GameEstate.Formats._Packages
                         var headerFiles = r.ReadTArray<KEY_HeaderFile>(sizeof(KEY_HeaderFile), (int)header.NumFiles).Select(x =>
                         {
                             r.Position(x.FileNameOffset);
-                            return (file: x, path: r.ReadASCII((int)x.FileNameSize));
+                            return (file: x, path: r.ReadANSI((int)x.FileNameSize));
                         }).ToArray();
                         r.Position(header.KeysOffset);
                         var headerKeys = r.ReadTArray<KEY_HeaderKey>(sizeof(KEY_HeaderKey), (int)header.NumKeys).ToDictionary(x => (x.Id, x.ResourceId), x => UnsafeUtils.ReadZASCII(x.Name, 0x10));
@@ -546,7 +546,7 @@ namespace GameEstate.Formats._Packages
                         {
                             string path;
                             if (decryptKey == null)
-                                path = r.ReadL16String(true);
+                                path = r.ReadL16ANSI(true);
                             else
                             {
                                 var pathBytes = r.ReadBytes(r.ReadUInt16());
@@ -700,7 +700,7 @@ namespace GameEstate.Formats._Packages
                                 ? r.ReadT<CACHE_CS3W_Header>(sizeof(CACHE_CS3W_Header))
                                 : r.ReadT<CACHE_CS3W_HeaderV1>(sizeof(CACHE_CS3W_HeaderV1)).ToHeader();
                             r.Position((long)header.NameOffset);
-                            var name = r.ReadASCII((int)header.NameSize);
+                            var name = r.ReadANSI((int)header.NameSize);
                         }
                         else
                         {

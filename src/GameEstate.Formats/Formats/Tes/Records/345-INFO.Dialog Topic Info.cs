@@ -79,8 +79,8 @@ namespace GameEstate.Formats.Tes.Records
                 ResponseNumber = r.ReadByte();
                 r.Skip(3); // Unused
             }
-            public void NAM1Field(BinaryReader r, int dataSize) => ResponseText = r.ReadASCII(dataSize, ASCIIFormat.PossiblyNullTerminated);
-            public void NAM2Field(BinaryReader r, int dataSize) => ActorNotes = r.ReadASCII(dataSize, ASCIIFormat.PossiblyNullTerminated);
+            public void NAM1Field(BinaryReader r, int dataSize) => ResponseText = r.ReadANSI(dataSize, ASCIIFormat.PossiblyNullTerminated);
+            public void NAM2Field(BinaryReader r, int dataSize) => ActorNotes = r.ReadANSI(dataSize, ASCIIFormat.PossiblyNullTerminated);
         }
 
         public class TES4Group

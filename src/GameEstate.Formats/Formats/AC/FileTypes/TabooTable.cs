@@ -1,10 +1,15 @@
+using GameEstate.Core;
+using GameEstate.Explorer;
+using GameEstate.Explorer.ViewModel;
+using GameEstate.Formats._Packages;
+using GameEstate.Formats.AC.Entity;
 using System.Collections.Generic;
 using System.IO;
 
 namespace GameEstate.Formats.AC.FileTypes
 {
     [PakFileType(PakFileType.TabooTable)]
-    public class TabooTable : FileType
+    public class TabooTable : AbstractFileType, IGetExplorerInfo
     {
         public const uint FILE_ID = 0x0E00001E;
 
@@ -13,16 +18,26 @@ namespace GameEstate.Formats.AC.FileTypes
         /// In the current dats, this isn't used for anything. All tables share the same values for any given flag.<para />
         /// It's possible the intended use for the flags was to separate words based on the type of offense, ie: racist, sexual, harassment, etc...
         /// </summary>
-        public Dictionary<uint, TabooTableEntry> TabooTableEntries { get; } = new Dictionary<uint, TabooTableEntry>();
+        public readonly Dictionary<uint, TabooTableEntry> TabooTableEntries;
 
-        public override void Read(BinaryReader r)
+        public TabooTable(BinaryReader r)
         {
             Id = r.ReadUInt32();
             // I don't actually know the structure of TabooTableEntries. It could be a Dictionary as I have it defined, or it could be a List where the key is just a variable in TabooTableEntry
             // I was unable to find the unpack code in the client. If someone can point me to it, I can make sure we match what the client is doing. - Mag
             r.ReadByte();
             var length = r.ReadByte();
-            TabooTableEntries.Unpack(r, length);
+            TabooTableEntries = r.ReadTMany<uint, TabooTableEntry>(sizeof(uint), x=> new TabooTableEntry(x), length);
+        }
+
+        List<ExplorerInfoNode> IGetExplorerInfo.GetInfoNodes(ExplorerManager resource, FileMetadata file, object tag)
+        {
+            var nodes = new List<ExplorerInfoNode> {
+                new ExplorerInfoNode($"{nameof(TabooTable)}: {Id:X8}", items: new List<ExplorerInfoNode> {
+                    //new ExplorerInfoNode($"Type: {Type}"),
+                })
+            };
+            return nodes;
         }
 
         /// <summary>

@@ -1,7 +1,10 @@
+using GameEstate.Core;
+using GameEstate.Explorer;
+using GameEstate.Explorer.ViewModel;
+using GameEstate.Formats._Packages;
+using GameEstate.Formats.AC.Entity;
 using System.Collections.Generic;
 using System.IO;
-
-using ACE.DatLoader.Entity;
 
 namespace GameEstate.Formats.AC.FileTypes
 {
@@ -10,15 +13,24 @@ namespace GameEstate.Formats.AC.FileTypes
     /// These are basically pre-fab regions for things like the interior of a dungeon.
     /// </summary>
     [PakFileType(PakFileType.Environment)]
-    public class Environment : FileType
+    public class Environment : AbstractFileType, IGetExplorerInfo
     {
-        public Dictionary<uint, CellStruct> Cells { get; set; } = new Dictionary<uint, CellStruct>();
+        public readonly Dictionary<uint, CellStruct> Cells;
 
-        public override void Read(BinaryReader reader)
+        public Environment(BinaryReader r)
         {
-            Id = reader.ReadUInt32(); // this will match fileId
+            Id = r.ReadUInt32(); // this will match fileId
+            Cells = r.ReadL32Many<uint, CellStruct>(sizeof(uint), x => new CellStruct(x));
+        }
 
-            Cells.Unpack(reader);
+        List<ExplorerInfoNode> IGetExplorerInfo.GetInfoNodes(ExplorerManager resource, FileMetadata file, object tag)
+        {
+            var nodes = new List<ExplorerInfoNode> {
+                new ExplorerInfoNode($"{nameof(Environment)}: {Id:X8}", items: new List<ExplorerInfoNode> {
+                    //new ExplorerInfoNode($"Type: {Type}"),
+                })
+            };
+            return nodes;
         }
     }
 }

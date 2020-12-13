@@ -1,4 +1,10 @@
+using GameEstate.Core;
+using GameEstate.Explorer;
+using GameEstate.Explorer.ViewModel;
+using GameEstate.Formats._Packages;
+using System.Collections.Generic;
 using System.IO;
+using System.Text;
 
 namespace GameEstate.Formats.AC.FileTypes
 {
@@ -7,16 +13,24 @@ namespace GameEstate.Formats.AC.FileTypes
     /// This is called a "String" in the client; It has been renamed to avoid conflicts with the generic "String" class.
     /// </summary>
     [PakFileType(PakFileType.String)]
-    public class LanguageString : FileType
+    public class LanguageString : AbstractFileType, IGetExplorerInfo
     {
         public string CharBuffer;
 
-        public override void Read(BinaryReader reader)
+        public LanguageString(BinaryReader r)
         {
-            Id = reader.ReadUInt32();
-            uint strLen = reader.ReadCompressedUInt32();
-            if (strLen > 0)
-                CharBuffer = reader.ReadPString(strLen);
+            Id = r.ReadUInt32();
+            CharBuffer = r.ReadC32ANSI(Encoding.Default);
+        }
+
+        List<ExplorerInfoNode> IGetExplorerInfo.GetInfoNodes(ExplorerManager resource, FileMetadata file, object tag)
+        {
+            var nodes = new List<ExplorerInfoNode> {
+                new ExplorerInfoNode($"{nameof(LanguageString)}: {Id:X8}", items: new List<ExplorerInfoNode> {
+                    //new ExplorerInfoNode($"Type: {Type}"),
+                })
+            };
+            return nodes;
         }
     }
 }

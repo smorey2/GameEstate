@@ -1,8 +1,12 @@
-using System;
+using GameEstate.Core;
+using GameEstate.Explorer;
+using GameEstate.Explorer.ViewModel;
+using GameEstate.Formats._Packages;
+using GameEstate.Formats.AC.Props;
+using System.Collections.Generic;
 using System.IO;
 using System.Numerics;
 using System.Text;
-using ACE.Entity.Enum;
 
 namespace GameEstate.Formats.AC.FileTypes
 {
@@ -10,128 +14,74 @@ namespace GameEstate.Formats.AC.FileTypes
     /// These are client_portal.dat files starting with 0x32. 
     /// </summary>
     [PakFileType(PakFileType.ParticleEmitter)]
-    public class ParticleEmitterInfo : FileType
+    public class ParticleEmitterInfo : AbstractFileType, IGetExplorerInfo
     {
-        public EmitterType EmitterType { get; private set; }
-        public ParticleType ParticleType { get; private set; }
-        public uint GfxObjId { get; private set; }
-        public uint HwGfxObjId { get; private set; }
-        public double Birthrate { get; private set; }
-        public int MaxParticles { get; private set; }
-        public int InitialParticles { get; private set; }
-        public int TotalParticles { get; private set; }
-        public double TotalSeconds { get; private set; }
-        public double Lifespan { get; private set; }
-        public double LifespanRand { get; private set; }
-        public Vector3 OffsetDir { get; private set; }
-        public float MinOffset { get; private set; }
-        public float MaxOffset { get; private set; }
-        public Vector3 A { get; private set; }
-        public float MinA { get; private set; }
-        public float MaxA { get; private set; }
-        public Vector3 B { get; private set; }
-        public float MinB { get; private set; }
-        public float MaxB { get; private set; }
-        public Vector3 C { get; private set; }
-        public float MinC { get; private set; }
-        public float MaxC { get; private set; }
-        public float StartScale { get; private set; }
-        public float FinalScale { get; private set; }
-        public float ScaleRand { get; private set; }
-        public float StartTrans { get; private set; }
-        public float FinalTrans { get; private set; }
-        public float TransRand { get; private set; }
-        public int IsParentLocal { get; private set; }
+        public readonly uint Unknown;
+        public readonly EmitterType EmitterType;
+        public readonly ParticleType ParticleType;
+        public readonly uint GfxObjId; public readonly uint HwGfxObjId;
+        public readonly double Birthrate;
+        public readonly int MaxParticles; public readonly int InitialParticles; public readonly int TotalParticles;
+        public readonly double TotalSeconds;
+        public readonly double Lifespan; public readonly double LifespanRand;
+        public readonly Vector3 OffsetDir; public readonly float MinOffset; public readonly float MaxOffset;
+        public readonly Vector3 A; public readonly float MinA; public readonly float MaxA;
+        public readonly Vector3 B; public readonly float MinB; public readonly float MaxB;
+        public readonly Vector3 C; public readonly float MinC; public readonly float MaxC;
+        public readonly float StartScale; public readonly float FinalScale; public readonly float ScaleRand;
+        public readonly float StartTrans; public readonly float FinalTrans; public readonly float TransRand;
+        public readonly int IsParentLocal;
 
-        public override void Read(BinaryReader reader)
+        public ParticleEmitterInfo(BinaryReader r)
         {
-            Id = reader.ReadUInt32();
+            Id = r.ReadUInt32();
+            Unknown = r.ReadUInt32();
+            EmitterType = (EmitterType)r.ReadInt32();
+            ParticleType = (ParticleType)r.ReadInt32();
+            GfxObjId = r.ReadUInt32(); HwGfxObjId = r.ReadUInt32();
+            Birthrate = r.ReadDouble();
+            MaxParticles = r.ReadInt32(); InitialParticles = r.ReadInt32(); TotalParticles = r.ReadInt32();
+            TotalSeconds = r.ReadDouble();
+            Lifespan = r.ReadDouble(); LifespanRand = r.ReadDouble();
+            OffsetDir = r.ReadVector3(); MinOffset = r.ReadSingle(); MaxOffset = r.ReadSingle();
+            A = r.ReadVector3(); MinA = r.ReadSingle(); MaxA = r.ReadSingle();
+            B = r.ReadVector3(); MinB = r.ReadSingle(); MaxB = r.ReadSingle();
+            C = r.ReadVector3(); MinC = r.ReadSingle(); MaxC = r.ReadSingle();
+            StartScale = r.ReadSingle(); FinalScale = r.ReadSingle(); ScaleRand = r.ReadSingle();
+            StartTrans = r.ReadSingle(); FinalTrans = r.ReadSingle(); TransRand = r.ReadSingle();
+            IsParentLocal = r.ReadInt32();
+        }
 
-            /*uint unknown = */reader.ReadUInt32();
-
-            EmitterType  =  (EmitterType)reader.ReadInt32();
-            ParticleType = (ParticleType)reader.ReadInt32();
-
-            GfxObjId   = reader.ReadUInt32();
-            HwGfxObjId = reader.ReadUInt32();
-
-            Birthrate   = reader.ReadDouble();
-
-            MaxParticles  = reader.ReadInt32();
-            InitialParticles = reader.ReadInt32();
-
-            TotalParticles = reader.ReadInt32();
-
-            TotalSeconds  = reader.ReadDouble();
-
-            Lifespan     = reader.ReadDouble();
-            LifespanRand = reader.ReadDouble();
-
-            OffsetDir = reader.ReadVector3();      
-            MinOffset = reader.ReadSingle();
-            MaxOffset = reader.ReadSingle(); 
-
-            A = reader.ReadVector3();
-            MinA = reader.ReadSingle();
-            MaxA = reader.ReadSingle();
-
-            B = reader.ReadVector3();
-            MinB = reader.ReadSingle();
-            MaxB = reader.ReadSingle();
-
-            C = reader.ReadVector3();
-            MinC = reader.ReadSingle();
-            MaxC = reader.ReadSingle();
-
-            StartScale = reader.ReadSingle();
-            FinalScale = reader.ReadSingle();
-            ScaleRand  = reader.ReadSingle();
-
-            StartTrans = reader.ReadSingle();
-            FinalTrans = reader.ReadSingle();
-            TransRand  = reader.ReadSingle();
-
-            IsParentLocal = reader.ReadInt32();
+        List<ExplorerInfoNode> IGetExplorerInfo.GetInfoNodes(ExplorerManager resource, FileMetadata file, object tag)
+        {
+            var nodes = new List<ExplorerInfoNode> {
+                new ExplorerInfoNode($"{nameof(ParticleEmitterInfo)}: {Id:X8}", items: new List<ExplorerInfoNode> {
+                    //new ExplorerInfoNode($"Type: {Type}"),
+                })
+            };
+            return nodes;
         }
 
         public override string ToString()
         {
-            var sb = new StringBuilder();
-
-            sb.AppendLine("------------------");
-            sb.AppendLine($"ID: {Id:X8}");
-            sb.AppendLine("EmitterType: " + EmitterType);
-            sb.AppendLine("ParticleType: " + ParticleType);
-            sb.AppendLine($"GfxObjID: {GfxObjId:X8}");
-            sb.AppendLine($"HWGfxObjID: {HwGfxObjId:X8}");
-            sb.AppendLine("Birthrate: " + Birthrate);
-            sb.AppendLine("MaxParticles: " + MaxParticles);
-            sb.AppendLine("InitialParticles: " + InitialParticles);
-            sb.AppendLine("TotalParticles: " + TotalParticles);
-            sb.AppendLine("TotalSeconds: " + TotalSeconds);
-            sb.AppendLine("Lifespan: " + Lifespan);
-            sb.AppendLine("LifespanRand: " + LifespanRand);
-            sb.AppendLine("OffsetDir: " + OffsetDir);
-            sb.AppendLine("MinOffset: " + MinOffset);
-            sb.AppendLine("MaxOffset: " + MaxOffset);
-            sb.AppendLine("A: " + A);
-            sb.AppendLine("MinA: " + MinA);
-            sb.AppendLine("MaxA: " + MaxA);
-            sb.AppendLine("B: " + B);
-            sb.AppendLine("MinB: " + MinB);
-            sb.AppendLine("MaxB: " + MaxB);
-            sb.AppendLine("C: " + C);
-            sb.AppendLine("MinC: " + MinC);
-            sb.AppendLine("MaxC: " + MaxC);
-            sb.AppendLine("StartScale: " + StartScale);
-            sb.AppendLine("FinalScale: " + FinalScale);
-            sb.AppendLine("ScaleRand: " + ScaleRand);
-            sb.AppendLine("StartTrans: " + StartTrans);
-            sb.AppendLine("FinalTrans: " + FinalTrans);
-            sb.AppendLine("TransRand: " + TransRand);
-            sb.AppendLine("IsParentLocal: " + IsParentLocal);
-
-            return sb.ToString();
+            var b = new StringBuilder();
+            b.AppendLine("------------------");
+            b.AppendLine($"ID: {Id:X8}");
+            b.AppendLine($"EmitterType: {EmitterType}");
+            b.AppendLine($"ParticleType: {ParticleType}");
+            b.AppendLine($"GfxObjID: {GfxObjId:X8} HWGfxObjID: {HwGfxObjId:X8}");
+            b.AppendLine($"Birthrate: {Birthrate}");
+            b.AppendLine($"MaxParticles: {MaxParticles} InitialParticles: {InitialParticles} TotalParticles: {TotalParticles}");
+            b.AppendLine($"TotalSeconds: {TotalSeconds}");
+            b.AppendLine($"Lifespan: {Lifespan} LifespanRand: {LifespanRand}");
+            b.AppendLine($"OffsetDir: {OffsetDir} MinOffset: {MinOffset} MaxOffset: {MaxOffset}");
+            b.AppendLine($"A: {A} MinA: {MinA} MaxA: {MaxA}");
+            b.AppendLine($"B: {B} MinB: {MinB} MaxB: {MaxB}");
+            b.AppendLine($"C: {C} MinC: {MinC} MaxC: {MaxC}");
+            b.AppendLine($"StartScale: {StartScale} FinalScale: {FinalScale} ScaleRand: {ScaleRand}");
+            b.AppendLine($"StartTrans: {StartTrans} FinalTrans: {FinalTrans} TransRand: {TransRand}");
+            b.AppendLine($"IsParentLocal: {IsParentLocal}");
+            return b.ToString();
         }
     }
 }

@@ -18,7 +18,7 @@ namespace GameEstate.Formats.Rsi
             Reader = null;
         }
 
-        List<ExplorerInfoNode> IGetExplorerInfo.GetInfoNodes(ExplorerManager resource, FileMetadata file)
+        List<ExplorerInfoNode> IGetExplorerInfo.GetInfoNodes(ExplorerManager resource, FileMetadata file, object tag)
         {
             var nodes = new List<ExplorerInfoNode> {
                 new ExplorerInfoNode("DatabasePak", items: new List<ExplorerInfoNode> {

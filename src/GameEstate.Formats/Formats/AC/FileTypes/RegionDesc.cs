@@ -1,6 +1,11 @@
+using GameEstate.Core;
+using GameEstate.Explorer;
+using GameEstate.Explorer.ViewModel;
+using GameEstate.Formats._Packages;
+using GameEstate.Formats.AC.Entity;
+using System.Collections.Generic;
 using System.IO;
-
-using ACE.DatLoader.Entity;
+using System.Text;
 
 namespace GameEstate.Formats.AC.FileTypes
 {
@@ -8,52 +13,51 @@ namespace GameEstate.Formats.AC.FileTypes
     /// This is the client_portal.dat file starting with 0x13 -- There is only one of these, which is why REGION_ID is a constant.
     /// </summary>
     [PakFileType(PakFileType.Region)]
-    public class RegionDesc : FileType
+    public class RegionDesc : AbstractFileType, IGetExplorerInfo
     {
         public const uint FILE_ID = 0x13000000;
 
-        public uint RegionNumber { get; private set; }
-        public uint Version { get; private set; }
-        public string RegionName { get; private set; }
+        public readonly uint RegionNumber;
+        public readonly uint Version;
+        public readonly string RegionName;
+        public readonly LandDefs LandDefs;
+        public readonly GameTime GameTime;
+        public readonly uint PartsMask;
+        public readonly SkyDesc SkyInfo;
+        public readonly SoundDesc SoundInfo;
+        public readonly SceneDesc SceneInfo;
+        public readonly TerrainDesc TerrainInfo;
+        public readonly RegionMisc RegionMisc;
 
-        public LandDefs LandDefs { get; } = new LandDefs();
-        public GameTime GameTime { get; } = new GameTime();
-
-        public uint PartsMask { get; private set; }
-
-        public SkyDesc SkyInfo { get; } = new SkyDesc();
-        public SoundDesc SoundInfo { get; } = new SoundDesc();
-        public SceneDesc SceneInfo { get; } = new SceneDesc();
-        public TerrainDesc TerrainInfo { get; } = new TerrainDesc();
-        public RegionMisc RegionMisc { get; } = new RegionMisc();
-
-        public override void Read(BinaryReader reader)
+        public RegionDesc(BinaryReader r)
         {
-            Id = reader.ReadUInt32();
-
-            RegionNumber    = reader.ReadUInt32();
-            Version         = reader.ReadUInt32();
-            RegionName      = reader.ReadL16String(Encoding.Default); // "Dereth"
-            reader.AlignBoundary();
-
-            LandDefs.Unpack(reader);
-            GameTime.Unpack(reader);
-
-            PartsMask = reader.ReadUInt32();
-
+            Id = r.ReadUInt32();
+            RegionNumber = r.ReadUInt32();
+            Version = r.ReadUInt32();
+            RegionName = r.ReadL16ANSI(Encoding.Default); // "Dereth"
+            r.AlignBoundary();
+            LandDefs = new LandDefs(r);
+            GameTime = new GameTime(r);
+            PartsMask = r.ReadUInt32();
             if ((PartsMask & 0x10) != 0)
-                SkyInfo.Unpack(reader);
-
+                SkyInfo = new SkyDesc(r);
             if ((PartsMask & 0x01) != 0)
-                SoundInfo.Unpack(reader);
-
+                SoundInfo = new SoundDesc(r);
             if ((PartsMask & 0x02) != 0)
-                SceneInfo.Unpack(reader);
-
-            TerrainInfo.Unpack(reader);
-
+                SceneInfo = new SceneDesc(r);
+            TerrainInfo = new TerrainDesc(r);
             if ((PartsMask & 0x0200) != 0)
-                RegionMisc.Unpack(reader);
+                RegionMisc = new RegionMisc(r);
+        }
+
+        List<ExplorerInfoNode> IGetExplorerInfo.GetInfoNodes(ExplorerManager resource, FileMetadata file, object tag)
+        {
+            var nodes = new List<ExplorerInfoNode> {
+                new ExplorerInfoNode($"{nameof(RegionDesc)}: {Id:X8}", items: new List<ExplorerInfoNode> {
+                    //new ExplorerInfoNode($"Type: {Type}"),
+                })
+            };
+            return nodes;
         }
     }
 }

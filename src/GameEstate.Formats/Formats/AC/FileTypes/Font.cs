@@ -1,4 +1,8 @@
-using ACE.DatLoader.Entity;
+using GameEstate.Core;
+using GameEstate.Explorer;
+using GameEstate.Explorer.ViewModel;
+using GameEstate.Formats._Packages;
+using GameEstate.Formats.AC.Entity;
 using System.Collections.Generic;
 using System.IO;
 
@@ -9,37 +13,38 @@ namespace GameEstate.Formats.AC.FileTypes
     /// It is essentially a map to a specific texture file (spritemap) that contains all the characters in this font.
     /// </summary>
     [PakFileType(PakFileType.Font)]
-    public class Font : FileType
+    public class Font : AbstractFileType, IGetExplorerInfo
     {
-        public uint MaxCharHeight;
-        public uint MaxCharWidth;
-        public uint NumCharacters;
-        public List<FontCharDesc> CharDescs = new List<FontCharDesc>();
-        public uint NumHorizontalBorderPixels;
-        public uint NumVerticalBorderPixels;
-        public uint BaselineOffset;
-        public uint ForegroundSurfaceDataID; // This is a DataID to a Texture (0x06) type, if set
-        public uint BackgroundSurfaceDataID; // This is a DataID to a Texture (0x06) type, if set
+        public readonly uint MaxCharHeight;
+        public readonly uint MaxCharWidth;
+        public readonly FontCharDesc[] CharDescs;
+        public readonly uint NumHorizontalBorderPixels;
+        public readonly uint NumVerticalBorderPixels;
+        public readonly uint BaselineOffset;
+        public readonly uint ForegroundSurfaceDataID; // This is a DataID to a Texture (0x06) type, if set
+        public readonly uint BackgroundSurfaceDataID; // This is a DataID to a Texture (0x06) type, if set
 
-        public override void Read(BinaryReader reader)
+        public Font(BinaryReader r)
         {
-            Id = reader.ReadUInt32();
-            MaxCharHeight = reader.ReadUInt32();
-            MaxCharWidth = reader.ReadUInt32();
-            NumCharacters = reader.ReadUInt32();
+            Id = r.ReadUInt32();
+            MaxCharHeight = r.ReadUInt32();
+            MaxCharWidth = r.ReadUInt32();
+            CharDescs = r.ReadL32Array(x => new FontCharDesc(x));
+            NumHorizontalBorderPixels = r.ReadUInt32();
+            NumVerticalBorderPixels = r.ReadUInt32();
+            BaselineOffset = r.ReadUInt32();
+            ForegroundSurfaceDataID = r.ReadUInt32();
+            BackgroundSurfaceDataID = r.ReadUInt32();
+        }
 
-            for(uint i = 0; i < NumCharacters; i++)
-            {
-                var fontCharDesc = new FontCharDesc();
-                fontCharDesc.Unpack(reader);
-                CharDescs.Add(fontCharDesc);
-            }
-
-            NumHorizontalBorderPixels = reader.ReadUInt32();
-            NumVerticalBorderPixels = reader.ReadUInt32();
-            BaselineOffset = reader.ReadUInt32();
-            ForegroundSurfaceDataID = reader.ReadUInt32();
-            BackgroundSurfaceDataID = reader.ReadUInt32();
+        List<ExplorerInfoNode> IGetExplorerInfo.GetInfoNodes(ExplorerManager resource, FileMetadata file, object tag)
+        {
+            var nodes = new List<ExplorerInfoNode> {
+                new ExplorerInfoNode($"{nameof(Font)}: {Id:X8}", items: new List<ExplorerInfoNode> {
+                    //new ExplorerInfoNode($"Type: {Type}"),
+                })
+            };
+            return nodes;
         }
     }
 }

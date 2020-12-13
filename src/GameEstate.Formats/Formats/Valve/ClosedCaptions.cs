@@ -28,7 +28,7 @@ namespace GameEstate.Formats.Valve
         public ClosedCaptions() { }
         public ClosedCaptions(BinaryReader r) => Read(r);
 
-        List<ExplorerInfoNode> IGetExplorerInfo.GetInfoNodes(ExplorerManager resource, FileMetadata file) => new List<ExplorerInfoNode> {
+        List<ExplorerInfoNode> IGetExplorerInfo.GetInfoNodes(ExplorerManager resource, FileMetadata file, object tag) => new List<ExplorerInfoNode> {
             new ExplorerInfoNode(null, new ExplorerContentTab { Type = "DataGrid", Name = "Captions", Value = Captions }),
             new ExplorerInfoNode("ClosedCaptions", items: new List<ExplorerInfoNode> {
                 new ExplorerInfoNode($"Count: {Captions.Count}"),

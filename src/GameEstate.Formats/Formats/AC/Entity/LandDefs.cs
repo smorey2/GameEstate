@@ -1,9 +1,14 @@
 using GameEstate.Core;
+using GameEstate.Explorer;
+using GameEstate.Explorer.ViewModel;
+using GameEstate.Formats._Packages;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 
 namespace GameEstate.Formats.AC.Entity
 {
-    public class LandDefs
+    public class LandDefs : IGetExplorerInfo
     {
         public readonly int NumBlockLength;
         public readonly int NumBlockWidth;
@@ -26,6 +31,22 @@ namespace GameEstate.Formats.AC.Entity
             SkyHeight = r.ReadSingle();
             RoadWidth = r.ReadSingle();
             LandHeightTable = r.ReadTArray(x => x.ReadSingle(), 256);
+        }
+
+        List<ExplorerInfoNode> IGetExplorerInfo.GetInfoNodes(ExplorerManager resource, FileMetadata file, object tag)
+        {
+            var nodes = new List<ExplorerInfoNode> {
+                new ExplorerInfoNode($"NumBlockLength: {NumBlockLength}"),
+                new ExplorerInfoNode($"NumBlockWidth: {NumBlockWidth}"),
+                new ExplorerInfoNode($"SquareLength: {SquareLength}"),
+                new ExplorerInfoNode($"LBlockLength: {LBlockLength}"),
+                new ExplorerInfoNode($"VertexPerCell: {VertexPerCell}"),
+                new ExplorerInfoNode($"MaxObjHeight: {MaxObjHeight}"),
+                new ExplorerInfoNode($"SkyHeight: {SkyHeight}"),
+                new ExplorerInfoNode($"RoadWidth: {RoadWidth}"),
+                new ExplorerInfoNode("LandHeightTable", items: LandHeightTable.Select((x, i) => new ExplorerInfoNode($"{i}: {x}"))),
+            };
+            return nodes;
         }
     }
 }

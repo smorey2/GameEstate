@@ -61,7 +61,7 @@ namespace GameEstate.Explorer.View
         {
             var paths = path.Split(new[] { '\\', '/', ':' }, 2);
             var node = PakNodes.FirstOrDefault(x => x.Name == paths[0]);
-            return paths.Length == 1 ? node : node.FindByPath(paths[1]);
+            return paths.Length == 1 ? node : node?.FindByPath(paths[1]);
         }
 
         List<ExplorerItemNode.Filter> _nodeFilters;

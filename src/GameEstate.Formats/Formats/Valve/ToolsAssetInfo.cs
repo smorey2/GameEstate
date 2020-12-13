@@ -16,7 +16,7 @@ namespace GameEstate.Formats.Valve
         public ToolsAssetInfo() { }
         public ToolsAssetInfo(BinaryReader r) => Read(r);
 
-        List<ExplorerInfoNode> IGetExplorerInfo.GetInfoNodes(ExplorerManager resource, FileMetadata file) => new List<ExplorerInfoNode> {
+        List<ExplorerInfoNode> IGetExplorerInfo.GetInfoNodes(ExplorerManager resource, FileMetadata file, object tag) => new List<ExplorerInfoNode> {
             new ExplorerInfoNode(null, new ExplorerContentTab { Type = "Text", Name = "Text", Value = ToString() }),
             new ExplorerInfoNode("ToolsAssetInfo", items: new List<ExplorerInfoNode> {
                 new ExplorerInfoNode($"Mods: {Mods.Count}"),

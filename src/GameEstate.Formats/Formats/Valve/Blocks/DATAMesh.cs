@@ -27,7 +27,7 @@ namespace GameEstate.Formats.Valve.Blocks
             GetBounds();
         }
 
-        public List<ExplorerInfoNode> GetInfoNodes(ExplorerManager resource, FileMetadata file) => (_source as IGetExplorerInfo).GetInfoNodes(resource, file);
+        public List<ExplorerInfoNode> GetInfoNodes(ExplorerManager resource, FileMetadata file, object tag) => (_source as IGetExplorerInfo).GetInfoNodes(resource, file, tag);
 
         public IVBIB VBIB { get; }
 

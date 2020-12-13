@@ -1,7 +1,10 @@
+using GameEstate.Core;
+using GameEstate.Explorer;
+using GameEstate.Explorer.ViewModel;
+using GameEstate.Formats._Packages;
+using GameEstate.Formats.AC.Entity;
 using System.Collections.Generic;
 using System.IO;
-
-using ACE.DatLoader.Entity;
 
 namespace GameEstate.Formats.AC.FileTypes
 {
@@ -9,28 +12,26 @@ namespace GameEstate.Formats.AC.FileTypes
     /// This is the client_portal.dat file 0x0E00001D
     /// </summary>
     [PakFileType(PakFileType.ContractTable)]
-    public class ContractTable : FileType
+    public class ContractTable : AbstractFileType, IGetExplorerInfo
     {
         public const uint FILE_ID = 0x0E00001D;
 
-        public Dictionary<uint, Contract> Contracts { get; } = new Dictionary<uint, Contract>();
+        public readonly Dictionary<uint, Contract> Contracts;
 
-        public override void Read(BinaryReader reader)
+        public ContractTable(BinaryReader r)
         {
-            Id = reader.ReadUInt32();
+            Id = r.ReadUInt32();
+            Contracts = r.ReadL16Many<uint, Contract>(sizeof(uint), x => new Contract(x), offset: 2);
+        }
 
-            ushort num_contracts = reader.ReadUInt16();
-            /*ushort table_size = */reader.ReadUInt16(); // We don't need this since C# handles it's own memory
-
-            for (ushort i = 0; i < num_contracts; i++)
-            {
-                uint key = reader.ReadUInt32();
-
-                Contract value = new Contract();
-                value.Unpack(reader);
-
-                Contracts.Add(key, value);
-            }
+        List<ExplorerInfoNode> IGetExplorerInfo.GetInfoNodes(ExplorerManager resource, FileMetadata file, object tag)
+        {
+            var nodes = new List<ExplorerInfoNode> {
+                new ExplorerInfoNode($"{nameof(ContractTable)}: {Id:X8}", items: new List<ExplorerInfoNode> {
+                    //new ExplorerInfoNode($"Type: {Type}"),
+                })
+            };
+            return nodes;
         }
     }
 }

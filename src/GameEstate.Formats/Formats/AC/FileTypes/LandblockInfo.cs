@@ -1,7 +1,10 @@
+using GameEstate.Core;
+using GameEstate.Explorer;
+using GameEstate.Explorer.ViewModel;
+using GameEstate.Formats._Packages;
+using GameEstate.Formats.AC.Entity;
 using System.Collections.Generic;
 using System.IO;
-
-using ACE.DatLoader.Entity;
 
 namespace GameEstate.Formats.AC.FileTypes
 {
@@ -15,48 +18,49 @@ namespace GameEstate.Formats.AC.FileTypes
     /// Very special thanks again to David Simpson for his early work on reading the cell.dat. Even bigger thanks for his documentation of it!
     /// </remarks>
     [PakFileType(PakFileType.LandBlockInfo)]
-    public class LandblockInfo : FileType
+    public class LandblockInfo : AbstractFileType, IGetExplorerInfo
     {
         /// <summary>
         /// number of EnvCells in the landblock. This should match up to the unique items in the building stab lists.
         /// </summary>
-        public uint NumCells { get; private set; }
-
+        public readonly uint NumCells;
         /// <summary>
         /// list of model numbers. 0x01 and 0x02 types and their specific locations
         /// </summary>
-        public List<Stab> Objects { get; } = new List<Stab>();
-
+        public readonly Stab[] Objects;
         /// <summary>
         /// As best as I can tell, this only affects whether there is a restriction table or not
         /// </summary>
-        public uint PackMask { get; private set; }
-
+        public readonly uint PackMask;
         /// <summary>
         /// Buildings and other structures with interior locations in the landblock
         /// </summary>
-        public List<BuildInfo> Buildings { get; } = new List<BuildInfo>();
-
+        public readonly BuildInfo[] Buildings;
         /// <summary>
         /// The specific landblock/cell controlled by a specific guid that controls access (e.g. housing barrier)
         /// </summary>
-        public Dictionary<uint, uint> RestrictionTables { get; } = new Dictionary<uint, uint>();
+        public readonly Dictionary<uint, uint> RestrictionTables;
 
-        public override void Read(BinaryReader reader)
+        public LandblockInfo(BinaryReader r)
         {
-            Id = reader.ReadUInt32();
-
-            NumCells = reader.ReadUInt32();
-
-            Objects.Unpack(reader);
-
-            ushort numBuildings = reader.ReadUInt16();
-            PackMask = reader.ReadUInt16();
-
-            Buildings.Unpack(reader, numBuildings);
-
+            Id = r.ReadUInt32();
+            NumCells = r.ReadUInt32();
+            Objects = r.ReadL32Array(x => new Stab(x));
+            var numBuildings = r.ReadUInt16();
+            PackMask = r.ReadUInt16();
+            Buildings = r.ReadTArray(x => new BuildInfo(x), numBuildings);
             if ((PackMask & 1) == 1)
-                RestrictionTables.UnpackPackedHashTable(reader);
+                RestrictionTables = r.ReadL16Many<uint, uint>(sizeof(uint), x => x.ReadUInt32(), offset: 2);
+        }
+
+        List<ExplorerInfoNode> IGetExplorerInfo.GetInfoNodes(ExplorerManager resource, FileMetadata file, object tag)
+        {
+            var nodes = new List<ExplorerInfoNode> {
+                new ExplorerInfoNode($"{nameof(LandblockInfo)}: {Id:X8}", items: new List<ExplorerInfoNode> {
+                    //new ExplorerInfoNode($"Type: {Type}"),
+                })
+            };
+            return nodes;
         }
     }
 }

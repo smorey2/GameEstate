@@ -18,8 +18,8 @@ namespace GameEstate.Formats.Tes.Records
             {
                 Version = r.ReadSingle();
                 FileType = r.ReadUInt32();
-                CompanyName = r.ReadASCII(32, ASCIIFormat.ZeroPadded);
-                FileDescription = r.ReadASCII(256, ASCIIFormat.ZeroPadded);
+                CompanyName = r.ReadANSI(32, ASCIIFormat.ZeroPadded);
+                FileDescription = r.ReadANSI(256, ASCIIFormat.ZeroPadded);
                 NumRecords = r.ReadUInt32();
             }
         }

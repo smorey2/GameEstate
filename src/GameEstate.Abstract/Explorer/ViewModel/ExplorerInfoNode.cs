@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 
 namespace GameEstate.Explorer.ViewModel
 {
@@ -8,13 +9,13 @@ namespace GameEstate.Explorer.ViewModel
     {
         public string Name { get; set; }
         public object Tag { get; }
-        public List<ExplorerInfoNode> Items { get; }
+        public IEnumerable<ExplorerInfoNode> Items { get; }
 
-        public ExplorerInfoNode(string name, object tag = null, List<ExplorerInfoNode> items = null)
+        public ExplorerInfoNode(string name, object tag = null, IEnumerable<ExplorerInfoNode> items = null)
         {
             Name = name;
             Tag = tag;
-            Items = items ?? new List<ExplorerInfoNode>();
+            Items = items ?? Enumerable.Empty<ExplorerInfoNode>();
         }
     }
 }

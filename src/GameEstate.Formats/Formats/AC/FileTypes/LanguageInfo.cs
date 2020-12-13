@@ -1,8 +1,9 @@
+using GameEstate.Core;
+using GameEstate.Explorer;
+using GameEstate.Explorer.ViewModel;
+using GameEstate.Formats._Packages;
 using System.Collections.Generic;
 using System.IO;
-
-using ACE.DatLoader.Entity;
-using ACE.Entity.Enum;
 
 namespace GameEstate.Formats.AC.FileTypes
 {
@@ -12,115 +13,122 @@ namespace GameEstate.Formats.AC.FileTypes
     /// Contains some very basic language and formatting rules.
     /// </summary>
     [PakFileType(PakFileType.StringState)]
-    public class LanguageInfo : FileType
+    public class LanguageInfo : AbstractFileType, IGetExplorerInfo
     {
         public const uint FILE_ID = 0x41000000;
 
-        public int Version;
-        public short Base;
-        public short NumDecimalDigits;
-        public bool LeadingZero;
+        public readonly int Version;
+        public readonly short Base;
+        public readonly short NumDecimalDigits;
+        public readonly bool LeadingZero;
 
-        public short GroupingSize;
-        public List<char> Numerals;
-        public List<char> DecimalSeperator;
-        public List<char> GroupingSeperator;
-        public List<char> NegativeNumberFormat;
-        public bool IsZeroSingular;
-        public bool IsOneSingular;
-        public bool IsNegativeOneSingular;
-        public bool IsTwoOrMoreSingular;
-        public bool IsNegativeTwoOrLessSingular;
+        public readonly short GroupingSize;
+        public readonly char[] Numerals;
+        public readonly char[] DecimalSeperator;
+        public readonly char[] GroupingSeperator;
+        public readonly char[] NegativeNumberFormat;
+        public readonly bool IsZeroSingular;
+        public readonly bool IsOneSingular;
+        public readonly bool IsNegativeOneSingular;
+        public readonly bool IsTwoOrMoreSingular;
+        public readonly bool IsNegativeTwoOrLessSingular;
 
-        public List<char> TreasurePrefixLetters;
-        public List<char> TreasureMiddleLetters;
-        public List<char> TreasureSuffixLetters;
-        public List<char> MalePlayerLetters;
-        public List<char> FemalePlayerLetters;
-        public uint ImeEnabledSetting;
+        public readonly char[] TreasurePrefixLetters;
+        public readonly char[] TreasureMiddleLetters;
+        public readonly char[] TreasureSuffixLetters;
+        public readonly char[] MalePlayerLetters;
+        public readonly char[] FemalePlayerLetters;
+        public readonly uint ImeEnabledSetting;
 
-        public uint SymbolColor;
-        public uint SymbolColorText;
-        public uint SymbolHeight;
-        public uint SymbolTranslucence;
-        public uint SymbolPlacement;
-        public uint CandColorBase;
-        public uint CandColorBorder;
-        public uint CandColorText;
-        public uint CompColorInput;
-        public uint CompColorTargetConv;
-        public uint CompColorConverted;
-        public uint CompColorTargetNotConv;
-        public uint CompColorInputErr;
-        public uint CompTranslucence;
-        public uint CompColorText;
-        public uint OtherIME;
+        public readonly uint SymbolColor;
+        public readonly uint SymbolColorText;
+        public readonly uint SymbolHeight;
+        public readonly uint SymbolTranslucence;
+        public readonly uint SymbolPlacement;
+        public readonly uint CandColorBase;
+        public readonly uint CandColorBorder;
+        public readonly uint CandColorText;
+        public readonly uint CompColorInput;
+        public readonly uint CompColorTargetConv;
+        public readonly uint CompColorConverted;
+        public readonly uint CompColorTargetNotConv;
+        public readonly uint CompColorInputErr;
+        public readonly uint CompTranslucence;
+        public readonly uint CompColorText;
+        public readonly uint OtherIME;
 
-        public int WordWrapOnSpace;
-        public List<char> AdditionalSettings;
-        public uint AdditionalFlags;
+        public readonly int WordWrapOnSpace;
+        public readonly char[] AdditionalSettings;
+        public readonly uint AdditionalFlags;
 
-        public override void Read(BinaryReader reader)
+        public LanguageInfo(BinaryReader r)
         {
-            Version = reader.ReadInt32();
-            Base = reader.ReadInt16();
-            NumDecimalDigits = reader.ReadInt16();
-            LeadingZero = reader.ReadBoolean();
+            Version = r.ReadInt32();
+            Base = r.ReadInt16();
+            NumDecimalDigits = r.ReadInt16();
+            LeadingZero = r.ReadBoolean();
 
-            GroupingSize = reader.ReadInt16();
-            Numerals = UnpackList(reader);
-            DecimalSeperator = UnpackList(reader);
-            GroupingSeperator = UnpackList(reader);
-            NegativeNumberFormat = UnpackList(reader);
-            IsZeroSingular = reader.ReadBoolean();
-            IsOneSingular = reader.ReadBoolean();
-            IsNegativeOneSingular = reader.ReadBoolean();
-            IsTwoOrMoreSingular = reader.ReadBoolean();
-            IsNegativeTwoOrLessSingular = reader.ReadBoolean();
-            reader.AlignBoundary();
+            GroupingSize = r.ReadInt16();
+            Numerals = UnpackList(r);
+            DecimalSeperator = UnpackList(r);
+            GroupingSeperator = UnpackList(r);
+            NegativeNumberFormat = UnpackList(r);
+            IsZeroSingular = r.ReadBoolean();
+            IsOneSingular = r.ReadBoolean();
+            IsNegativeOneSingular = r.ReadBoolean();
+            IsTwoOrMoreSingular = r.ReadBoolean();
+            IsNegativeTwoOrLessSingular = r.ReadBoolean();
+            r.AlignBoundary();
 
-            TreasurePrefixLetters = UnpackList(reader);
-            TreasureMiddleLetters = UnpackList(reader);
-            TreasureSuffixLetters = UnpackList(reader);
-            MalePlayerLetters = UnpackList(reader);
-            FemalePlayerLetters = UnpackList(reader);
-            ImeEnabledSetting = reader.ReadUInt32();
+            TreasurePrefixLetters = UnpackList(r);
+            TreasureMiddleLetters = UnpackList(r);
+            TreasureSuffixLetters = UnpackList(r);
+            MalePlayerLetters = UnpackList(r);
+            FemalePlayerLetters = UnpackList(r);
+            ImeEnabledSetting = r.ReadUInt32();
 
-            SymbolColor = reader.ReadUInt32();
-            SymbolColorText = reader.ReadUInt32();
-            SymbolHeight = reader.ReadUInt32();
-            SymbolTranslucence = reader.ReadUInt32();
-            SymbolPlacement = reader.ReadUInt32();
-            CandColorBase = reader.ReadUInt32();
-            CandColorBorder = reader.ReadUInt32();
-            CandColorText = reader.ReadUInt32();
-            CompColorInput = reader.ReadUInt32();
-            CompColorTargetConv = reader.ReadUInt32();
-            CompColorConverted = reader.ReadUInt32();
-            CompColorTargetNotConv = reader.ReadUInt32();
-            CompColorInputErr = reader.ReadUInt32();
-            CompTranslucence = reader.ReadUInt32();
-            CompColorText = reader.ReadUInt32();
-            OtherIME = reader.ReadUInt32();
+            SymbolColor = r.ReadUInt32();
+            SymbolColorText = r.ReadUInt32();
+            SymbolHeight = r.ReadUInt32();
+            SymbolTranslucence = r.ReadUInt32();
+            SymbolPlacement = r.ReadUInt32();
+            CandColorBase = r.ReadUInt32();
+            CandColorBorder = r.ReadUInt32();
+            CandColorText = r.ReadUInt32();
+            CompColorInput = r.ReadUInt32();
+            CompColorTargetConv = r.ReadUInt32();
+            CompColorConverted = r.ReadUInt32();
+            CompColorTargetNotConv = r.ReadUInt32();
+            CompColorInputErr = r.ReadUInt32();
+            CompTranslucence = r.ReadUInt32();
+            CompColorText = r.ReadUInt32();
+            OtherIME = r.ReadUInt32();
 
-            WordWrapOnSpace = reader.ReadInt32();
-            AdditionalSettings = UnpackList(reader);
-            AdditionalFlags = reader.ReadUInt32();
+            WordWrapOnSpace = r.ReadInt32();
+            AdditionalSettings = UnpackList(r);
+            AdditionalFlags = r.ReadUInt32();
         }
 
-        // just a little helper function...
-        private List<char> UnpackList(BinaryReader reader)
+        List<ExplorerInfoNode> IGetExplorerInfo.GetInfoNodes(ExplorerManager resource, FileMetadata file, object tag)
         {
-            List<char> l = new List<char>();
+            var nodes = new List<ExplorerInfoNode> {
+                new ExplorerInfoNode($"{nameof(LanguageInfo)}: {Id:X8}", items: new List<ExplorerInfoNode> {
+                    //new ExplorerInfoNode($"Type: {Type}"),
+                })
+            };
+            return nodes;
+        }
 
-            byte numElements = reader.ReadByte();
-            for (int i = 0; i < numElements; i++)
+        static char[] UnpackList(BinaryReader r)
+        {
+            var l = new List<char>();
+            var numElements = r.ReadByte();
+            for (var i = 0; i < numElements; i++)
             {
-                ushort c = reader.ReadUInt16();
+                var c = r.ReadUInt16();
                 l.Add((char)c);
             }
-
-            return l;
+            return l.ToArray();
         }
     }
 }

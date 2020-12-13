@@ -102,7 +102,7 @@ namespace GameEstate.Formats.Tes.Records
             {
                 if (format == TesFormat.TES3)
                 {
-                    Sound = new FormId<SOUNRecord>(r.ReadASCII(32, ASCIIFormat.ZeroPadded));
+                    Sound = new FormId<SOUNRecord>(r.ReadANSI(32, ASCIIFormat.ZeroPadded));
                     Flags = 0;
                     Chance = r.ReadByte();
                     return;

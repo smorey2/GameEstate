@@ -1,3 +1,8 @@
+using GameEstate.Core;
+using GameEstate.Explorer;
+using GameEstate.Explorer.ViewModel;
+using GameEstate.Formats._Packages;
+using GameEstate.Formats.AC.Entity;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
@@ -5,21 +10,31 @@ using System.Text;
 namespace GameEstate.Formats.AC.FileTypes
 {
     [PakFileType(PakFileType.SpellTable)]
-    public class SpellTable : FileType
+    public class SpellTable : AbstractFileType, IGetExplorerInfo
     {
         public const uint FILE_ID = 0x0E00000E;
 
-        public Dictionary<uint, SpellBase> Spells { get; } = new Dictionary<uint, SpellBase>();
+        public readonly Dictionary<uint, SpellBase> Spells;
         /// <summary>
         /// the key uint refers to the SpellSetID, set in PropInt.EquipmentSetId
         /// </summary>
-        public Dictionary<uint, SpellSet> SpellSet { get; } = new Dictionary<uint, SpellSet>();
+        public readonly Dictionary<uint, SpellSet> SpellSet;
 
-        public override void Read(BinaryReader r)
+        public SpellTable(BinaryReader r)
         {
             Id = r.ReadUInt32();
-            Spells.UnpackPackedHashTable(r);
-            SpellSet.UnpackPackedHashTable(r);
+            Spells = r.ReadL16Many<uint, SpellBase>(sizeof(uint), x => new SpellBase(x), offset: 2);
+            SpellSet = r.ReadL16Many<uint, SpellSet>(sizeof(uint), x => new SpellSet(x), offset: 2);
+        }
+
+        List<ExplorerInfoNode> IGetExplorerInfo.GetInfoNodes(ExplorerManager resource, FileMetadata file, object tag)
+        {
+            var nodes = new List<ExplorerInfoNode> {
+                new ExplorerInfoNode($"{nameof(SpellTable)}: {Id:X8}", items: new List<ExplorerInfoNode> {
+                    //new ExplorerInfoNode($"Type: {Type}"),
+                })
+            };
+            return nodes;
         }
 
         /// <summary>
@@ -47,7 +62,7 @@ namespace GameEstate.Formats.AC.FileTypes
         /// <summary>
         /// Returns the correct spell formula, which is hashed from a player's account name
         /// </summary>
-        public static List<uint> GetSpellFormula(SpellTable spellTable, uint spellId, string accountName)
+        public static uint[] GetSpellFormula(SpellTable spellTable, uint spellId, string accountName)
         {
             var spell = spellTable.Spells[spellId];
             switch (spell.FormulaVersion)
@@ -59,7 +74,7 @@ namespace GameEstate.Formats.AC.FileTypes
             }
         }
 
-        static List<uint> RandomizeVersion1(SpellBase spell, string accountName)
+        static uint[] RandomizeVersion1(SpellBase spell, string accountName)
         {
             var comps = new List<uint>(spell.Formula);
             var hasTaper1 = false;
@@ -102,10 +117,10 @@ namespace GameEstate.Formats.AC.FileTypes
                 comps[3] = (scarab + herb + talisman + 2 * (powder + potion)) * (seed / (scarab + (powder + potion))) % 0xC + LOWEST_TAPER_ID;
             if (hasTaper3)
                 comps[6] = (powder + 2 * talisman + potion + herb + scarab) * (seed / (talisman + scarab)) % 0xC + LOWEST_TAPER_ID;
-            return comps;
+            return comps.ToArray();
         }
 
-        static List<uint> RandomizeVersion2(SpellBase spell, string accountName)
+        static uint[] RandomizeVersion2(SpellBase spell, string accountName)
         {
             var comps = new List<uint>(spell.Formula);
 
@@ -120,10 +135,10 @@ namespace GameEstate.Formats.AC.FileTypes
             comps[3] = (a + 2 * comps[0] + 2 * c * x + comps[0] + comps[2] + comps[1]) % 0xC + LOWEST_TAPER_ID;
             comps[6] = (a + 2 * p1 * comps[2] + 2 * x + p1 * comps[2] + c) * (seed / (comps[1] * a + 2 * c)) % 0xC + LOWEST_TAPER_ID;
 
-            return comps;
+            return comps.ToArray();
         }
 
-        static List<uint> RandomizeVersion3(SpellBase spell, string accountName)
+        static uint[] RandomizeVersion3(SpellBase spell, string accountName)
         {
             var comps = new List<uint>(spell.Formula);
 
@@ -146,7 +161,7 @@ namespace GameEstate.Formats.AC.FileTypes
             comps[3] = (compHash0 + compHash1 + compHash2 + compHash4 + compHash5 + compHash2 * compHash5 + compHash0 * compHash1 + compHash7 * (compHash4 + 1)) % 0xC + LOWEST_TAPER_ID;
             comps[6] = (compHash0 + compHash1 + compHash2 + compHash4 + key % 0x65039 % 0xC + compHash7 * (compHash4 * (compHash0 * compHash1 * compHash2 * compHash5 + 7) + 1) + compHash5 + 4 * compHash0 * compHash1 + compHash0 * compHash1 + 11 * compHash2 * compHash5) % 0xC + LOWEST_TAPER_ID;
 
-            return comps;
+            return comps.ToArray();
         }
     }
 }

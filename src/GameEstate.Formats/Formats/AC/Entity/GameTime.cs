@@ -1,10 +1,15 @@
 using GameEstate.Core;
+using GameEstate.Explorer;
+using GameEstate.Explorer.ViewModel;
+using GameEstate.Formats._Packages;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 
 namespace GameEstate.Formats.AC.Entity
 {
-    public class GameTime
+    public class GameTime : IGetExplorerInfo
     {
         public double ZeroTimeOfYear;
         public uint ZeroYear; // Year "0" is really "P.Y. 10" in the calendar.
@@ -21,11 +26,36 @@ namespace GameEstate.Formats.AC.Entity
             ZeroYear = r.ReadUInt32();
             DayLength = r.ReadSingle();
             DaysPerYear = r.ReadUInt32();
-            YearSpec = r.ReadL16String(Encoding.Default);
+            YearSpec = r.ReadL16ANSI(Encoding.Default);
             r.AlignBoundary();
             TimesOfDay = r.ReadL32Array(x => new TimeOfDay(x));
-            DaysOfTheWeek = r.ReadL32Array(x => { var weekDay = r.ReadL16String(); r.AlignBoundary(); return weekDay; });
+            DaysOfTheWeek = r.ReadL32Array(x => { var weekDay = r.ReadL16ANSI(); r.AlignBoundary(); return weekDay; });
             Seasons = r.ReadL32Array(x => new Season(x));
+        }
+
+        List<ExplorerInfoNode> IGetExplorerInfo.GetInfoNodes(ExplorerManager resource, FileMetadata file, object tag)
+        {
+            var nodes = new List<ExplorerInfoNode> {
+                new ExplorerInfoNode($"ZeroTimeOfYear: {ZeroTimeOfYear}"),
+                new ExplorerInfoNode($"ZeroYear: {ZeroYear}"),
+                new ExplorerInfoNode($"DayLength: {DayLength}"),
+                new ExplorerInfoNode($"DaysPerYear: {DaysPerYear}"),
+                new ExplorerInfoNode($"YearSpec: {YearSpec}"),
+                new ExplorerInfoNode("TimesOfDay", items: TimesOfDay.Select(x => {
+                    var items = (x as IGetExplorerInfo).GetInfoNodes();
+                    var name = items[2].Name.Replace("Name: ", "");
+                    items.RemoveAt(2);
+                    return new ExplorerInfoNode(name, items: items);
+                })),
+                new ExplorerInfoNode("DaysOfWeek", items: DaysOfTheWeek.Select(x => new ExplorerInfoNode($"{x}"))),
+                new ExplorerInfoNode("TimesOfDay", items: TimesOfDay.Select(x => {
+                    var items = (x as IGetExplorerInfo).GetInfoNodes();
+                    var name = items[1].Name.Replace("Name: ", "");
+                    items.RemoveAt(1);
+                    return new ExplorerInfoNode(name, items: items);
+                })),
+            };
+            return nodes;
         }
     }
 }

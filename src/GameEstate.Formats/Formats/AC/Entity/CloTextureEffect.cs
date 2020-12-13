@@ -18,5 +18,7 @@ namespace GameEstate.Formats.AC.Entity
             OldTexture = r.ReadUInt32();
             NewTexture = r.ReadUInt32();
         }
+
+        public override string ToString() => $"OldTex: {OldTexture:X8}, NewTex: {NewTexture:X8}";
     }
 }

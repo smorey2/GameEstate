@@ -1,9 +1,14 @@
 using GameEstate.Core;
+using GameEstate.Explorer;
+using GameEstate.Explorer.ViewModel;
+using GameEstate.Formats._Packages;
+using GameEstate.Formats.AC.Props;
+using System.Collections.Generic;
 using System.IO;
 
 namespace GameEstate.Formats.AC.Entity
 {
-    public class CBldPortal
+    public class CBldPortal : IGetExplorerInfo
     {
         public readonly PortalFlags Flags;
 
@@ -27,6 +32,16 @@ namespace GameEstate.Formats.AC.Entity
             OtherPortalId = r.ReadUInt16();
             StabList = r.ReadL16Array<ushort>(sizeof(ushort));
             r.AlignBoundary();
+        }
+
+        List<ExplorerInfoNode> IGetExplorerInfo.GetInfoNodes(ExplorerManager resource, FileMetadata file, object tag)
+        {
+            var nodes = new List<ExplorerInfoNode> {
+                Flags != 0 ? new ExplorerInfoNode($"Flags: {Flags}") : null,
+                OtherCellId != 0 ? new ExplorerInfoNode($"OtherCellId: {OtherCellId:X}") : null,
+                OtherPortalId != 0 ? new ExplorerInfoNode($"OtherPortalId: {OtherPortalId:X}") : null,
+            };
+            return nodes;
         }
     }
 }

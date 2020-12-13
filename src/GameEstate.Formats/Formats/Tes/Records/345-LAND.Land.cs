@@ -11,7 +11,7 @@ namespace GameEstate.Formats.Tes.Records
         {
             public Byte3[] Vertexs; // XYZ 8 bit floats
 
-            public VNMLField(BinaryReader r, int dataSize) => Vertexs = r.ReadTMany<Byte3>(dataSize, dataSize / 3);
+            public VNMLField(BinaryReader r, int dataSize) => Vertexs = r.ReadTArray<Byte3>(dataSize, dataSize / 3);
         }
 
         public struct VHGTField
@@ -23,7 +23,7 @@ namespace GameEstate.Formats.Tes.Records
             {
                 ReferenceHeight = r.ReadSingle();
                 var count = dataSize - 4 - 3;
-                HeightData = r.ReadTMany<sbyte>(count, count);
+                HeightData = r.ReadTArray<sbyte>(count, count);
                 r.Skip(3); // Unused
             }
         }
@@ -32,7 +32,7 @@ namespace GameEstate.Formats.Tes.Records
         {
             public ColorRef3[] Colors; // 24-bit RGB
 
-            public VCLRField(BinaryReader r, int dataSize) => Colors = r.ReadTMany<ColorRef3>(dataSize, dataSize / 24);
+            public VCLRField(BinaryReader r, int dataSize) => Colors = r.ReadTArray<ColorRef3>(dataSize, dataSize / 24);
         }
 
         public struct VTEXField
@@ -44,12 +44,12 @@ namespace GameEstate.Formats.Tes.Records
             {
                 if (format == TesFormat.TES3)
                 {
-                    TextureIndicesT3 = r.ReadTMany<ushort>(dataSize, dataSize >> 1);
+                    TextureIndicesT3 = r.ReadTArray<ushort>(dataSize, dataSize >> 1);
                     TextureIndicesT4 = null;
                     return;
                 }
                 TextureIndicesT3 = null;
-                TextureIndicesT4 = r.ReadTMany<uint>(dataSize, dataSize >> 2);
+                TextureIndicesT4 = r.ReadTArray<uint>(dataSize, dataSize >> 2);
             }
         }
 
@@ -134,7 +134,7 @@ namespace GameEstate.Formats.Tes.Records
                 case "ATXT":
                     if (ATXTs == null) ATXTs = new ATXTGroup[4];
                     var atxt = r.ReadT<BTXTField>(dataSize); _lastATXT = ATXTs[atxt.Quadrant] = new ATXTGroup { ATXT = atxt }; return true;
-                case "VTXT": _lastATXT.VTXTs = r.ReadTMany<VTXTField>(dataSize, dataSize >> 3); return true;
+                case "VTXT": _lastATXT.VTXTs = r.ReadTArray<VTXTField>(dataSize, dataSize >> 3); return true;
                 default: return false;
             }
         }

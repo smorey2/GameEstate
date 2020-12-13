@@ -1,4 +1,6 @@
 using GameEstate.Core;
+using GameEstate.Formats.AC.FileTypes;
+using GameEstate.Formats.AC.Props;
 using System.IO;
 
 namespace GameEstate.Formats.AC.Entity
@@ -124,11 +126,11 @@ namespace GameEstate.Formats.AC.Entity
         /// <summary>
         /// Not technically part of this function, but saves numerous looks later.
         /// </summary>
-        public string GetSpellWords(SpellComponentsTable comps)
+        public string GetSpellWords(SpellComponentTable comps)
         {
             if (_spellWords != null)
                 return _spellWords;
-            _spellWords = SpellComponentsTable.GetSpellWords(comps, Formula);
+            _spellWords = SpellComponentTable.GetSpellWords(comps, Formula);
             return _spellWords;
         }
     }

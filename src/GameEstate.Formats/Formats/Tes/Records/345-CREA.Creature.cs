@@ -176,7 +176,7 @@ namespace GameEstate.Formats.Tes.Records
                 Y = r.ReadSingle();
                 Z = r.ReadSingle();
                 Duration = r.ReadInt16();
-                Id = r.ReadASCII(32, ASCIIFormat.ZeroPadded);
+                Id = r.ReadANSI(32, ASCIIFormat.ZeroPadded);
                 Unknown = r.ReadInt16();
             }
         }
@@ -188,7 +188,7 @@ namespace GameEstate.Formats.Tes.Records
 
             public AI_AField(BinaryReader r, int dataSize)
             {
-                Name = r.ReadASCII(32, ASCIIFormat.ZeroPadded);
+                Name = r.ReadANSI(32, ASCIIFormat.ZeroPadded);
                 Unknown = r.ReadByte();
             }
         }

@@ -1,5 +1,10 @@
 using GameEstate.Core;
+using GameEstate.Explorer;
+using GameEstate.Explorer.ViewModel;
+using GameEstate.Formats._Packages;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 
 namespace GameEstate.Formats.AC.FileTypes
 {
@@ -18,29 +23,25 @@ namespace GameEstate.Formats.AC.FileTypes
     /// Very special thanks to David Simpson for his early work on reading the cell.dat. Even bigger thanks for his documentation of it!
     /// </remarks>
     [PakFileType(PakFileType.LandBlock)]
-    public class CellLandblock : FileType
+    public class Landblock : AbstractFileType, IGetExplorerInfo
     {
         /// <summary>
         /// Places in the inland sea, for example, are false. Should denote presence of xxxxFFFE (where xxxx is the cell).
         /// </summary>
-        public bool HasObjects { get; set; }
-
-        public ushort[] Terrain { get; private set; }
-
+        public readonly bool HasObjects;
+        public readonly ushort[] Terrain;
         public static ushort TerrainMask_Road = 0x3;
         public static ushort TerrainMask_Type = 0x7C;
         public static ushort TerrainMask_Scenery = 0XF800;
-
         public static byte TerrainShift_Road = 0;
         public static byte TerrainShift_Type = 2;
         public static byte TerrainShift_Scenery = 11;
-
         /// <summary>
         /// Z value in-game is double this height.
         /// </summary>
-        public byte[] Height { get; private set; }
+        public readonly byte[] Height;
 
-        public override void Read(BinaryReader r)
+        public Landblock(BinaryReader r)
         {
             Id = r.ReadUInt32();
             HasObjects = r.ReadUInt32() == 1;
@@ -54,5 +55,20 @@ namespace GameEstate.Formats.AC.FileTypes
         public static ushort GetType(ushort terrain) => GetTerrain(terrain, TerrainMask_Type, TerrainShift_Type);
         public static ushort GetScenery(ushort terrain) => GetTerrain(terrain, TerrainMask_Scenery, TerrainShift_Scenery);
         public static ushort GetTerrain(ushort terrain, ushort mask, byte shift) => (ushort)((terrain & mask) >> shift);
+
+        List<ExplorerInfoNode> IGetExplorerInfo.GetInfoNodes(ExplorerManager resource, FileMetadata file, object tag)
+        {
+            var nodes = new List<ExplorerInfoNode> {
+                new ExplorerInfoNode($"{nameof(Landblock)}: {Id:X8}", items: new List<ExplorerInfoNode> {
+                    new ExplorerInfoNode($"HasObjects: {HasObjects}"),
+                    new ExplorerInfoNode("Terrain", items: Terrain.Select((x, i) => {
+                        var typename = "TODO"; // DatManager.PortalDat.RegionDesc.TerrainInfo.TerrainTypes[Landblock.GetType(t)].TerrainName;
+                        return new ExplorerInfoNode($"{i}: Road: {GetRoad(x)}, Type: {typename}, Scenery: {GetScenery(x)}");
+                    })),
+                    new ExplorerInfoNode("Heights", items: Height.Select((x, i) => new ExplorerInfoNode($"{i}: {x}"))),
+                })
+            };
+            return nodes;
+        }
     }
 }

@@ -22,7 +22,7 @@ namespace GameEstate.Formats.Tes
         public float Bound;
         public byte[] Textures; // Texture Files Hashes
         public override string ToString() => $"{Value}";
-        public MODLGroup(BinaryReader r, int dataSize) => Value = r.ReadASCII(dataSize, ASCIIFormat.PossiblyNullTerminated);
+        public MODLGroup(BinaryReader r, int dataSize) => Value = r.ReadANSI(dataSize, ASCIIFormat.PossiblyNullTerminated);
         public void MODBField(BinaryReader r, int dataSize) => Bound = r.ReadSingle();
         public void MODTField(BinaryReader r, int dataSize) => Textures = r.ReadBytes(dataSize);
     }
@@ -72,12 +72,12 @@ namespace GameEstate.Formats.Tes
                 case 'b': return new DATVField { B = r.ReadInt32() != 0 };
                 case 'i': return new DATVField { I = r.ReadInt32() };
                 case 'f': return new DATVField { F = r.ReadSingle() };
-                case 's': return new DATVField { S = r.ReadASCII(length, ASCIIFormat.PossiblyNullTerminated) };
+                case 's': return new DATVField { S = r.ReadANSI(length, ASCIIFormat.PossiblyNullTerminated) };
                 default: throw new InvalidOperationException($"{type}");
             }
         }
-        public static STRVField ReadSTRV(this BinaryReader r, int length, ASCIIFormat format = ASCIIFormat.PossiblyNullTerminated) => new STRVField { Value = r.ReadASCII(length, format) };
-        public static FILEField ReadFILE(this BinaryReader r, int length, ASCIIFormat format = ASCIIFormat.PossiblyNullTerminated) => new FILEField { Value = r.ReadASCII(length, format) };
+        public static STRVField ReadSTRV(this BinaryReader r, int length, ASCIIFormat format = ASCIIFormat.PossiblyNullTerminated) => new STRVField { Value = r.ReadANSI(length, format) };
+        public static FILEField ReadFILE(this BinaryReader r, int length, ASCIIFormat format = ASCIIFormat.PossiblyNullTerminated) => new FILEField { Value = r.ReadANSI(length, format) };
         public static BYTVField ReadBYTV(this BinaryReader r, int length) => new BYTVField { Value = r.ReadBytes(length) };
         public static UNKNField ReadUNKN(this BinaryReader r, int length) => new UNKNField { Value = r.ReadBytes(length) };
     }
@@ -100,7 +100,7 @@ namespace GameEstate.Formats.Tes
         {
             Value = dataSize == 4 ?
                 new FormId<TRecord>(r.ReadUInt32()) :
-                new FormId<TRecord>(r.ReadASCII(dataSize, ASCIIFormat.ZeroPadded));
+                new FormId<TRecord>(r.ReadANSI(dataSize, ASCIIFormat.ZeroPadded));
         }
         public void AddName(string name) => Value = Value.AddName(name);
     }
@@ -126,7 +126,7 @@ namespace GameEstate.Formats.Tes
             if (format == TesFormat.TES3)
             {
                 ItemCount = r.ReadUInt32();
-                Item = new FormId<Record>(r.ReadASCII(32, ASCIIFormat.ZeroPadded));
+                Item = new FormId<Record>(r.ReadANSI(32, ASCIIFormat.ZeroPadded));
                 return;
             }
             Item = new FormId<Record>(r.ReadUInt32());

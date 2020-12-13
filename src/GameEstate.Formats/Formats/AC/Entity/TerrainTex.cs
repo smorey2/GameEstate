@@ -1,8 +1,12 @@
+using GameEstate.Explorer;
+using GameEstate.Explorer.ViewModel;
+using GameEstate.Formats._Packages;
+using System.Collections.Generic;
 using System.IO;
 
 namespace GameEstate.Formats.AC.Entity
 {
-    public class TerrainTex
+    public class TerrainTex : IGetExplorerInfo
     {
         public readonly uint TexGID;
         public readonly uint TexTiling;
@@ -27,6 +31,23 @@ namespace GameEstate.Formats.AC.Entity
             MinVertHue = r.ReadUInt32();
             DetailTexTiling = r.ReadUInt32();
             DetailTexGID = r.ReadUInt32();
+        }
+
+        List<ExplorerInfoNode> IGetExplorerInfo.GetInfoNodes(ExplorerManager resource, FileMetadata file, object tag)
+        {
+            var nodes = new List<ExplorerInfoNode> {
+                new ExplorerInfoNode($"TexGID: {TexGID:X8}"),
+                new ExplorerInfoNode($"TexTiling: {TexTiling}"),
+                new ExplorerInfoNode($"MaxVertBrightness: {MaxVertBright}"),
+                new ExplorerInfoNode($"MinVertBrightness: {MinVertBright}"),
+                new ExplorerInfoNode($"MaxVertSaturate: {MaxVertSaturate}"),
+                new ExplorerInfoNode($"MinVertSaturate: {MinVertSaturate}"),
+                new ExplorerInfoNode($"MaxVertHue: {MaxVertHue}"),
+                new ExplorerInfoNode($"MinVertHue: {MinVertHue}"),
+                new ExplorerInfoNode($"DetailTexTiling: {DetailTexTiling}"),
+                new ExplorerInfoNode($"DetailTexGID: {DetailTexGID:X8}"),
+            };
+            return nodes;
         }
     }
 }

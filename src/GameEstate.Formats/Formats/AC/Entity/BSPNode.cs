@@ -1,11 +1,16 @@
 using GameEstate.Core;
+using GameEstate.Explorer;
+using GameEstate.Explorer.ViewModel;
+using GameEstate.Formats._Packages;
+using GameEstate.Formats.AC.Props;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Text;
 
 namespace GameEstate.Formats.AC.Entity
 {
-    public class BSPNode
+    public class BSPNode : IGetExplorerInfo
     {
         // These constants are actually strings in the dat file
         const uint PORT = 1347375700; // 0x504F5254
@@ -17,13 +22,14 @@ namespace GameEstate.Formats.AC.Entity
         const uint BPIN = 1112557902; // 0x4250494E
         const uint BPnN = 1112567374; // 0x42506E4E
 
-        public readonly string Type;
-        public readonly Plane SplittingPlane;
-        public readonly BSPNode PosNode;
-        public readonly BSPNode NegNode;
+        public string Type;
+        public Plane SplittingPlane;
+        public BSPNode PosNode;
+        public BSPNode NegNode;
         public Sphere Sphere;
         public ushort[] InPolys; // List of PolygonIds
 
+        protected BSPNode() { }
         public BSPNode(BinaryReader r, BSPType treeType)
         {
             Type = Encoding.ASCII.GetString(r.ReadBytes(4)).Reverse();
@@ -31,8 +37,7 @@ namespace GameEstate.Formats.AC.Entity
             {
                 // These types will unpack the data completely, in their own classes
                 case "PORT":
-                case "LEAF":
-                    throw new Exception();
+                case "LEAF": throw new Exception();
             }
             SplittingPlane = new Plane(r);
             switch (Type)
@@ -53,6 +58,23 @@ namespace GameEstate.Formats.AC.Entity
             if (treeType == BSPType.Physics)
                 return;
             InPolys = r.ReadL32Array<ushort>(sizeof(ushort));
+        }
+
+        List<ExplorerInfoNode> IGetExplorerInfo.GetInfoNodes(ExplorerManager resource, FileMetadata file, object tag)
+        {
+            var nodes = new List<ExplorerInfoNode> {
+                new ExplorerInfoNode($"Type: {Type:X8}"),
+                new ExplorerInfoNode($"Splitting Plane: {SplittingPlane}"),
+                PosNode != null ? new ExplorerInfoNode("PosNode", items: (PosNode as IGetExplorerInfo).GetInfoNodes(tag: tag)) : null,
+                NegNode != null ? new ExplorerInfoNode("NegNode", items: (NegNode as IGetExplorerInfo).GetInfoNodes(tag: tag)) : null,
+            };
+            if ((BSPType)tag == BSPType.Cell)
+                return nodes;
+            nodes.Add(new ExplorerInfoNode($"Sphere: {Sphere}"));
+            if ((BSPType)tag == BSPType.Physics)
+                return nodes;
+            nodes.Add(new ExplorerInfoNode($"InPolys: {string.Join(", ", InPolys)}"));
+            return nodes;
         }
 
         public static BSPNode Factory(BinaryReader r, BSPType treeType)

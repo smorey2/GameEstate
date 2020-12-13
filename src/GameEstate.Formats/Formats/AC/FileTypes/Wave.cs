@@ -1,3 +1,7 @@
+using GameEstate.Explorer;
+using GameEstate.Explorer.ViewModel;
+using GameEstate.Formats._Packages;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -9,18 +13,28 @@ namespace GameEstate.Formats.AC.FileTypes
     /// I'm not sure of an instance where the server would ever need this data, but it's fun nonetheless and included for completion sake.
     /// </summary>
     [PakFileType(PakFileType.Wave)]
-    public class Wave : FileType
+    public class Wave : AbstractFileType, IGetExplorerInfo
     {
         public byte[] Header { get; private set; }
         public byte[] Data { get; private set; }
 
-        public override void Read(BinaryReader r)
+        public Wave(BinaryReader r)
         {
-            var objectId = r.ReadInt32();
+            Id = r.ReadUInt32();
             var headerSize = r.ReadInt32();
             var dataSize = r.ReadInt32();
             Header = r.ReadBytes(headerSize);
             Data = r.ReadBytes(dataSize);
+        }
+
+        List<ExplorerInfoNode> IGetExplorerInfo.GetInfoNodes(ExplorerManager resource, FileMetadata file, object tag)
+        {
+            var nodes = new List<ExplorerInfoNode> {
+                new ExplorerInfoNode($"{nameof(Wave)}: {Id:X8}", items: new List<ExplorerInfoNode> {
+                    //new ExplorerInfoNode($"Type: {Type}"),
+                })
+            };
+            return nodes;
         }
 
         /// <summary>

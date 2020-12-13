@@ -57,7 +57,7 @@ namespace GameEstate.Formats.Tes
         {
             if (typeof(T) == typeof(float)) { return (T)(object)r.ReadSingle(); }
             else if (typeof(T) == typeof(byte)) { return (T)(object)r.ReadByte(); }
-            else if (typeof(T) == typeof(string)) { return (T)(object)r.ReadL32String(); }
+            else if (typeof(T) == typeof(string)) { return (T)(object)r.ReadL32ANSI(); }
             else if (typeof(T) == typeof(Vector3)) { return (T)(object)r.ReadVector3(); }
             else if (typeof(T) == typeof(Quaternion)) { return (T)(object)r.ReadQuaternionWFirst(); }
             else if (typeof(T) == typeof(Color4)) { var color = new Color4(); color.Deserialize(r); return (T)(object)color; }
@@ -128,7 +128,7 @@ namespace GameEstate.Formats.Tes
     {
         public NiFile(string name) => Name = name;
 
-        List<ExplorerInfoNode> IGetExplorerInfo.GetInfoNodes(ExplorerManager resource, FileMetadata file) => new List<ExplorerInfoNode> {
+        List<ExplorerInfoNode> IGetExplorerInfo.GetInfoNodes(ExplorerManager resource, FileMetadata file, object tag) => new List<ExplorerInfoNode> {
             new ExplorerInfoNode(null, new ExplorerContentTab { Type = "Engine", Name = Name, Value = this }),
             new ExplorerInfoNode("Nif", items: new List<ExplorerInfoNode> {
                 new ExplorerInfoNode($"NumBlocks: {Header.NumBlocks}"),
@@ -603,7 +603,7 @@ namespace GameEstate.Formats.Tes
         public override void Deserialize(BinaryReader r)
         {
             base.Deserialize(r);
-            Name = r.ReadL32String();
+            Name = r.ReadL32ANSI();
             ExtraData = NiReaderUtils.ReadRef<NiExtraData>(r);
             Controller = NiReaderUtils.ReadRef<NiTimeController>(r);
         }
@@ -1086,7 +1086,7 @@ namespace GameEstate.Formats.Tes
         {
             base.Deserialize(reader);
             BytesRemaining = reader.ReadUInt32();
-            Str = reader.ReadL32String();
+            Str = reader.ReadL32ANSI();
         }
     }
 
@@ -1523,7 +1523,7 @@ namespace GameEstate.Formats.Tes
         {
             base.Deserialize(r);
             UseExternal = r.ReadByte();
-            FileName = r.ReadL32String();
+            FileName = r.ReadL32ANSI();
             PixelLayout = (PixelLayout)r.ReadUInt32();
             UseMipMaps = (MipMapFormat)r.ReadUInt32();
             AlphaFormat = (AlphaFormat)r.ReadUInt32();

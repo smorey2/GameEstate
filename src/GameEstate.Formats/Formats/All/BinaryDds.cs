@@ -35,7 +35,7 @@ namespace GameEstate.Formats.All
         }
         public void MoveToData() { }
 
-        List<ExplorerInfoNode> IGetExplorerInfo.GetInfoNodes(ExplorerManager resource, FileMetadata file) => new List<ExplorerInfoNode> {
+        List<ExplorerInfoNode> IGetExplorerInfo.GetInfoNodes(ExplorerManager resource, FileMetadata file, object tag) => new List<ExplorerInfoNode> {
             new ExplorerInfoNode(null, new ExplorerContentTab { Type = "Texture", Name = Path.GetFileName(file.Path), Value = this }),
             new ExplorerInfoNode("DDS Texture", items: new List<ExplorerInfoNode> {
                 new ExplorerInfoNode($"Width: {Header.dwWidth}"),

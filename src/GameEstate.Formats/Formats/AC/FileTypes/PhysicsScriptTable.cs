@@ -1,7 +1,10 @@
 using System.Collections.Generic;
 using System.IO;
-
-using ACE.DatLoader.Entity;
+using GameEstate.Core;
+using GameEstate.Explorer;
+using GameEstate.Explorer.ViewModel;
+using GameEstate.Formats._Packages;
+using GameEstate.Formats.AC.Entity;
 
 namespace GameEstate.Formats.AC.FileTypes
 {
@@ -9,15 +12,24 @@ namespace GameEstate.Formats.AC.FileTypes
     /// These are client_portal.dat files starting with 0x34. 
     /// </summary>
     [PakFileType(PakFileType.PhysicsScriptTable)]
-    public class PhysicsScriptTable : FileType
+    public class PhysicsScriptTable : AbstractFileType, IGetExplorerInfo
     {
-        public Dictionary<uint, PhysicsScriptTableData> ScriptTable { get; set; } = new Dictionary<uint, PhysicsScriptTableData>();
+        public readonly Dictionary<uint, PhysicsScriptTableData> ScriptTable;
 
-        public override void Read(BinaryReader reader)
+        public PhysicsScriptTable(BinaryReader r)
         {
-            Id = reader.ReadUInt32();
+            Id = r.ReadUInt32();
+            ScriptTable = r.ReadL32Many<uint, PhysicsScriptTableData>(sizeof(uint), x => new PhysicsScriptTableData(x));
+        }
 
-            ScriptTable.Unpack(reader);
+        List<ExplorerInfoNode> IGetExplorerInfo.GetInfoNodes(ExplorerManager resource, FileMetadata file, object tag)
+        {
+            var nodes = new List<ExplorerInfoNode> {
+                new ExplorerInfoNode($"{nameof(PhysicsScriptTable)}: {Id:X8}", items: new List<ExplorerInfoNode> {
+                    //new ExplorerInfoNode($"Type: {Type}"),
+                })
+            };
+            return nodes;
         }
     }
 }

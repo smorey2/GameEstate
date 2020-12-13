@@ -1,8 +1,12 @@
+using GameEstate.Explorer;
+using GameEstate.Explorer.ViewModel;
+using GameEstate.Formats._Packages;
+using System.Collections.Generic;
 using System.IO;
 
 namespace GameEstate.Formats.AC.Entity
 {
-    public class GfxObjInfo
+    public class GfxObjInfo : IGetExplorerInfo
     {
         public readonly uint Id;
         public readonly uint DegradeMode;
@@ -17,6 +21,18 @@ namespace GameEstate.Formats.AC.Entity
             MinDist = r.ReadSingle();
             IdealDist = r.ReadSingle();
             MaxDist = r.ReadSingle();
+        }
+
+        List<ExplorerInfoNode> IGetExplorerInfo.GetInfoNodes(ExplorerManager resource, FileMetadata file, object tag)
+        {
+            var nodes = new List<ExplorerInfoNode> {
+                new ExplorerInfoNode($"Id: {Id:X8}"),
+                new ExplorerInfoNode($"DegradeMode: {DegradeMode}"),
+                new ExplorerInfoNode($"MinDist: {MinDist}"),
+                new ExplorerInfoNode($"IdealDist: {IdealDist}"),
+                new ExplorerInfoNode($"MaxDist: {MaxDist}"),
+            };
+            return nodes;
         }
     }
 }

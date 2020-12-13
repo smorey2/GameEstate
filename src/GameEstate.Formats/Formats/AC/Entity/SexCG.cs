@@ -1,10 +1,15 @@
 using GameEstate.Core;
+using GameEstate.Explorer;
+using GameEstate.Explorer.ViewModel;
+using GameEstate.Formats._Packages;
 using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 
 namespace GameEstate.Formats.AC.Entity
 {
-    public class SexCG
+    public class SexCG : IGetExplorerInfo
     {
         public string Name;
         public uint Scale;
@@ -72,7 +77,7 @@ namespace GameEstate.Formats.AC.Entity
         {
             var hairstyle = HairStyleList[Convert.ToInt32(hairStyle)];
             // Gear Knights, both Olthoi types have multiple anim part changes.
-            return hairstyle.ObjDesc.AnimPartChanges.Count == 1 ? hairstyle.ObjDesc.AnimPartChanges[0].PartID : (uint?)null;
+            return hairstyle.ObjDesc.AnimPartChanges.Length == 1 ? hairstyle.ObjDesc.AnimPartChanges[0].PartID : (uint?)null;
         }
         public uint GetHairTexture(uint hairStyle) => HairStyleList[Convert.ToInt32(hairStyle)].ObjDesc.TextureChanges[0].NewTexture;
         public uint GetDefaultHairTexture(uint hairStyle) => HairStyleList[Convert.ToInt32(hairStyle)].ObjDesc.TextureChanges[0].OldTexture;
@@ -92,5 +97,34 @@ namespace GameEstate.Formats.AC.Entity
         // Footwear
         public uint GetFootwearWeenie(uint footwearStyle) => FootwearList[Convert.ToInt32(footwearStyle)].WeenieDefault;
         public uint GetFootwearClothingTable(uint footwearStyle) => FootwearList[Convert.ToInt32(footwearStyle)].ClothingTable;
+
+        List<ExplorerInfoNode> IGetExplorerInfo.GetInfoNodes(ExplorerManager resource, FileMetadata file, object tag)
+        {
+            var nodes = new List<ExplorerInfoNode> {
+                new ExplorerInfoNode($"Name: {Name}"),
+                new ExplorerInfoNode($"Scale: {Scale}%"),
+                new ExplorerInfoNode($"Setup: {SetupID:X8}"),
+                new ExplorerInfoNode($"SoundTable: {SoundTable:X8}"),
+                new ExplorerInfoNode($"Icon: {IconImage:X8}"),
+                new ExplorerInfoNode($"Base Palette: {BasePalette:X8}"),
+                new ExplorerInfoNode($"Skin Palette Set: {SkinPalSet:X8}"),
+                new ExplorerInfoNode($"Physics Table: {PhysicsTable:X8}"),
+                new ExplorerInfoNode($"Motion Table: {MotionTable:X8}"),
+                new ExplorerInfoNode($"Combat Table: {CombatTable:X8}"),
+                new ExplorerInfoNode("ObjDesc", items: (BaseObjDesc as IGetExplorerInfo).GetInfoNodes()),
+                new ExplorerInfoNode("Hair Colors", items: HairColorList.Select(x => new ExplorerInfoNode($"{x:X8}"))),
+                new ExplorerInfoNode("Hair Styles", items: HairStyleList.Select((x, i) => new ExplorerInfoNode($"{i}", items: (x as IGetExplorerInfo).GetInfoNodes()))),
+                new ExplorerInfoNode("Eye Colors", items: EyeColorList.Select(x => new ExplorerInfoNode($"{x:X8}"))),
+                new ExplorerInfoNode("Eye Strips", items: EyeStripList.Select((x, i) => new ExplorerInfoNode($"{i}", items: (x as IGetExplorerInfo).GetInfoNodes()))),
+                new ExplorerInfoNode("Nose Strips", items: NoseStripList.Select((x, i) => new ExplorerInfoNode($"{i}", items: (x as IGetExplorerInfo).GetInfoNodes()))),
+                new ExplorerInfoNode("Mouth Strips", items: MouthStripList.Select((x, i) => new ExplorerInfoNode($"{i}", items: (x as IGetExplorerInfo).GetInfoNodes()))),
+                new ExplorerInfoNode("Headgear", items: HeadgearList.Select((x, i) => new ExplorerInfoNode($"{i}", items: (x as IGetExplorerInfo).GetInfoNodes()))),
+                new ExplorerInfoNode("Shirt", items: ShirtList.Select((x, i) => new ExplorerInfoNode($"{i}", items: (x as IGetExplorerInfo).GetInfoNodes()))),
+                new ExplorerInfoNode("Pants", items: PantsList.Select((x, i) => new ExplorerInfoNode($"{i}", items: (x as IGetExplorerInfo).GetInfoNodes()))),
+                new ExplorerInfoNode("Footwear", items: FootwearList.Select((x, i) => new ExplorerInfoNode($"{i}", items: (x as IGetExplorerInfo).GetInfoNodes()))),
+                new ExplorerInfoNode($"Clothing Colors: {string.Join(",", ClothingColorsList)}"),
+            };
+            return nodes;
+        }
     }
 }

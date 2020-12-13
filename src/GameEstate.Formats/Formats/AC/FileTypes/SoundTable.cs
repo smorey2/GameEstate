@@ -1,5 +1,8 @@
-using ACE.DatLoader.Entity;
-using System;
+using GameEstate.Core;
+using GameEstate.Explorer;
+using GameEstate.Explorer.ViewModel;
+using GameEstate.Formats._Packages;
+using GameEstate.Formats.AC.Entity;
 using System.Collections.Generic;
 using System.IO;
 
@@ -10,22 +13,30 @@ namespace GameEstate.Formats.AC.FileTypes
     /// They are located in the client_portal.dat and are files starting with 0x20
     /// </summary>
     [PakFileType(PakFileType.SoundTable)]
-    public class SoundTable:FileType
+    public class SoundTable : AbstractFileType, IGetExplorerInfo
     {
-        public uint Unknown; // As the name implies, not sure what this is
-
+        public readonly uint Unknown; // As the name implies, not sure what this is
         // Not quite sure what this is for, but it's the same in every file.
-        public List<SoundTableData> SoundHash { get; } = new List<SoundTableData>();
-
+        public readonly SoundTableData[] SoundHash;
         // The uint key corresponds to an Enum.Sound
-        public Dictionary<uint, SoundData> Data { get; } = new Dictionary<uint, SoundData>();
+        public readonly Dictionary<uint, SoundData> Data;
 
-        public override void Read(BinaryReader reader)
+        public SoundTable(BinaryReader r)
         {
-            Id = reader.ReadUInt32();
-            Unknown = reader.ReadUInt32();
-            SoundHash.Unpack(reader);
-            Data.UnpackPackedHashTable(reader);
+            Id = r.ReadUInt32();
+            Unknown = r.ReadUInt32();
+            SoundHash = r.ReadL32Array(x => new SoundTableData(x));
+            Data = r.ReadL16Many<uint, SoundData>(sizeof(uint), x => new SoundData(x), offset: 2);
+        }
+
+        List<ExplorerInfoNode> IGetExplorerInfo.GetInfoNodes(ExplorerManager resource, FileMetadata file, object tag)
+        {
+            var nodes = new List<ExplorerInfoNode> {
+                new ExplorerInfoNode($"{nameof(SoundTable)}: {Id:X8}", items: new List<ExplorerInfoNode> {
+                    //new ExplorerInfoNode($"Type: {Type}"),
+                })
+            };
+            return nodes;
         }
     }
 }

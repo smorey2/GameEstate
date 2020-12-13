@@ -1,5 +1,11 @@
+using GameEstate.Core;
+using GameEstate.Explorer;
+using GameEstate.Explorer.ViewModel;
+using GameEstate.Formats._Packages;
+using GameEstate.Graphics;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 
 namespace GameEstate.Formats.AC.FileTypes
 {
@@ -7,18 +13,27 @@ namespace GameEstate.Formats.AC.FileTypes
     /// These are client_portal.dat files starting with 0x04. 
     /// </summary>
     [PakFileType(PakFileType.Palette)]
-    public class Palette : FileType
+    public class Palette : AbstractFileType, IGetExplorerInfo
     {
         /// <summary>
         /// Color data is stored in ARGB format
         /// </summary>
-        public List<uint> Colors { get; } = new List<uint>();
+        public uint[] Colors;
 
-        public override void Read(BinaryReader reader)
+        public Palette(BinaryReader r)
         {
-            Id = reader.ReadUInt32();
+            Id = r.ReadUInt32();
+            Colors = r.ReadL32Array<uint>(sizeof(uint));
+        }
 
-            Colors.Unpack(reader);
+        List<ExplorerInfoNode> IGetExplorerInfo.GetInfoNodes(ExplorerManager resource, FileMetadata file, object tag)
+        {
+            var nodes = new List<ExplorerInfoNode> {
+                new ExplorerInfoNode($"{nameof(Palette)}: {Id:X8}", items: Colors.Select(x =>
+                    new ExplorerInfoNode(new GXColor(x, GXColor.Format.ARGB32).ToString("F0"))
+                ).ToList())
+            };
+            return nodes;
         }
     }
 }

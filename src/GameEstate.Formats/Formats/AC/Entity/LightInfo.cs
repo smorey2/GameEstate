@@ -18,5 +18,7 @@ namespace GameEstate.Formats.AC.Entity
             Falloff = r.ReadSingle();
             ConeAngle = r.ReadSingle();
         }
+
+        public override string ToString() => $"Viewer Space Location: {ViewerSpaceLocation}, Color: {Color}, Intensity: {Intensity}, Falloff: {Falloff}, Cone Angle: {ConeAngle}";
     }
 }

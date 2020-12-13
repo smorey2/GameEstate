@@ -1,27 +1,28 @@
+using GameEstate.Explorer;
+using GameEstate.Explorer.ViewModel;
+using GameEstate.Formats._Packages;
+using GameEstate.Formats.AC.Entity.AnimationHooks;
+using GameEstate.Formats.AC.Props;
+using System;
+using System.Collections.Generic;
 using System.IO;
 
 namespace GameEstate.Formats.AC.Entity
 {
     public class AnimationHook
     {
-        //static readonly ILog log = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
-
+        public static readonly AnimationHook AnimDoneHook = new AnimationHook();
         public readonly AnimationHookType HookType;
         public readonly AnimationHookDir Direction;
 
-        public static readonly AnimationHook AnimDoneHook;
-
-        static AnimationHook()
-        {
-            AnimDoneHook = new AnimationHook
-            {
-                HookType = AnimationHookType.AnimationDone
-            };
-        }
         /// <summary>
         /// WARNING: If you're reading a hook from the dat, you should use AnimationHook.ReadHook(reader).
         /// If you read a hook from the dat using this function, it is likely you will not read all the data correctly.
         /// </summary>
+        AnimationHook()
+        {
+            HookType = AnimationHookType.AnimationDone;
+        }
         public AnimationHook(BinaryReader r)
         {
             HookType = (AnimationHookType)r.ReadUInt32();
@@ -65,9 +66,11 @@ namespace GameEstate.Formats.AC.Entity
                 case AnimationHookType.AnimationDone:
                 case AnimationHookType.DefaultScript: return new AnimationHook(r);
                 default:
-                    //log.Warn($"Not Implemented Hook type encountered: {hookType}");
+                    Console.WriteLine($"Not Implemented Hook type encountered: {hookType}");
                     return null;
             }
         }
+
+        public override string ToString() => $"HookType: {HookType}, Dir: {Direction}";
     }
 }

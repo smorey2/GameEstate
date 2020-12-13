@@ -16,5 +16,7 @@ namespace GameEstate.Formats.AC.Entity
             Radius = r.ReadSingle();
             Height = r.ReadSingle();
         }
+
+        public override string ToString() => $"Origin: {Origin}, Radius: {Radius}, Height: {Height}";
     }
 }

@@ -1,13 +1,19 @@
 using GameEstate.Core;
+using GameEstate.Explorer;
+using GameEstate.Explorer.ViewModel;
+using GameEstate.Formats._Packages;
+using GameEstate.Formats.AC.Props;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 
 namespace GameEstate.Formats.AC.Entity
 {
-    public class TemplateCG
+    public class TemplateCG : IGetExplorerInfo
     {
         public string Name;
         public uint IconImage;
-        public uint Title;
+        public CharacterTitle Title;
         // Attributes
         public uint Strength;
         public uint Endurance;
@@ -15,14 +21,14 @@ namespace GameEstate.Formats.AC.Entity
         public uint Quickness;
         public uint Focus;
         public uint Self;
-        public uint[] NormalSkillsList;
-        public uint[] PrimarySkillsList;
+        public Skill[] NormalSkillsList;
+        public Skill[] PrimarySkillsList;
 
         public TemplateCG(BinaryReader r)
         {
             Name = r.ReadString();
             IconImage = r.ReadUInt32();
-            Title = r.ReadUInt32();
+            Title = (CharacterTitle)r.ReadUInt32();
             // Attributes
             Strength = r.ReadUInt32();
             Endurance = r.ReadUInt32();
@@ -30,8 +36,26 @@ namespace GameEstate.Formats.AC.Entity
             Quickness = r.ReadUInt32();
             Focus = r.ReadUInt32();
             Self = r.ReadUInt32();
-            NormalSkillsList = r.ReadC32Array<uint>(sizeof(uint));
-            PrimarySkillsList = r.ReadC32Array<uint>(sizeof(uint));
+            NormalSkillsList = r.ReadC32Array<Skill>(sizeof(uint));
+            PrimarySkillsList = r.ReadC32Array<Skill>(sizeof(uint));
+        }
+
+        List<ExplorerInfoNode> IGetExplorerInfo.GetInfoNodes(ExplorerManager resource, FileMetadata file, object tag)
+        {
+            var nodes = new List<ExplorerInfoNode> {
+                new ExplorerInfoNode($"Name: {Name}"),
+                new ExplorerInfoNode($"Icon: {IconImage:X8}"),
+                new ExplorerInfoNode($"Title: {Title}"),
+                new ExplorerInfoNode($"Strength: {Strength}"),
+                new ExplorerInfoNode($"Endurance: {Endurance}"),
+                new ExplorerInfoNode($"Coordination: {Coordination}"),
+                new ExplorerInfoNode($"Quickness: {Quickness}"),
+                new ExplorerInfoNode($"Focus: {Focus}"),
+                new ExplorerInfoNode($"Self: {Self}"),
+                NormalSkillsList.Length > 0 ? new ExplorerInfoNode("Normal Skills", items: NormalSkillsList.Select(x => new ExplorerInfoNode($"{x}"))) : null,
+                PrimarySkillsList.Length > 0 ? new ExplorerInfoNode("Primary Skills", items: PrimarySkillsList.Select(x => new ExplorerInfoNode($"{x}"))) : null,
+            };
+            return nodes;
         }
     }
 }

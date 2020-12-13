@@ -58,7 +58,7 @@ namespace GameEstate.Formats._Packages
                     var nameSize = r.ReadUInt32();
                     if (nameSize == SubMarker) { state++; nameSize = r.ReadUInt32(); }
                     else if (nameSize == EndMarker) break;
-                    var path = r.ReadASCII((int)nameSize).Replace('\\', '/');
+                    var path = r.ReadANSI((int)nameSize).Replace('\\', '/');
                     var packId = state > 0 ? r.ReadUInt16() : 0;
                     files2.Add(new FileMetadata
                     {
@@ -92,9 +92,9 @@ namespace GameEstate.Formats._Packages
             for (var i = 0; i < numFiles; i++)
             {
                 var id = Utility.Reverse(r.ReadUInt32());
-                var tag1 = r.ReadL32String();
-                var tag2 = r.ReadL32String();
-                var path = r.ReadL32String().Replace('\\', '/');
+                var tag1 = r.ReadL32ANSI();
+                var tag2 = r.ReadL32ANSI();
+                var path = r.ReadL32ANSI().Replace('\\', '/');
                 var position = Utility.Reverse(r.ReadUInt64());
                 var fileSize = Utility.Reverse(r.ReadUInt32());
                 var packedSize = Utility.Reverse(r.ReadUInt32());

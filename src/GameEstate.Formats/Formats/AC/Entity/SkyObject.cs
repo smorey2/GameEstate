@@ -1,9 +1,13 @@
 using GameEstate.Core;
+using GameEstate.Explorer;
+using GameEstate.Explorer.ViewModel;
+using GameEstate.Formats._Packages;
+using System.Collections.Generic;
 using System.IO;
 
 namespace GameEstate.Formats.AC.Entity
 {
-    public class SkyObject
+    public class SkyObject : IGetExplorerInfo
     {
         public readonly float BeginTime;
         public readonly float EndTime;
@@ -28,6 +32,22 @@ namespace GameEstate.Formats.AC.Entity
             DefaultPESObjectId = r.ReadUInt32();
             Properties = r.ReadUInt32();
             r.AlignBoundary();
+        }
+
+        List<ExplorerInfoNode> IGetExplorerInfo.GetInfoNodes(ExplorerManager resource, FileMetadata file, object tag)
+        {
+            var nodes = new List<ExplorerInfoNode> {
+                BeginTime != 0 ? new ExplorerInfoNode($"BeginTime: {BeginTime}") : null,
+                EndTime != 0 ? new ExplorerInfoNode($"EndTime: {EndTime}") : null,
+                BeginAngle != 0 ? new ExplorerInfoNode($"BeginAngle: {BeginAngle}") : null,
+                EndAngle != 0 ? new ExplorerInfoNode($"EndAngle: {EndAngle}") : null,
+                TexVelocityX != 0 ? new ExplorerInfoNode($"TexVelocityX: {TexVelocityX}") : null,
+                TexVelocityY != 0 ? new ExplorerInfoNode($"TexVelocityY: {TexVelocityY}") : null,
+                DefaultGFXObjectId != 0 ? new ExplorerInfoNode($"DefaultGFXObjectId: {DefaultGFXObjectId:X8}") : null,
+                DefaultPESObjectId != 0 ? new ExplorerInfoNode($"DefaultPESObjectId: {DefaultPESObjectId:X8}") : null,
+                Properties != 0 ? new ExplorerInfoNode($"Properties: {Properties:X}") : null,
+            };
+            return nodes;
         }
     }
 }

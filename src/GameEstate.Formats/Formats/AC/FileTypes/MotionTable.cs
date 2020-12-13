@@ -1,133 +1,109 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Numerics;
-using ACE.DatLoader.Entity;
-using ACE.Entity.Enum;
+using GameEstate.Core;
+using GameEstate.Explorer;
+using GameEstate.Explorer.ViewModel;
+using GameEstate.Formats._Packages;
+using GameEstate.Formats.AC.Entity;
+using GameEstate.Formats.AC.Props;
 
 namespace GameEstate.Formats.AC.FileTypes
 {
     [PakFileType(PakFileType.MotionTable)]
-    public class MotionTable : FileType
+    public class MotionTable : AbstractFileType, IGetExplorerInfo
     {
-        public uint DefaultStyle { get; private set; }
-        public Dictionary<uint, uint> StyleDefaults { get; } = new Dictionary<uint, uint>();
-        public Dictionary<uint, MotionData> Cycles { get; } = new Dictionary<uint, MotionData>();
-        public Dictionary<uint, MotionData> Modifiers { get; } = new Dictionary<uint, MotionData>();
-        public Dictionary<uint, Dictionary<uint, MotionData>> Links { get; } = new Dictionary<uint, Dictionary<uint, MotionData>>();
+        public readonly MotionStance DefaultStyle;
+        public readonly Dictionary<MotionStance, MotionCommand> StyleDefaults;
+        public readonly Dictionary<uint, MotionData> Cycles;
+        public readonly Dictionary<uint, MotionData> Modifiers;
+        public readonly Dictionary<uint, Dictionary<uint, MotionData>> Links;
 
-        public override void Read(BinaryReader reader)
+        public MotionTable(BinaryReader r)
         {
-            Id = reader.ReadUInt32();
-
-            DefaultStyle = reader.ReadUInt32();
-
-            uint numStyleDefaults = reader.ReadUInt32();
-            for (uint i = 0; i < numStyleDefaults; i++)
-                StyleDefaults.Add(reader.ReadUInt32(), reader.ReadUInt32());
-
-            Cycles.Unpack(reader);
-
-            Modifiers.Unpack(reader);
-
-            Links.Unpack(reader);
+            Id = r.ReadUInt32();
+            DefaultStyle = (MotionStance)r.ReadUInt32();
+            StyleDefaults = r.ReadL32Many<MotionStance, MotionCommand>(sizeof(uint), x => (MotionCommand)x.ReadUInt32());
+            Cycles = r.ReadL32Many<uint, MotionData>(sizeof(uint), x => new MotionData(x));
+            Modifiers = r.ReadL32Many<uint, MotionData>(sizeof(uint), x => new MotionData(x));
+            Links = r.ReadL32Many<uint, Dictionary<uint, MotionData>>(sizeof(uint), x => x.ReadL32Many<uint, MotionData>(sizeof(uint), y => new MotionData(y)));
         }
 
         /// <summary>
         /// Gets the default style for the requested MotionStance
         /// </summary>
         /// <returns>The default style or MotionCommand.Invalid if not found</returns>
-        private MotionCommand GetDefaultMotion(MotionStance style)
-        {
-            if (StyleDefaults.ContainsKey((uint)style))
-                return (MotionCommand)StyleDefaults[(uint)style];
-
-            return MotionCommand.Invalid;
-        }
-
-        public float GetAnimationLength(MotionCommand motion)
-        {
-            var defaultStance = (MotionStance)DefaultStyle;
-            var defaultMotion = GetDefaultMotion(defaultStance);
-
-            return GetAnimationLength(defaultStance, motion, defaultMotion);
-        }
-
-        public float GetAnimationLength(MotionStance stance, MotionCommand motion, MotionCommand? currentMotion = null)
-        {
-            if (currentMotion == null)
-                currentMotion = GetDefaultMotion(stance);
-
-            return GetAnimationLength(stance, motion, currentMotion.Value);
-        }
+        MotionCommand GetDefaultMotion(MotionStance style) => StyleDefaults.TryGetValue(style, out var z) ? z : MotionCommand.Invalid;
+        public float GetAnimationLength(MotionCommand motion) => GetAnimationLength(DefaultStyle, motion, GetDefaultMotion(DefaultStyle));
+        public float GetAnimationLength(MotionStance stance, MotionCommand motion, MotionCommand? currentMotion = null) => GetAnimationLength(stance, motion, currentMotion ?? GetDefaultMotion(stance));
 
         public float GetCycleLength(MotionStance stance, MotionCommand motion)
         {
-            uint key = (uint)stance << 16 | (uint)motion & 0xFFFFF;
-
-            Cycles.TryGetValue(key, out var motionData);
-
-            if (motionData == null)
+            var key = (uint)stance << 16 | (uint)motion & 0xFFFFF;
+            if (!Cycles.TryGetValue(key, out var motionData) || motionData == null)
                 return 0.0f;
-
             var length = 0.0f;
             foreach (var anim in motionData.Anims)
                 length += GetAnimationLength(anim);
-
             return length;
         }
 
-        public List<float> GetAttackFrames(uint motionTableId, MotionStance stance, MotionCommand motion, MotionCommand? currentMotion = null)
+        List<ExplorerInfoNode> IGetExplorerInfo.GetInfoNodes(ExplorerManager resource, FileMetadata file, object tag)
         {
-            var motionTable = DatManager.PortalDat.ReadFromDat<MotionTable>(motionTableId);
-
-            if (currentMotion == null)
-                currentMotion = GetDefaultMotion(stance);
-
-            var animData = GetAnimData(stance, motion, currentMotion.Value);
-
-            var frameNums = new List<int>();
-            var totalFrames = 0;
-
-            foreach (var anim in animData)
-            {
-                var animation = DatManager.PortalDat.ReadFromDat<Animation>(anim.AnimId);
-
-                foreach (var frame in animation.PartFrames)
-                {
-                    foreach (var hook in frame.Hooks)
-                    {
-                        if (hook.HookType == AnimationHookType.Attack)
-                            frameNums.Add(totalFrames);
-                    }
-                    totalFrames++;
-                }
-            }
-            var attackFrames = new List<float>();
-            foreach (var frameNum in frameNums)
-                attackFrames.Add((float)frameNum / totalFrames);    // div 0?
-
-            // cache?
-            return attackFrames;
+            var nodes = new List<ExplorerInfoNode> {
+                new ExplorerInfoNode($"{nameof(MotionTable)}: {Id:X8}", items: new List<ExplorerInfoNode> {
+                    //new ExplorerInfoNode($"Type: {Type}"),
+                })
+            };
+            return nodes;
         }
 
-        public List<AnimData> GetAnimData(MotionStance stance, MotionCommand motion, MotionCommand currentMotion)
+        /*
+public List<float> GetAttackFrames(uint motionTableId, MotionStance stance, MotionCommand motion, MotionCommand? currentMotion = null)
+{
+    var motionTable = DatManager.PortalDat.ReadFromDat<MotionTable>(motionTableId);
+
+    var animData = GetAnimData(stance, motion, currentMotion ?? GetDefaultMotion(stance));
+
+    var frameNums = new List<int>();
+    var totalFrames = 0;
+
+    foreach (var anim in animData)
+    {
+        var animation = DatManager.PortalDat.ReadFromDat<Animation>(anim.AnimId);
+
+        foreach (var frame in animation.PartFrames)
         {
-            var animData = new List<AnimData>();
-
-            uint motionHash = (uint)stance << 16 | (uint)currentMotion & 0xFFFFF;
-
-            Links.TryGetValue(motionHash, out var link);
-            if (link == null) return animData;
-
-            link.TryGetValue((uint)motion, out var motionData);
-            if (motionData == null)
+            foreach (var hook in frame.Hooks)
             {
-                motionHash = (uint)stance << 16;
-                Links.TryGetValue(motionHash, out link);
-                if (link == null) return animData;
-                link.TryGetValue((uint)motion, out motionData);
-                if (motionData == null) return animData;
+                if (hook.HookType == AnimationHookType.Attack)
+                    frameNums.Add(totalFrames);
+            }
+            totalFrames++;
+        }
+    }
+    var attackFrames = new List<float>();
+    foreach (var frameNum in frameNums)
+        attackFrames.Add((float)frameNum / totalFrames);    // div 0?
+
+    // cache?
+    return attackFrames;
+}
+*/
+
+        public AnimData[] GetAnimData(MotionStance stance, MotionCommand motion, MotionCommand currentMotion)
+        {
+            var animData = new AnimData[0];
+            var key = (uint)stance << 16 | (uint)currentMotion & 0xFFFFF;
+            if (!Links.TryGetValue(key, out var link) || link == null)
+                return animData;
+            if (!link.TryGetValue((uint)motion, out var motionData) || motionData == null)
+            {
+                key = (uint)stance << 16;
+                if (!Links.TryGetValue(key, out link) || link == null)
+                    return animData;
+                if (!link.TryGetValue((uint)motion, out motionData) || motionData == null)
+                    return animData;
             }
             return motionData.Anims;
         }
@@ -135,106 +111,107 @@ namespace GameEstate.Formats.AC.FileTypes
         public float GetAnimationLength(MotionStance stance, MotionCommand motion, MotionCommand currentMotion)
         {
             var animData = GetAnimData(stance, motion, currentMotion);
-
             var length = 0.0f;
             foreach (var anim in animData)
                 length += GetAnimationLength(anim);
-
             return length;
         }
 
         public float GetAnimationLength(AnimData anim)
         {
-            var highFrame = anim.HighFrame;
+            throw new NotImplementedException();
+            //var highFrame = anim.HighFrame;
 
-            // get the maximum # of animation frames
-            var animation = DatManager.PortalDat.ReadFromDat<Animation>(anim.AnimId);
+            //// get the maximum # of animation frames
+            //var animation = DatManager.PortalDat.ReadFromDat<Animation>(anim.AnimId);
 
-            if (anim.HighFrame == -1)
-                highFrame = (int)animation.NumFrames;
+            //if (anim.HighFrame == -1)
+            //    highFrame = (int)animation.NumFrames;
 
-            if (highFrame > animation.NumFrames)
-            {
-                // magic windup for level 6 spells appears to be the only animation w/ bugged data
-                //Console.WriteLine($"MotionTable.GetAnimationLength({anim}): highFrame({highFrame}) > animation.NumFrames({animation.NumFrames})");
-                highFrame = (int)animation.NumFrames;
-            }
+            //if (highFrame > animation.NumFrames)
+            //{
+            //    // magic windup for level 6 spells appears to be the only animation w/ bugged data
+            //    //Console.WriteLine($"MotionTable.GetAnimationLength({anim}): highFrame({highFrame}) > animation.NumFrames({animation.NumFrames})");
+            //    highFrame = (int)animation.NumFrames;
+            //}
 
-            var numFrames = highFrame - anim.LowFrame;
+            //var numFrames = highFrame - anim.LowFrame;
 
-            return numFrames / Math.Abs(anim.Framerate); // framerates can be negative, which tells the client to play in reverse
+            //return numFrames / Math.Abs(anim.Framerate); // framerates can be negative, which tells the client to play in reverse
         }
 
-        public ACE.Entity.Position GetAnimationFinalPositionFromStart(ACE.Entity.Position position, float objScale, MotionCommand motion)
+        /*
+public ACE.Entity.Position GetAnimationFinalPositionFromStart(ACE.Entity.Position position, float objScale, MotionCommand motion)
+{
+    MotionStance defaultStyle = (MotionStance)DefaultStyle;
+
+    // get the default motion for the default
+    MotionCommand defaultMotion = GetDefaultMotion(defaultStyle);
+    return GetAnimationFinalPositionFromStart(position, objScale, defaultMotion, defaultStyle, motion);
+}
+
+public ACE.Entity.Position GetAnimationFinalPositionFromStart(ACE.Entity.Position position, float objScale, MotionCommand currentMotionState, MotionStance style, MotionCommand motion)
+{
+    float length = 0; // init our length var...will return as 0 if not found
+
+    ACE.Entity.Position finalPosition = new ACE.Entity.Position();
+
+    uint motionHash = ((uint)currentMotionState & 0xFFFFFF) | ((uint)style << 16);
+
+    if (Links.ContainsKey(motionHash))
+    {
+        Dictionary<uint, MotionData> links = Links[motionHash];
+
+        if (links.ContainsKey((uint)motion))
         {
-            MotionStance defaultStyle = (MotionStance)DefaultStyle;
-
-            // get the default motion for the default
-            MotionCommand defaultMotion = GetDefaultMotion(defaultStyle);
-            return GetAnimationFinalPositionFromStart(position, objScale, defaultMotion, defaultStyle, motion);
-        }
-
-        public ACE.Entity.Position GetAnimationFinalPositionFromStart(ACE.Entity.Position position, float objScale, MotionCommand currentMotionState, MotionStance style, MotionCommand motion)
-        {
-            float length = 0; // init our length var...will return as 0 if not found
-
-            ACE.Entity.Position finalPosition = new ACE.Entity.Position();
-
-            uint motionHash = ((uint)currentMotionState & 0xFFFFFF) | ((uint)style << 16);
-
-            if (Links.ContainsKey(motionHash))
+            // loop through all that animations to get our total count
+            for (int i = 0; i < links[(uint)motion].Anims.Count; i++)
             {
-                Dictionary<uint, MotionData> links = Links[motionHash];
+                AnimData anim = links[(uint)motion].Anims[i];
 
-                if (links.ContainsKey((uint)motion))
+                uint numFrames;
+
+                // check if the animation is set to play the whole thing, in which case we need to get the numbers of frames in the raw animation
+                if ((anim.LowFrame == 0) && (anim.HighFrame == -1))
                 {
-                    // loop through all that animations to get our total count
-                    for (int i = 0; i < links[(uint)motion].Anims.Count; i++)
+                    var animation = DatManager.PortalDat.ReadFromDat<Animation>(anim.AnimId);
+                    numFrames = animation.NumFrames;
+
+                    if (animation.PosFrames.Count > 0)
                     {
-                        AnimData anim = links[(uint)motion].Anims[i];
-
-                        uint numFrames;
-
-                        // check if the animation is set to play the whole thing, in which case we need to get the numbers of frames in the raw animation
-                        if ((anim.LowFrame == 0) && (anim.HighFrame == -1))
+                        finalPosition = position;
+                        var origin = new Vector3(position.PositionX, position.PositionY, position.PositionZ);
+                        var orientation = new Quaternion(position.RotationX, position.RotationY, position.RotationZ, position.RotationW);
+                        foreach (var posFrame in animation.PosFrames)
                         {
-                            var animation = DatManager.PortalDat.ReadFromDat<Animation>(anim.AnimId);
-                            numFrames = animation.NumFrames;
+                            origin += Vector3.Transform(posFrame.Origin, orientation) * objScale;
 
-                            if (animation.PosFrames.Count > 0)
-                            {
-                                finalPosition = position;
-                                var origin = new Vector3(position.PositionX, position.PositionY, position.PositionZ);
-                                var orientation = new Quaternion(position.RotationX, position.RotationY, position.RotationZ, position.RotationW);
-                                foreach (var posFrame in animation.PosFrames)
-                                {
-                                    origin += Vector3.Transform(posFrame.Origin, orientation) * objScale;
-
-                                    orientation *= posFrame.Orientation;
-                                    orientation = Quaternion.Normalize(orientation);
-                                }
-
-                                finalPosition.PositionX = origin.X;
-                                finalPosition.PositionY = origin.Y;
-                                finalPosition.PositionZ = origin.Z;
-
-                                finalPosition.RotationW = orientation.W;
-                                finalPosition.RotationX = orientation.X;
-                                finalPosition.RotationY = orientation.Y;
-                                finalPosition.RotationZ = orientation.Z;
-                            }
-                            else
-                                return position;
+                            orientation *= posFrame.Orientation;
+                            orientation = Quaternion.Normalize(orientation);
                         }
-                        else
-                            numFrames = (uint)(anim.HighFrame - anim.LowFrame);
 
-                        length += numFrames / Math.Abs(anim.Framerate); // Framerates can be negative, which tells the client to play in reverse
+                        finalPosition.PositionX = origin.X;
+                        finalPosition.PositionY = origin.Y;
+                        finalPosition.PositionZ = origin.Z;
+
+                        finalPosition.RotationW = orientation.W;
+                        finalPosition.RotationX = orientation.X;
+                        finalPosition.RotationY = orientation.Y;
+                        finalPosition.RotationZ = orientation.Z;
                     }
+                    else
+                        return position;
                 }
-            }
+                else
+                    numFrames = (uint)(anim.HighFrame - anim.LowFrame);
 
-            return finalPosition;
+                length += numFrames / Math.Abs(anim.Framerate); // Framerates can be negative, which tells the client to play in reverse
+            }
         }
+    }
+
+    return finalPosition;
+}
+        */
     }
 }

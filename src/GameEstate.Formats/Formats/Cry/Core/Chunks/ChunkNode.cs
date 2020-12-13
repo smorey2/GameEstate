@@ -1,7 +1,9 @@
-﻿using System;
+﻿using GameEstate.Core;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
 using static GameEstate.EstateDebug;
 
 namespace GameEstate.Formats.Cry.Core
@@ -187,7 +189,7 @@ namespace GameEstate.Formats.Cry.Core
             PosCtrlID = r.ReadInt32();
             RotCtrlID = r.ReadInt32();
             SclCtrlID = r.ReadInt32();
-            Properties = r.ReadL16String(Encoding.Default);
+            Properties = r.ReadPString();
         }
 
         public override void WriteChunk()

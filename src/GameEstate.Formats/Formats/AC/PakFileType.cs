@@ -247,7 +247,7 @@ namespace GameEstate.Formats.AC
         /// <summary>
         /// This is in the Language dat (client_local_English.dat)
         /// </summary>
-        [PakType(PakType.Portal), PakFileExtension("uil"), PakFileIdRange(0x21000000, 0x21FFFFFF)] UiLayout = 35, // DB_TYPE_UI_LAYOUT
+        [PakType(PakType.Portal), PakFileExtension("uil"), PakFileIdRange(0x21000000, 0x21FFFFFF)] UILayout = 35, // DB_TYPE_UI_LAYOUT
         /// <summary>
         /// indexed as "emp" in the client
         /// </summary>
@@ -371,11 +371,15 @@ namespace GameEstate.Formats.AC
             }
         }
 
-        public static string GetFileName(uint id, PakType dataType, uint value)
+        public static string GetFileName(uint id, PakType dataType, uint value, out PakFileType? type)
         {
             var fileType = GetFileType(id, dataType);
             if (fileType == null)
+            {
+                type = null;
                 return $"{id:X8}";
+            }
+            type = fileType.Value.type;
             switch (fileType.Value.ext)
             {
                 case null: return $"{id:X8}";
@@ -385,9 +389,9 @@ namespace GameEstate.Formats.AC
             }
         }
 
-        public static (PakFileType type, object ext)? GetFileType(uint id, PakType dataType)
+        public static (PakFileType type, object ext)? GetFileType(uint id, PakType pakType)
         {
-            if (dataType == PakType.Cell)
+            if (pakType == PakType.Cell)
             {
                 if ((id & 0xFFFF) == 0xFFFF) return (PakFileType.LandBlock, "land");
                 else if ((id & 0xFFFF) == 0xFFFE) return (PakFileType.LandBlockInfo, "lbi");

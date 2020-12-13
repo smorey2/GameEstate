@@ -1,8 +1,12 @@
+using GameEstate.Explorer;
+using GameEstate.Explorer.ViewModel;
+using GameEstate.Formats._Packages;
+using System.Collections.Generic;
 using System.IO;
 
 namespace GameEstate.Formats.AC.Entity
 {
-    public class RegionMisc
+    public class RegionMisc : IGetExplorerInfo
     {
         public readonly uint Version;
         public readonly uint GameMapID;
@@ -19,6 +23,19 @@ namespace GameEstate.Formats.AC.Entity
             AutotestMapSize = r.ReadUInt32();
             ClearCellId = r.ReadUInt32();
             ClearMonsterId = r.ReadUInt32();
+        }
+
+        List<ExplorerInfoNode> IGetExplorerInfo.GetInfoNodes(ExplorerManager resource, FileMetadata file, object tag)
+        {
+            var nodes = new List<ExplorerInfoNode> {
+                new ExplorerInfoNode($"Version: {Version}"),
+                new ExplorerInfoNode($"GameMapID: {GameMapID:X8}"),
+                new ExplorerInfoNode($"AutoTest MapID: {AutotestMapId:X8}"),
+                new ExplorerInfoNode($"AutoTest MapSize: {AutotestMapSize}"),
+                new ExplorerInfoNode($"ClearCellID: {ClearCellId:X8}"),
+                new ExplorerInfoNode($"ClearMonsterID: {ClearMonsterId:X8}"),
+            };
+            return nodes;
         }
     }
 }

@@ -1,9 +1,10 @@
-﻿using System;
+﻿using GameEstate.Core;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 
-namespace GameEstate.Formats.AC.Entity
+namespace GameEstate.Formats.AC.Props
 {
     public static partial class EnumExtensions { }
 
@@ -289,17 +290,6 @@ namespace GameEstate.Formats.AC.Entity
         Mana = 0x00000100,
 
         Full = Strength | Endurance | Quickness | Coordination | Focus | Self | Health | Stamina | Mana
-    }
-
-    partial class EnumExtensions
-    {
-        public static T GetAttributeOfType<T>(this System.Enum enumVal) where T : System.Attribute
-        {
-            var type = enumVal.GetType();
-            var memInfo = type.GetMember(enumVal.ToString());
-            var attributes = memInfo[0].GetCustomAttributes(typeof(T), false);
-            return attributes.Length > 0 ? (T)attributes[0] : null;
-        }
     }
 
     public enum AttunedStatus
@@ -2961,11 +2951,11 @@ namespace GameEstate.Formats.AC.Entity
             }
         }
 
-        public static bool IsMultiDamage(this DamageType damageType) => EnumHelper.HasMultiple((uint)damageType);
+        public static bool IsMultiDamage(this DamageType damageType) => CoreExtensions.EnumHasMultiple((uint)damageType);
 
         public static DamageType SelectDamageType(this DamageType damageType)
         {
-            var damageTypes = EnumHelper.GetFlags(damageType);
+            var damageTypes = damageType.GetFlags();
             var rng = ThreadSafeRandom.Next(1, damageTypes.Count - 1);
             return (DamageType)damageTypes[rng];
         }
@@ -3918,7 +3908,7 @@ namespace GameEstate.Formats.AC.Entity
     }
 
     // TODO: Figure out what bitfield(s) these values map to and replace with OR's
-    // Note: These IDs are from the last version of the client. Earlier versions of the client had different values for some of the enums.
+    // Note: These IDs are from the last version of the client.Earlier versions of the client had different values for some of the enums.
     public enum MotionCommand : uint
     {
         Invalid = 0x0,
@@ -4192,11 +4182,11 @@ namespace GameEstate.Formats.AC.Entity
         VividTargetIndicator = 0x900010c,
         SelectSelf = 0x900010d,
         SkillHealSelf = 0x1000010e,
-        //WoahDuplicate1                      = 0x1000010f,  // ushort collision with NextMonster?
+        WoahDuplicate1 = 0x1000010f,  // ushort collision with NextMonster?
         SkillHealOther = 0x1000010f,
-        //MimeDrinkDuplicate1                 = 0x10000110,  // ushort collision with PreviousMonster?
-        //MimeDrinkDuplicate2                 = 0x10000111,  // ushort collision with ClosestMonster?
-        //NextMonster                         = 0x900010f,
+        MimeDrinkDuplicate1 = 0x10000110,  // ushort collision with PreviousMonster?
+        MimeDrinkDuplicate2 = 0x10000111,  // ushort collision with ClosestMonster?
+        NextMonster = 0x900010f,
         PreviousMonster = 0x9000110,
         ClosestMonster = 0x9000111,
         NextPlayer = 0x9000112,
@@ -13255,5 +13245,397 @@ namespace GameEstate.Formats.AC.Entity
             result &= ~maskB;
             return result == SquelchMask.Combined ? SquelchMask.AllChannels : result;
         }
+    }
+
+    /// <summary>
+    /// This should be the same as MotionStance & 0xFFFF
+    /// </summary>
+    public enum StanceMode : ushort
+    {
+        Invalid = 0x0,
+        HandCombat = 0x3c,
+        NonCombat = 0x3d,
+        SwordCombat = 0x3e,
+        BowCombat = 0x3f,
+        SwordShieldCombat = 0x40,
+        CrossbowCombat = 0x41,
+        UnusedCombat = 0x42,
+        SlingCombat = 0x43,
+        TwoHandedSwordCombat = 0x44,   // 2HandedSwordCombat
+        TwoHandedStaffCombat = 0x45,   // 2HandedStaffCombat 
+        DualWieldCombat = 0x46,
+        ThrownWeaponCombat = 0x47,
+        Graze = 0x48,   // unused?
+        Magic = 0x49,
+        BowNoAmmo = 0xe8,
+        CrossBowNoAmmo = 0xe9,
+        AtlatlCombat = 0x13b,  // 138 in PY16
+        ThrownShieldCombat = 0x13c,  // 139 in PY16
+    }
+
+    public enum StipplingType
+    {
+        None = 0x0,
+        Positive = 0x1,
+        Negative = 0x2,
+        Both = 0x3,
+        NoPos = 0x4,
+        NoNeg = 0x8,
+        NoUVS = 0x14
+    }
+
+    public enum SubscriptionStatus
+    {
+        No_Subscription,
+        AsheronsCall_Subscription,
+        DarkMajesty_Subscription,
+        ThroneOfDestiny_Subscription,
+        ThroneOfDestiny_Preordered
+    }
+
+    public enum SummoningMastery
+    {
+        Undef,
+        Primalist,
+        Necromancer,
+        Naturalist
+    }
+
+    public enum SurfaceHandler
+    {
+        Invalid = 0x0,
+        Database = 0x1,
+        PalShift = 0x2,
+        TexMerge = 0x3,
+        CustomDB = 0x4
+    }
+
+    /// <summary>
+    /// This is called PixelFormat in the client, but renaming it due to conflict with built in Enum PixelFormat.
+    ///
+    /// These are the different image formats that textures (RenderSurface) are stored in the dat files.
+    /// While these are all defined, only a handful are actually used.
+    /// </summary>
+    public enum SurfacePixelFormat : uint
+    {
+        PFID_UNKNOWN = 0,
+        PFID_R8G8B8 = 20,
+        PFID_A8R8G8B8 = 21,
+        PFID_X8R8G8B8 = 22,
+        PFID_R5G6B5 = 23,
+        PFID_X1R5G5B5 = 24,
+        PFID_A1R5G5B5 = 25,
+        PFID_A4R4G4B4 = 26,
+        PFID_R3G3B2 = 27,
+        PFID_A8 = 28,
+        PFID_A8R3G3B2 = 29,
+        PFID_X4R4G4B4 = 30,
+        PFID_A2B10G10R10 = 31,
+        PFID_A8B8G8R8 = 32,
+        PFID_X8B8G8R8 = 33,
+        PFID_A2R10G10B10 = 35,
+        PFID_A8P8 = 40,
+        PFID_P8 = 41,
+        PFID_L8 = 50,
+        PFID_A8L8 = 51,
+        PFID_A4L4 = 52,
+        PFID_V8U8 = 60,
+        PFID_L6V5U5 = 61,
+        PFID_X8L8V8U8 = 62,
+        PFID_Q8W8V8U8 = 63,
+        PFID_V16U16 = 64,
+        PFID_A2W10V10U10 = 67,
+        PFID_D16_LOCKABLE = 70,
+        PFID_D32 = 71,
+        PFID_D15S1 = 73,
+        PFID_D24S8 = 75,
+        PFID_D24X8 = 77,
+        PFID_D24X4S4 = 79,
+        PFID_D16 = 80,
+        PFID_VERTEXDATA = 100,
+        PFID_INDEX16 = 101,
+        PFID_INDEX32 = 102,
+        PFID_CUSTOM_R8G8B8A8 = 240,
+        PFID_CUSTOM_FIRST = 240,
+        PFID_CUSTOM_A8B8G8R8 = 241,
+        PFID_CUSTOM_B8G8R8 = 242,
+        PFID_CUSTOM_LSCAPE_R8G8B8 = 243,
+        PFID_CUSTOM_LSCAPE_ALPHA = 244,
+        PFID_CUSTOM_LAST = 500,
+        PFID_CUSTOM_RAW_JPEG = 500,
+        PFID_DXT1 = 827611204,
+        PFID_DXT2 = 844388420,
+        PFID_YUY2 = 844715353,
+        PFID_DXT3 = 861165636,
+        PFID_DXT4 = 877942852,
+        PFID_DXT5 = 894720068,
+        PFID_G8R8_G8B8 = 1111970375,
+        PFID_R8G8_B8G8 = 1195525970,
+        PFID_UYVY = 1498831189,
+        PFID_INVALID = 2147483647,
+    }
+
+    [Flags]
+    public enum SurfaceType : uint
+    {
+        Base1Solid = 0x1,
+        Base1Image = 0x2,
+        Base1ClipMap = 0x4,
+        Translucent = 0x10,
+        Diffuse = 0x20,
+        Luminous = 0x40,
+        Alpha = 0x100,
+        InvAlpha = 0x200,
+        Additive = 0x10000,
+        Detail = 0x20000,
+        Gouraud = 0x10000000,
+        Stippled = 0x40000000,
+        Perspective = 0x80000000
+    }
+
+    /// <summary>
+    /// Determines the monster behavior for which players are targetted
+    /// </summary>
+    [Flags]
+    public enum TargetingTactic
+    {
+        // note that this is still trying to be figured out...
+        None = 0x00,
+        Random = 0x01,   // target a random player every now and then
+        Focused = 0x02,   // target 1 player and stick with them
+        LastDamager = 0x04,   // target the last player who did damage
+        TopDamager = 0x08,   // target the player who did the most damage
+        Weakest = 0x10,   // target the lowest level player
+        Strongest = 0x20,   // target the highest level player
+        Nearest = 0x40,   // target the player in closest proximity
+    }
+
+    /// <summary>
+    /// Determines when a monster will attack
+    /// </summary>
+    [Flags]
+    public enum Tolerance
+    {
+        None = 0,  // attack targets in range
+        NoAttack = 1,  // never attack
+        Appraise = 2,  // attack when ID'd or attacked
+        Unknown = 4,  // unused?
+        Provoke = 8,  // used in conjunction with 32
+        Unknown2 = 16, // unused?
+        Target = 32, // only target original attacker
+        Retaliate = 64  // only attack after attacked
+    }
+
+    public enum TradeSide
+    {
+        Self = 0x1,
+        Partner = 0x2,
+    }
+
+    /// <summary>
+    /// Indicates the source and destination for life magic transfer spells
+    /// </summary>
+    [Flags]
+    public enum TransferFlags
+    {
+        CasterSource = 0x1,
+        TargetSource = 0x2,
+        CasterDestination = 0x4,
+        TargetDestination = 0x8
+    }
+
+    [Flags]
+    public enum UIEffects : uint
+    {
+        Undef = 0x0000,
+        Magical = 0x0001,
+        Poisoned = 0x0002,
+        BoostHealth = 0x0004,
+        BoostMana = 0x0008,
+        BoostStamina = 0x0010,
+        Fire = 0x0020,
+        Lightning = 0x0040,
+        Frost = 0x0080,
+        Acid = 0x0100,
+        Bludgeoning = 0x0200,
+        Slashing = 0x0400,
+        Piercing = 0x0800,
+        Nether = 0x1000
+    }
+
+    /// <summary>
+    /// this is used as a flag to tell the client what we are sending about the position of the object.
+    /// </summary>
+    [Flags]
+    public enum UpdatePositionFlag
+    {
+        /// <summary>
+        /// The I got nothing for you....
+        /// </summary>
+        None = 0x00,
+        /// <summary>
+        /// The velocity vector is present
+        /// </summary>
+        Velocity = 0x01,
+        /// <summary>
+        /// The placement - I think this refers to the orientation of the placement of the item. - this could be animationframe_id from looking at the pcaps
+        /// </summary>
+        Placement = 0x02,
+        /// <summary>
+        /// The object is in contact with the ground - this flag is all that is needed there is no corresponding data sent - probably true for any boolean as it would be redundant redundant.
+        /// </summary>
+        Contact = 0x04,
+        /// <summary>
+        /// The zero qw - orientation quaternion has 0 w component 
+        /// </summary>
+        ZeroQw = 0x08,
+        /// <summary>
+        /// The zero qx - orientation quaternion has 0 x component 
+        /// </summary>
+        ZeroQx = 0x10,
+        /// <summary>
+        /// The zero qy - orientation quaternion has 0 y component 
+        /// </summary>
+        ZeroQy = 0x20,
+        /// <summary>
+        /// The zero qz - orientation quaternion has 0 z component 
+        /// </summary>
+        ZeroQz = 0x40
+    }
+
+    [Flags]
+    public enum Usable : uint
+    {
+        Undef = 0x00,
+        No = 0x01,
+        Self = 0x02,
+        Wielded = 0x04,
+        Contained = 0x08,
+        Viewed = 0x10,
+        Remote = 0x20,
+        NeverWalk = 0x40,
+        ObjSelf = 0x80,
+
+        ContainedViewed = Contained | Viewed,
+        ContainedViewedRemote = Contained | Viewed | Remote,
+        ContainedViewedRemoteNeverWalk = Contained | Viewed | Remote | NeverWalk,
+
+        ViewedRemote = Viewed | Remote,
+        ViewedRemoteNeverWalk = Viewed | Remote | NeverWalk,
+
+        RemoteNeverWalk = Remote | NeverWalk,
+
+        SourceWieldedTargetWielded = 0x040004,
+        SourceWieldedTargetContained = 0x080004,
+        SourceWieldedTargetViewed = 0x100004,
+        SourceWieldedTargetRemote = 0x200004,
+        SourceWieldedTargetRemoteNeverWalk = 0x600004,
+
+        SourceContainedTargetWielded = 0x040008,
+        SourceContainedTargetContained = 0x080008,
+        SourceContainedTargetObjselfOrContained = 0x880008,
+        SourceContainedTargetSelfOrContained = 0x0A0008,
+        SourceContainedTargetViewed = 0x100008,
+        SourceContainedTargetRemote = 0x200008,
+        SourceContainedTargetRemoteNeverWalk = 0x600008,
+        SourceContainedTargetRemoteOrSelf = 0x220008,
+
+        SourceViewedTargetWielded = 0x040010,
+        SourceViewedTargetContained = 0x080010,
+        SourceViewedTargetViewed = 0x100010,
+        SourceViewedTargetRemote = 0x200010,
+
+        SourceRemoteTargetWielded = 0x040020,
+        SourceRemoteTargetContained = 0x080020,
+        SourceRemoteTargetViewed = 0x100020,
+        SourceRemoteTargetRemote = 0x200020,
+        SourceRemoteTargetRemoteNeverWalk = 0x600020,
+
+        SourceMask = 0xFFFF,
+        TargetMask = 0xFFFF0000,
+    }
+
+    partial class EnumExtensions
+    {
+        public static Usable GetSourceFlags(this Usable usable) => usable & Usable.SourceMask;
+
+        public static Usable GetTargetFlags(this Usable usable) => (Usable)((uint)usable >> 16);
+    }
+
+    // Verified against GDL, much <3 to you P.
+    public enum VendorType
+    {
+        Undef = 0,
+        Open = 1,
+        Close = 2,
+        Sell = 3,
+        Buy = 4,
+        Heartbeat = 5
+    }
+
+    public enum VertexType
+    {
+        Unkonwn = 0x0,
+        CSWVertexType = 0x1
+    }
+
+    public enum Vital : uint
+    {
+        Undefined,
+        MaxHealth,
+        Health,
+        MaxStamina,
+        Stamina,
+        MaxMana,
+        Mana
+    }
+
+    public enum WeaponType
+    {
+        Undef,
+        Unarmed,
+        Sword,
+        Axe,
+        Mace,
+        Spear,
+        Dagger,
+        Staff,
+        Bow,
+        Crossbow,
+        Thrown,
+        TwoHanded,
+        Magic
+    }
+
+    public enum WieldRequirement
+    {
+        Invalid,
+        Skill,
+        RawSkill,
+        Attrib,
+        RawAttrib,
+        SecondaryAttrib,
+        RawSecondaryAttrib,
+        Level,
+        Training,
+        IntStat,
+        BoolStat,
+        CreatureType,
+        HeritageType
+    }
+
+    /// <summary>
+    /// For leveling up items,
+    /// only kill and quest XP are taken into consideration
+    /// </summary>
+    public enum XpType
+    {
+        Kill,
+        Quest,
+        Proficiency,
+        Fellowship,
+        Allegiance,
+        Admin,
+        Emote
     }
 }

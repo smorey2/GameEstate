@@ -1,10 +1,15 @@
 using GameEstate.Core;
+using GameEstate.Explorer;
+using GameEstate.Explorer.ViewModel;
+using GameEstate.Formats._Packages;
+using GameEstate.Formats.AC.Props;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 
 namespace GameEstate.Formats.AC.Entity
 {
-    public class CellStruct
+    public class CellStruct : IGetExplorerInfo
     {
         public readonly CVertexArray VertexArray;
         public readonly Dictionary<ushort, Polygon> Polygons;
@@ -30,6 +35,20 @@ namespace GameEstate.Formats.AC.Entity
             if (hasDrawingBSP != 0)
                 DrawingBSP = new BSPTree(r, BSPType.Drawing);
             r.AlignBoundary();
+        }
+
+        List<ExplorerInfoNode> IGetExplorerInfo.GetInfoNodes(ExplorerManager resource, FileMetadata file, object tag)
+        {
+            var nodes = new List<ExplorerInfoNode> {
+                new ExplorerInfoNode($"VertexArray", items: (VertexArray as IGetExplorerInfo).GetInfoNodes()),
+                new ExplorerInfoNode($"Polygons", items: Polygons.Select(x => new ExplorerInfoNode($"{x.Key}", items: (x.Value as IGetExplorerInfo).GetInfoNodes()))),
+                new ExplorerInfoNode($"Portals", items: Portals.Select(x => new ExplorerInfoNode($"{x:X8}"))),
+                new ExplorerInfoNode($"CellBSP", items: (CellBSP as IGetExplorerInfo).GetInfoNodes(tag: BSPType.Cell).First().Items),
+                new ExplorerInfoNode($"PhysicsPolygons", items: PhysicsPolygons.Select(x => new ExplorerInfoNode($"{x.Key}", items: (x.Value as IGetExplorerInfo).GetInfoNodes()))),
+                new ExplorerInfoNode($"PhysicsBSP", items: (PhysicsBSP as IGetExplorerInfo).GetInfoNodes(tag: BSPType.Physics).First().Items),
+                DrawingBSP != null ? new ExplorerInfoNode($"DrawingBSP", items: (DrawingBSP as IGetExplorerInfo).GetInfoNodes(tag: BSPType.Drawing).First().Items) : null,
+            };
+            return nodes;
         }
     }
 }

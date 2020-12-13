@@ -25,7 +25,7 @@ namespace GameEstate.Formats.Tes.Records
                 case "NAME": NAME = new FMIDField<Record>(r, dataSize); return true;
                 case "DATA": DATA = new REFRRecord.DATAField(r, dataSize); return true;
                 case "XPCI": XPCI = new FMIDField<CELLRecord>(r, dataSize); return true;
-                case "FULL": XPCI.Value.AddName(r.ReadASCII(dataSize)); return true;
+                case "FULL": XPCI.Value.AddName(r.ReadANSI(dataSize)); return true;
                 case "XLOD": XLOD = r.ReadBYTV(dataSize); return true;
                 case "XESP": XESP = new REFRRecord.XESPField(r, dataSize); return true;
                 case "XMRC": XMRC = new FMIDField<REFRRecord>(r, dataSize); return true;

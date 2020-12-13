@@ -1,7 +1,10 @@
+using GameEstate.Core;
+using GameEstate.Explorer;
+using GameEstate.Explorer.ViewModel;
+using GameEstate.Formats._Packages;
+using GameEstate.Formats.AC.Entity;
 using System.Collections.Generic;
 using System.IO;
-
-using ACE.DatLoader.Entity;
 
 namespace GameEstate.Formats.AC.FileTypes
 {
@@ -10,15 +13,24 @@ namespace GameEstate.Formats.AC.FileTypes
     /// Contains info on what objects to display at what distance to help with render performance (e.g. low-poly very far away, but high-poly when close)
     /// </summary>
     [PakFileType(PakFileType.DegradeInfo)]
-    public class GfxObjDegradeInfo : FileType
+    public class GfxObjDegradeInfo : AbstractFileType, IGetExplorerInfo
     {
-        public List<GfxObjInfo> Degrades { get; } = new List<GfxObjInfo>();
+        public readonly GfxObjInfo[] Degrades;
 
-        public override void Read(BinaryReader reader)
+        public GfxObjDegradeInfo(BinaryReader r)
         {
-            Id = reader.ReadUInt32();
+            Id = r.ReadUInt32();
+            Degrades = r.ReadL32Array(x => new GfxObjInfo(x));
+        }
 
-            Degrades.Unpack(reader);
+        List<ExplorerInfoNode> IGetExplorerInfo.GetInfoNodes(ExplorerManager resource, FileMetadata file, object tag)
+        {
+            var nodes = new List<ExplorerInfoNode> {
+                new ExplorerInfoNode($"{nameof(GfxObjDegradeInfo)}: {Id:X8}", items: new List<ExplorerInfoNode> {
+                    //new ExplorerInfoNode($"Type: {Type}"),
+                })
+            };
+            return nodes;
         }
     }
 }

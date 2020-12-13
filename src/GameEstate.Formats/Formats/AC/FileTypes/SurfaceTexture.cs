@@ -1,23 +1,35 @@
+using GameEstate.Core;
+using GameEstate.Explorer;
+using GameEstate.Explorer.ViewModel;
+using GameEstate.Formats._Packages;
 using System.Collections.Generic;
 using System.IO;
 
 namespace GameEstate.Formats.AC.FileTypes
 {
     [PakFileType(PakFileType.SurfaceTexture)]
-    public class SurfaceTexture : FileType
+    public class SurfaceTexture : AbstractFileType, IGetExplorerInfo
     {
-        // public int Id { get; private set; }
-        public int Unknown { get; private set; }
-        public byte UnknownByte { get; private set; }
-        // public int TextureCount { get; private set; }
-        public List<uint> Textures { get; private set; } = new List<uint>(); // These values correspond to a Surface (0x06) entry
+        public readonly int Unknown;
+        public readonly byte UnknownByte;
+        public readonly uint[] Textures; // These values correspond to a Surface (0x06) entry
 
-        public override void Read(BinaryReader r)
+        public SurfaceTexture(BinaryReader r)
         {
             Id = r.ReadUInt32();
             Unknown = r.ReadInt32();
             UnknownByte = r.ReadByte();
-            Textures.Unpack(r);
+            Textures = r.ReadL32Array<uint>(sizeof(uint));
+        }
+
+        List<ExplorerInfoNode> IGetExplorerInfo.GetInfoNodes(ExplorerManager resource, FileMetadata file, object tag)
+        {
+            var nodes = new List<ExplorerInfoNode> {
+                new ExplorerInfoNode($"{nameof(SurfaceTexture)}: {Id:X8}", items: new List<ExplorerInfoNode> {
+                    //new ExplorerInfoNode($"Type: {Type}"),
+                })
+            };
+            return nodes;
         }
     }
 }

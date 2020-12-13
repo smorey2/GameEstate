@@ -256,7 +256,7 @@ namespace GameEstate.Formats._Packages
                 var headerFiles = r.ReadTArray<KEY_HeaderFile>(sizeof(KEY_HeaderFile), (int)header.NumFiles).Select(x =>
                 {
                     r.Position(x.FileNameOffset);
-                    return (file: x, path: r.ReadASCII(x.FileNameSize - 1));
+                    return (file: x, path: r.ReadANSI(x.FileNameSize - 1));
                 }).ToArray();
                 r.Position(header.KeysOffset);
                 var headerKeys = r.ReadTArray<KEY_HeaderKey>(sizeof(KEY_HeaderKey), (int)header.NumKeys).ToDictionary(x => x.Id, x => UnsafeUtils.ReadZASCII(x.Name, 0x10));

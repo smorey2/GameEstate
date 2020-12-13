@@ -48,7 +48,7 @@ namespace GameEstate.Formats.Valve.Blocks
         public const int MAGIC = 0x03564B56; // VKV3 (3 isn't ascii, its 0x03)
         public const int MAGIC2 = 0x4B563301; // KV3\x01
 
-        List<ExplorerInfoNode> IGetExplorerInfo.GetInfoNodes(ExplorerManager resource, FileMetadata file) => new List<ExplorerInfoNode> {
+        List<ExplorerInfoNode> IGetExplorerInfo.GetInfoNodes(ExplorerManager resource, FileMetadata file, object tag) => new List<ExplorerInfoNode> {
             new ExplorerInfoNode(null, new ExplorerContentTab { Type = "Text", Name = "BinaryKV3", Value = ToString() }),
             new ExplorerInfoNode("BinaryKV3", items: new List<ExplorerInfoNode> {
                 new ExplorerInfoNode($"Data: {Data.Count}"),

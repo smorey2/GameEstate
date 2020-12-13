@@ -16,5 +16,7 @@ namespace GameEstate.Formats.AC.Entity
         }
 
         public System.Numerics.Plane ToNumerics() => new System.Numerics.Plane(N, D);
+
+        public override string ToString() => $"Normal: {N} - Distance: {D}";
     }
 }

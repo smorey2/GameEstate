@@ -1,9 +1,13 @@
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Numerics;
-
-using ACE.DatLoader.Entity;
-using ACE.Entity.Enum;
+using GameEstate.Core;
+using GameEstate.Explorer;
+using GameEstate.Explorer.ViewModel;
+using GameEstate.Formats._Packages;
+using GameEstate.Formats.AC.Entity;
+using GameEstate.Formats.AC.Props;
 
 namespace GameEstate.Formats.AC.FileTypes
 {
@@ -11,105 +15,101 @@ namespace GameEstate.Formats.AC.FileTypes
     /// These are client_portal.dat files starting with 0x02. 
     /// They are basically 3D model descriptions.
     /// </summary>
-    /// <remarks>
-    /// A big huge thank you to "Pea" for his trailblazing work on decoding this structure. Without his work on this, we might still be decoding models on cave walls.
-    /// </remarks>
     [PakFileType(PakFileType.Setup)]
-    public class SetupModel : FileType
+    public class SetupModel : AbstractFileType, IGetExplorerInfo
     {
-        public SetupFlags Flags { get; private set; }
-        public bool AllowFreeHeading { get; private set; }
-        public bool HasPhysicsBSP { get; private set; }
-        public List<uint> Parts { get; } = new List<uint>();
-        public List<uint> ParentIndex { get; } = new List<uint>();
-        public List<Vector3> DefaultScale { get; } = new List<Vector3>();
-        public Dictionary<int, LocationType> HoldingLocations { get; } = new Dictionary<int, LocationType>();
-        public Dictionary<int, LocationType> ConnectionPoints { get; } = new Dictionary<int, LocationType>();
-        public Dictionary<int, PlacementType> PlacementFrames { get; } = new Dictionary<int, PlacementType>();
-        public List<CylSphere> CylSpheres { get; } = new List<CylSphere>();
-        public List<Sphere> Spheres { get; } = new List<Sphere>();
-        public float Height { get; private set; }
-        public float Radius { get; private set; }
-        public float StepUpHeight { get; private set; }
-        public float StepDownHeight { get; private set; }
-        public Sphere SortingSphere { get; private set; } = new Sphere();
-        public Sphere SelectionSphere { get; private set; } = new Sphere();
-        public Dictionary<int, LightInfo> Lights { get; } = new Dictionary<int, LightInfo>();
-        public uint DefaultAnimation { get; private set; }
-        public uint DefaultScript { get; private set; }
-        public uint DefaultMotionTable { get; private set; }
-        public uint DefaultSoundTable { get; private set; }
-        public uint DefaultScriptTable { get; private set; }
+        public static SetupModel Empty = new SetupModel();
+        public readonly SetupFlags Flags;
+        public readonly bool AllowFreeHeading;
+        public readonly bool HasPhysicsBSP;
+        public readonly uint[] Parts;
+        public readonly uint[] ParentIndex;
+        public readonly Vector3[] DefaultScale;
+        public readonly Dictionary<int, LocationType> HoldingLocations;
+        public readonly Dictionary<int, LocationType> ConnectionPoints;
+        public readonly Dictionary<int, PlacementType> PlacementFrames;
+        public readonly CylSphere[] CylSpheres;
+        public readonly Sphere[] Spheres;
+        public readonly float Height;
+        public readonly float Radius;
+        public readonly float StepUpHeight;
+        public readonly float StepDownHeight;
+        public readonly Sphere SortingSphere;
+        public readonly Sphere SelectionSphere;
+        public readonly Dictionary<int, LightInfo> Lights;
+        public readonly uint DefaultAnimation;
+        public readonly uint DefaultScript;
+        public readonly uint DefaultMotionTable;
+        public readonly uint DefaultSoundTable;
+        public readonly uint DefaultScriptTable;
 
-        public override void Read(BinaryReader reader)
+        SetupModel()
         {
-            Id = reader.ReadUInt32();
-
-            Flags = (SetupFlags)reader.ReadUInt32();
-
-            AllowFreeHeading    = (Flags & SetupFlags.AllowFreeHeading) != 0;
-            HasPhysicsBSP       = (Flags & SetupFlags.HasPhysicsBSP) != 0;
-
+            SortingSphere = Sphere.Empty;
+            SelectionSphere = Sphere.Empty;
+            AllowFreeHeading = true;
+        }
+        public SetupModel(BinaryReader r)
+        {
+            Id = r.ReadUInt32();
+            Flags = (SetupFlags)r.ReadUInt32();
+            AllowFreeHeading = (Flags & SetupFlags.AllowFreeHeading) != 0;
+            HasPhysicsBSP = (Flags & SetupFlags.HasPhysicsBSP) != 0;
             // Get all the GraphicsObjects in this SetupModel. These are all the 01-types.
-            uint numParts = reader.ReadUInt32();
-            for (int i = 0; i < numParts; i++)
-                Parts.Add(reader.ReadUInt32());
-
+            var numParts = r.ReadUInt32();
+            Parts = r.ReadTArray<uint>(sizeof(uint), (int)numParts);
             if ((Flags & SetupFlags.HasParent) != 0)
-            {
-                for (int i = 0; i < numParts; i++)
-                    ParentIndex.Add(reader.ReadUInt32());
-            }
-
+                ParentIndex = r.ReadTArray<uint>(sizeof(uint), (int)numParts);
             if ((Flags & SetupFlags.HasDefaultScale) != 0)
-            {
-                for (int i = 0; i < numParts; i++)
-                    DefaultScale.Add(reader.ReadVector3());
-            }
-
-            HoldingLocations.Unpack(reader);
-            ConnectionPoints.Unpack(reader);
-
-            int placementsCount = reader.ReadInt32();
-            for (int i = 0; i < placementsCount; i++)
-            {
-                int key = reader.ReadInt32();
-                // there is a frame for each Part
-                var placementType = new PlacementType();
-                placementType.Unpack(reader, (uint)Parts.Count);
-                PlacementFrames.Add(key, placementType);
-            }
-
-            CylSpheres.Unpack(reader);
-
-            Spheres.Unpack(reader);
-
-            Height          = reader.ReadSingle();
-            Radius          = reader.ReadSingle();
-            StepUpHeight    = reader.ReadSingle();
-            StepDownHeight  = reader.ReadSingle();
-
-            SortingSphere.Unpack(reader);
-            SelectionSphere.Unpack(reader);
-
-            Lights.Unpack(reader);
-
-            DefaultAnimation    = reader.ReadUInt32();
-            DefaultScript       = reader.ReadUInt32();
-            DefaultMotionTable  = reader.ReadUInt32();
-            DefaultSoundTable   = reader.ReadUInt32();
-            DefaultScriptTable  = reader.ReadUInt32();
+                DefaultScale = r.ReadTArray(x => x.ReadVector3(), (int)numParts);
+            HoldingLocations = r.ReadL32Many<int, LocationType>(sizeof(int), x => new LocationType(x));
+            ConnectionPoints = r.ReadL32Many<int, LocationType>(sizeof(int), x => new LocationType(x));
+            // there is a frame for each Part
+            PlacementFrames = r.ReadL32Many<int, PlacementType>(sizeof(int), x => new PlacementType(r, (uint)Parts.Length));
+            CylSpheres = r.ReadL32Array(x => new CylSphere(x));
+            Spheres = r.ReadL32Array(x => new Sphere(x));
+            Height = r.ReadSingle();
+            Radius = r.ReadSingle();
+            StepUpHeight = r.ReadSingle();
+            StepDownHeight = r.ReadSingle();
+            SortingSphere = new Sphere(r);
+            SelectionSphere = new Sphere(r);
+            Lights = r.ReadL32Many<int, LightInfo>(sizeof(int), x => new LightInfo(x));
+            DefaultAnimation = r.ReadUInt32();
+            DefaultScript = r.ReadUInt32();
+            DefaultMotionTable = r.ReadUInt32();
+            DefaultSoundTable = r.ReadUInt32();
+            DefaultScriptTable = r.ReadUInt32();
         }
 
-        public static SetupModel CreateSimpleSetup()
+        List<ExplorerInfoNode> IGetExplorerInfo.GetInfoNodes(ExplorerManager resource, FileMetadata file, object tag)
         {
-            var setup = new SetupModel();
-
-            setup.SortingSphere = Sphere.CreateDummySphere();
-            setup.SelectionSphere = Sphere.CreateDummySphere();
-            setup.AllowFreeHeading = true;
-
-            return setup;
+            var nodes = new List<ExplorerInfoNode> {
+                new ExplorerInfoNode($"{nameof(SetupModel)}: {Id:X8}", items: new List<ExplorerInfoNode> {
+                    Flags != 0 ? new ExplorerInfoNode($"Flags: {Flags}") : null,
+                    new ExplorerInfoNode("Parts", items: Parts.Select(x => new ExplorerInfoNode($"{x:X8}"))),
+                    Flags.HasFlag(SetupFlags.HasParent) ? new ExplorerInfoNode("Parents", items: ParentIndex.Select(x => new ExplorerInfoNode($"{x:X8}"))) : null,
+                    Flags.HasFlag(SetupFlags.HasDefaultScale) ? new ExplorerInfoNode("Default Scales", items: DefaultScale.Select(x => new ExplorerInfoNode($"{x}"))) : null,
+                    HoldingLocations.Count > 0 ? new ExplorerInfoNode("Holding Locations", items: HoldingLocations.Select(x => new ExplorerInfoNode($"{x.Key}: {x.Value}"))) : null,
+                    ConnectionPoints.Count > 0 ? new ExplorerInfoNode("Connection Points", items: ConnectionPoints.Select(x => new ExplorerInfoNode($"{x.Key}: {x.Value}"))) : null,
+                    new ExplorerInfoNode("Placement frames", items: PlacementFrames.Select(x => new ExplorerInfoNode($"{x.Key}", items: (x.Value as IGetExplorerInfo).GetInfoNodes()))),
+                    CylSpheres.Length > 0 ? new ExplorerInfoNode("CylSpheres", items: CylSpheres.Select(x => new ExplorerInfoNode($"{x}"))) : null,
+                    Spheres.Length > 0 ? new ExplorerInfoNode("Spheres", items: Spheres.Select(x => new ExplorerInfoNode($"{x}"))) : null,
+                    new ExplorerInfoNode($"Height: {Height}"),
+                    new ExplorerInfoNode($"Radius: {Radius}"),
+                    new ExplorerInfoNode($"Step Up Height: {StepUpHeight}"),
+                    new ExplorerInfoNode($"Step Down Height: {StepDownHeight}"),
+                    new ExplorerInfoNode($"Sorting Sphere: {SortingSphere}"),
+                    new ExplorerInfoNode($"Selection Sphere: {SelectionSphere}"),
+                    Lights.Count > 0 ? new ExplorerInfoNode($"Lights", items: Lights.Select(x => new ExplorerInfoNode($"{x.Key}: {x.Value}"))) : null,
+                    DefaultAnimation != 0 ? new ExplorerInfoNode($"Default Animation: {DefaultAnimation:X8}") : null,
+                    DefaultScript != 0 ? new ExplorerInfoNode($"Default Script: {DefaultScript:X8}") : null,
+                    DefaultMotionTable != 0 ? new ExplorerInfoNode($"Default Motion Table: {DefaultMotionTable:X8}") : null,
+                    DefaultSoundTable != 0 ? new ExplorerInfoNode($"Default Sound Table: {DefaultSoundTable:X8}") : null,
+                    DefaultScriptTable != 0 ? new ExplorerInfoNode($"Default Script Table: {DefaultScriptTable:X8}") : null,
+                })
+            };
+            return nodes;
         }
     }
 }

@@ -15,7 +15,43 @@ namespace GameEstate.Core
 
     public static class CoreExtensions
     {
+        public static readonly float EPSILON = 0.00019999999f;
+
         #region System
+
+        public static T GetAttributeOfType<T>(this Enum enumVal) where T : System.Attribute
+        {
+            var type = enumVal.GetType();
+            var memInfo = type.GetMember(enumVal.ToString());
+            var attributes = memInfo[0].GetCustomAttributes(typeof(T), false);
+            return attributes.Length > 0 ? (T)attributes[0] : null;
+        }
+
+        /// <summary>
+        /// Returns a list of flags for enum
+        /// </summary>
+        public static List<Enum> GetFlags(this Enum e) => Enum.GetValues(e.GetType()).Cast<Enum>().Where(e.HasFlag).ToList();
+
+        /// <summary>
+        /// Returns the # of bits set in a Flags enum
+        /// </summary>
+        /// <param name="enumVal">The enum uint value</param>
+        public static int EnumNumFlags(uint enumVal)
+        {
+            var cnt = 0;
+            while (enumVal != 0)
+            {
+                enumVal &= enumVal - 1; // remove the next set bit
+                cnt++;
+            }
+            return cnt;
+        }
+
+        /// <summary>
+        /// Returns TRUE if this flags enum has multiple flags set
+        /// </summary>
+        /// <param name="enumVal">The enum uint value</param>
+        public static bool EnumHasMultiple(uint enumVal) => (enumVal & (enumVal - 1)) != 0;
 
         public static string GetEnumDescription(this Type source, string value)
         {
@@ -49,6 +85,13 @@ namespace GameEstate.Core
         public static object CastToArray(this IEnumerable source, Type type)
             => Enumerable_ToArrayMethod.MakeGenericMethod(type).Invoke(null, new[] { Enumerable_CastMethod.MakeGenericMethod(type).Invoke(null, new[] { source }) });
 
+        public static string Reverse(this string s)
+        {
+            var charArray = s.ToCharArray();
+            Array.Reverse(charArray);
+            return new string(charArray);
+        }
+
         #endregion
 
         #region Convert Color
@@ -70,6 +113,12 @@ namespace GameEstate.Core
         #endregion
 
         #region Numeric
+
+        public static bool IsZero(this Vector3 v) => v.X == 0 && v.Y == 0 && v.Z == 0;
+
+        public static bool IsZeroEpsilon(this Vector3 v) => Math.Abs(v.X) <= EPSILON && Math.Abs(v.Y) <= EPSILON && Math.Abs(v.Z) <= EPSILON;
+
+        public static bool NearZero(this Vector3 v) => Math.Abs(v.X) <= 1.0f && Math.Abs(v.Y) <= 1.0f && Math.Abs(v.Z) <= 1.0f;
 
         public static float Get(this Matrix4x4 source, int row, int column)
         {
@@ -323,13 +372,16 @@ namespace GameEstate.Core
         }
 
         public static byte[] ReadL32Bytes(this BinaryReader source) => source.ReadBytes((int)source.ReadUInt32());
-        public static string ReadL32String(this BinaryReader source, Encoding encoding = null) => (encoding ?? Encoding.ASCII).GetString(source.ReadBytes((int)source.ReadUInt32()));
-        public static string ReadL32String(this BinaryReader source, bool nullTerminated, Encoding encoding = null) { var bytes = source.ReadBytes((int)source.ReadUInt32()); var newLength = bytes.Length - 1; return (encoding ?? Encoding.ASCII).GetString(bytes, 0, nullTerminated && bytes[newLength] == 0 ? newLength : bytes.Length); }
-        public static string ReadL16String(this BinaryReader source, Encoding encoding = null) => (encoding ?? Encoding.ASCII).GetString(source.ReadBytes(source.ReadUInt16()));
-        public static string ReadL16String(this BinaryReader source, bool nullTerminated, Encoding encoding = null) { var bytes = source.ReadBytes(source.ReadUInt16()); var newLength = bytes.Length - 1; return (encoding ?? Encoding.ASCII).GetString(bytes, 0, nullTerminated && bytes[newLength] == 0 ? newLength : bytes.Length); }
-        public static string ReadL8String(this BinaryReader source, Encoding encoding = null) => (encoding ?? Encoding.ASCII).GetString(source.ReadBytes(source.ReadByte()));
-        public static string ReadASCII(this BinaryReader source, int length, Encoding encoding = null) => (encoding ?? Encoding.ASCII).GetString(source.ReadBytes(length));
-        public static string ReadASCII(this BinaryReader source, int length, ASCIIFormat format)
+
+        public static string ReadL8ANSI(this BinaryReader source, Encoding encoding = null) => (encoding ?? Encoding.ASCII).GetString(source.ReadBytes(source.ReadByte()));
+        public static string ReadL16ANSI(this BinaryReader source, Encoding encoding = null) => (encoding ?? Encoding.ASCII).GetString(source.ReadBytes(source.ReadUInt16()));
+        public static string ReadL16ANSI(this BinaryReader source, bool nullTerminated, Encoding encoding = null) { var bytes = source.ReadBytes(source.ReadUInt16()); var newLength = bytes.Length - 1; return (encoding ?? Encoding.ASCII).GetString(bytes, 0, nullTerminated && bytes[newLength] == 0 ? newLength : bytes.Length); }
+        public static string ReadL32ANSI(this BinaryReader source, Encoding encoding = null) => (encoding ?? Encoding.ASCII).GetString(source.ReadBytes((int)source.ReadUInt32()));
+        public static string ReadL32ANSI(this BinaryReader source, bool nullTerminated, Encoding encoding = null) { var bytes = source.ReadBytes((int)source.ReadUInt32()); var newLength = bytes.Length - 1; return (encoding ?? Encoding.ASCII).GetString(bytes, 0, nullTerminated && bytes[newLength] == 0 ? newLength : bytes.Length); }
+        public static string ReadC32ANSI(this BinaryReader source, Encoding encoding = null) => (encoding ?? Encoding.ASCII).GetString(source.ReadBytes((int)source.ReadCompressedUInt32()));
+        public static string ReadC32ANSI(this BinaryReader source, bool nullTerminated, Encoding encoding = null) { var bytes = source.ReadBytes((int)source.ReadCompressedUInt32()); var newLength = bytes.Length - 1; return (encoding ?? Encoding.ASCII).GetString(bytes, 0, nullTerminated && bytes[newLength] == 0 ? newLength : bytes.Length); }
+        public static string ReadANSI(this BinaryReader source, int length, Encoding encoding = null) => (encoding ?? Encoding.ASCII).GetString(source.ReadBytes(length));
+        public static string ReadANSI(this BinaryReader source, int length, ASCIIFormat format, Encoding encoding = null)
         {
             var buf = source.ReadBytes(length);
             int i;
@@ -337,13 +389,13 @@ namespace GameEstate.Core
             {
                 case ASCIIFormat.PossiblyNullTerminated:
                     i = buf.Last() != 0 ? buf.Length : buf.Length - 1;
-                    return Encoding.ASCII.GetString(buf, 0, i);
+                    return (encoding ?? Encoding.ASCII).GetString(buf, 0, i);
                 case ASCIIFormat.ZeroPadded:
                     for (i = buf.Length - 1; i >= 0 && buf[i] == 0; i--) { }
-                    return Encoding.ASCII.GetString(buf, 0, i + 1);
+                    return (encoding ?? Encoding.ASCII).GetString(buf, 0, i + 1);
                 case ASCIIFormat.ZeroTerminated:
                     for (i = 0; i < buf.Length && buf[i] != 0; i++) { }
-                    return Encoding.ASCII.GetString(buf, 0, i);
+                    return (encoding ?? Encoding.ASCII).GetString(buf, 0, i);
                 default: throw new ArgumentOutOfRangeException(nameof(format), format.ToString());
             }
         }
@@ -425,6 +477,13 @@ namespace GameEstate.Core
             return list.ToArray();
         }
 
+        public static T ReadT<T>(this BinaryReader source, int sizeOf) => UnsafeUtils.MarshalT<T>(source.ReadBytes(sizeOf));
+
+        public static T[] ReadL16Array<T>(this BinaryReader source, int sizeOf) => ReadTArray<T>(source, sizeOf, source.ReadUInt16());
+        public static T[] ReadL32Array<T>(this BinaryReader source, int sizeOf) => ReadTArray<T>(source, sizeOf, (int)source.ReadUInt32());
+        public static T[] ReadC32Array<T>(this BinaryReader source, int sizeOf) => ReadTArray<T>(source, sizeOf, (int)source.ReadCompressedUInt32());
+        public static T[] ReadTArray<T>(this BinaryReader source, int sizeOf, int count) => UnsafeUtils.MarshalTArray<T>(source.ReadBytes(count * sizeOf), 0, count);
+
         public static T[] ReadL16Array<T>(this BinaryReader source, Func<BinaryReader, T> factory) => ReadTArray(source, factory, source.ReadUInt16());
         public static T[] ReadL32Array<T>(this BinaryReader source, Func<BinaryReader, T> factory) => ReadTArray(source, factory, (int)source.ReadUInt32());
         public static T[] ReadC32Array<T>(this BinaryReader source, Func<BinaryReader, T> factory) => ReadTArray(source, factory, (int)source.ReadCompressedUInt32());
@@ -436,47 +495,51 @@ namespace GameEstate.Core
             return list;
         }
 
-        public static Dictionary<TKey, TValue> ReadL16Many<TKey, TValue>(this BinaryReader source, int keySizeOf, Func<BinaryReader, TValue> valueFactory) => ReadTMany<TKey, TValue>(source, keySizeOf, valueFactory, source.ReadUInt16());
-        public static Dictionary<TKey, TValue> ReadC32Many<TKey, TValue>(this BinaryReader source, int keySizeOf, Func<BinaryReader, TValue> valueFactory) => ReadTMany<TKey, TValue>(source, keySizeOf, valueFactory, (int)source.ReadCompressedUInt32());
-        public static Dictionary<TKey, TValue> ReadTMany<TKey, TValue>(this BinaryReader source, int keySizeOf, Func<BinaryReader, TValue> valueFactory, int count)
+        public static Dictionary<TKey, TValue> ReadL16Many<TKey, TValue>(this BinaryReader source, int keySizeOf, Func<BinaryReader, TValue> valueFactory, int offset = 0) => ReadTMany<TKey, TValue>(source, keySizeOf, valueFactory, source.ReadUInt16(), offset);
+        public static Dictionary<TKey, TValue> ReadL32Many<TKey, TValue>(this BinaryReader source, int keySizeOf, Func<BinaryReader, TValue> valueFactory, int offset = 0) => ReadTMany<TKey, TValue>(source, keySizeOf, valueFactory, (int)source.ReadUInt32(), offset);
+        public static Dictionary<TKey, TValue> ReadC32Many<TKey, TValue>(this BinaryReader source, int keySizeOf, Func<BinaryReader, TValue> valueFactory, int offset = 0) => ReadTMany<TKey, TValue>(source, keySizeOf, valueFactory, (int)source.ReadCompressedUInt32(), offset);
+        public static Dictionary<TKey, TValue> ReadTMany<TKey, TValue>(this BinaryReader source, int keySizeOf, Func<BinaryReader, TValue> valueFactory, int count, int offset = 0)
         {
+            if (offset != 0)
+                source.Skip(offset);
             var set = new Dictionary<TKey, TValue>();
             for (var i = 0; i < count; i++)
                 set.Add(source.ReadT<TKey>(keySizeOf), valueFactory(source));
             return set;
         }
 
-        public static Dictionary<TKey, TValue> ReadL16Hash<TKey, TValue>(this BinaryReader source, int keySizeOf, Func<BinaryReader, TValue> valueFactory) => ReadTHash<TKey, TValue>(source, keySizeOf, valueFactory, source.ReadUInt16());
-        public static Dictionary<TKey, TValue> ReadTHash<TKey, TValue>(this BinaryReader source, int keySizeOf, Func<BinaryReader, TValue> valueFactory, int count)
+        public static Dictionary<TKey, TValue> ReadL16Many<TKey, TValue>(this BinaryReader source, Func<BinaryReader, TKey> keyFactory, Func<BinaryReader, TValue> valueFactory, int offset = 0) => ReadTMany<TKey, TValue>(source, keyFactory, valueFactory, source.ReadUInt16(), offset);
+        public static Dictionary<TKey, TValue> ReadL32Many<TKey, TValue>(this BinaryReader source, Func<BinaryReader, TKey> keyFactory, Func<BinaryReader, TValue> valueFactory, int offset = 0) => ReadTMany<TKey, TValue>(source, keyFactory, valueFactory, (int)source.ReadUInt32(), offset);
+        public static Dictionary<TKey, TValue> ReadC32Many<TKey, TValue>(this BinaryReader source, Func<BinaryReader, TKey> keyFactory, Func<BinaryReader, TValue> valueFactory, int offset = 0) => ReadTMany<TKey, TValue>(source, keyFactory, valueFactory, (int)source.ReadCompressedUInt32(), offset);
+        public static Dictionary<TKey, TValue> ReadTMany<TKey, TValue>(this BinaryReader source, Func<BinaryReader, TKey> keyFactory, Func<BinaryReader, TValue> valueFactory, int count, int offset = 0)
         {
-            source.Skip(2);
+            if (offset != 0)
+                source.Skip(offset);
             var set = new Dictionary<TKey, TValue>();
             for (var i = 0; i < count; i++)
-                set.Add(source.ReadT<TKey>(keySizeOf), valueFactory(source));
+                set.Add(keyFactory(source), valueFactory(source));
             return set;
         }
 
-        public static SortedDictionary<TKey, TValue> ReadL16SortedHash<TKey, TValue>(this BinaryReader source, int keySizeOf, Func<BinaryReader, TValue> valueFactory) => ReadTSortedHash<TKey, TValue>(source, keySizeOf, valueFactory, (int)source.ReadUInt16());
-        public static SortedDictionary<TKey, TValue> ReadTSortedHash<TKey, TValue>(this BinaryReader source, int keySizeOf, Func<BinaryReader, TValue> valueFactory, int count)
+
+        public static SortedDictionary<TKey, TValue> ReadL16SortedMany<TKey, TValue>(this BinaryReader source, int keySizeOf, Func<BinaryReader, TValue> valueFactory, int offset = 0) => ReadTSortedMany<TKey, TValue>(source, keySizeOf, valueFactory, source.ReadUInt16(), offset);
+        public static SortedDictionary<TKey, TValue> ReadL32SortedMany<TKey, TValue>(this BinaryReader source, int keySizeOf, Func<BinaryReader, TValue> valueFactory, int offset = 0) => ReadTSortedMany<TKey, TValue>(source, keySizeOf, valueFactory, (int)source.ReadUInt32(), offset);
+        public static SortedDictionary<TKey, TValue> ReadC32SortedMany<TKey, TValue>(this BinaryReader source, int keySizeOf, Func<BinaryReader, TValue> valueFactory, int offset = 0) => ReadTSortedMany<TKey, TValue>(source, keySizeOf, valueFactory, (int)source.ReadCompressedUInt32(), offset);
+        public static SortedDictionary<TKey, TValue> ReadTSortedMany<TKey, TValue>(this BinaryReader source, int keySizeOf, Func<BinaryReader, TValue> valueFactory, int count, int offset = 0)
         {
-            source.Skip(2);
+            if (offset != 0)
+                source.Skip(offset);
             var set = new SortedDictionary<TKey, TValue>();
             for (var i = 0; i < count; i++)
                 set.Add(source.ReadT<TKey>(keySizeOf), valueFactory(source));
             return set;
         }
 
-        public static T ReadT<T>(this BinaryReader source, int sizeOf) => UnsafeUtils.MarshalT<T>(source.ReadBytes(sizeOf));
-
-        public static T[] ReadL16Array<T>(this BinaryReader source, int sizeOf) => ReadTArray<T>(source, sizeOf, source.ReadUInt16());
-        public static T[] ReadL32Array<T>(this BinaryReader source, int sizeOf) => ReadTArray<T>(source, sizeOf, (int)source.ReadUInt32());
-        public static T[] ReadC32Array<T>(this BinaryReader source, int sizeOf) => ReadTArray<T>(source, sizeOf, (int)source.ReadCompressedUInt32());
-        public static T[] ReadTArray<T>(this BinaryReader source, int sizeOf, int count) => UnsafeUtils.MarshalTArray<T>(source.ReadBytes(count * sizeOf), 0, count);
 
         //public static T[] ReadTArray2<T>(this BinaryReader source, int sizeOf, int count) where T : struct { var r = new T[count]; Buffer.BlockCopy(source.ReadBytes(count * sizeOf), 0, r, 0, count * sizeOf); return r; }
-        public static T[] ReadTArray2<T>(this BinaryReader source, int sizeOf, int count) => UnsafeUtils.MarshalTArray<T>(source.ReadBytes(count * sizeOf), 0, count);
-        public static T[] ReadTMany<T>(this BinaryReader source, int length, int count) => UnsafeUtils.MarshalTArray<T>(source.ReadBytes(length), 0, count);
-        public static void ReadTMany<T>(this BinaryReader source, T[] dest, int length) => UnsafeUtils.MarshalTArray<T>((FileStream)source.BaseStream, dest, 0, length);
+        //public static T[] ReadTArray2<T>(this BinaryReader source, int sizeOf, int count) => UnsafeUtils.MarshalTArray<T>(source.ReadBytes(count * sizeOf), 0, count);
+        //public static T[] ReadTMany<T>(this BinaryReader source, int length, int count) => UnsafeUtils.MarshalTArray<T>(source.ReadBytes(length), 0, count);
+        //public static void ReadTMany<T>(this BinaryReader source, T[] dest, int length) => UnsafeUtils.MarshalTArray<T>((FileStream)source.BaseStream, dest, 0, length);
 
         public static bool ReadBool32(this BinaryReader source) => source.ReadUInt32() != 0;
 

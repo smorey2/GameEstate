@@ -1,7 +1,9 @@
+using GameEstate.Explorer;
+using GameEstate.Explorer.ViewModel;
+using GameEstate.Formats._Packages;
+using GameEstate.Formats.AC.Entity;
 using System.Collections.Generic;
 using System.IO;
-
-using ACE.DatLoader.Entity;
 
 namespace GameEstate.Formats.AC.FileTypes
 {
@@ -11,29 +13,36 @@ namespace GameEstate.Formats.AC.FileTypes
     /// And thanks alot to Pea as well whos hard work surely helped in the creation of those Tools too.
     /// </summary>
     [PakFileType(PakFileType.ObjectHierarchy)]
-    public class GeneratorTable : FileType
+    public class GeneratorTable : AbstractFileType, IGetExplorerInfo
     {
         public const uint FILE_ID = 0x0E00000D;
 
-        public Generator Generators { get; } = new Generator();
-
+        public readonly Generator Generators;
         /// <summary>
         /// This is just a shortcut to Generators.Items[0].Items
         /// </summary>
-        public List<Generator> PlayDayItems { get; private set; } = new List<Generator>();
+        public readonly Generator[] PlayDayItems;
         /// <summary>
         /// This is just a shortcut to Generators.Items[1].Items
         /// </summary>
-        public List<Generator> WeenieObjectsItems { get; private set; } = new List<Generator>();
+        public readonly Generator[] WeenieObjectsItems;
 
-        public override void Read(BinaryReader reader)
+        public GeneratorTable(BinaryReader r)
         {
-            Id = reader.ReadUInt32();
-
-            Generators.Unpack(reader);
-
+            Id = r.ReadUInt32();
+            Generators = new Generator(r);
             PlayDayItems = Generators.Items[0].Items;
             WeenieObjectsItems = Generators.Items[1].Items;
+        }
+
+        List<ExplorerInfoNode> IGetExplorerInfo.GetInfoNodes(ExplorerManager resource, FileMetadata file, object tag)
+        {
+            var nodes = new List<ExplorerInfoNode> {
+                new ExplorerInfoNode($"{nameof(GeneratorTable)}: {Id:X8}", items: new List<ExplorerInfoNode> {
+                    //new ExplorerInfoNode($"Type: {Type}"),
+                })
+            };
+            return nodes;
         }
     }
 }

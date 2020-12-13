@@ -32,7 +32,7 @@ namespace GameEstate.Formats.Valve
         IModelInfo IRedirected<IModelInfo>.Value => DATA as IModelInfo;
         IParticleSystemInfo IRedirected<IParticleSystemInfo>.Value => DATA as IParticleSystemInfo;
 
-        List<ExplorerInfoNode> IGetExplorerInfo.GetInfoNodes(ExplorerManager resource, FileMetadata file)
+        List<ExplorerInfoNode> IGetExplorerInfo.GetInfoNodes(ExplorerManager resource, FileMetadata file, object tag)
         {
             var nodes = new List<ExplorerInfoNode> {
                 new ExplorerInfoNode("BinaryPak", items: new List<ExplorerInfoNode> {
@@ -122,20 +122,20 @@ namespace GameEstate.Formats.Valve
                     if (ntro.ReferencedEnums.Count > 0)
                         nodes.Add(new ExplorerInfoNode(null, new ExplorerContentTab { Type = "DataGrid", Name = "Introspection Manifest: Enums", Value = ntro.ReferencedEnums }));
                 }
-                var tag = new ExplorerContentTab { Type = "Text", Name = block.GetType().Name };
-                nodes.Add(new ExplorerInfoNode(null, tag));
+                var tab = new ExplorerContentTab { Type = "Text", Name = block.GetType().Name };
+                nodes.Add(new ExplorerInfoNode(null, tab));
                 if (block is DATA)
                     switch (DataType)
                     {
-                        case DATA.DataType.Sound: tag.Value = ((DATASound)block).ToString(); break;
+                        case DATA.DataType.Sound: tab.Value = ((DATASound)block).ToString(); break;
                         case DATA.DataType.Particle:
                         case DATA.DataType.Mesh:
-                            if (block is DATABinaryKV3 kv3) tag.Value = kv3.ToString();
-                            else if (block is NTRO blockNTRO) tag.Value = blockNTRO.ToString();
+                            if (block is DATABinaryKV3 kv3) tab.Value = kv3.ToString();
+                            else if (block is NTRO blockNTRO) tab.Value = blockNTRO.ToString();
                             break;
-                        default: tag.Value = block.ToString(); break;
+                        default: tab.Value = block.ToString(); break;
                     }
-                else tag.Value = block.ToString();
+                else tab.Value = block.ToString();
             }
             if (!nodes.Any(x => (x.Tag as ExplorerContentTab)?.Dispose != null))
                 Dispose();

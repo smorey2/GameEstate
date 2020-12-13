@@ -1,10 +1,14 @@
 using GameEstate.Core;
+using GameEstate.Explorer;
+using GameEstate.Explorer.ViewModel;
+using GameEstate.Formats._Packages;
+using System.Collections.Generic;
 using System.IO;
 
 namespace GameEstate.Formats.AC.Entity
 {
     // TODO: refactor to use existing PaletteOverride object
-    public class SubPalette
+    public class SubPalette : IGetExplorerInfo
     {
         public readonly uint SubID;
         public readonly uint Offset;
@@ -18,6 +22,16 @@ namespace GameEstate.Formats.AC.Entity
             if (NumColors == 0)
                 NumColors = 256;
             NumColors *= 8;
+        }
+
+        List<ExplorerInfoNode> IGetExplorerInfo.GetInfoNodes(ExplorerManager resource, FileMetadata file, object tag)
+        {
+            var nodes = new List<ExplorerInfoNode> {
+                new ExplorerInfoNode($"SubID: {SubID:X8}"),
+                new ExplorerInfoNode($"Offset: {Offset:X8}"),
+                new ExplorerInfoNode($"NumColors: {NumColors}"),
+            };
+            return nodes;
         }
     }
 }

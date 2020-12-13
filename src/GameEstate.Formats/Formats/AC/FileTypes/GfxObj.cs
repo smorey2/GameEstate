@@ -1,9 +1,13 @@
+using GameEstate.Core;
+using GameEstate.Explorer;
+using GameEstate.Explorer.ViewModel;
+using GameEstate.Formats._Packages;
+using GameEstate.Formats.AC.Entity;
+using GameEstate.Formats.AC.Props;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Numerics;
-
-using ACE.DatLoader.Entity;
-using ACE.Entity.Enum;
 
 namespace GameEstate.Formats.AC.FileTypes
 {
@@ -12,52 +16,57 @@ namespace GameEstate.Formats.AC.FileTypes
     /// These are used both on their own for some pre-populated structures in the world (trees, buildings, etc) or make up SetupModel (0x02) objects.
     /// </summary>
     [PakFileType(PakFileType.GraphicsObject)]
-    public class GfxObj : FileType
+    public class GfxObj : AbstractFileType, IGetExplorerInfo
     {
-        public GfxObjFlags Flags { get; private set; }
-        public List<uint> Surfaces { get; } = new List<uint>(); // also referred to as m_rgSurfaces in the client
-        public CVertexArray VertexArray { get; } = new CVertexArray();
+        public readonly GfxObjFlags Flags;
+        public readonly uint[] Surfaces; // also referred to as m_rgSurfaces in the client
+        public readonly CVertexArray VertexArray;
+        public readonly Dictionary<ushort, Polygon> PhysicsPolygons;
+        public readonly BSPTree PhysicsBSP;
+        public readonly Vector3 SortCenter;
+        public readonly Dictionary<ushort, Polygon> Polygons;
+        public readonly BSPTree DrawingBSP;
+        public readonly uint DIDDegrade;
 
-        public Dictionary<ushort, Polygon> PhysicsPolygons { get; } = new Dictionary<ushort, Polygon>();
-        public BSPTree PhysicsBSP { get; } = new BSPTree();
-
-        public Vector3 SortCenter { get; private set; }
-
-        public Dictionary<ushort, Polygon> Polygons { get; } = new Dictionary<ushort, Polygon>();
-        public BSPTree DrawingBSP { get; } = new BSPTree();
-
-        public uint DIDDegrade { get; private set; }
-
-        public override void Read(BinaryReader reader)
+        public GfxObj(BinaryReader r)
         {
-            Id = reader.ReadUInt32();
-
-            Flags = (GfxObjFlags)reader.ReadUInt32();
-
-            Surfaces.UnpackSmartArray(reader);
-
-            VertexArray.Unpack(reader);
-
+            Id = r.ReadUInt32();
+            Flags = (GfxObjFlags)r.ReadUInt32();
+            Surfaces = r.ReadC32Array<uint>(sizeof(uint));
+            VertexArray = new CVertexArray(r);
             // Has Physics 
             if ((Flags & GfxObjFlags.HasPhysics) != 0)
             {
-                PhysicsPolygons.UnpackSmartArray(reader);
-
-                PhysicsBSP.Unpack(reader, BSPType.Physics);
+                PhysicsPolygons = r.ReadC32Many<ushort, Polygon>(sizeof(ushort), x => new Polygon(x));
+                PhysicsBSP = new BSPTree(r, BSPType.Physics);
             }
-
-            SortCenter = reader.ReadVector3();
-
+            SortCenter = r.ReadVector3();
             // Has Drawing 
             if ((Flags & GfxObjFlags.HasDrawing) != 0)
             {
-                Polygons.UnpackSmartArray(reader);
-
-                DrawingBSP.Unpack(reader, BSPType.Drawing);
+                Polygons = r.ReadC32Many<ushort, Polygon>(sizeof(ushort), x => new Polygon(x));
+                DrawingBSP = new BSPTree(r, BSPType.Drawing);
             }
-
             if ((Flags & GfxObjFlags.HasDIDDegrade) != 0)
-                DIDDegrade = reader.ReadUInt32();
+                DIDDegrade = r.ReadUInt32();
+        }
+
+        List<ExplorerInfoNode> IGetExplorerInfo.GetInfoNodes(ExplorerManager resource, FileMetadata file, object tag)
+        {
+            var nodes = new List<ExplorerInfoNode> {
+                new ExplorerInfoNode(null, new ExplorerContentTab { Type = "Model", Name = "Model", Value = this }),
+                new ExplorerInfoNode($"{nameof(GfxObj)}: {Id:X8}", items: new List<ExplorerInfoNode> {
+                    new ExplorerInfoNode($"Surfaces", items: Surfaces.Select(x => new ExplorerInfoNode($"{x:X8}"))),
+                    new ExplorerInfoNode($"VertexArray", items: (VertexArray as IGetExplorerInfo).GetInfoNodes(resource, file)),
+                    Flags.HasFlag(GfxObjFlags.HasPhysics) ? new ExplorerInfoNode($"PhysicsPolygons", items: PhysicsPolygons.Select(x => new ExplorerInfoNode($"{x.Key:X8}", items: (x.Value as IGetExplorerInfo).GetInfoNodes()))) : null,
+                    Flags.HasFlag(GfxObjFlags.HasPhysics) ? new ExplorerInfoNode($"PhysicsBSP", items: (PhysicsBSP as IGetExplorerInfo).GetInfoNodes(tag: BSPType.Physics).First().Items) : null,
+                    new ExplorerInfoNode($"SortCenter: {SortCenter}"),
+                    Flags.HasFlag(GfxObjFlags.HasDrawing) ? new ExplorerInfoNode($"Polygons", items: Polygons.Select(x => new ExplorerInfoNode($"{x.Key:X8}", items: (x.Value as IGetExplorerInfo).GetInfoNodes()))) : null,
+                    Flags.HasFlag(GfxObjFlags.HasDrawing) ? new ExplorerInfoNode($"DrawingBSP", items: (DrawingBSP as IGetExplorerInfo).GetInfoNodes(tag: BSPType.Drawing).First().Items) : null,
+                    Flags.HasFlag(GfxObjFlags.HasDIDDegrade) ? new ExplorerInfoNode($"DIDDegrade: {DIDDegrade:X8}") : null,
+                })
+            };
+            return nodes;
         }
     }
 }

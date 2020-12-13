@@ -1,3 +1,7 @@
+using GameEstate.Core;
+using GameEstate.Explorer;
+using GameEstate.Explorer.ViewModel;
+using GameEstate.Formats._Packages;
 using System.Collections.Generic;
 using System.IO;
 
@@ -7,26 +11,24 @@ namespace GameEstate.Formats.AC.FileTypes
     /// Reads and stores the XP Tables from the client_portal.dat (file 0x0E000018).
     /// </summary>
     [PakFileType(PakFileType.XpTable)]
-    public class XpTable : FileType
+    public class XpTable : AbstractFileType, IGetExplorerInfo
     {
         public const uint FILE_ID = 0x0E000018;
 
-        public List<uint> AttributeXpList { get; } = new List<uint>();
-        public List<uint> VitalXpList { get; } = new List<uint>();
-        public List<uint> TrainedSkillXpList { get; } = new List<uint>();
-        public List<uint> SpecializedSkillXpList { get; } = new List<uint>();
-
+        public readonly uint[] AttributeXpList;
+        public readonly uint[] VitalXpList;
+        public readonly uint[] TrainedSkillXpList;
+        public readonly uint[] SpecializedSkillXpList;
         /// <summary>
         /// The XP needed to reach each level
         /// </summary>
-        public List<ulong> CharacterLevelXPList { get; } = new List<ulong>();
-
+        public readonly ulong[] CharacterLevelXPList;
         /// <summary>
         /// Number of credits gifted at each level
         /// </summary>
-        public List<uint> CharacterLevelSkillCreditList { get; } = new List<uint>();
+        public readonly uint[] CharacterLevelSkillCreditList;
 
-        public override void Read(BinaryReader r)
+        public XpTable(BinaryReader r)
         {
             Id = r.ReadUInt32();
             // The counts for each "Table" are at the top of the file.
@@ -35,18 +37,22 @@ namespace GameEstate.Formats.AC.FileTypes
             var trainedSkillCount = r.ReadInt32();
             var specializedSkillCount = r.ReadInt32();
             var levelCount = r.ReadUInt32();
-            for (var i = 0; i <= attributeCount; i++)
-                AttributeXpList.Add(r.ReadUInt32());
-            for (var i = 0; i <= vitalCount; i++)
-                VitalXpList.Add(r.ReadUInt32());
-            for (var i = 0; i <= trainedSkillCount; i++)
-                TrainedSkillXpList.Add(r.ReadUInt32());
-            for (var i = 0; i <= specializedSkillCount; i++)
-                SpecializedSkillXpList.Add(r.ReadUInt32());
-            for (var i = 0; i <= levelCount; i++)
-                CharacterLevelXPList.Add(r.ReadUInt64());
-            for (var i = 0; i <= levelCount; i++)
-                CharacterLevelSkillCreditList.Add(r.ReadUInt32());
+            AttributeXpList = r.ReadTArray<uint>(sizeof(uint), attributeCount); //: counts are +1?
+            VitalXpList = r.ReadTArray<uint>(sizeof(uint), vitalCount); //: counts are +1?
+            TrainedSkillXpList = r.ReadTArray<uint>(sizeof(uint), trainedSkillCount); //: counts are +1?
+            SpecializedSkillXpList = r.ReadTArray<uint>(sizeof(uint), specializedSkillCount); //: counts are +1?
+            CharacterLevelXPList = r.ReadTArray<ulong>(sizeof(ulong), (int)levelCount); //: counts are +1?
+            CharacterLevelSkillCreditList = r.ReadTArray<uint>(sizeof(uint), (int)levelCount); //: counts are +1?
+        }
+
+        List<ExplorerInfoNode> IGetExplorerInfo.GetInfoNodes(ExplorerManager resource, FileMetadata file, object tag)
+        {
+            var nodes = new List<ExplorerInfoNode> {
+                new ExplorerInfoNode($"{nameof(XpTable)}: {Id:X8}", items: new List<ExplorerInfoNode> {
+                    //new ExplorerInfoNode($"Type: {Type}"),
+                })
+            };
+            return nodes;
         }
     }
 }

@@ -15,7 +15,7 @@ namespace GameEstate.Formats.Red
         public BinaryPak() { }
         public BinaryPak(BinaryReader r) => Read(r);
 
-        List<ExplorerInfoNode> IGetExplorerInfo.GetInfoNodes(ExplorerManager resource, FileMetadata file)
+        List<ExplorerInfoNode> IGetExplorerInfo.GetInfoNodes(ExplorerManager resource, FileMetadata file, object tag)
         {
             var nodes = new List<ExplorerInfoNode> {
                 new ExplorerInfoNode("BinaryPak", items: new List<ExplorerInfoNode> {

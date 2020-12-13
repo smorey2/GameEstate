@@ -31,30 +31,30 @@ namespace GameEstate.Formats.AC.Entity
         {
             Version = r.ReadUInt32();
             ContractId = r.ReadUInt32();
-            ContractName = r.ReadL16String(Encoding.Default);
+            ContractName = r.ReadL16ANSI(Encoding.Default);
             r.AlignBoundary();
 
-            Description = r.ReadL16String(Encoding.Default); ;
+            Description = r.ReadL16ANSI(Encoding.Default); ;
             r.AlignBoundary();
-            DescriptionProgress = r.ReadL16String(Encoding.Default);
-            r.AlignBoundary();
-
-            NameNPCStart = r.ReadL16String(Encoding.Default);
-            r.AlignBoundary();
-            NameNPCEnd = r.ReadL16String(Encoding.Default);
+            DescriptionProgress = r.ReadL16ANSI(Encoding.Default);
             r.AlignBoundary();
 
-            QuestflagStamped = r.ReadL16String(Encoding.Default);
+            NameNPCStart = r.ReadL16ANSI(Encoding.Default);
             r.AlignBoundary();
-            QuestflagStarted = r.ReadL16String(Encoding.Default);
+            NameNPCEnd = r.ReadL16ANSI(Encoding.Default);
             r.AlignBoundary();
-            QuestflagFinished = r.ReadL16String(Encoding.Default);
+
+            QuestflagStamped = r.ReadL16ANSI(Encoding.Default);
             r.AlignBoundary();
-            QuestflagProgress = r.ReadL16String(Encoding.Default);
+            QuestflagStarted = r.ReadL16ANSI(Encoding.Default);
             r.AlignBoundary();
-            QuestflagTimer = r.ReadL16String(Encoding.Default);
+            QuestflagFinished = r.ReadL16ANSI(Encoding.Default);
             r.AlignBoundary();
-            QuestflagRepeatTime = r.ReadL16String(Encoding.Default);
+            QuestflagProgress = r.ReadL16ANSI(Encoding.Default);
+            r.AlignBoundary();
+            QuestflagTimer = r.ReadL16ANSI(Encoding.Default);
+            r.AlignBoundary();
+            QuestflagRepeatTime = r.ReadL16ANSI(Encoding.Default);
             r.AlignBoundary();
 
             LocationNPCStart = new Position(r);

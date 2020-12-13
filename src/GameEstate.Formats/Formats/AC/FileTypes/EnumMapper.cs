@@ -1,26 +1,37 @@
-using ACE.Entity.Enum;
+using GameEstate.Core;
+using GameEstate.Explorer;
+using GameEstate.Explorer.ViewModel;
+using GameEstate.Formats._Packages;
+using GameEstate.Formats.AC.Props;
 using System.Collections.Generic;
 using System.IO;
+using System.Text;
 
 namespace GameEstate.Formats.AC.FileTypes
 {
     [PakFileType(PakFileType.EnumMapper)]
-    public class EnumMapper : FileType
+    public class EnumMapper : AbstractFileType, IGetExplorerInfo
     {
-        public uint BaseEnumMap { get; private set; }   // m_base_emp_did
-        public NumberingType NumberingType { get; private set; }
-        public Dictionary<uint, string> IdToStringMap { get; private set; } = new Dictionary<uint, string>();    // m_id_to_string_map
+        public readonly uint BaseEnumMap; // _base_emp_did
+        public readonly NumberingType NumberingType;
+        public readonly Dictionary<uint, string> IdToStringMap; // _id_to_string_map
 
-        public override void Read(BinaryReader reader)
+        public EnumMapper(BinaryReader r)
         {
-            Id = reader.ReadUInt32();
-            BaseEnumMap = reader.ReadUInt32();
+            Id = r.ReadUInt32();
+            BaseEnumMap = r.ReadUInt32();
+            NumberingType = (NumberingType)r.ReadByte();
+            IdToStringMap = r.ReadC32Many<uint, string>(sizeof(uint), x => x.ReadL8ANSI(Encoding.Default));
+        }
 
-            NumberingType = (NumberingType)reader.ReadByte();
-
-            uint num_enums = reader.ReadCompressedUInt32();
-            for (var i = 0; i < num_enums; i++)
-                IdToStringMap.Add(reader.ReadUInt32(), reader.ReadPString(1));
+        List<ExplorerInfoNode> IGetExplorerInfo.GetInfoNodes(ExplorerManager resource, FileMetadata file, object tag)
+        {
+            var nodes = new List<ExplorerInfoNode> {
+                new ExplorerInfoNode($"{nameof(EnumMapper)}: {Id:X8}", items: new List<ExplorerInfoNode> {
+                    //new ExplorerInfoNode($"Type: {Type}"),
+                })
+            };
+            return nodes;
         }
     }
 }

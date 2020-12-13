@@ -21,7 +21,7 @@ namespace GameEstate.Formats.Valve
         public CompiledShader() { }
         public CompiledShader(BinaryReader r, string filename) => Read(r, filename);
 
-        List<ExplorerInfoNode> IGetExplorerInfo.GetInfoNodes(ExplorerManager resource, FileMetadata file) => new List<ExplorerInfoNode> {
+        List<ExplorerInfoNode> IGetExplorerInfo.GetInfoNodes(ExplorerManager resource, FileMetadata file, object tag) => new List<ExplorerInfoNode> {
             new ExplorerInfoNode(null, new ExplorerContentTab { Type = "Text", Name = "Shader", Value = Shader }),
             new ExplorerInfoNode("CompiledShader", items: new List<ExplorerInfoNode> {
                 new ExplorerInfoNode($"ShaderType: {ShaderType}"),

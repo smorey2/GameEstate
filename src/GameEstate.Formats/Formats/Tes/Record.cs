@@ -14,7 +14,7 @@ namespace GameEstate.Formats.Tes
 
         public FieldHeader(BinaryReader r, TesFormat format)
         {
-            Type = r.ReadASCII(4);
+            Type = r.ReadANSI(4);
             DataSize = (int)(format == TesFormat.TES3 ? r.ReadUInt32() : r.ReadUInt16());
         }
     }

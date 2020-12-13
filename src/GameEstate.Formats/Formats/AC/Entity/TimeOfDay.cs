@@ -1,10 +1,14 @@
 using GameEstate.Core;
+using GameEstate.Explorer;
+using GameEstate.Explorer.ViewModel;
+using GameEstate.Formats._Packages;
+using System.Collections.Generic;
 using System.IO;
 using System.Text;
 
 namespace GameEstate.Formats.AC.Entity
 {
-    public class TimeOfDay
+    public class TimeOfDay : IGetExplorerInfo
     {
         public readonly float Start;
         public readonly bool IsNight;
@@ -14,8 +18,18 @@ namespace GameEstate.Formats.AC.Entity
         {
             Start = r.ReadSingle();
             IsNight = r.ReadUInt32() == 1;
-            Name = r.ReadL16String(Encoding.Default);
+            Name = r.ReadL16ANSI(Encoding.Default);
             r.AlignBoundary();
+        }
+
+        List<ExplorerInfoNode> IGetExplorerInfo.GetInfoNodes(ExplorerManager resource, FileMetadata file, object tag)
+        {
+            var nodes = new List<ExplorerInfoNode> {
+                new ExplorerInfoNode($"Start: {Start}"),
+                new ExplorerInfoNode($"IsNight: {IsNight}"),
+                new ExplorerInfoNode($"Name: {Name}"),
+            };
+            return nodes;
         }
     }
 }

@@ -1,9 +1,9 @@
-using ACE.Common;
-using ACE.DatLoader.Entity;
-using System;
+using GameEstate.Core;
+using GameEstate.Explorer;
+using GameEstate.Explorer.ViewModel;
+using GameEstate.Formats._Packages;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 
 namespace GameEstate.Formats.AC.FileTypes
 {
@@ -18,19 +18,28 @@ namespace GameEstate.Formats.AC.FileTypes
     /// 0x15000001 = ConsoleInputBackgroundTexture
     /// </summary>
     [PakFileType(PakFileType.RenderTexture)]
-    public class RenderTexture : FileType
+    public class RenderTexture : AbstractFileType, IGetExplorerInfo
     {
-        // public int Id { get; private set; }
-        public int Unknown { get; private set; }
-        public byte UnknownByte { get; private set; }
-        public List<uint> Textures { get; private set; } = new List<uint>(); // These values correspond to a Surface (0x06) entry
+        public readonly int Unknown;
+        public readonly byte UnknownByte;
+        public readonly uint[] Textures; // These values correspond to a Surface (0x06) entry
 
-        public override void Read(BinaryReader reader)
+        public RenderTexture(BinaryReader r)
         {
-            Id = reader.ReadUInt32();
-            Unknown = reader.ReadInt32();
-            UnknownByte = reader.ReadByte();
-            Textures.Unpack(reader);
+            Id = r.ReadUInt32();
+            Unknown = r.ReadInt32();
+            UnknownByte = r.ReadByte();
+            Textures = r.ReadL32Array<uint>(sizeof(uint));
+        }
+
+        List<ExplorerInfoNode> IGetExplorerInfo.GetInfoNodes(ExplorerManager resource, FileMetadata file, object tag)
+        {
+            var nodes = new List<ExplorerInfoNode> {
+                new ExplorerInfoNode($"{nameof(RenderTexture)}: {Id:X8}", items: new List<ExplorerInfoNode> {
+                    //new ExplorerInfoNode($"Type: {Type}"),
+                })
+            };
+            return nodes;
         }
     }
 }

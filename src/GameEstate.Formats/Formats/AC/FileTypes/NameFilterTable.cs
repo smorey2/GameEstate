@@ -1,31 +1,35 @@
-using ACE.DatLoader.Entity;
-using System;
+using GameEstate.Core;
+using GameEstate.Explorer;
+using GameEstate.Explorer.ViewModel;
+using GameEstate.Formats._Packages;
+using GameEstate.Formats.AC.Entity;
 using System.Collections.Generic;
 using System.IO;
 
 namespace GameEstate.Formats.AC.FileTypes
 {
     [PakFileType(PakFileType.NameFilterTable)]
-    public class NameFilterTable : FileType
+    public class NameFilterTable : AbstractFileType, IGetExplorerInfo
     {
         public const uint FILE_ID = 0x0E000020;
 
         // Key is a list of a WCIDs that are "bad" and should not exist. The value is always 1 (could be a bool?)
-        public Dictionary<uint, NameFilterLanguageData> LanguageData = new Dictionary<uint, NameFilterLanguageData>();
+        public readonly Dictionary<uint, NameFilterLanguageData> LanguageData;
 
-        public override void Read(BinaryReader reader)
+        public NameFilterTable(BinaryReader r)
         {
-            Id = reader.ReadUInt32();
+            Id = r.ReadUInt32();
+            LanguageData = r.ReadL16Many<uint, NameFilterLanguageData>(sizeof(uint), x => new NameFilterLanguageData(x));
+        }
 
-            ushort totalObjects = reader.ReadByte();
-            reader.ReadByte(); // table size
-            for (var i = 0; i < totalObjects; i++)
-            {
-                uint key = reader.ReadUInt32();
-                NameFilterLanguageData val = new NameFilterLanguageData();
-                val.Unpack(reader);
-                LanguageData.Add(key, val);
-            }
+        List<ExplorerInfoNode> IGetExplorerInfo.GetInfoNodes(ExplorerManager resource, FileMetadata file, object tag)
+        {
+            var nodes = new List<ExplorerInfoNode> {
+                new ExplorerInfoNode($"{nameof(NameFilterTable)}: {Id:X8}", items: new List<ExplorerInfoNode> {
+                    //new ExplorerInfoNode($"Type: {Type}"),
+                })
+            };
+            return nodes;
         }
     }
 }

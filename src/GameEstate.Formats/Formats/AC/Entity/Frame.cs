@@ -35,6 +35,6 @@ namespace GameEstate.Formats.AC.Entity
             Orientation = new Quaternion(orientation.X, orientation.Y, orientation.Z, orientation.W);
         }
 
-        public override string ToString() => $"{Origin} {Orientation}";
+        public override string ToString() => $"{Origin} - {Orientation}";
     }
 }

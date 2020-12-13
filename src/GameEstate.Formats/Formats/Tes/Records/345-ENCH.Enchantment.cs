@@ -50,7 +50,7 @@ namespace GameEstate.Formats.Tes.Records
             {
                 if (format == TesFormat.TES3)
                 {
-                    EffectId = r.ReadASCII(2);
+                    EffectId = r.ReadANSI(2);
                     SkillId = r.ReadByte();
                     AttributeId = r.ReadByte();
                     Type = r.ReadInt32();
@@ -60,7 +60,7 @@ namespace GameEstate.Formats.Tes.Records
                     MagnitudeMax = r.ReadInt32();
                     return;
                 }
-                EffectId = r.ReadASCII(4);
+                EffectId = r.ReadANSI(4);
                 MagnitudeMin = r.ReadInt32();
                 Area = r.ReadInt32();
                 Duration = r.ReadInt32();
@@ -85,10 +85,10 @@ namespace GameEstate.Formats.Tes.Records
                 if (dataSize == 4)
                     return;
                 School = r.ReadInt32();
-                VisualEffect = r.ReadASCII(4);
+                VisualEffect = r.ReadANSI(4);
                 Flags = dataSize > 12 ? r.ReadUInt32() : 0;
             }
-            public void FULLField(BinaryReader r, int dataSize) => Name = r.ReadASCII(dataSize, ASCIIFormat.PossiblyNullTerminated);
+            public void FULLField(BinaryReader r, int dataSize) => Name = r.ReadANSI(dataSize, ASCIIFormat.PossiblyNullTerminated);
         }
 
         public override string ToString() => $"ENCH: {EDID.Value}";

@@ -1,5 +1,10 @@
+using GameEstate.Core;
+using GameEstate.Explorer;
+using GameEstate.Explorer.ViewModel;
+using GameEstate.Formats._Packages;
 using System.Collections.Generic;
 using System.IO;
+using System.Text;
 
 namespace GameEstate.Formats.AC.FileTypes
 {
@@ -11,34 +16,37 @@ namespace GameEstate.Formats.AC.FileTypes
     /// 
     /// Special thanks to the GDLE team for pointing me the right direction on how/where to find this info in the dat files- OptimShi
     /// </summary>
-    public class Iteration : FileType
+    public class Iteration : AbstractFileType, IGetExplorerInfo
     {
         public const uint FILE_ID = 0xFFFF0001;
 
-        public List<int> Ints { get; private set; }
-        public bool Sorted { get; private set; }
+        public readonly int[] Ints;
+        public readonly bool Sorted;
 
-        public override void Read(BinaryReader reader)
+        public Iteration(BinaryReader r)
         {
-            Ints = new List<int>();
-            Ints.Add(reader.ReadInt32());
-            Ints.Add(reader.ReadInt32());
-            Sorted = reader.ReadBoolean();
-            reader.AlignBoundary();
+            Ints = new[] { r.ReadInt32(), r.ReadInt32() };
+            Sorted = r.ReadBoolean();
+            r.AlignBoundary();
         }
 
         public override string ToString()
         {
-            string s = "";
-            for (var i = 0; i < Ints.Count; i++)
-            {
-                s += Ints[i] + ",";
-            }
-            if (Sorted)
-                s += "1";
-            else
-                s += "0";
-            return s;
+            var b = new StringBuilder();
+            for (var i = 0; i < Ints.Length; i++)
+                b.Append($"{Ints[i]},");
+            b.Append(Sorted ? "1" : "0");
+            return b.ToString();
+        }
+
+        List<ExplorerInfoNode> IGetExplorerInfo.GetInfoNodes(ExplorerManager resource, FileMetadata file, object tag)
+        {
+            var nodes = new List<ExplorerInfoNode> {
+                new ExplorerInfoNode($"{nameof(Iteration)}: {Id:X8}", items: new List<ExplorerInfoNode> {
+                    //new ExplorerInfoNode($"Type: {Type}"),
+                })
+            };
+            return nodes;
         }
     }
 }

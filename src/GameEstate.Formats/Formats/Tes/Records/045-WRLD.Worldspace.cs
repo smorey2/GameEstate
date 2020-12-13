@@ -51,7 +51,7 @@ namespace GameEstate.Formats.Tes.Records
                 var referenceCount = r.ReadUInt32();
                 var referenceSize = dataSize - 8;
                 Assert(referenceSize >> 3 == referenceCount);
-                GridReferences = r.ReadTMany<Reference>(referenceSize, referenceSize >> 3);
+                GridReferences = r.ReadTArray<Reference>(referenceSize, referenceSize >> 3);
             }
         }
 

@@ -1,11 +1,14 @@
-using System;
-using System.IO;
-using System.Collections.Generic;
 using GameEstate.Core;
+using GameEstate.Explorer;
+using GameEstate.Explorer.ViewModel;
+using GameEstate.Formats._Packages;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 
 namespace GameEstate.Formats.AC.Entity
 {
-    public class StringTableData
+    public class StringTableData : IGetExplorerInfo
     {
         public readonly uint Id;
         public readonly string[] VarNames;
@@ -22,6 +25,18 @@ namespace GameEstate.Formats.AC.Entity
             Strings = r.ReadL32Array(x => x.ReadUnicodeString());
             Comments = r.ReadL32Array<uint>(sizeof(uint));
             Unknown = r.ReadByte();
+        }
+
+        List<ExplorerInfoNode> IGetExplorerInfo.GetInfoNodes(ExplorerManager resource, FileMetadata file, object tag)
+        {
+            var nodes = new List<ExplorerInfoNode> {
+                new ExplorerInfoNode($"{Id:X8}"),
+                VarNames.Length > 0 ? new ExplorerInfoNode("Variable Names", items: VarNames.Select(x => new ExplorerInfoNode($"{x}"))) : null,
+                Vars.Length > 0 ? new ExplorerInfoNode("Variables", items: Vars.Select(x => new ExplorerInfoNode($"{x}"))) : null,
+                Strings.Length > 0 ? new ExplorerInfoNode("Strings", items: Strings.Select(x => new ExplorerInfoNode($"{x}"))) : null,
+                Comments.Length > 0 ? new ExplorerInfoNode("Comments", items: Comments.Select(x => new ExplorerInfoNode($"{x:X8}"))) : null,
+            };
+            return nodes;
         }
     }
 }

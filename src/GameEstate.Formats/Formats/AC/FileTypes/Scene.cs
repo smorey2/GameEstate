@@ -1,7 +1,10 @@
+using GameEstate.Core;
+using GameEstate.Explorer;
+using GameEstate.Explorer.ViewModel;
+using GameEstate.Formats._Packages;
+using GameEstate.Formats.AC.Entity;
 using System.Collections.Generic;
 using System.IO;
-
-using ACE.DatLoader.Entity;
 
 namespace GameEstate.Formats.AC.FileTypes
 {
@@ -9,15 +12,24 @@ namespace GameEstate.Formats.AC.FileTypes
     /// These are client_portal.dat files starting with 0x12. 
     /// </summary>
     [PakFileType(PakFileType.Scene)]
-    public class Scene : FileType
+    public class Scene : AbstractFileType, IGetExplorerInfo
     {
-        public List<ObjectDesc> Objects { get; } = new List<ObjectDesc>();
+        public readonly ObjectDesc[] Objects;
 
-        public override void Read(BinaryReader reader)
+        public Scene(BinaryReader r)
         {
-            Id = reader.ReadUInt32();
+            Id = r.ReadUInt32();
+            Objects = r.ReadL32Array(x => new ObjectDesc(x));
+        }
 
-            Objects.Unpack(reader);
+        List<ExplorerInfoNode> IGetExplorerInfo.GetInfoNodes(ExplorerManager resource, FileMetadata file, object tag)
+        {
+            var nodes = new List<ExplorerInfoNode> {
+                new ExplorerInfoNode($"{nameof(Scene)}: {Id:X8}", items: new List<ExplorerInfoNode> {
+                    //new ExplorerInfoNode($"Type: {Type}"),
+                })
+            };
+            return nodes;
         }
     }
 }

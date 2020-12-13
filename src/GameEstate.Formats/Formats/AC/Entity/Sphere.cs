@@ -16,5 +16,7 @@ namespace GameEstate.Formats.AC.Entity
             Origin = r.ReadVector3();
             Radius = r.ReadSingle();
         }
+
+        public override string ToString() => $"Origin: {Origin}, Radius: {Radius}";
     }
 }

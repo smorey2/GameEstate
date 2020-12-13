@@ -33,7 +33,7 @@ namespace GameEstate.Graphics
         //    Data = data;
         //}
 
-        List<ExplorerInfoNode> IGetExplorerInfo.GetInfoNodes(ExplorerManager resource, FileMetadata file) => new List<ExplorerInfoNode> {
+        List<ExplorerInfoNode> IGetExplorerInfo.GetInfoNodes(ExplorerManager resource, FileMetadata file, object tag) => new List<ExplorerInfoNode> {
             new ExplorerInfoNode(null, new ExplorerContentTab { Type = "Texture", Value = this }),
             new ExplorerInfoNode("Texture", items: new List<ExplorerInfoNode> {
                 new ExplorerInfoNode($"Width: {Width}"),

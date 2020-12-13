@@ -1,63 +1,62 @@
+using GameEstate.Core;
+using GameEstate.Explorer;
+using GameEstate.Explorer.ViewModel;
+using GameEstate.Formats._Packages;
 using System.Collections.Generic;
 using System.IO;
 
 namespace GameEstate.Formats.AC.FileTypes
 {
     [PakFileType(PakFileType.QualityFilter)]
-    public class QualityFilter : FileType
+    public class QualityFilter : AbstractFileType, IGetExplorerInfo
     {
-        public List<uint> IntStatFilter { get; private set; } = new List<uint>();
-        public List<uint> Int64StatFilter { get; private set; } = new List<uint>();
-        public List<uint> BoolStatFilter { get; private set; } = new List<uint>();
-        public List<uint> FloatStatFilter { get; private set; } = new List<uint>();
-        public List<uint> DidStatFilter { get; private set; } = new List<uint>();
-        public List<uint> IidStatFilter { get; private set; } = new List<uint>();
-        public List<uint> StringStatFilter { get; private set; } = new List<uint>();
-        public List<uint> PositionStatFilter { get; private set; } = new List<uint>();
+        public readonly uint[] IntStatFilter;
+        public readonly uint[] Int64StatFilter;
+        public readonly uint[] BoolStatFilter;
+        public readonly uint[] FloatStatFilter;
+        public readonly uint[] DidStatFilter;
+        public readonly uint[] IidStatFilter;
+        public readonly uint[] StringStatFilter;
+        public readonly uint[] PositionStatFilter;
+        public readonly uint[] AttributeStatFilter;
+        public readonly uint[] Attribute2ndStatFilter;
+        public readonly uint[] SkillStatFilter;
 
-        public List<uint> AttributeStatFilter { get; private set; } = new List<uint>();
-        public List<uint> Attribute2ndStatFilter { get; private set; } = new List<uint>();
-        public List<uint> SkillStatFilter { get; private set; } = new List<uint>();
-
-        public override void Read(BinaryReader reader)
+        public QualityFilter(BinaryReader r)
         {
-            Id = reader.ReadUInt32();
-            uint numInt = reader.ReadUInt32();
-            uint numInt64 = reader.ReadUInt32();
-            uint numBool = reader.ReadUInt32();
-            uint numFloat = reader.ReadUInt32();
-            uint numDid = reader.ReadUInt32();
-            uint numIid = reader.ReadUInt32();
-            uint numString = reader.ReadUInt32();
-            uint numPosition = reader.ReadUInt32();
+            Id = r.ReadUInt32();
+            var numInt = r.ReadUInt32();
+            var numInt64 = r.ReadUInt32();
+            var numBool = r.ReadUInt32();
+            var numFloat = r.ReadUInt32();
+            var numDid = r.ReadUInt32();
+            var numIid = r.ReadUInt32();
+            var numString = r.ReadUInt32();
+            var numPosition = r.ReadUInt32();
+            IntStatFilter = r.ReadTArray<uint>(sizeof(uint), (int)numInt);
+            Int64StatFilter = r.ReadTArray<uint>(sizeof(uint), (int)numInt64);
+            BoolStatFilter = r.ReadTArray<uint>(sizeof(uint), (int)numBool);
+            FloatStatFilter = r.ReadTArray<uint>(sizeof(uint), (int)numFloat);
+            DidStatFilter = r.ReadTArray<uint>(sizeof(uint), (int)numDid);
+            IidStatFilter = r.ReadTArray<uint>(sizeof(uint), (int)numIid);
+            StringStatFilter = r.ReadTArray<uint>(sizeof(uint), (int)numString);
+            PositionStatFilter = r.ReadTArray<uint>(sizeof(uint), (int)numPosition);
+            var numAttribute = r.ReadUInt32();
+            var numAttribute2nd = r.ReadUInt32();
+            var numSkill = r.ReadUInt32();
+            AttributeStatFilter = r.ReadTArray<uint>(sizeof(uint), (int)numAttribute);
+            Attribute2ndStatFilter = r.ReadTArray<uint>(sizeof(uint), (int)numAttribute2nd);
+            SkillStatFilter = r.ReadTArray<uint>(sizeof(uint), (int)numSkill);
+        }
 
-            for (var i = 0; i < numInt; i++)
-                IntStatFilter.Add(reader.ReadUInt32());
-            for (var i = 0; i < numInt64; i++)
-                Int64StatFilter.Add(reader.ReadUInt32());
-            for (var i = 0; i < numBool; i++)
-                BoolStatFilter.Add(reader.ReadUInt32());
-            for (var i = 0; i < numFloat; i++)
-                FloatStatFilter.Add(reader.ReadUInt32());
-            for (var i = 0; i < numDid; i++)
-                DidStatFilter.Add(reader.ReadUInt32());
-            for (var i = 0; i < numIid; i++)
-                IidStatFilter.Add(reader.ReadUInt32());
-            for (var i = 0; i < numString; i++)
-                StringStatFilter.Add(reader.ReadUInt32());
-            for (var i = 0; i < numPosition; i++)
-                PositionStatFilter.Add(reader.ReadUInt32());
-
-            uint numAttribute = reader.ReadUInt32();
-            uint numAttribute2nd = reader.ReadUInt32();
-            uint numSkill = reader.ReadUInt32();
-
-            for (var i = 0; i < numAttribute; i++)
-                AttributeStatFilter.Add(reader.ReadUInt32());
-            for (var i = 0; i < numAttribute2nd; i++)
-                Attribute2ndStatFilter.Add(reader.ReadUInt32());
-            for (var i = 0; i < numSkill; i++)
-                SkillStatFilter.Add(reader.ReadUInt32());
+        List<ExplorerInfoNode> IGetExplorerInfo.GetInfoNodes(ExplorerManager resource, FileMetadata file, object tag)
+        {
+            var nodes = new List<ExplorerInfoNode> {
+                new ExplorerInfoNode($"{nameof(QualityFilter)}: {Id:X8}", items: new List<ExplorerInfoNode> {
+                    //new ExplorerInfoNode($"Type: {Type}"),
+                })
+            };
+            return nodes;
         }
     }
 }

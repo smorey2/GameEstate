@@ -1,43 +1,39 @@
-using ACE.DatLoader.Entity;
-using System;
+using GameEstate.Core;
+using GameEstate.Explorer;
+using GameEstate.Explorer.ViewModel;
+using GameEstate.Formats._Packages;
+using GameEstate.Formats.AC.Entity;
 using System.Collections.Generic;
 using System.IO;
+using System.Text;
 
 namespace GameEstate.Formats.AC.FileTypes
 {
     [PakFileType(PakFileType.ChatPoseTable)]
-    public class ChatPoseTable : FileType
+    public class ChatPoseTable : AbstractFileType, IGetExplorerInfo
     {
         public const uint FILE_ID = 0x0E000007;
 
         // Key is a emote command, value is the state you are enter into
-        public Dictionary<string, string> ChatPoseHash = new Dictionary<string, string>();
-
+        public readonly Dictionary<string, string> ChatPoseHash;
         // Key is the state, value are the strings that players see during the emote
-        public Dictionary<string, ChatEmoteData> ChatEmoteHash = new Dictionary<string, ChatEmoteData>();
+        public readonly Dictionary<string, ChatEmoteData> ChatEmoteHash;
 
-        public override void Read(BinaryReader reader)
+        public ChatPoseTable(BinaryReader r)
         {
-            Id = reader.ReadUInt32();
+            Id = r.ReadUInt32();
+            ChatPoseHash = r.ReadL16Many(x => { var v = x.ReadL16ANSI(Encoding.Default); x.AlignBoundary(); return v; }, x => { var v = x.ReadL16ANSI(Encoding.Default); x.AlignBoundary(); return v; }, offset: 2);
+            ChatEmoteHash = r.ReadL16Many(x => { var v = x.ReadL16ANSI(Encoding.Default); x.AlignBoundary(); return v; }, x => new ChatEmoteData(x), offset: 2);
+        }
 
-            var totalObjects = reader.ReadUInt16();
-            reader.ReadUInt16(); // var bucketSize
-            for (int i = 0; i < totalObjects; i++)
-            {
-                string key = reader.ReadL16String(Encoding.Default); reader.AlignBoundary();
-                string value = reader.ReadL16String(Encoding.Default); reader.AlignBoundary();
-                ChatPoseHash.Add(key, value);
-            }
-
-            var totalEmoteObjects = reader.ReadUInt16();
-            reader.ReadUInt16();// var bucketSize
-            for (int i = 0; i < totalEmoteObjects; i++)
-            {
-                string key = reader.ReadL16String(Encoding.Default); reader.AlignBoundary();
-                ChatEmoteData value = new ChatEmoteData();
-                value.Unpack(reader);
-                ChatEmoteHash.Add(key, value);
-            }
+        List<ExplorerInfoNode> IGetExplorerInfo.GetInfoNodes(ExplorerManager resource, FileMetadata file, object tag)
+        {
+            var nodes = new List<ExplorerInfoNode> {
+                new ExplorerInfoNode($"{nameof(ChatPoseTable)}: {Id:X8}", items: new List<ExplorerInfoNode> {
+                    //new ExplorerInfoNode($"Type: {Type}"),
+                })
+            };
+            return nodes;
         }
     }
 }

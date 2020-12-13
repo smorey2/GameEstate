@@ -1,3 +1,4 @@
+using GameEstate.Formats.AC.Props;
 using System.IO;
 
 namespace GameEstate.Formats.AC.Entity

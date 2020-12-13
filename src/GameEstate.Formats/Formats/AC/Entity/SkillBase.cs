@@ -1,6 +1,6 @@
 using GameEstate.Core;
-using System;
 using System.IO;
+using System.Text;
 
 namespace GameEstate.Formats.AC.Entity
 {
@@ -22,21 +22,18 @@ namespace GameEstate.Formats.AC.Entity
         /// 2 = Trained or greater required for usability
         /// </summary>
         public readonly uint MinLevel;      // 1-2?
-
         public readonly SkillFormula Formula;
-
         public readonly double UpperBound;
         public readonly double LowerBound;
         public readonly double LearnMod;
-
         public int UpgradeCostFromTrainedToSpecialized => SpecializedCost - TrainedCost;
 
         public SkillBase() { }
         public SkillBase(SkillFormula formula) => Formula = formula;
         public SkillBase(BinaryReader r)
         {
-            Description = r.ReadL16String(Encoding.Default); r.AlignBoundary();
-            Name = r.ReadL16String(Encoding.Default); r.AlignBoundary();
+            Description = r.ReadL16ANSI(Encoding.Default); r.AlignBoundary();
+            Name = r.ReadL16ANSI(Encoding.Default); r.AlignBoundary();
             IconId = r.ReadUInt32();
             TrainedCost = r.ReadInt32();
             SpecializedCost = r.ReadInt32();

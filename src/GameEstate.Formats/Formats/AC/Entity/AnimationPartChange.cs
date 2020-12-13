@@ -1,9 +1,13 @@
 using GameEstate.Core;
+using GameEstate.Explorer;
+using GameEstate.Explorer.ViewModel;
+using GameEstate.Formats._Packages;
+using System.Collections.Generic;
 using System.IO;
 
 namespace GameEstate.Formats.AC.Entity
 {
-    public class AnimationPartChange
+    public class AnimationPartChange : IGetExplorerInfo
     {
         public readonly byte PartIndex;
         public readonly uint PartID;
@@ -18,5 +22,16 @@ namespace GameEstate.Formats.AC.Entity
             PartIndex = (byte)(partIndex & 255);
             PartID = r.ReadAsDataIDOfKnownType(0x01000000);
         }
+
+        List<ExplorerInfoNode> IGetExplorerInfo.GetInfoNodes(ExplorerManager resource, FileMetadata file, object tag)
+        {
+            var nodes = new List<ExplorerInfoNode> {
+                new ExplorerInfoNode($"PartIdx: {PartIndex}"),
+                new ExplorerInfoNode($"PartID: {PartID:X8}"),
+            };
+            return nodes;
+        }
+
+        public override string ToString() => $"PartIdx: {PartIndex}, PartID: {PartID:X8}";
     }
 }

@@ -15,7 +15,7 @@ namespace GameEstate.Formats.AC.Entity
 
         public SpellSet(BinaryReader r)
         {
-            SpellSetTiers = r.ReadL16SortedHash<uint, SpellSetTiers>(sizeof(uint), x => new SpellSetTiers(x));
+            SpellSetTiers = r.ReadL16SortedMany<uint, SpellSetTiers>(sizeof(uint), x => new SpellSetTiers(x), offset: 2);
             HighestTier = SpellSetTiers.Keys.LastOrDefault();
             SpellSetTiersNoGaps = new SortedDictionary<uint, SpellSetTiers>();
             var lastSpellSetTier = default(SpellSetTiers);

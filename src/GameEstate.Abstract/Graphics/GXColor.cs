@@ -29,6 +29,11 @@ namespace GameEstate.Graphics
         /// </summary>
         public float A;
 
+        public enum Format
+        {
+            ARGB32,
+        }
+
         /// <summary>
         /// Initializes a new instance of the <see cref="GXColor"/> struct.
         /// </summary>
@@ -42,6 +47,20 @@ namespace GameEstate.Graphics
             G = g;
             B = b;
             A = a;
+        }
+
+        public GXColor(uint color, Format format)
+        {
+            switch (format)
+            {
+                case Format.ARGB32:
+                    A = color >> 24;
+                    R = (color >> 16) & 0xFF;
+                    G = (color >> 8) & 0xFF;
+                    B = color & 0xFF;
+                    break;
+                default: throw new ArgumentOutOfRangeException(nameof(format));
+            }
         }
 
         public static implicit operator Vector4(GXColor c) => new Vector4(c.R, c.G, c.B, c.A);

@@ -2,6 +2,7 @@
 using GameEstate.Explorer.ViewModel;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace GameEstate.Explorer
@@ -20,7 +21,7 @@ namespace GameEstate.Explorer
             var root = new List<ExplorerItemNode>();
             string currentPath = null;
             List<ExplorerItemNode> currentFolder = null;
-            foreach (var file in pakMultiFile.Files)
+            foreach (var file in pakMultiFile.Files.OrderBy(x => x.Path))
             {
                 // skip empty
                 if (string.IsNullOrEmpty(file.Path))
