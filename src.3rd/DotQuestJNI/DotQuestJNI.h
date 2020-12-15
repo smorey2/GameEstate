@@ -1,10 +1,10 @@
 #pragma once
 
-class JNIGameHost
+class DotQuestJNI
 {
 public:
 	const char* getPlatformABI();
-	JNIGameHost();
-	~JNIGameHost();
+	DotQuestJNI();
+	~DotQuestJNI();
 };
 

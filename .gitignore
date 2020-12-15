@@ -22,9 +22,7 @@ __pycache__
 
 # Visual Studio files
 *.cachefile
-*.csproj
 *.pidb
-*.sln
 *.suo
 *.unityproj
 *.user
@@ -37,7 +35,10 @@ __pycache__
 #*.opendb
 
 # Folder to exclude
-[Bb]in
+ARM64/
+x64/
+x86/
+[Bb]in/
 [Dd]ebug*/
 [Rr]elease*/
 Builds/

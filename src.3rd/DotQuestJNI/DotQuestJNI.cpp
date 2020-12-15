@@ -1,4 +1,4 @@
-#include "JNIGameHost.h"
+#include "DotQuestJNI.h"
 
 #include <android/native_window_jni.h>	// for native window JNI
 #include <android/input.h>
@@ -24,7 +24,7 @@ int dotnet(int argc, char* argv[]);
 
 extern "C" {
 	/* This trivial function returns the platform ABI for which this dynamic native library is compiled.*/
-	const char* JNIGameHost::getPlatformABI() {
+	const char* DotQuestJNI::getPlatformABI() {
 #if defined(__arm__)
 #if defined(__ARM_ARCH_7A__)
 #if defined(__ARM_NEON__)
@@ -44,15 +44,15 @@ extern "C" {
 		return "This native library is compiled with ABI: %s" ABI ".";
 	}
 
-	void JNIGameHost() {
+	void DotQuestJNI() {
 		LOGI("ONE");
 	}
 
-	JNIGameHost::JNIGameHost() {
+	DotQuestJNI::DotQuestJNI() {
 		LOGI("TWO");
 	}
 
-	JNIGameHost::~JNIGameHost() {
+	DotQuestJNI::~DotQuestJNI() {
 	}
 
 

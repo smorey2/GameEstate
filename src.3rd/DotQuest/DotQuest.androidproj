@@ -85,14 +85,14 @@
     <GradleTemplate Include="gradle\wrapper\gradle-wrapper.properties.template" />
   </ItemGroup>
   <ItemGroup>
-    <JavaCompile Include="app\src\main\java\com\gameestate\quest\MainActivity.java" />
-    <JavaCompile Include="app\src\main\java\com\gameestate\quest\JNIGameHost.java" />
+    <JavaCompile Include="app\src\main\java\com\dotquest\quest\MainActivity.java" />
+    <JavaCompile Include="app\src\main\java\com\dotquest\quest\DotQuestJNI.java" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="app\assets\main.cfg" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\JNIGameHost\JNIGameHost.vcxproj" />
+    <ProjectReference Include="..\DotQuestJNI\DotQuestJNI.vcxproj" />
   </ItemGroup>
   <Import Project="$(AndroidTargetsPath)\Android.targets" />
   <ImportGroup Label="ExtensionTargets" />

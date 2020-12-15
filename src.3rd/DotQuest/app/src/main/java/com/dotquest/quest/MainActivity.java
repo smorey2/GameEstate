@@ -1,4 +1,4 @@
-package com.gameestate.quest;
+package com.dotquest.quest;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -30,9 +30,9 @@ import static android.system.Os.setenv;
 
 @SuppressLint("SdCardPath")
 public class MainActivity extends Activity implements SurfaceHolder.Callback {
-	// Load the JNIGameHost library right away to make sure JNI_OnLoad() gets called as the very first thing.
+	// Load the DotQuestJNI library right away to make sure JNI_OnLoad() gets called as the very first thing.
 	static {
-		System.loadLibrary("JNIGameHost");
+		System.loadLibrary("DotQuestJNI");
 	}
 
 	private static final String TAG = "GAMETAG";
@@ -169,7 +169,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
 		} catch (Exception e) {
 		}
 
-		_nativeHandle = JNIGameHost.onCreate(this, commandLineParams);
+		_nativeHandle = DotQuestJNI.onCreate(this, commandLineParams);
 	}
 
 	public void copy_asset(String path, String name, boolean force) {
@@ -212,27 +212,27 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
 	protected void onStart() {
 		Log.v(TAG, "MainActivity::onStart()");
 		super.onStart();
-		JNIGameHost.onStart(_nativeHandle, this);
+		DotQuestJNI.onStart(_nativeHandle, this);
 	}
 
 	@Override
 	protected void onResume() {
 		Log.v(TAG, "MainActivity::onResume()");
 		super.onResume();
-		JNIGameHost.onResume(_nativeHandle);
+		DotQuestJNI.onResume(_nativeHandle);
 	}
 
 	@Override
 	protected void onPause() {
 		Log.v(TAG, "MainActivity::onPause()");
-		JNIGameHost.onPause(_nativeHandle);
+		DotQuestJNI.onPause(_nativeHandle);
 		super.onPause();
 	}
 
 	@Override
 	protected void onStop() {
 		Log.v(TAG, "MainActivity::onStop()");
-		JNIGameHost.onStop(_nativeHandle);
+		DotQuestJNI.onStop(_nativeHandle);
 		super.onStop();
 	}
 
@@ -240,9 +240,9 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
 	protected void onDestroy() {
 		Log.v(TAG, "MainActivity::onDestroy()");
 		if (_surfaceHolder != null) {
-			JNIGameHost.onSurfaceDestroyed(_nativeHandle);
+			DotQuestJNI.onSurfaceDestroyed(_nativeHandle);
 		}
-		JNIGameHost.onDestroy(_nativeHandle);
+		DotQuestJNI.onDestroy(_nativeHandle);
 		super.onDestroy();
 		// Reset everything in case the user re opens the app
 		MainActivity.initialize();
@@ -253,7 +253,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
 	public void surfaceCreated(SurfaceHolder holder) {
 		Log.v(TAG, "MainActivity::surfaceCreated()");
 		if (_nativeHandle != 0) {
-			JNIGameHost.onSurfaceCreated(_nativeHandle, holder.getSurface());
+			DotQuestJNI.onSurfaceCreated(_nativeHandle, holder.getSurface());
 			_surfaceHolder = holder;
 		}
 	}
@@ -262,7 +262,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
 	public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
 		Log.v(TAG, "MainActivity::surfaceChanged()");
 		if (_nativeHandle != 0) {
-			JNIGameHost.onSurfaceChanged(_nativeHandle, holder.getSurface());
+			DotQuestJNI.onSurfaceChanged(_nativeHandle, holder.getSurface());
 			_surfaceHolder = holder;
 		}
 	}
@@ -271,7 +271,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
 	public void surfaceDestroyed(SurfaceHolder holder) {
 		Log.v(TAG, "MainActivity::surfaceDestroyed()");
 		if (_nativeHandle != 0) {
-			JNIGameHost.onSurfaceDestroyed(_nativeHandle);
+			DotQuestJNI.onSurfaceDestroyed(_nativeHandle);
 			_surfaceHolder = null;
 		}
 	}

@@ -18,4 +18,8 @@ namespace GameEstate.Graphics
         int NumMipMaps { get; }
         void MoveToData();
     }
+
+    public interface ITextureInfoLoad1 : ITextureInfo
+    {
+    }
 }

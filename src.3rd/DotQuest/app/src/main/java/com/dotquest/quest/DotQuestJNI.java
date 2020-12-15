@@ -1,11 +1,11 @@
-package com.gameestate.quest;
+package com.dotquest.quest;
 
 import android.app.Activity;
 import android.view.Surface;
 
 //import java.nio.ByteBuffer;
 
-public class JNIGameHost {
+public class DotQuestJNI {
 	// Activity lifecycle
 	public static native long onCreate(Activity obj, String commandLineParams);
 
