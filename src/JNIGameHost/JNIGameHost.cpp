@@ -77,7 +77,7 @@ extern "C" {
 		return env->CallVoidMethod(_shutdownCallbackObj, _android_shutdown);
 	}
 
-	int JNI_OnLoad(JavaVM* vm, void* reserved) {
+	jint JNI_OnLoad(JavaVM* vm, void* reserved) {
 		LOGI("JNI_OnLoad");
 		JNIEnv* env;
 		_jVM = vm;
@@ -88,7 +88,7 @@ extern "C" {
 		return JNI_VERSION_1_4;
 	}
 
-	/* global arg_xxx structs */
+	// global arg_xxx structs
 	struct arg_dbl* ss;
 	struct arg_int* cpu;
 	struct arg_int* gpu;
@@ -97,7 +97,7 @@ extern "C" {
 	char** argv;
 	int argc = 0;
 
-	//Let's go to the maximum!
+	// Let's go to the maximum!
 	int CPU_LEVEL = 4;
 	int GPU_LEVEL = 4;
 	int NUM_MULTI_SAMPLES = 1;
@@ -128,7 +128,8 @@ extern "C" {
 		argv = (char**)malloc(sizeof(char*) * 255);
 		argc = ParseCommandLine(strdup(cmdLine), argv);
 
-		dotnet(argc, argv);
+		// dotnet
+		//dotnet(argc, argv);
 
 		// verify the argtable[] entries were allocated sucessfully
 		if (arg_nullcheck(argtable) == 0) {
