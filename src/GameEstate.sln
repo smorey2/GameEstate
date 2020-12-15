@@ -35,6 +35,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GameEstate.Resources", "Gam
 EndProject
 Project("{39E2626F-3545-4960-A6E8-258AD8476CE5}") = "GameEstate.App.Quest", "GameEstate.App.Quest\GameEstate.App.Quest.androidproj", "{CDDDC891-6E04-4544-AEA2-0DBA2E074204}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "JNIGameHost", "JNIGameHost\JNIGameHost.vcxproj", "{22E82F97-445F-457E-96C2-7DE21C237C7E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -357,12 +359,31 @@ Global
 		{CDDDC891-6E04-4544-AEA2-0DBA2E074204}.Release|x86.ActiveCfg = Release|x86
 		{CDDDC891-6E04-4544-AEA2-0DBA2E074204}.Release|x86.Build.0 = Release|x86
 		{CDDDC891-6E04-4544-AEA2-0DBA2E074204}.Release|x86.Deploy.0 = Release|x86
+		{22E82F97-445F-457E-96C2-7DE21C237C7E}.Debug|Any CPU.ActiveCfg = Debug|x86
+		{22E82F97-445F-457E-96C2-7DE21C237C7E}.Debug|ARM.ActiveCfg = Debug|ARM
+		{22E82F97-445F-457E-96C2-7DE21C237C7E}.Debug|ARM.Build.0 = Debug|ARM
+		{22E82F97-445F-457E-96C2-7DE21C237C7E}.Debug|ARM64.ActiveCfg = Debug|ARM64
+		{22E82F97-445F-457E-96C2-7DE21C237C7E}.Debug|ARM64.Build.0 = Debug|ARM64
+		{22E82F97-445F-457E-96C2-7DE21C237C7E}.Debug|x64.ActiveCfg = Debug|x64
+		{22E82F97-445F-457E-96C2-7DE21C237C7E}.Debug|x64.Build.0 = Debug|x64
+		{22E82F97-445F-457E-96C2-7DE21C237C7E}.Debug|x86.ActiveCfg = Debug|x86
+		{22E82F97-445F-457E-96C2-7DE21C237C7E}.Debug|x86.Build.0 = Debug|x86
+		{22E82F97-445F-457E-96C2-7DE21C237C7E}.Release|Any CPU.ActiveCfg = Release|x86
+		{22E82F97-445F-457E-96C2-7DE21C237C7E}.Release|ARM.ActiveCfg = Release|ARM
+		{22E82F97-445F-457E-96C2-7DE21C237C7E}.Release|ARM.Build.0 = Release|ARM
+		{22E82F97-445F-457E-96C2-7DE21C237C7E}.Release|ARM64.ActiveCfg = Release|ARM64
+		{22E82F97-445F-457E-96C2-7DE21C237C7E}.Release|ARM64.Build.0 = Release|ARM64
+		{22E82F97-445F-457E-96C2-7DE21C237C7E}.Release|x64.ActiveCfg = Release|x64
+		{22E82F97-445F-457E-96C2-7DE21C237C7E}.Release|x64.Build.0 = Release|x64
+		{22E82F97-445F-457E-96C2-7DE21C237C7E}.Release|x86.ActiveCfg = Release|x86
+		{22E82F97-445F-457E-96C2-7DE21C237C7E}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{C13754B8-DB51-47F2-8FD0-D0D81826F4F8} = {AFB380A5-D6A4-4F27-855B-83067427F08E}
+		{22E82F97-445F-457E-96C2-7DE21C237C7E} = {AFB380A5-D6A4-4F27-855B-83067427F08E}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {751994E6-AD00-4136-A949-4BDE63C2F248}

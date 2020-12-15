@@ -28,17 +28,14 @@ import android.support.v4.content.ContextCompat;
 
 import static android.system.Os.setenv;
 
-import android.widget.TextView;
-
 @SuppressLint("SdCardPath")
 public class MainActivity extends Activity implements SurfaceHolder.Callback {
-	// Load the gles3jni library right away to make sure JNI_OnLoad() gets called as the very first thing.
+	// Load the JNIGameHost library right away to make sure JNI_OnLoad() gets called as the very first thing.
 	static {
-		Log.v("GameEstate", "MAINACTIVITY::STATIC");
-		//System.loadLibrary("host");
+		System.loadLibrary("JNIGameHost");
 	}
 
-	private static final String TAG = "GameEstate";
+	private static final String TAG = "GAMETAG";
 	private static final int READ_EXTERNAL_STORAGE_PERMISSION_ID = 1;
 	private static final int WRITE_EXTERNAL_STORAGE_PERMISSION_ID = 2;
 	// Main components
@@ -71,11 +68,6 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
 		Log.v(TAG, "----------------------------------------------------------------");
 		Log.v(TAG, "MainActivity::onCreate()");
 		super.onCreate(savedInstanceState);
-				
-		/* Create a TextView and set its text to "Hello world" */
-		TextView tv = new TextView(this);
-		tv.setText("Hello World!");
-		setContentView(tv);
 
 		MainActivity.initialize();
 
@@ -100,8 +92,6 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
 
 	/** Initializes the Activity only if the permission has been granted. */
 	private void checkPermissionsAndInitialize() {
-
-		// Boilerplate for checking runtime permissions in Android.
 		if (ContextCompat.checkSelfPermission(this,
 				Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
 			ActivityCompat.requestPermissions(MainActivity.this,
@@ -151,14 +141,13 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
 		new File("/sdcard/GameEstate/Main").mkdirs();
 
 		// copy assets
-		copy_asset("/sdcard/GameEstate/Main", "main.cfg", false);
+		//copy_asset("/sdcard/GameEstate/Main", "main.cfg", false);
 
 		// read these from a file and pass through
 		commandLineParams = new String("none");
 
-		//See if user is trying to use command line params
-		if (new File("/sdcard/GameEstate/commandline.txt").exists()) // should exist!
-		{
+		// see if user is trying to use command line params
+		if (new File("/sdcard/GameEstate/commandline.txt").exists()) { // should exist!
 			BufferedReader br;
 			try {
 				br = new BufferedReader(new FileReader("/sdcard/GameEstate/commandline.txt"));

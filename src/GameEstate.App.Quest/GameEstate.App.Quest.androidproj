@@ -91,6 +91,9 @@
   <ItemGroup>
     <Content Include="app\assets\main.cfg" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\JNIGameHost\JNIGameHost.vcxproj" />
+  </ItemGroup>
   <Import Project="$(AndroidTargetsPath)\Android.targets" />
   <ImportGroup Label="ExtensionTargets" />
 </Project>
