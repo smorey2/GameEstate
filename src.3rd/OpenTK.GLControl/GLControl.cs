@@ -2,11 +2,9 @@
 using OpenTK.Platform;
 using System;
 using System.ComponentModel;
-using System.Globalization;
 using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Input;
 using System.Windows.Interop;
 using System.Windows.Media;
 
@@ -41,7 +39,7 @@ namespace OpenTK
         public GLControl(GraphicsMode mode, int major, int minor, GraphicsContextFlags flags)
         {
             if (mode == null)
-                throw new ArgumentNullException("mode");
+                throw new ArgumentNullException(nameof(mode));
 
             Toolkit.Init(new ToolkitOptions { Backend = PlatformBackend.PreferNative });
 
@@ -66,6 +64,13 @@ namespace OpenTK
 
         //https://docs.microsoft.com/en-us/dotnet/framework/wpf/advanced/wpf-and-win32-interoperation
         //https://docs.microsoft.com/en-us/dotnet/framework/wpf/advanced/walkthrough-hosting-a-win32-control-in-wpf
+        /// <summary>
+        /// When overridden in a derived class, creates the window to be hosted.
+        /// </summary>
+        /// <param name="hwndParent">The window handle of the parent window.</param>
+        /// <returns>
+        /// The handle to the child Win32 window to create.
+        /// </returns>
         protected override HandleRef BuildWindowCore(HandleRef hwndParent)
         {
             var hwndSource = new HwndSource(new HwndSourceParameters("GL")
@@ -80,6 +85,10 @@ namespace OpenTK
             return hwnd;
         }
 
+        /// <summary>
+        /// When overridden in a derived class, destroys the hosted window.
+        /// </summary>
+        /// <param name="hwnd">A structure that contains the window handle.</param>
         protected override void DestroyWindowCore(HandleRef hwnd)
         {
             if (!_designMode)
@@ -89,13 +98,24 @@ namespace OpenTK
             hwndSource.Dispose();
         }
 
-        const int WM_WINDOWPOSCHANGING = 0x0046;
-        const int WM_NCHITTEST = 0x0084;
-
         bool _mouseEntered;
         int _changing;
+        /// <summary>
+        /// When overridden in a derived class, accesses the window process (handle) of the hosted child window.
+        /// </summary>
+        /// <param name="hwnd">The window handle of the hosted window.</param>
+        /// <param name="msg">The message to act upon.</param>
+        /// <param name="wParam">Information that may be relevant to handling the message. This is typically used to store small pieces of information, such as flags.</param>
+        /// <param name="lParam">Information that may be relevant to handling the message. This is typically used to reference an object.</param>
+        /// <param name="handled">Whether events resulting should be marked handled.</param>
+        /// <returns>
+        /// The window handle of the child window.
+        /// </returns>
         protected override IntPtr WndProc(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled)
         {
+            const int WM_WINDOWPOSCHANGING = 0x0046;
+            const int WM_NCHITTEST = 0x0084;
+            const int WM_MOUSEWHEEL = 0x020a;
             switch (msg)
             {
                 case WM_NCHITTEST:
@@ -113,7 +133,10 @@ namespace OpenTK
                         _mouseEntered = false;
                     }
                     break;
-                    //default: Console.Write($"{msg,5:x}"); break;
+                case WM_MOUSEWHEEL:
+                    OnMouseWheel(null);
+                    break;
+                //default: Console.Write($"{msg,5:x}"); break;
             }
             return base.WndProc(hwnd, msg, wParam, lParam, ref handled);
         }
@@ -281,6 +304,8 @@ namespace OpenTK
 
         public void PerformContextUpdate() => _context?.Update(_impl.WindowInfo);
 
+        public void Update() => InvalidateVisual();
+
         public void SwapBuffers() => _context.SwapBuffers();
 
         //[Conditional("DEBUG")]
@@ -310,7 +335,7 @@ namespace OpenTK
 
         public IWindowInfo WindowInfo => _impl.WindowInfo;
 
-        public bool IsHandleCreated => ((HwndSource)HwndSource.FromVisual(this)).Handle != IntPtr.Zero;
+        public bool IsHandleCreated => ((HwndSource)PresentationSource.FromVisual(this)).Handle != IntPtr.Zero;
     }
 }
 

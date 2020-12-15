@@ -7,6 +7,7 @@ using GameEstate.Formats.AC.Props;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 
 namespace GameEstate.Formats.AC.FileTypes
@@ -41,7 +42,7 @@ namespace GameEstate.Formats.AC.FileTypes
         {
             var nodes = new List<ExplorerInfoNode> {
                 new ExplorerInfoNode($"{nameof(CombatManeuverTable)}: {Id:X8}", items: new List<ExplorerInfoNode> {
-                    //new ExplorerInfoNode($"Type: {Type}"),
+                    new ExplorerInfoNode("Maneuvers", items: CMT.Select((x, i) => new ExplorerInfoNode($"{i}", items: (x as IGetExplorerInfo).GetInfoNodes()))),
                 })
             };
             return nodes;

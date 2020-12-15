@@ -4,6 +4,7 @@ using GameEstate.Explorer.ViewModel;
 using GameEstate.Formats._Packages;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 
 namespace GameEstate.Formats.AC.FileTypes
 {
@@ -26,7 +27,9 @@ namespace GameEstate.Formats.AC.FileTypes
         {
             var nodes = new List<ExplorerInfoNode> {
                 new ExplorerInfoNode($"{nameof(SurfaceTexture)}: {Id:X8}", items: new List<ExplorerInfoNode> {
-                    //new ExplorerInfoNode($"Type: {Type}"),
+                    new ExplorerInfoNode($"Unknown: {Unknown}"),
+                    new ExplorerInfoNode($"UnknownByte: {UnknownByte}"),
+                    new ExplorerInfoNode("Textures", items: Textures.Select(x => new ExplorerInfoNode($"{x:X8}"))),
                 })
             };
             return nodes;

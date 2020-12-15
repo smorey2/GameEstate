@@ -54,7 +54,17 @@ namespace GameEstate.Formats.AC.FileTypes
         {
             var nodes = new List<ExplorerInfoNode> {
                 new ExplorerInfoNode($"{nameof(RegionDesc)}: {Id:X8}", items: new List<ExplorerInfoNode> {
-                    //new ExplorerInfoNode($"Type: {Type}"),
+                    new ExplorerInfoNode($"RegionNum: {RegionNumber}"),
+                    new ExplorerInfoNode($"Version: {Version}"),
+                    new ExplorerInfoNode($"Name: {RegionName}"),
+                    new ExplorerInfoNode("LandDefs", items: (LandDefs as IGetExplorerInfo).GetInfoNodes()),
+                    new ExplorerInfoNode("GameTime", items: (GameTime as IGetExplorerInfo).GetInfoNodes()),
+                    new ExplorerInfoNode($"PartsMask: {PartsMask:X8}"),
+                    (PartsMask & 0x10) != 0 ? new ExplorerInfoNode("SkyInfo", items: (SkyInfo as IGetExplorerInfo).GetInfoNodes()) : null,
+                    (PartsMask & 0x01) != 0 ? new ExplorerInfoNode("SoundInfo", items: (SoundInfo as IGetExplorerInfo).GetInfoNodes()) : null,
+                    (PartsMask & 0x02) != 0 ? new ExplorerInfoNode("SceneInfo", items: (SceneInfo as IGetExplorerInfo).GetInfoNodes()) : null,
+                    new ExplorerInfoNode("TerrainInfo", items: (TerrainInfo as IGetExplorerInfo).GetInfoNodes()),
+                    (PartsMask & 0x200) != 0 ? new ExplorerInfoNode("RegionMisc", items: (RegionMisc as IGetExplorerInfo).GetInfoNodes()) : null,
                 })
             };
             return nodes;

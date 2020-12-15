@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
+using System.Threading;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
@@ -25,14 +26,14 @@ namespace GameEstate.Graphics.Controls
 
         public event EventHandler<RenderEventArgs> GLPaint;
         public event EventHandler GLLoad;
-        readonly DispatcherTimer _timer = new DispatcherTimer() { Interval = new TimeSpan(10) };
+        readonly DispatcherTimer _timer = new DispatcherTimer() { Interval = new TimeSpan(1) };
 
         public GLViewerControl()
         {
             if (!IsInDesignMode) ConsoleManager.Show();
         }
 
-        void OnTimerElapsed(object sender, EventArgs e) => InvalidateVisual();
+        void OnTimerElapsed(object sender, EventArgs e) => Update();
 
         //void SetFps(double fps) => Console.WriteLine($"FPS: {Math.Round(fps)}");
 

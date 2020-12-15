@@ -5,6 +5,7 @@ using GameEstate.Formats._Packages;
 using GameEstate.Formats.AC.Entity;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 
 namespace GameEstate.Formats.AC.FileTypes
 {
@@ -26,9 +27,7 @@ namespace GameEstate.Formats.AC.FileTypes
         List<ExplorerInfoNode> IGetExplorerInfo.GetInfoNodes(ExplorerManager resource, FileMetadata file, object tag)
         {
             var nodes = new List<ExplorerInfoNode> {
-                new ExplorerInfoNode($"{nameof(Environment)}: {Id:X8}", items: new List<ExplorerInfoNode> {
-                    //new ExplorerInfoNode($"Type: {Type}"),
-                })
+                new ExplorerInfoNode($"{nameof(Environment)}: {Id:X8}", items: Cells.Select(x => new ExplorerInfoNode($"{x.Key}", items: (x.Value as IGetExplorerInfo).GetInfoNodes()))),
             };
             return nodes;
         }

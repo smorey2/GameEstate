@@ -5,6 +5,7 @@ using GameEstate.Formats._Packages;
 using GameEstate.Formats.AC.Entity;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 
 namespace GameEstate.Formats.AC.FileTypes
 {
@@ -29,7 +30,14 @@ namespace GameEstate.Formats.AC.FileTypes
         {
             var nodes = new List<ExplorerInfoNode> {
                 new ExplorerInfoNode($"{nameof(StringTable)}: {Id:X8}", items: new List<ExplorerInfoNode> {
-                    //new ExplorerInfoNode($"Type: {Type}"),
+                    new ExplorerInfoNode($"Language: {Language}"),
+                    new ExplorerInfoNode($"Unknown: {Unknown}"),
+                    new ExplorerInfoNode("String Tables", items: StringTableData.Select(x => {
+                        var items = (x as IGetExplorerInfo).GetInfoNodes();
+                        var name = items[0].Name;
+                        items.RemoveAt(0);
+                        return new ExplorerInfoNode(name, items: items);
+                    })),
                 })
             };
             return nodes;

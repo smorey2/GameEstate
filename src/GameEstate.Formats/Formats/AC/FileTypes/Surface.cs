@@ -2,6 +2,7 @@ using GameEstate.Explorer;
 using GameEstate.Explorer.ViewModel;
 using GameEstate.Formats._Packages;
 using GameEstate.Formats.AC.Props;
+using GameEstate.Graphics;
 using System.Collections.Generic;
 using System.IO;
 
@@ -41,7 +42,15 @@ namespace GameEstate.Formats.AC.FileTypes
         {
             var nodes = new List<ExplorerInfoNode> {
                 new ExplorerInfoNode($"{nameof(Surface)}: {Id:X8}", items: new List<ExplorerInfoNode> {
-                    //new ExplorerInfoNode($"Type: {Type}"),
+                    new ExplorerInfoNode($"Type: {Type}"),
+                    Type.HasFlag(SurfaceType.Base1Image) || Type.HasFlag(SurfaceType.Base1ClipMap)
+                        ? new ExplorerInfoNode($"Texture ID: {OrigTextureId:X8}", items: new List<ExplorerInfoNode> {
+                            OrigPaletteId != 0 ? new ExplorerInfoNode($"Palette ID: {OrigPaletteId:X8}") : null,
+                        })
+                        : new ExplorerInfoNode($"Color: {new GXColor(ColorValue, GXColor.Format.ARGB32)}"),
+                    Translucency != 0f ? new ExplorerInfoNode($"Translucency: {Translucency}") : null,
+                    Luminosity != 0f ? new ExplorerInfoNode($"Luminosity: {Luminosity}") : null,
+                    Diffuse != 1f ? new ExplorerInfoNode($"Diffuse: {Diffuse}") : null,
                 })
             };
             return nodes;

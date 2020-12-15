@@ -56,7 +56,20 @@ namespace GameEstate.Formats.AC.FileTypes
         {
             var nodes = new List<ExplorerInfoNode> {
                 new ExplorerInfoNode($"{nameof(ParticleEmitterInfo)}: {Id:X8}", items: new List<ExplorerInfoNode> {
-                    //new ExplorerInfoNode($"Type: {Type}"),
+                    new ExplorerInfoNode($"EmitterType: {EmitterType}"),
+                    new ExplorerInfoNode($"ParticleType: {ParticleType}"),
+                    new ExplorerInfoNode($"GfxObjId: {GfxObjId:X8} HWGfxObjId: {HwGfxObjId:X8}"),
+                    new ExplorerInfoNode($"Birthrate: {Birthrate}"),
+                    new ExplorerInfoNode($"MaxParticles: {MaxParticles} InitialParticles: {InitialParticles} TotalParticles: {TotalParticles}"),
+                    new ExplorerInfoNode($"TotalSeconds: {TotalSeconds}"),
+                    new ExplorerInfoNode($"Lifespan: {Lifespan} LifespanRand: {LifespanRand}"),
+                    new ExplorerInfoNode($"OffsetDir: {OffsetDir} MinOffset: {MinOffset} MaxOffset: {MaxOffset}"),
+                    new ExplorerInfoNode($"A: {A} MinA: {MinA}: MaxA: {MaxA}"),
+                    new ExplorerInfoNode($"B: {B} MinB: {MinB}: MaxB: {MaxB}"),
+                    new ExplorerInfoNode($"C: {C} MinC: {MinC}: MaxC: {MaxC}"),
+                    new ExplorerInfoNode($"StartScale: {StartScale} FinalScale: {FinalScale}: ScaleRand: {ScaleRand}"),
+                    new ExplorerInfoNode($"StartTrans: {StartTrans} FinalTrans: {FinalTrans}: TransRand: {TransRand}"),
+                    new ExplorerInfoNode($"IsParentLocal: {IsParentLocal}"),
                 })
             };
             return nodes;

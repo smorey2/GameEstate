@@ -6,7 +6,8 @@
   "games": {
     "AC": {
       "name": "Asheron's Call",
-      "pak": "game:/*.dat#AC"
+      "pak": "game:/client_portal.dat#AC"
+      //"pak": "game:/*.dat#AC"
     }
   },
   "fileManager": {

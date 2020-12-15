@@ -4,6 +4,7 @@ using GameEstate.Explorer.ViewModel;
 using GameEstate.Formats._Packages;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 
 namespace GameEstate.Formats.AC.FileTypes
 {
@@ -47,9 +48,7 @@ namespace GameEstate.Formats.AC.FileTypes
         List<ExplorerInfoNode> IGetExplorerInfo.GetInfoNodes(ExplorerManager resource, FileMetadata file, object tag)
         {
             var nodes = new List<ExplorerInfoNode> {
-                new ExplorerInfoNode($"{nameof(PaletteSet)}: {Id:X8}", items: new List<ExplorerInfoNode> {
-                    //new ExplorerInfoNode($"Type: {Type}"),
-                })
+                new ExplorerInfoNode($"{nameof(PaletteSet)}: {Id:X8}", items: PaletteList.Select(x => new ExplorerInfoNode($"{x:X8}"))),
             };
             return nodes;
         }

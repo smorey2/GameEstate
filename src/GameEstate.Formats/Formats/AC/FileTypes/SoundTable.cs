@@ -3,8 +3,10 @@ using GameEstate.Explorer;
 using GameEstate.Explorer.ViewModel;
 using GameEstate.Formats._Packages;
 using GameEstate.Formats.AC.Entity;
+using GameEstate.Formats.AC.Props;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 
 namespace GameEstate.Formats.AC.FileTypes
 {
@@ -33,7 +35,13 @@ namespace GameEstate.Formats.AC.FileTypes
         {
             var nodes = new List<ExplorerInfoNode> {
                 new ExplorerInfoNode($"{nameof(SoundTable)}: {Id:X8}", items: new List<ExplorerInfoNode> {
-                    //new ExplorerInfoNode($"Type: {Type}"),
+                    new ExplorerInfoNode("SoundHash", items: SoundHash.Select(x => {
+                        var items = (x as IGetExplorerInfo).GetInfoNodes();
+                        var name = items[0].Name.Replace("Sound ID: ", "");
+                        items.RemoveAt(0);
+                        return new ExplorerInfoNode(name, items: items);
+                    })),
+                    new ExplorerInfoNode($"Sounds", items: Data.Select(x => new ExplorerInfoNode($"{(Sound)x.Key}", items: (x.Value as IGetExplorerInfo).GetInfoNodes()))),
                 })
             };
             return nodes;

@@ -5,6 +5,7 @@ using GameEstate.Formats._Packages;
 using GameEstate.Formats.AC.Entity;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 
 namespace GameEstate.Formats.AC.FileTypes
 {
@@ -57,7 +58,16 @@ namespace GameEstate.Formats.AC.FileTypes
         {
             var nodes = new List<ExplorerInfoNode> {
                 new ExplorerInfoNode($"{nameof(LandblockInfo)}: {Id:X8}", items: new List<ExplorerInfoNode> {
-                    //new ExplorerInfoNode($"Type: {Type}"),
+                    new ExplorerInfoNode($"NumCells: {NumCells}"),
+                    Objects.Length > 0 ? new ExplorerInfoNode("Objects", items: Objects.Select(x => {
+                        var items = (x as IGetExplorerInfo).GetInfoNodes();
+                        var name = items[0].Name.Replace("Id: ", "");
+                        items.RemoveAt(0);
+                        return new ExplorerInfoNode(name, items: items);
+                    })) : null,
+                    //PackMask != 0 ? new ExplorerInfoNode($"PackMask: {PackMask}") : null,
+                    Buildings.Length > 0 ? new ExplorerInfoNode("Buildings", items: Buildings.Select((x, i) => new ExplorerInfoNode($"{i}", items: (x as IGetExplorerInfo).GetInfoNodes()))) : null,
+                    RestrictionTables.Count > 0 ? new ExplorerInfoNode("Restrictions", items: RestrictionTables.Select(x => new ExplorerInfoNode($"{x.Key:X8}: {x.Value:X8}"))) : null,
                 })
             };
             return nodes;

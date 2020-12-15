@@ -29,9 +29,7 @@ namespace GameEstate.Formats.AC.FileTypes
         List<ExplorerInfoNode> IGetExplorerInfo.GetInfoNodes(ExplorerManager resource, FileMetadata file, object tag)
         {
             var nodes = new List<ExplorerInfoNode> {
-                new ExplorerInfoNode($"{nameof(Palette)}: {Id:X8}", items: Colors.Select(x =>
-                    new ExplorerInfoNode(new GXColor(x, GXColor.Format.ARGB32).ToString("F0"))
-                ).ToList())
+                new ExplorerInfoNode($"{nameof(Palette)}: {Id:X8}", items: Colors.Select(x => new ExplorerInfoNode(new GXColor(x, GXColor.Format.ARGB32).ToString("F0")))),
             };
             return nodes;
         }

@@ -9,8 +9,7 @@ namespace OpenTK
         public IGLControl CreateGLControl(GraphicsMode mode, IntPtr windowHandle)
         {
             if (mode == null)
-                throw new ArgumentNullException("mode");
-
+                throw new ArgumentNullException(nameof(mode));
             if (Configuration.RunningOnSdl2)
                 return new Sdl2GLControl(mode, windowHandle);
             if (Configuration.RunningOnWindows)

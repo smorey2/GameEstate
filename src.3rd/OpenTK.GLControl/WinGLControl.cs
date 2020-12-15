@@ -47,7 +47,6 @@ namespace OpenTK
         public bool IsIdle => !PeekMessage(ref _msg, IntPtr.Zero, 0, 0, 0);
 
         public IWindowInfo WindowInfo { get; }
-
     }
 }
 

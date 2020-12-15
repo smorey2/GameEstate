@@ -14,6 +14,8 @@ namespace GameEstate.Graphics
         Vector2 MousePreviousPosition;
 
         KeyboardState KeyboardState;
+        MouseState MouseState;
+        int ScrollWheelDelta;
 
         public override void Tick(float deltaTime)
         {
@@ -21,11 +23,11 @@ namespace GameEstate.Graphics
                 return;
 
             // Use the keyboard state to update position
-            HandleKeyboardInput(deltaTime);
+            HandleInputTick(deltaTime);
 
             // Full width of the screen is a 1 PI (180deg)
             Yaw -= (float)Math.PI * MouseDelta.X / WindowSize.X;
-            Pitch -= ((float)Math.PI / AspectRatio) * MouseDelta.Y / WindowSize.Y;
+            Pitch -= (float)Math.PI / AspectRatio * MouseDelta.Y / WindowSize.Y;
 
             ClampRotation();
 
@@ -34,9 +36,19 @@ namespace GameEstate.Graphics
 
         public void HandleInput(MouseState mouseState, KeyboardState keyboardState)
         {
+            ScrollWheelDelta += mouseState.ScrollWheelValue - MouseState.ScrollWheelValue;
+            MouseState = mouseState;
             KeyboardState = keyboardState;
+            if (!MouseOverRenderArea || mouseState.LeftButton == ButtonState.Released)
+            {
+                MouseDragging = false;
+                MouseDelta = default;
+                if (!MouseOverRenderArea)
+                    return;
+            }
 
-            if (MouseOverRenderArea && mouseState.LeftButton == ButtonState.Pressed)
+            // drag
+            if (mouseState.LeftButton == ButtonState.Pressed)
             {
                 if (!MouseDragging)
                 {
@@ -51,15 +63,9 @@ namespace GameEstate.Graphics
 
                 MousePreviousPosition = mouseNewCoords;
             }
-
-            if (!MouseOverRenderArea || mouseState.LeftButton == ButtonState.Released)
-            {
-                MouseDragging = false;
-                MouseDelta = default;
-            }
         }
 
-        void HandleKeyboardInput(float deltaTime)
+        void HandleInputTick(float deltaTime)
         {
             var speed = CAMERASPEED * deltaTime;
 
@@ -73,6 +79,13 @@ namespace GameEstate.Graphics
             if (KeyboardState.IsKeyDown(Key.A)) Location -= GetRightVector() * speed;
             if (KeyboardState.IsKeyDown(Key.Z)) Location += new Vector3(0, 0, -speed);
             if (KeyboardState.IsKeyDown(Key.Q)) Location += new Vector3(0, 0, speed);
+
+            // scroll
+            if (ScrollWheelDelta != 0)
+            {
+                Location += GetForwardVector() * ScrollWheelDelta * speed;
+                ScrollWheelDelta = 0;
+            }
         }
     }
 }

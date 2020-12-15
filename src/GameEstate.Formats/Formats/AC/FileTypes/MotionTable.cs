@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using GameEstate.Core;
 using GameEstate.Explorer;
 using GameEstate.Explorer.ViewModel;
@@ -13,8 +14,9 @@ namespace GameEstate.Formats.AC.FileTypes
     [PakFileType(PakFileType.MotionTable)]
     public class MotionTable : AbstractFileType, IGetExplorerInfo
     {
-        public readonly MotionStance DefaultStyle;
-        public readonly Dictionary<MotionStance, MotionCommand> StyleDefaults;
+        public static Dictionary<ushort, MotionCommand> RawToInterpreted = Enum.GetValues(typeof(MotionCommand)).Cast<object>().ToDictionary(x => (ushort)(uint)x, x => (MotionCommand)x);
+        public readonly uint DefaultStyle;
+        public readonly Dictionary<uint, uint> StyleDefaults;
         public readonly Dictionary<uint, MotionData> Cycles;
         public readonly Dictionary<uint, MotionData> Modifiers;
         public readonly Dictionary<uint, Dictionary<uint, MotionData>> Links;
@@ -22,19 +24,33 @@ namespace GameEstate.Formats.AC.FileTypes
         public MotionTable(BinaryReader r)
         {
             Id = r.ReadUInt32();
-            DefaultStyle = (MotionStance)r.ReadUInt32();
-            StyleDefaults = r.ReadL32Many<MotionStance, MotionCommand>(sizeof(uint), x => (MotionCommand)x.ReadUInt32());
+            DefaultStyle = r.ReadUInt32();
+            StyleDefaults = r.ReadL32Many<uint, uint>(sizeof(uint), x => x.ReadUInt32());
             Cycles = r.ReadL32Many<uint, MotionData>(sizeof(uint), x => new MotionData(x));
             Modifiers = r.ReadL32Many<uint, MotionData>(sizeof(uint), x => new MotionData(x));
             Links = r.ReadL32Many<uint, Dictionary<uint, MotionData>>(sizeof(uint), x => x.ReadL32Many<uint, MotionData>(sizeof(uint), y => new MotionData(y)));
+        }
+
+        List<ExplorerInfoNode> IGetExplorerInfo.GetInfoNodes(ExplorerManager resource, FileMetadata file, object tag)
+        {
+            var nodes = new List<ExplorerInfoNode> {
+                new ExplorerInfoNode($"{nameof(MotionTable)}: {Id:X8}", items: new List<ExplorerInfoNode> {
+                    new ExplorerInfoNode($"Default style: {(MotionCommand)DefaultStyle}"),
+                    new ExplorerInfoNode("Style defaults", items: StyleDefaults.Select(x => new ExplorerInfoNode($"{(MotionCommand)x.Key}: {(MotionCommand)x.Value}"))),
+                    new ExplorerInfoNode("Cycles", items: Cycles.Select(x => new ExplorerInfoNode($"{x.Key:X8}", items: (x.Value as IGetExplorerInfo).GetInfoNodes()))),
+                    new ExplorerInfoNode("Modifiers", items: Modifiers.Select(x => new ExplorerInfoNode($"{x.Key:X8}", items: (x.Value as IGetExplorerInfo).GetInfoNodes()))),
+                    new ExplorerInfoNode("Links", items: Links.Select(x => new ExplorerInfoNode($"{x.Key:X8}", items: x.Value.Select(y => new ExplorerInfoNode($"{y.Key}", items: (y.Value as IGetExplorerInfo).GetInfoNodes()))))),
+                })
+            };
+            return nodes;
         }
 
         /// <summary>
         /// Gets the default style for the requested MotionStance
         /// </summary>
         /// <returns>The default style or MotionCommand.Invalid if not found</returns>
-        MotionCommand GetDefaultMotion(MotionStance style) => StyleDefaults.TryGetValue(style, out var z) ? z : MotionCommand.Invalid;
-        public float GetAnimationLength(MotionCommand motion) => GetAnimationLength(DefaultStyle, motion, GetDefaultMotion(DefaultStyle));
+        MotionCommand GetDefaultMotion(MotionStance style) => StyleDefaults.TryGetValue((uint)style, out var z) ? (MotionCommand)z : MotionCommand.Invalid;
+        public float GetAnimationLength(MotionCommand motion) => GetAnimationLength((MotionStance)DefaultStyle, motion, GetDefaultMotion((MotionStance)DefaultStyle));
         public float GetAnimationLength(MotionStance stance, MotionCommand motion, MotionCommand? currentMotion = null) => GetAnimationLength(stance, motion, currentMotion ?? GetDefaultMotion(stance));
 
         public float GetCycleLength(MotionStance stance, MotionCommand motion)
@@ -46,16 +62,6 @@ namespace GameEstate.Formats.AC.FileTypes
             foreach (var anim in motionData.Anims)
                 length += GetAnimationLength(anim);
             return length;
-        }
-
-        List<ExplorerInfoNode> IGetExplorerInfo.GetInfoNodes(ExplorerManager resource, FileMetadata file, object tag)
-        {
-            var nodes = new List<ExplorerInfoNode> {
-                new ExplorerInfoNode($"{nameof(MotionTable)}: {Id:X8}", items: new List<ExplorerInfoNode> {
-                    //new ExplorerInfoNode($"Type: {Type}"),
-                })
-            };
-            return nodes;
         }
 
         /*
@@ -213,5 +219,37 @@ public ACE.Entity.Position GetAnimationFinalPositionFromStart(ACE.Entity.Positio
     return finalPosition;
 }
         */
+
+
+        public MotionStance[] GetStances()
+        {
+            var stances = new HashSet<MotionStance>();
+
+            foreach (var cycle in Cycles.Keys)
+            {
+                var stance = (MotionStance)(0x80000000 | cycle >> 16);
+                if (!stances.Contains(stance))
+                    stances.Add(stance);
+            }
+            if (stances.Count > 0 && !stances.Contains(MotionStance.Invalid))
+                stances.Add(MotionStance.Invalid);
+            return stances.ToArray();
+        }
+
+        public MotionCommand[] GetMotionCommands(MotionStance stance = MotionStance.Invalid)
+        {
+            var commands = new HashSet<MotionCommand>();
+            foreach (var cycle in Cycles.Keys)
+            {
+                if (stance != MotionStance.Invalid && (cycle >> 16) != ((uint)stance & 0xFFFF))
+                    continue;
+                var rawCommand = (ushort)(cycle & 0xFFFF);
+                var motionCommand = RawToInterpreted[rawCommand];
+                if (!commands.Contains(motionCommand))
+                    commands.Add(motionCommand);
+            }
+            return commands.ToArray();
+        }
+
     }
 }

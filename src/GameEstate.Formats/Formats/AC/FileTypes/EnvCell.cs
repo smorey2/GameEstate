@@ -6,6 +6,7 @@ using GameEstate.Formats.AC.Entity;
 using GameEstate.Formats.AC.Props;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 
 namespace GameEstate.Formats.AC.FileTypes
 {
@@ -57,7 +58,14 @@ namespace GameEstate.Formats.AC.FileTypes
         {
             var nodes = new List<ExplorerInfoNode> {
                 new ExplorerInfoNode($"{nameof(EnvCell)}: {Id:X8}", items: new List<ExplorerInfoNode> {
-                    //new ExplorerInfoNode($"Type: {Type}"),
+                    Flags != 0 ? new ExplorerInfoNode($"Flags: {Flags}") : null,
+                    new ExplorerInfoNode("Surfaces", items: Surfaces.Select(x => new ExplorerInfoNode($"{x:X8}"))),
+                    new ExplorerInfoNode($"Environment: {EnvironmentId:X8}"),
+                    CellStructure != 0 ? new ExplorerInfoNode($"CellStructure: {CellStructure}") : null,
+                    new ExplorerInfoNode($"Position: {Position}"),
+                    CellPortals.Length > 0 ? new ExplorerInfoNode("CellPortals", items: CellPortals.Select((x, i) => new ExplorerInfoNode($"{i}", items: (x as IGetExplorerInfo).GetInfoNodes()))) : null,
+                    StaticObjects.Length > 0 ? new ExplorerInfoNode("StaticObjects", items: StaticObjects.Select((x, i) => new ExplorerInfoNode($"{i}", items: (x as IGetExplorerInfo).GetInfoNodes()))) : null,
+                    RestrictionObj != 0 ? new ExplorerInfoNode($"RestrictionObj: {RestrictionObj:X8}") : null,
                 })
             };
             return nodes;

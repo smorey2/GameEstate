@@ -5,6 +5,7 @@ using GameEstate.Formats._Packages;
 using GameEstate.Formats.AC.Props;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 
 namespace GameEstate.Formats.AC.FileTypes
@@ -28,7 +29,9 @@ namespace GameEstate.Formats.AC.FileTypes
         {
             var nodes = new List<ExplorerInfoNode> {
                 new ExplorerInfoNode($"{nameof(EnumMapper)}: {Id:X8}", items: new List<ExplorerInfoNode> {
-                    //new ExplorerInfoNode($"Type: {Type}"),
+                    BaseEnumMap != 0 ? new ExplorerInfoNode($"BaseEnumMap: {BaseEnumMap:X8}") : null,
+                    NumberingType != NumberingType.Undefined ? new ExplorerInfoNode($"NumberingType: {NumberingType}") : null,
+                    IdToStringMap.Count > 0 ? new ExplorerInfoNode("IdToStringMap", items: IdToStringMap.OrderBy(x => x.Key).Select(x => new ExplorerInfoNode($"{x.Key}: {x.Value::X8}"))) : null,
                 })
             };
             return nodes;

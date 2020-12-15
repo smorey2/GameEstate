@@ -42,7 +42,11 @@ namespace GameEstate.Formats.AC.FileTypes
         {
             var nodes = new List<ExplorerInfoNode> {
                 new ExplorerInfoNode($"{nameof(Texture)}: {Id:X8}", items: new List<ExplorerInfoNode> {
-                    //new ExplorerInfoNode($"Type: {Type}"),
+                    new ExplorerInfoNode($"Unknown: {Unknown}"),
+                    new ExplorerInfoNode($"Width: {Width}"),
+                    new ExplorerInfoNode($"Height: {Height}"),
+                    new ExplorerInfoNode($"Type: {Format}"),
+                    new ExplorerInfoNode($"Size: {Length} bytes"),
                 })
             };
             return nodes;

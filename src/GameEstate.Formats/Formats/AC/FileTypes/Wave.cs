@@ -29,9 +29,12 @@ namespace GameEstate.Formats.AC.FileTypes
 
         List<ExplorerInfoNode> IGetExplorerInfo.GetInfoNodes(ExplorerManager resource, FileMetadata file, object tag)
         {
+            var type = Header[0] == 0x55 ? "MP3" : "WAV";
             var nodes = new List<ExplorerInfoNode> {
                 new ExplorerInfoNode($"{nameof(Wave)}: {Id:X8}", items: new List<ExplorerInfoNode> {
-                    //new ExplorerInfoNode($"Type: {Type}"),
+                    new ExplorerInfoNode($"Type: {type}"),
+                    new ExplorerInfoNode($"Header Size: {Header.Length}"),
+                    new ExplorerInfoNode($"Data Size: {Data.Length}"),
                 })
             };
             return nodes;
