@@ -32,7 +32,9 @@ import static android.system.Os.setenv;
 public class MainActivity extends Activity implements SurfaceHolder.Callback {
 	// Load the DotQuestJNI library right away to make sure JNI_OnLoad() gets called as the very first thing.
 	static {
+		Log.v("GAMETAG", "BEFORE");
 		System.loadLibrary("DotQuestJNI");
+		Log.v("GAMETAG", "AFTER");
 	}
 
 	private static final String TAG = "GAMETAG";

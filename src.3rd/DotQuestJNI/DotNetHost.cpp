@@ -42,7 +42,7 @@ namespace
 
 int dotnet(int argc, char *argv[])
 {
-    LOGI("DOTNET");
+    LOGV("DOTNET");
     // Get the current executable's directory
     // This sample assumes the managed assembly to load and its runtime configuration file are next to the host
     char_t host_path[MAX_PATH];

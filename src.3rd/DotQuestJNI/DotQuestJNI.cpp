@@ -45,11 +45,11 @@ extern "C" {
 	}
 
 	void DotQuestJNI() {
-		LOGI("ONE");
+		LOGV("ONE");
 	}
 
 	DotQuestJNI::DotQuestJNI() {
-		LOGI("TWO");
+		LOGV("TWO");
 	}
 
 	DotQuestJNI::~DotQuestJNI() {
@@ -105,8 +105,8 @@ extern "C" {
 
 	static int ParseCommandLine(char* cmdline, char** argv);
 
-	JNIEXPORT jlong JNICALL Java_com_gameestate_quest_JNIGameHost_onCreate(JNIEnv* env, jclass activityClass, jobject activity, jstring commandLineParams) {
-		LOGV("    JNIGameHost::onCreate()");
+	JNIEXPORT jlong JNICALL Java_com_dotquest_quest_DotQuestJNI_onCreate(JNIEnv* env, jclass activityClass, jobject activity, jstring commandLineParams) {
+		LOGV("    DotQuestJNI::onCreate()");
 
 		// the global arg_xxx structs are initialised within the argtable
 		void* argtable[] = {
@@ -161,8 +161,8 @@ extern "C" {
 		return 0;
 	}
 
-	JNIEXPORT void JNICALL Java_com_gameestate_quest_JNIGameHost_onStart(JNIEnv* env, jobject obj, jlong handle, jobject obj1) {
-		LOGV("    JNIGameHost::onStart()");
+	JNIEXPORT void JNICALL Java_com_dotquest_quest_DotQuestJNI_onStart(JNIEnv* env, jobject obj, jlong handle, jobject obj1) {
+		LOGV("    DotQuestJNI::onStart()");
 		_shutdownCallbackObj = (jobject)env->NewGlobalRef(obj1);
 		jclass callbackClass = env->GetObjectClass(_shutdownCallbackObj);
 		_android_shutdown = env->GetMethodID(callbackClass, "shutdown", "()V");
@@ -172,32 +172,32 @@ extern "C" {
 		//ovrMessageQueue_PostMessage(&appThread->MessageQueue, &message);
 	}
 
-	JNIEXPORT void JNICALL Java_com_gameestate_quest_JNIGameHost_onResume(JNIEnv* env, jobject obj, jlong handle) {
-		LOGV("    JNIGameHost::onResume()");
+	JNIEXPORT void JNICALL Java_com_dotquest_quest_DotQuestJNI_onResume(JNIEnv* env, jobject obj, jlong handle) {
+		LOGV("    DotQuestJNI::onResume()");
 		//ovrAppThread* appThread = (ovrAppThread*)((size_t)handle);
 		//ovrMessage message;
 		//ovrMessage_Init(&message, MESSAGE_ON_RESUME, MQ_WAIT_PROCESSED);
 		//ovrMessageQueue_PostMessage(&appThread->MessageQueue, &message);
 	}
 
-	JNIEXPORT void JNICALL Java_com_gameestate_quest_JNIGameHost_onPause(JNIEnv* env, jobject obj, jlong handle) {
-		LOGV("    JNIGameHost::onPause()");
+	JNIEXPORT void JNICALL Java_com_dotquest_quest_DotQuestJNI_onPause(JNIEnv* env, jobject obj, jlong handle) {
+		LOGV("    DotQuestJNI::onPause()");
 		//ovrAppThread* appThread = (ovrAppThread*)((size_t)handle);
 		//ovrMessage message;
 		//ovrMessage_Init(&message, MESSAGE_ON_PAUSE, MQ_WAIT_PROCESSED);
 		//ovrMessageQueue_PostMessage(&appThread->MessageQueue, &message);
 	}
 
-	JNIEXPORT void JNICALL Java_com_gameestate_quest_JNIGameHost_onStop(JNIEnv* env, jobject obj, jlong handle) {
-		LOGV("    JNIGameHost::onStop()");
+	JNIEXPORT void JNICALL Java_com_dotquest_quest_DotQuestJNI_onStop(JNIEnv* env, jobject obj, jlong handle) {
+		LOGV("    DotQuestJNI::onStop()");
 		//ovrAppThread* appThread = (ovrAppThread*)((size_t)handle);
 		//ovrMessage message;
 		//ovrMessage_Init(&message, MESSAGE_ON_STOP, MQ_WAIT_PROCESSED);
 		//ovrMessageQueue_PostMessage(&appThread->MessageQueue, &message);
 	}
 
-	JNIEXPORT void JNICALL Java_com_gameestate_quest_JNIGameHost_onDestroy(JNIEnv* env, jobject obj, jlong handle) {
-		LOGV("    JNIGameHost::onDestroy()");
+	JNIEXPORT void JNICALL Java_com_dotquest_quest_DotQuestJNI_onDestroy(JNIEnv* env, jobject obj, jlong handle) {
+		LOGV("    DotQuestJNI::onDestroy()");
 		//ovrAppThread* appThread = (ovrAppThread*)((size_t)handle);
 		//ovrMessage message;
 		//ovrMessage_Init(&message, MESSAGE_ON_DESTROY, MQ_WAIT_PROCESSED);
@@ -215,8 +215,8 @@ extern "C" {
 	================================================================================
 	*/
 
-	JNIEXPORT void JNICALL Java_com_com_gameestate_quest_JNIGameHost_onSurfaceCreated(JNIEnv* env, jobject obj, jlong handle, jobject surface) {
-		LOGV("    JNIGameHost::onSurfaceCreated()");
+	JNIEXPORT void JNICALL Java_com_com_dotquest_quest_DotQuestJNI_onSurfaceCreated(JNIEnv* env, jobject obj, jlong handle, jobject surface) {
+		LOGV("    DotQuestJNI::onSurfaceCreated()");
 		/*
 		ovrAppThread* appThread = (ovrAppThread*)((size_t)handle);
 
@@ -238,8 +238,8 @@ extern "C" {
 		*/
 	}
 
-	JNIEXPORT void JNICALL Java_com_gameestate_quest_JNIGameHost_onSurfaceChanged(JNIEnv* env, jobject obj, jlong handle, jobject surface) {
-		LOGV("    JNIGameHost::onSurfaceChanged()");
+	JNIEXPORT void JNICALL Java_com_dotquest_quest_DotQuestJNI_onSurfaceChanged(JNIEnv* env, jobject obj, jlong handle, jobject surface) {
+		LOGV("    DotQuestJNI::onSurfaceChanged()");
 		/*
 		ovrAppThread* appThread = (ovrAppThread*)((size_t)handle);
 
@@ -276,8 +276,8 @@ extern "C" {
 		*/
 	}
 
-	JNIEXPORT void JNICALL Java_com_gameestate_quest_JNIGameHost_onSurfaceDestroyed(JNIEnv* env, jobject obj, jlong handle) {
-		LOGV("    JNIGameHost::onSurfaceDestroyed()");
+	JNIEXPORT void JNICALL Java_com_dotquest_quest_DotQuestJNI_onSurfaceDestroyed(JNIEnv* env, jobject obj, jlong handle) {
+		LOGV("    DotQuestJNI::onSurfaceDestroyed()");
 		/*
 		ovrAppThread* appThread = (ovrAppThread*)((size_t)handle);
 		ovrMessage message;

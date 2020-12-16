@@ -36,12 +36,12 @@
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <AndroidBuildType>Gradle</AndroidBuildType>
-    <RootNamespace>gameestate.quest</RootNamespace>
+    <RootNamespace>dotquest.quest</RootNamespace>
     <MinimumVisualStudioVersion>14.0</MinimumVisualStudioVersion>
     <ProjectVersion>1.0</ProjectVersion>
     <ProjectGuid>{cdddc891-6e04-4544-aea2-0dba2e074204}</ProjectGuid>
     <_PackagingProjectWithoutNativeComponent>true</_PackagingProjectWithoutNativeComponent>
-    <LaunchActivity Condition="'$(LaunchActivity)' == ''">com.gameestate.quest.MainActivity</LaunchActivity>
+    <LaunchActivity Condition="'$(LaunchActivity)' == ''">com.dotquest.quest.MainActivity</LaunchActivity>
     <JavaSourceRoots>src\main\java</JavaSourceRoots>
   </PropertyGroup>
   <Import Project="$(AndroidTargetsPath)\Android.Default.props" />
@@ -90,6 +90,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="app\assets\main.cfg" />
+    <Content Include="libs\libnethost.so" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\DotQuestJNI\DotQuestJNI.vcxproj" />

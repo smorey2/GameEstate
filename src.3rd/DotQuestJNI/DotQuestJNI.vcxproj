@@ -37,7 +37,7 @@
   <PropertyGroup Label="Globals">
     <ProjectGuid>{22e82f97-445f-457e-96c2-7de21c237c7e}</ProjectGuid>
     <Keyword>Android</Keyword>
-    <RootNamespace>JNIGameHost</RootNamespace>
+    <RootNamespace>DotQuestJNI</RootNamespace>
     <MinimumVisualStudioVersion>14.0</MinimumVisualStudioVersion>
     <ApplicationType>Android</ApplicationType>
     <ApplicationTypeRevision>3.0</ApplicationTypeRevision>
@@ -208,6 +208,12 @@
   <ItemGroup>
     <ClInclude Include="DotQuestJNI.h" />
     <ClInclude Include="pch.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="build.gradle" />
+  </ItemGroup>
+  <ItemGroup>
+    <Library Include="..\dotquest\libs\libnethost.so" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets" />

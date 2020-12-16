@@ -1,0 +1,7 @@
+configurations {
+    jniLibs
+}
+
+dependencies {
+    jniLibs fileTree(dir: 'libs', include: ['*.so'])
+}
