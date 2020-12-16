@@ -3,5 +3,5 @@ configurations {
 }
 
 dependencies {
-    //jniLibs fileTree(dir: 'libs', include: ['*.so'])
+    jniLibs fileTree(dir: '../../lib/Microsoft.NETCore.App.Host.linux-x64/5.0.1/runtimes/linux-x64/native', include: ['*.so'])
 }

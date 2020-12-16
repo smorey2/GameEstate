@@ -9,7 +9,6 @@ model {
             applicationId = "com.dotquest.quest"
             minSdkVersion.apiLevel = 24
             targetSdkVersion.apiLevel = 26
-            ndk.abiFilters.add("x86_64")
         }
 
         compileOptions.with {
@@ -29,16 +28,16 @@ model {
 
     android.productFlavors {
         create("arm7") {
-            //ndk.abiFilters.add("armeabi-v7a")
+            ndk.abiFilters.add("armeabi-v7a")
         }
         create("arm8") {
-            //ndk.abiFilters.add("arm64-v8a")
+            ndk.abiFilters.add("arm64-v8a")
         }
         create("x86") {
-            //ndk.abiFilters.add("x86")
+            ndk.abiFilters.add("x86")
         }
         create("x86-64") {
-            //ndk.abiFilters.add("x86_64")
+            ndk.abiFilters.add("x86_64")
         }
         create("all")
     }
