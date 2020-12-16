@@ -90,10 +90,22 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="app\assets\main.cfg" />
-    <Content Include="libs\libnethost.so" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\DotQuestJNI\DotQuestJNI.vcxproj" />
+    <Content Include="app\src\main\jni\lib\argtable3.cpp_" />
+    <Content Include="app\src\main\jni\DotNetHost.cpp_" />
+    <Content Include="app\src\main\jni\DotQuestJNI.cpp" />
+    <Content Include="app\src\main\jni\lib\argtable3.h" />
+    <Content Include="app\src\main\jni\inc\coreclr_delegates.h" />
+    <Content Include="app\src\main\jni\inc\hostfxr.h" />
+    <Content Include="app\src\main\jni\inc\nethost.h" />
+    <Content Include="app\src\main\jni\inc\VrApi.h" />
+    <Content Include="app\src\main\jni\inc\VrApi_Config.h" />
+    <Content Include="app\src\main\jni\inc\VrApi_Helpers.h" />
+    <Content Include="app\src\main\jni\inc\VrApi_Input.h" />
+    <Content Include="app\src\main\jni\inc\VrApi_SystemUtils.h" />
+    <Content Include="app\src\main\jni\inc\VrApi_Types.h" />
+    <Content Include="app\src\main\jni\inc\VrApi_Version.h" />
+    <Content Include="app\src\main\jni\inc\VrApi_Vulkan.h" />
+    <Content Include="app\src\main\res\values\strings.xml" />
   </ItemGroup>
   <Import Project="$(AndroidTargetsPath)\Android.targets" />
   <ImportGroup Label="ExtensionTargets" />

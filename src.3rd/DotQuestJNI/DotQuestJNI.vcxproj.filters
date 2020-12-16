@@ -17,9 +17,4 @@
       <UniqueIdentifier>{4ee7243a-11ad-40f8-9fc7-ad2914244077}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
-  <ItemGroup>
-    <Library Include="..\dotquest\libs\libnethost.so">
-      <Filter>libs</Filter>
-    </Library>
-  </ItemGroup>
 </Project>
